@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeverMiss — AI WhatsApp Bot for Every Business</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --blue:#1B4FFF;--blue-dark:#0A2ECC;--blue-light:#EEF2FF;--blue-mid:#3D6EFF;
+  --black:#080C1A;--white:#FAFBFF;--gray:#F0F2FA;--gray2:#E2E6F3;
+  --text:#0D1226;--muted:#5A6380;--accent:#FF4D00;--green:#00C853;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Instrument Sans',sans-serif;background:var(--white);color:var(--text);overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.1rem 3rem;display:flex;align-items:center;justify-content:space-between;background:rgba(250,251,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--gray2);}
+.logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.5rem;color:var(--black);display:flex;align-items:center;gap:0.5rem;text-decoration:none;}
+.logo-icon{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-icon svg{width:18px;height:18px;fill:white;}
+.nav-links{display:flex;align-items:center;gap:2.5rem;}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:0.9rem;font-weight:500;transition:color 0.2s;}
+.nav-links a:hover{color:var(--blue);}
+.nav-cta{background:var(--blue)!important;color:white!important;padding:0.6rem 1.5rem;border-radius:100px;font-size:0.88rem!important;}
+.nav-cta:hover{background:var(--blue-dark)!important;}
+.hero{min-height:100vh;display:flex;align-items:center;padding:8rem 3rem 5rem;position:relative;overflow:hidden;background:var(--black);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(27,79,255,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(27,79,255,0.08) 1px,transparent 1px);background-size:50px 50px;}
+.hero-glow{position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:600px;background:radial-gradient(ellipse,rgba(27,79,255,0.3) 0%,transparent 70%);pointer-events:none;}
+.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;position:relative;z-index:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:0.6rem;background:rgba(27,79,255,0.15);border:1px solid rgba(27,79,255,0.3);color:#7B9FFF;padding:0.4rem 1rem;border-radius:100px;font-size:0.78rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:1.5rem;}
+.badge-dot{width:6px;height:6px;background:#7B9FFF;border-radius:50%;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+h1{font-family:'Clash Display',sans-serif;font-size:3.8rem;font-weight:700;line-height:1.08;color:white;margin-bottom:1.5rem;}
+h1 .accent{color:var(--blue-mid);}
+h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,0.35);}
+.hero-sub{font-size:1.05rem;color:rgba(255,255,255,0.55);line-height:1.75;margin-bottom:2.5rem;font-weight:300;max-width:480px;}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:3rem;}
+.btn-primary{background:var(--blue);color:white;padding:0.9rem 2rem;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.5rem;}
+.btn-primary:hover{background:var(--blue-mid);transform:translateY(-2px);box-shadow:0 8px 30px rgba(27,79,255,0.4);}
+.btn-ghost{background:transparent;color:white;padding:0.9rem 2rem;border-radius:100px;text-decoration:none;font-weight:500;font-size:0.95rem;border:1px solid rgba(255,255,255,0.2);transition:all 0.2s;}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.5);}
+.hero-stats{display:flex;gap:2.5rem;}
+.stat-num{font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;color:white;}
+.stat-label{font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:0.2rem;}
+.phone-wrap{position:relative;display:flex;justify-content:center;align-items:center;}
+.phone{width:260px;background:#111827;border-radius:40px;border:6px solid #1F2937;box-shadow:0 40px 80px rgba(0,0,0,0.6);overflow:hidden;position:relative;}
+.phone-notch{background:#0A0F1A;height:26px;display:flex;align-items:center;justify-content:center;}
+.phone-notch-inner{width:55px;height:6px;background:#1F2937;border-radius:100px;}
+.chat-header{background:#075E54;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.6rem;}
+.chat-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),#7B9FFF);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;flex-shrink:0;}
+.chat-name{font-size:0.78rem;font-weight:600;color:white;}
+.chat-status{font-size:0.62rem;color:rgba(255,255,255,0.6);}
+.chat-body{background:#0B141A;padding:0.8rem;min-height:340px;display:flex;flex-direction:column;gap:0.6rem;}
+.msg{max-width:85%;padding:0.5rem 0.75rem;border-radius:8px;font-size:0.7rem;line-height:1.5;}
+.msg-bot{background:#1F2C34;color:#E9EDEF;border-radius:8px 8px 8px 0;align-self:flex-start;}
+.msg-user{background:#005C4B;color:#E9EDEF;border-radius:8px 8px 0 8px;align-self:flex-end;}
+.msg-time{font-size:0.55rem;color:rgba(255,255,255,0.35);text-align:right;margin-top:0.2rem;}
+.typing{display:flex;gap:3px;padding:0.5rem 0.75rem;background:#1F2C34;border-radius:8px 8px 8px 0;width:fit-content;align-self:flex-start;}
+.typing span{width:5px;height:5px;background:rgba(255,255,255,0.3);border-radius:50%;animation:bounce 1.2s infinite;}
+.typing span:nth-child(2){animation-delay:0.2s;}
+.typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+.float-badge{position:absolute;background:white;border-radius:12px;padding:0.6rem 0.9rem;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:0.5rem;font-size:0.72rem;font-weight:600;color:var(--text);}
+.float-badge.top{top:-20px;right:-30px;}
+.float-badge.bottom{bottom:40px;left:-40px;}
+.float-dot{width:8px;height:8px;border-radius:50%;}
+.float-dot.green{background:var(--green);}
+.float-dot.blue{background:var(--blue);}
+.logos{padding:2.5rem 3rem;background:var(--gray);border-top:1px solid var(--gray2);border-bottom:1px solid var(--gray2);}
+.logos-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:2rem;justify-content:center;flex-wrap:wrap;}
+.logos-label{font-size:0.78rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;}
+.logo-pill{background:white;border:1px solid var(--gray2);border-radius:100px;padding:0.5rem 1.2rem;font-size:0.8rem;font-weight:600;color:var(--muted);}
+.section{padding:6rem 3rem;}
+.section-inner{max-width:1100px;margin:0 auto;}
+.section-label{font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);margin-bottom:0.75rem;}
+.section-title{font-family:'Clash Display',sans-serif;font-size:2.8rem;font-weight:700;color:var(--black);line-height:1.15;margin-bottom:1rem;}
+.section-sub{font-size:1.05rem;color:var(--muted);line-height:1.7;max-width:540px;}
+.features-header{text-align:center;margin-bottom:4rem;}
+.features-header .section-sub{margin:0 auto;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+.feature-card{background:var(--gray);border:1px solid var(--gray2);border-radius:20px;padding:2rem;transition:all 0.3s;position:relative;overflow:hidden;}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-mid));opacity:0;transition:opacity 0.3s;}
+.feature-card:hover{border-color:var(--blue);transform:translateY(-4px);box-shadow:0 16px 40px rgba(27,79,255,0.1);}
+.feature-card:hover::before{opacity:1;}
+.feature-icon{font-size:1.8rem;margin-bottom:1.2rem;}
+.feature-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:600;color:var(--black);margin-bottom:0.6rem;}
+.feature-desc{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+.how{background:var(--black);padding:6rem 3rem;}
+.how-inner{max-width:1100px;margin:0 auto;}
+.how-header{text-align:center;margin-bottom:4rem;}
+.how-header .section-label{color:#7B9FFF;}
+.how-header .section-title{color:white;}
+.how-header .section-sub{color:rgba(255,255,255,0.5);margin:0 auto;}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;}
+.step{text-align:center;}
+.step-num{width:64px;height:64px;background:rgba(27,79,255,0.15);border:1px solid rgba(27,79,255,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;color:var(--blue-mid);}
+.step-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;color:white;margin-bottom:0.5rem;}
+.step-desc{font-size:0.82rem;color:rgba(255,255,255,0.4);line-height:1.6;}
+.who{background:var(--gray);padding:6rem 3rem;}
+.who-header{text-align:center;margin-bottom:3rem;}
+.who-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;}
+.who-card{background:white;border:1px solid var(--gray2);border-radius:16px;padding:1.5rem;text-align:center;transition:all 0.3s;}
+.who-card:hover{border-color:var(--blue);box-shadow:0 8px 24px rgba(27,79,255,0.1);}
+.who-icon{font-size:2rem;margin-bottom:0.75rem;}
+.who-title{font-family:'Clash Display',sans-serif;font-size:0.95rem;font-weight:600;color:var(--black);margin-bottom:0.4rem;}
+.who-desc{font-size:0.78rem;color:var(--muted);line-height:1.5;}
+.pricing{background:var(--white);padding:6rem 3rem;}
+.pricing-header{text-align:center;margin-bottom:4rem;}
+.pricing-header .section-sub{margin:0 auto;}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1000px;margin:0 auto;}
+.plan{background:var(--gray);border:1px solid var(--gray2);border-radius:24px;padding:2.2rem;position:relative;transition:all 0.3s;}
+.plan.popular{background:var(--blue);border-color:var(--blue);transform:scale(1.03);}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;font-size:0.7rem;font-weight:700;padding:0.3rem 1rem;border-radius:100px;white-space:nowrap;}
+.plan-name{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:600;color:var(--black);margin-bottom:0.5rem;}
+.plan.popular .plan-name{color:white;}
+.plan-price{font-family:'Clash Display',sans-serif;font-size:2.8rem;font-weight:700;color:var(--black);line-height:1;margin-bottom:0.3rem;}
+.plan.popular .plan-price{color:white;}
+.plan-price span{font-size:1rem;font-weight:400;color:var(--muted);}
+.plan.popular .plan-price span{color:rgba(255,255,255,0.6);}
+.plan-desc{font-size:0.82rem;color:var(--muted);margin-bottom:1.5rem;}
+.plan.popular .plan-desc{color:rgba(255,255,255,0.6);}
+.plan-features{list-style:none;margin-bottom:2rem;display:flex;flex-direction:column;gap:0.7rem;}
+.plan-features li{font-size:0.85rem;color:var(--text);display:flex;align-items:center;gap:0.6rem;}
+.plan.popular .plan-features li{color:rgba(255,255,255,0.85);}
+.plan-features li::before{content:'✓';color:var(--blue);font-weight:700;}
+.plan.popular .plan-features li::before{color:rgba(255,255,255,0.7);}
+.plan-btn{width:100%;padding:0.85rem;border-radius:100px;font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.2s;border:none;text-decoration:none;display:block;text-align:center;font-family:'Instrument Sans',sans-serif;}
+.plan-btn.outline{background:transparent;border:1.5px solid var(--gray2);color:var(--black);}
+.plan-btn.outline:hover{border-color:var(--blue);color:var(--blue);}
+.plan-btn.solid{background:white;color:var(--blue);}
+.plan-btn.solid:hover{background:var(--blue-light);}
+.testimonial{background:var(--blue-light);padding:6rem 3rem;}
+.testimonial-inner{max-width:700px;margin:0 auto;text-align:center;}
+.quote-mark{font-size:5rem;color:var(--blue);line-height:0.5;display:block;margin-bottom:1.5rem;font-family:'Clash Display',sans-serif;}
+.quote{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:600;color:var(--black);line-height:1.4;margin-bottom:1.5rem;}
+.testimonial-author{display:flex;align-items:center;justify-content:center;gap:0.75rem;}
+.author-avatar{width:44px;height:44px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;}
+.author-name{font-weight:600;font-size:0.9rem;color:var(--black);}
+.author-role{font-size:0.78rem;color:var(--muted);}
+.cta-section{background:var(--black);padding:6rem 3rem;text-align:center;}
+.cta-inner{max-width:600px;margin:0 auto;}
+.cta-inner h2{font-family:'Clash Display',sans-serif;font-size:3rem;font-weight:700;color:white;line-height:1.15;margin-bottom:1rem;}
+.cta-inner p{font-size:1rem;color:rgba(255,255,255,0.5);margin-bottom:2.5rem;line-height:1.7;}
+.cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.05);}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.footer-logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.2rem;color:white;}
+.footer-links{display:flex;gap:2rem;}
+.footer-links a{color:rgba(255,255,255,0.3);font-size:0.82rem;text-decoration:none;transition:color 0.2s;}
+.footer-links a:hover{color:white;}
+.footer-copy{color:rgba(255,255,255,0.2);font-size:0.78rem;}
+.contact-section{background:var(--gray);padding:6rem 3rem;}
+.contact-inner{max-width:600px;margin:0 auto;}
+.contact-header{text-align:center;margin-bottom:3rem;}
+.form{background:white;border:1px solid var(--gray2);border-radius:24px;padding:2.5rem;display:flex;flex-direction:column;gap:1.2rem;}
+.form-group{display:flex;flex-direction:column;gap:0.4rem;}
+.form-group label{font-size:0.82rem;font-weight:600;color:var(--text);}
+.form-group input,.form-group select,.form-group textarea{padding:0.75rem 1rem;border:1.5px solid var(--gray2);border-radius:10px;font-family:'Instrument Sans',sans-serif;font-size:0.9rem;color:var(--text);background:var(--gray);transition:border-color 0.2s;outline:none;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue);background:white;}
+.form-group textarea{resize:vertical;min-height:100px;}
+.form-submit{background:var(--blue);color:white;padding:0.9rem;border:none;border-radius:100px;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all 0.2s;font-family:'Instrument Sans',sans-serif;}
+.form-submit:hover{background:var(--blue-dark);transform:translateY(-1px);}
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+@media(max-width:768px){
+  nav{padding:1rem 1.2rem;}.nav-links{display:none;}
+  .hero{padding:6rem 1.5rem 3rem;}.hero-inner{grid-template-columns:1fr;gap:3rem;}
+  h1{font-size:2.4rem;}.phone-wrap{order:-1;}
+  .features-grid,.plans,.who-grid,.steps{grid-template-columns:1fr;}
+  .plan.popular{transform:none;}
+  .section,.how,.who,.pricing,.contact-section,.cta-section,.testimonial{padding:4rem 1.5rem;}
+  .section-title{font-size:2rem;}.cta-inner h2{font-size:2rem;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg></div>
+    NeverMiss
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact" class="nav-cta">Get Started</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge"><span class="badge-dot"></span> AI-Powered WhatsApp Automation</div>
+      <h1>Never Miss a<br><span class="accent">Lead.</span> Never<br>Lose a <em>Customer.</em></h1>
+      <p class="hero-sub">NeverMiss instantly replies to every WhatsApp enquiry, captures student details, books seats — 24/7. No lead left behind, ever.</p>
+      <div class="hero-btns">
+        <a href="#contact" class="btn-primary">Start Free Trial →</a>
+        <a href="#how" class="btn-ghost">See How It Works</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">24/7</div><div class="stat-label">Always Online</div></div>
+        <div><div class="stat-num">&lt;1s</div><div class="stat-label">Reply Time</div></div>
+        <div><div class="stat-num">100%</div><div class="stat-label">Leads Captured</div></div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <div style="position:relative;">
+        <div class="float-badge top"><div class="float-dot green"></div> New lead captured!</div>
+        <div class="phone">
+          <div class="phone-notch"><div class="phone-notch-inner"></div></div>
+          <div class="chat-header">
+            <div class="chat-avatar">NM</div>
+            <div><div class="chat-name">NeverMiss Bot</div><div class="chat-status">● Online</div></div>
+          </div>
+          <div class="chat-body">
+            <div class="msg msg-user">Hi, I want admission in JEE<div class="msg-time">10:32 AM ✓✓</div></div>
+            <div class="msg msg-bot">Sure! I'll help you 😊 First, may I know your name?<div class="msg-time">10:32 AM</div></div>
+            <div class="msg msg-user">Rahul Sharma<div class="msg-time">10:33 AM ✓✓</div></div>
+            <div class="msg msg-bot">Nice to meet you, Rahul! 👋<br>Which batch timing?<br><br>1️⃣ Morning 7-9 AM<br>2️⃣ Evening 5-7 PM<div class="msg-time">10:33 AM</div></div>
+            <div class="msg msg-user">Morning batch<div class="msg-time">10:33 AM ✓✓</div></div>
+            <div class="typing"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+        <div class="float-badge bottom"><div class="float-dot blue"></div> Seat booked ✓</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="logos">
+  <div class="logos-inner">
+    <span class="logos-label">Works for</span>
+    <span class="logo-pill">🏫 Coaching Institutes</span>
+    <span class="logo-pill">🏥 Clinics</span>
+    <span class="logo-pill">🏠 Real Estate</span>
+    <span class="logo-pill">🦷 Dentists</span>
+    <span class="logo-pill">🎓 Colleges</span>
+  </div>
+</div>
+
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="features-header fade-in">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything you need to convert leads faster</h2>
+      <p class="section-sub">Built for Indian businesses that can't afford to miss a single enquiry.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-in"><div class="feature-icon">⚡</div><div class="feature-title">Instant AI Replies</div><p class="feature-desc">Replies to every WhatsApp message in under 1 second — fees, timings, seats, location — answered 24/7 automatically.</p></div>
+      <div class="feature-card fade-in"><div class="feature-icon">🎯</div><div class="feature-title">Lead Capture</div><p class="feature-desc">Automatically collects name, course interest, and phone number from every enquiry. Every lead saved to your dashboard.</p></div>
+      <div class="feature-card fade-in"><div class="feature-icon">🪑</div><div class="feature-title">Seat Booking</div><p class="feature-desc">Students can reserve and pay for their seat directly via WhatsApp. No manual follow-up needed from your side.</p></div>
+      <div class="feature-card fade-in"><div class="feature-icon">📋</div><div class="feature-title">Registration Flow</div><p class="feature-desc">Step-by-step guided registration — collects all details and sends your Google Form link automatically.</p></div>
+      <div class="feature-card fade-in"><div class="feature-icon">🧠</div><div class="feature-title">AI-Powered Brain</div><p class="feature-desc">Powered by advanced AI that understands Hindi + English. Handles complex queries naturally like a human counselor.</p></div>
+      <div class="feature-card fade-in"><div class="feature-icon">📊</div><div class="feature-title">Lead Dashboard</div><p class="feature-desc">All your leads in one place. See every enquiry, conversation history, and follow up with one click.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="how-header fade-in">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">Live in 24 hours</h2>
+      <p class="section-sub">We set everything up for you. Just share your details and go live.</p>
+    </div>
+    <div class="steps">
+      <div class="step fade-in"><div class="step-num">1</div><div class="step-title">Share Details</div><p class="step-desc">Send us your institute info — courses, fees, timings, location.</p></div>
+      <div class="step fade-in"><div class="step-num">2</div><div class="step-title">We Configure</div><p class="step-desc">We set up your AI bot with your exact information and branding.</p></div>
+      <div class="step fade-in"><div class="step-num">3</div><div class="step-title">Bot Goes Live</div><p class="step-desc">Your WhatsApp number is connected. Bot starts replying instantly.</p></div>
+      <div class="step fade-in"><div class="step-num">4</div><div class="step-title">Get Leads</div><p class="step-desc">Watch leads pour in. Every enquiry captured, every seat booked.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="who">
+  <div class="section-inner">
+    <div class="who-header fade-in">
+      <div class="section-label">Who It's For</div>
+      <h2 class="section-title">Built for every business that gets WhatsApp enquiries</h2>
+    </div>
+    <div class="who-grid">
+      <div class="who-card fade-in"><div class="who-icon">🏫</div><div class="who-title">Coaching Institutes</div><p class="who-desc">JEE, NEET, MHT-CET, 10th Board — never miss an admission enquiry again.</p></div>
+      <div class="who-card fade-in"><div class="who-icon">🏥</div><div class="who-title">Hospitals & Clinics</div><p class="who-desc">Book appointments, answer queries, capture patient details 24/7.</p></div>
+      <div class="who-card fade-in"><div class="who-icon">🏠</div><div class="who-title">Real Estate</div><p class="who-desc">Capture property enquiries, book site visits, qualify leads instantly.</p></div>
+      <div class="who-card fade-in"><div class="who-icon">🦷</div><div class="who-title">Dentists & Doctors</div><p class="who-desc">Handle appointment requests and FAQs without picking up the phone.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="pricing-header fade-in">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Simple, transparent pricing</h2>
+    <p class="section-sub">No setup fee. No hidden charges. Cancel anytime.</p>
+  </div>
+  <div class="plans">
+    <div class="plan fade-in">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">₹3,999<span>/mo</span></div>
+      <p class="plan-desc">Perfect for small institutes just getting started</p>
+      <ul class="plan-features">
+        <li>AI FAQ Bot</li>
+        <li>500 conversations/month</li>
+        <li>Lead capture & storage</li>
+        <li>Basic analytics</li>
+        <li>Email support</li>
+      </ul>
+      <a href="#contact" class="plan-btn outline">Get Started</a>
+    </div>
+    <div class="plan popular fade-in">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Growth</div>
+      <div class="plan-price">₹5,999<span>/mo</span></div>
+      <p class="plan-desc">For growing institutes that want more leads</p>
+      <ul class="plan-features">
+        <li>Everything in Starter</li>
+        <li>2,000 conversations/month</li>
+        <li>Registration flow</li>
+        <li>Seat booking</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="#contact" class="plan-btn solid">Get Started</a>
+    </div>
+    <div class="plan fade-in">
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">₹8,999<span>/mo</span></div>
+      <p class="plan-desc">For large institutes with high enquiry volume</p>
+      <ul class="plan-features">
+        <li>Everything in Growth</li>
+        <li>Unlimited conversations</li>
+        <li>Full CRM dashboard</li>
+        <li>Custom AI training</li>
+        <li>Dedicated manager</li>
+      </ul>
+      <a href="#contact" class="plan-btn outline">Get Started</a>
+    </div>
+  </div>
+</section>
+
+<section class="testimonial">
+  <div class="testimonial-inner fade-in">
+    <span class="quote-mark">"</span>
+    <p class="quote">Before NeverMiss, we missed 40% of WhatsApp enquiries after hours. Now every student gets an instant reply and our admissions have gone up significantly.</p>
+    <div class="testimonial-author">
+      <div class="author-avatar">RS</div>
+      <div>
+        <div class="author-name">Rajesh Sir</div>
+        <div class="author-role">Director, Shubh Coaching Institute, Pune</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-inner fade-in">
+    <h2>Ready to never miss<br>a lead again?</h2>
+    <p>Join coaching institutes across Pune already using NeverMiss to automate WhatsApp enquiries and fill seats faster.</p>
+    <div class="cta-btns">
+      <a href="#contact" class="btn-primary">Start Free Trial — 14 Days</a>
+      <a href="https://wa.me/917484849508" class="btn-ghost">💬 WhatsApp Us</a>
+    </div>
+  </div>
+</section>
+
+<section class="contact-section" id="contact">
+  <div class="contact-inner">
+    <div class="contact-header fade-in">
+      <div class="section-label">Get Started</div>
+      <h2 class="section-title">Book a free demo</h2>
+      <p class="section-sub" style="margin:0 auto;text-align:center;">We'll set up a live demo for your business in 24 hours.</p>
+    </div>
+    <div class="form fade-in">
+      <div class="form-group"><label>Your Name</label><input type="text" placeholder="e.g. Rajesh Kumar"></div>
+      <div class="form-group"><label>Business Name</label><input type="text" placeholder="e.g. Shubh Coaching Institute"></div>
+      <div class="form-group"><label>WhatsApp Number</label><input type="tel" placeholder="+91 98765 43210"></div>
+      <div class="form-group"><label>Business Type</label>
+        <select><option value="">Select your business type</option><option>Coaching Institute</option><option>Hospital / Clinic</option><option>Real Estate</option><option>Dentist / Doctor</option><option>College / University</option><option>Other</option></select>
+      </div>
+      <div class="form-group"><label>Plan Interest</label>
+        <select><option value="">Select a plan</option><option>Starter — ₹3,999/month</option><option>Growth — ₹5,999/month</option><option>Pro — ₹8,999/month</option></select>
+      </div>
+      <div class="form-group"><label>Message (optional)</label><textarea placeholder="Tell us about your business..."></textarea></div>
+      <button class="form-submit" onclick="alert('Thank you! We will contact you within 24 hours on WhatsApp 🎉')">Request Free Demo →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">NeverMiss</div>
+    <div class="footer-links"><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#contact">Contact</a></div>
+    <div class="footer-copy">© 2026 NeverMiss. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('visible'),i*80);});
+},{threshold:0.1});
+document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'});});
+});
+</script>
+</body>
+</html>
