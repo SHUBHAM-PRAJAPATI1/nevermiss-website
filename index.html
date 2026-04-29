@@ -308,7 +308,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Basic analytics</li>
         <li>Email support</li>
       </ul>
-      <a href="#contact" class="plan-btn outline">Get Started</a>
+      <button class="plan-btn outline" onclick="selectPlan('starter', this)">Get Started</button>
     </div>
     <div class="plan popular fade-in">
       <div class="plan-badge">Most Popular</div>
@@ -322,7 +322,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Seat booking</li>
         <li>Priority support</li>
       </ul>
-      <a href="#contact" class="plan-btn solid">Get Started</a>
+      <button class="plan-btn solid" onclick="selectPlan('growth', this)">Get Started</button>
     </div>
     <div class="plan fade-in">
       <div class="plan-name">Pro</div>
@@ -335,7 +335,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Custom AI training</li>
         <li>Dedicated manager</li>
       </ul>
-      <a href="#contact" class="plan-btn outline">Get Started</a>
+      <button class="plan-btn outline" onclick="selectPlan('pro', this)">Get Started</button>
     </div>
   </div>
 </section>
@@ -369,21 +369,62 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
   <div class="contact-inner">
     <div class="contact-header fade-in">
       <div class="section-label">Get Started</div>
-      <h2 class="section-title">Book a free demo</h2>
-      <p class="section-sub" style="margin:0 auto;text-align:center;">We'll set up a live demo for your business in 24 hours.</p>
+      <h2 class="section-title">Activate your bot now</h2>
+      <p class="section-sub" style="margin:0 auto;text-align:center;">Fill in your details, pay securely via Razorpay, and we'll set up your bot within 24 hours.</p>
     </div>
     <div class="form fade-in">
-      <div class="form-group"><label>Your Name</label><input type="text" placeholder="e.g. Rajesh Kumar"></div>
-      <div class="form-group"><label>Business Name</label><input type="text" placeholder="e.g. Shubh Coaching Institute"></div>
-      <div class="form-group"><label>WhatsApp Number</label><input type="tel" placeholder="+91 98765 43210"></div>
-      <div class="form-group"><label>Business Type</label>
-        <select><option value="">Select your business type</option><option>Coaching Institute</option><option>Hospital / Clinic</option><option>Real Estate</option><option>Dentist / Doctor</option><option>College / University</option><option>Other</option></select>
+      <!-- Selected plan display -->
+      <div id="selected-plan-banner" style="display:none;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:12px;padding:0.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:0.75rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Selected Plan</div>
+          <div id="selected-plan-label" style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--black);"></div>
+        </div>
+        <button onclick="clearPlan()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.8rem;">Change</button>
       </div>
-      <div class="form-group"><label>Plan Interest</label>
-        <select><option value="">Select a plan</option><option>Starter — ₹3,999/month</option><option>Growth — ₹5,999/month</option><option>Pro — ₹8,999/month</option></select>
+
+      <div class="form-group">
+        <label>Your Name *</label>
+        <input id="f-name" type="text" placeholder="e.g. Rajesh Kumar" required>
       </div>
-      <div class="form-group"><label>Message (optional)</label><textarea placeholder="Tell us about your business..."></textarea></div>
-      <button class="form-submit" onclick="alert('Thank you! We will contact you within 24 hours on WhatsApp 🎉')">Request Free Demo →</button>
+      <div class="form-group">
+        <label>Business Name *</label>
+        <input id="f-business" type="text" placeholder="e.g. Shubh Coaching Institute" required>
+      </div>
+      <div class="form-group">
+        <label>WhatsApp Number *</label>
+        <input id="f-phone" type="tel" placeholder="e.g. 9876543210" required>
+      </div>
+      <div class="form-group">
+        <label>Business Type</label>
+        <select id="f-type">
+          <option value="">Select your business type</option>
+          <option>Coaching Institute</option>
+          <option>Hospital / Clinic</option>
+          <option>Real Estate</option>
+          <option>Dentist / Doctor</option>
+          <option>College / University</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group" id="plan-select-group">
+        <label>Select Plan *</label>
+        <select id="f-plan">
+          <option value="">Choose a plan</option>
+          <option value="starter">Starter — ₹3,999/month</option>
+          <option value="growth">Growth — ₹5,999/month</option>
+          <option value="pro">Pro — ₹8,999/month</option>
+        </select>
+      </div>
+
+      <div id="form-error" style="display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#C00;"></div>
+
+      <button class="form-submit" id="pay-btn" onclick="startPayment()">
+        <span id="pay-btn-text">Pay & Activate Bot →</span>
+      </button>
+
+      <p style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:-0.5rem;">
+        🔒 Secured by Razorpay &nbsp;|&nbsp; Instant confirmation on WhatsApp
+      </p>
     </div>
   </div>
 </section>
@@ -396,13 +437,177 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
   </div>
 </footer>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-const obs = new IntersectionObserver(entries=>{
-  entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('visible'),i*80);});
-},{threshold:0.1});
-document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'});});
+// ── CONFIGURATION — replace with your real keys ──────────────────────────────
+const RAZORPAY_KEY_ID = "rzp_test_SjErbLHbSiuTAU"; // ← paste your Razorpay Key ID
+const API_BASE = "";  // same origin; if separate server use full URL e.g. "https://api.nevermiss.co.in"
+
+const PLAN_LABELS = {
+  starter: "Starter — ₹3,999/month",
+  growth:  "Growth — ₹5,999/month",
+  pro:     "Pro — ₹8,999/month",
+};
+
+let selectedPlan = "";
+
+// Called when user clicks a plan button
+function selectPlan(plan, btn) {
+  selectedPlan = plan;
+
+  // Update hidden select
+  document.getElementById("f-plan").value = plan;
+
+  // Show banner
+  const banner = document.getElementById("selected-plan-banner");
+  banner.style.display = "flex";
+  document.getElementById("selected-plan-label").textContent = PLAN_LABELS[plan];
+
+  // Hide plan dropdown (already selected)
+  document.getElementById("plan-select-group").style.display = "none";
+
+  // Scroll to form
+  document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
+}
+
+function clearPlan() {
+  selectedPlan = "";
+  document.getElementById("f-plan").value = "";
+  document.getElementById("selected-plan-banner").style.display = "none";
+  document.getElementById("plan-select-group").style.display = "flex";
+}
+
+function showError(msg) {
+  const el = document.getElementById("form-error");
+  el.textContent = msg;
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 5000);
+}
+
+function setLoading(loading) {
+  const btn  = document.getElementById("pay-btn");
+  const text = document.getElementById("pay-btn-text");
+  btn.disabled = loading;
+  text.textContent = loading ? "Creating order…" : "Pay & Activate Bot →";
+  btn.style.opacity = loading ? "0.7" : "1";
+}
+
+async function startPayment() {
+  const name     = document.getElementById("f-name").value.trim();
+  const business = document.getElementById("f-business").value.trim();
+  const phone    = document.getElementById("f-phone").value.trim();
+  const bizType  = document.getElementById("f-type").value;
+  const plan     = document.getElementById("f-plan").value || selectedPlan;
+
+  // Validation
+  if (!name)    return showError("Please enter your name.");
+  if (!business) return showError("Please enter your business name.");
+  if (!phone || phone.length < 10) return showError("Please enter a valid 10-digit WhatsApp number.");
+  if (!plan)    return showError("Please select a plan.");
+
+  setLoading(true);
+
+  try {
+    // 1. Create Razorpay order on server
+    const orderRes = await fetch(`${API_BASE}/api/create-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan, name, business, phone, business_type: bizType }),
+    });
+    const order = await orderRes.json();
+
+    if (!order.id) {
+      showError("Could not create order. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
+
+    // 2. Open Razorpay checkout
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: "INR",
+      name: "NeverMiss",
+      description: `${PLAN_LABELS[plan]} Subscription`,
+      image: "https://nevermiss.co.in/logo.png",  // optional logo
+      order_id: order.id,
+      prefill: {
+        name: name,
+        contact: phone,
+      },
+      theme: { color: "#1B4FFF" },
+      handler: async function (response) {
+        // 3. Verify on server + trigger notifications
+        const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id:   response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature:  response.razorpay_signature,
+            customer: { name, business, phone, plan, business_type: bizType },
+          }),
+        });
+        const result = await verifyRes.json();
+
+        if (result.success) {
+          // Show success state
+          document.querySelector(".form").innerHTML = `
+            <div style="text-align:center;padding:2rem 1rem;">
+              <div style="font-size:3.5rem;margin-bottom:1rem;">🎉</div>
+              <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">
+                You're in, ${name}!
+              </h3>
+              <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;">
+                Your <strong>${PLAN_LABELS[plan]}</strong> is now active.<br>
+                Check WhatsApp — we've sent you a confirmation.<br>
+                Your bot will be live within <strong>24 hours</strong>.
+              </p>
+              <div style="background:var(--blue-light);border-radius:12px;padding:1rem;font-size:0.82rem;color:var(--blue);font-weight:600;">
+                Payment ID: ${response.razorpay_payment_id}
+              </div>
+            </div>
+          `;
+        } else {
+          showError("Payment received but verification failed. Please WhatsApp us with your payment ID: " + response.razorpay_payment_id);
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          setLoading(false);
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on("payment.failed", function (response) {
+      showError("Payment failed: " + response.error.description);
+    });
+    rzp.open();
+
+  } catch (err) {
+    console.error(err);
+    showError("Something went wrong. Please try again or WhatsApp us.");
+    setLoading(false);
+  }
+}
+
+// ── Scroll animations ─────────────────────────────────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) setTimeout(() => e.target.classList.add("visible"), i * 80);
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll(".fade-in").forEach(el => obs.observe(el));
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener("click", e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute("href"));
+    if (t) t.scrollIntoView({ behavior: "smooth" });
+  });
 });
 </script>
 </body>
