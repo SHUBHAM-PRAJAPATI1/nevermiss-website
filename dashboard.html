@@ -250,8 +250,8 @@
 
 <script>
 // ⚠️ Replace with your actual Supabase credentials
-const SUPABASE_URL = 'https://uwxthbxxiaujlgxosqjx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w';
+const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allLeads = [];
@@ -326,7 +326,7 @@ function filterLeads() {
   const q = document.getElementById('leads-search').value.toLowerCase();
   const filtered = allLeads.filter(l =>
     (l.name || '').toLowerCase().includes(q) ||
-    (l.phone || '').includes(q)
+    (l.whatsapp_number || l.phone || '').includes(q)
   );
   document.getElementById('leads-body').innerHTML = filtered.length ? leadsTable(filtered) : '<div class="empty">No results.</div>';
 }
@@ -338,8 +338,8 @@ function leadsTable(leads) {
     const date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
     return `<tr>
       <td>${l.name || '—'}</td>
-      <td class="phone">${l.phone || '—'}</td>
-      <td>${l.source || 'WhatsApp'}</td>
+      <td class="phone">${l.whatsapp_number || l.phone || '—'}</td>
+      <td>${l.lead_type || 'WhatsApp'}</td>
       <td><span class="chip ${chipClass}">${status.replace('_', ' ')}</span></td>
       <td style="color:var(--text-muted);font-size:12px">${date}</td>
     </tr>`;
