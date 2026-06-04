@@ -259,8 +259,15 @@ let currentUser = null;
 
 // ── AUTH CHECK ──
 async function init() {
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) { window.location.href = 'login.html'; return; }
+  const { data: { session }, error } = await db.auth.getSession();
+if (!session) { window.location.href = 'login.html'; return; }
+
+// Refresh the session if expired
+const { data: refreshed, error: refreshError } = await db.auth.refreshSession();
+if (refreshError || !refreshed.session) { 
+  window.location.href = 'login.html'; 
+  return; 
+}
   currentUser = session.user;
 
   // Show user info
