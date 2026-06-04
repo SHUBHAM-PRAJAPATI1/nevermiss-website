@@ -268,7 +268,7 @@ if (refreshError || !refreshed.session) {
   window.location.href = 'login.html'; 
   return; 
 }
-  currentUser = session.user;
+  currentUser = refreshed.session.user;
 
   // Show user info
   const email = currentUser.email || '';
@@ -358,31 +358,48 @@ function leadsTable(leads) {
 }
 
 // ── CONVERSATIONS ──
+
+
 async function loadOverviewConvs() {
   const { data } = await db
     .from('conversations')
     .select('*')
-    .order('created_at', { ascending: false })
-    .limit(5);
-  renderConvs(data, 'overview-conv-body');
+    .order('id', { ascending: false })
+    .limit(20);
+
+  const seen = {};
+  const grouped = (data || []).filter(c => {
+    if (seen[c.phone_number]) return false;
+    seen[c.phone_number] = true;
+    return true;
+  }).slice(0, 5);
+  renderConvs(grouped, 'overview-conv-body');
 }
 
 async function loadAllConvs() {
   const { data } = await db
     .from('conversations')
     .select('*')
-    .order('created_at', { ascending: false });
-  renderConvs(data, 'conv-body');
+    .order('id', { ascending: false });
+
+  const seen = {};
+  const grouped = (data || []).filter(c => {
+    if (seen[c.phone_number]) return false;
+    seen[c.phone_number] = true;
+    return true;
+  });
+  renderConvs(grouped, 'conv-body');
 }
 
 function renderConvs(data, elId) {
   const el = document.getElementById(elId);
   if (!data?.length) { el.innerHTML = '<div class="empty">No conversations yet.</div>'; return; }
   el.innerHTML = data.map(c => {
-    const name = c.user_name || c.phone || 'Unknown';
-    const initials = name.slice(0, 2).toUpperCase();
-    const msg = c.last_message || c.message || 'No message';
-    const time = c.created_at ? timeAgo(new Date(c.created_at)) : '';
+    const raw = c.phone_number || 'Unknown';
+    const name = raw.replace('whatsapp:', '');
+    const initials = name.replace('+91', '').slice(0, 2);
+    const msg = c.content || 'No message';
+    const time = c.id ? '#' + c.id : '';
     return `<div class="conv-item">
       <div class="conv-av">${initials}</div>
       <div style="flex:1;min-width:0">
@@ -393,7 +410,6 @@ function renderConvs(data, elId) {
     </div>`;
   }).join('');
 }
-
 // ── QUICK REPLIES ──
 async function loadQuickReplies() {
   const el = document.getElementById('qr-body');
