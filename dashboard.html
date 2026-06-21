@@ -383,7 +383,7 @@ function startEmbeddedSignup() {
     if (response.authResponse) {
       // Use accessToken directly — no server-side code exchange needed
       const accessToken = response.authResponse.accessToken;
-      exchangeToken(accessToken);
+      exchangeToken(code);
     } else {
       alert('WhatsApp connection cancelled. Please try again.');
       btn.disabled = false;
@@ -391,7 +391,7 @@ function startEmbeddedSignup() {
     }
   }, {
     config_id: '1027397859743156',
-    response_type: 'token',
+    response_type: 'code',
     override_default_response_type: true,
     extras: {
       setup: {},
@@ -422,7 +422,7 @@ window.addEventListener('message', (event) => {
   }
 });
 
-async function exchangeToken(accessToken) {
+async function exchangeToken(code) {
   const btn = document.getElementById('connect-btn');
   btn.textContent = 'Connecting...';
 
