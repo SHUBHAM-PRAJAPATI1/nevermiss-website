@@ -102,7 +102,12 @@
   .connect-wp-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #25D366; color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
   .connect-wp-btn:hover { background: #1ebe5a; }
   .connect-wp-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-  .success-banner { background: var(--green-light); border: 1px solid #a7e6cf; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: none; align-items: center; gap: 10px; font-size: 14px; color: var(--green-dark); font-weight: 500; }
+  .connected-card { background: var(--green-light); border: 1.5px solid #a7e6cf; border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
+  .connected-card-inner { display: flex; align-items: center; gap: 14px; }
+  .connected-icon { width: 44px; height: 44px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .connected-info h4 { font-size: 15px; font-weight: 500; color: var(--green-dark); margin-bottom: 3px; }
+  .connected-info p { font-size: 13px; color: var(--green-dark); opacity: 0.8; }
+  .connected-badge { margin-left: auto; background: var(--green); color: white; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; }
   .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; margin-right: 8px; vertical-align: middle; }
@@ -146,10 +151,6 @@
     <div class="badge-live"><div class="dot"></div> Bot live</div>
   </div>
 
-  <div class="success-banner" id="success-banner">
-    ✅ WhatsApp number connected successfully! Your bot is now active.
-  </div>
-
   <div class="stats" id="stats-row">
     <div class="stat"><div class="stat-label">Total leads</div><div class="stat-val" id="stat-leads">—</div><div class="stat-sub" id="stat-leads-sub">Loading...</div></div>
     <div class="stat"><div class="stat-label">Conversations</div><div class="stat-val" id="stat-convs">—</div><div class="stat-sub">All time</div></div>
@@ -178,7 +179,21 @@
   </div>
 
   <div class="page" id="page-connect">
-    <div class="connect-banner">
+
+    <!-- Connected success card (hidden until connected) -->
+    <div class="connected-card" id="connected-card">
+      <div class="connected-card-inner">
+        <div class="connected-icon">✅</div>
+        <div class="connected-info">
+          <h4 id="connected-business-name">Your Business</h4>
+          <p id="connected-phone-id">Phone Number ID: —</p>
+        </div>
+        <div class="connected-badge">🟢 Bot Active</div>
+      </div>
+    </div>
+
+    <!-- Connect button banner -->
+    <div class="connect-banner" id="connect-banner">
       <div class="connect-banner-text">
         <h3>📱 Connect your WhatsApp Business number</h3>
         <p>Link your WhatsApp Business account to activate the NeverMiss bot for your number.</p>
@@ -188,6 +203,7 @@
         Connect WhatsApp
       </button>
     </div>
+
     <div class="card">
       <div class="card-head"><h2>How it works</h2></div>
       <div style="padding: 1.25rem; font-size: 14px; color: var(--text-muted); line-height: 2;">
@@ -223,6 +239,26 @@ async function init() {
   await loadStats();
   await loadOverviewLeads();
   await loadOverviewConvs();
+  await checkExistingConnection();
+}
+
+async function checkExistingConnection() {
+  try {
+    var res = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
+    var data = await res.json();
+    if (data.success && data.client) {
+      showConnectedState(data.client.business_name, data.client.phone_number_id);
+    }
+  } catch(e) {
+    // No existing connection, show connect button normally
+  }
+}
+
+function showConnectedState(businessName, phoneId) {
+  document.getElementById('connected-business-name').textContent = businessName || 'Your Business';
+  document.getElementById('connected-phone-id').textContent = 'Phone Number ID: ' + (phoneId || '—');
+  document.getElementById('connected-card').style.display = 'block';
+  document.getElementById('connect-banner').style.display = 'none';
 }
 
 async function handleLogout() {
@@ -231,18 +267,20 @@ async function handleLogout() {
 }
 
 function startEmbeddedSignup() {
-  const btn = document.getElementById('connect-btn');
+  var btn = document.getElementById('connect-btn');
   btn.disabled = true;
   btn.textContent = 'Opening Meta...';
 
   FB.login(function(response) {
+    console.log('[FB.login] response:', JSON.stringify(response));
     if (response.authResponse) {
       var accessToken = response.authResponse.accessToken;
+      console.log('[FB.login] accessToken:', accessToken);
       exchangeToken(accessToken);
     } else {
       alert('WhatsApp connection cancelled. Please try again.');
       btn.disabled = false;
-      btn.textContent = 'Connect WhatsApp';
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Connect WhatsApp';
     }
   }, {
     config_id: '1027397859743156',
@@ -264,13 +302,13 @@ window.addEventListener('message', function(event) {
       if (data.event === 'FINISH') {
         wabaId = data.data.waba_id;
         phoneNumberId = data.data.phone_number_id;
-        console.log('WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
+        console.log('[SIGNUP] WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
       }
     }
   } catch(e) {}
 });
 
-async function exchangeToken(code) {
+async function exchangeToken(accessToken) {
   var btn = document.getElementById('connect-btn');
   btn.textContent = 'Connecting...';
   try {
@@ -278,25 +316,23 @@ async function exchangeToken(code) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        code: code,
+        access_token: accessToken,
         user_email: currentUser.email,
         waba_id: wabaId,
         phone_number_id: phoneNumberId
       })
     });
     var data = await res.json();
+    console.log('[exchangeToken] response:', data);
     if (data.success) {
-      var banner = document.getElementById('success-banner');
-      banner.style.display = 'flex';
-      btn.textContent = '✅ Connected!';
-      btn.style.background = '#1ebe5a';
-      setTimeout(function() { banner.style.display = 'none'; }, 5000);
+      showConnectedState(data.business_name, data.phone_number_id);
     } else {
       alert('Connection failed: ' + (data.error || 'Unknown error'));
       btn.disabled = false;
       btn.textContent = 'Connect WhatsApp';
     }
   } catch(err) {
+    console.error('[exchangeToken] error:', err);
     alert('Network error. Please try again.');
     btn.disabled = false;
     btn.textContent = 'Connect WhatsApp';
