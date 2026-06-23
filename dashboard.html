@@ -237,8 +237,8 @@ function startEmbeddedSignup() {
 
   FB.login(function(response) {
     if (response.authResponse) {
-      var code = response.authResponse.code;
-      exchangeToken(code);
+      var accessToken = response.authResponse.accessToken;
+      exchangeToken(accessToken);
     } else {
       alert('WhatsApp connection cancelled. Please try again.');
       btn.disabled = false;
@@ -246,7 +246,7 @@ function startEmbeddedSignup() {
     }
   }, {
     config_id: '1027397859743156',
-    response_type: 'code',
+    response_type: 'token',
     override_default_response_type: true,
     extras: {
       setup: {},
