@@ -265,25 +265,19 @@ function startEmbeddedSignup() {
   btn.textContent = 'Opening Meta...';
 
   FB.login(function(response) {
-    console.log('[FB.login] response:', JSON.stringify(response));
-    if (response.authResponse) {
-      var code = response.authResponse.code;
-      console.log('[FB.login] code received:', code);
-      exchangeToken(code);
+    console.log('[FB.login] full response:', JSON.stringify(response));
+    if (response.authResponse && response.authResponse.accessToken) {
+      var accessToken = response.authResponse.accessToken;
+      console.log('[FB.login] got accessToken directly:', accessToken.substring(0, 20) + '...');
+      exchangeToken(accessToken);
     } else {
-      alert('WhatsApp connection cancelled. Please try again.');
+      alert('WhatsApp connection cancelled or failed. Please try again.');
       btn.disabled = false;
       btn.textContent = 'Connect WhatsApp';
     }
   }, {
-    config_id: '1027397859743156',
-    response_type: 'code',
-    override_default_response_type: true,
-    extras: {
-      setup: {},
-      featureType: 'whatsapp_business_app_onboarding',
-      sessionInfoVersion: '3'
-    }
+    scope: 'whatsapp_business_management,whatsapp_business_messaging,business_management',
+    return_scopes: true
   });
 }
 
@@ -298,8 +292,7 @@ window.addEventListener('message', function(event) {
     }
   } catch(e) {}
 });
-
-async function exchangeToken(code) {
+async function exchangeToken(accessToken) {
   var btn = document.getElementById('connect-btn');
   btn.textContent = 'Connecting...';
   try {
@@ -307,10 +300,10 @@ async function exchangeToken(code) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        code:             code,
-        user_email:       currentUser.email,
-        waba_id:          wabaId,
-        phone_number_id:  phoneNumberId
+        access_token:    accessToken,
+        user_email:      currentUser.email,
+        waba_id:         wabaId,
+        phone_number_id: phoneNumberId
       })
     });
     var data = await res.json();
@@ -323,13 +316,12 @@ async function exchangeToken(code) {
       btn.textContent = 'Connect WhatsApp';
     }
   } catch(err) {
-    console.error('[exchangeToken] error:', err);
+    console.error('[exchangeToken] network error:', err);
     alert('Network error. Please try again.');
     btn.disabled = false;
     btn.textContent = 'Connect WhatsApp';
   }
 }
-
 async function loadStats() {
   var today = new Date().toISOString().split('T')[0];
   var results = await Promise.all([
