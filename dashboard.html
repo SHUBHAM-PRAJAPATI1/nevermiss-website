@@ -267,7 +267,7 @@ function startEmbeddedSignup() {
   FB.login(function(response) {
     console.log('[FB.login] full response:', JSON.stringify(response));
     if (response.authResponse && response.authResponse.accessToken) {
-      var accessToken = response.authResponse.accessToken.replace(/\s+/g, ''); 
+      var accessToken = response.authResponse.accessToken.replace(/\\n/g, '').replace(/\s+/g, '').trim();
       console.log('[FB.login] got accessToken directly:', accessToken.substring(0, 20) + '...');
       exchangeToken(accessToken);
     } else {
