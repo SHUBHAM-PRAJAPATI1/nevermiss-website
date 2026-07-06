@@ -309,7 +309,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>AI FAQ Bot</li>
         <li>500 conversations/month</li>
         <li>Lead capture & storage</li>
-        <li>Basic analytics</li>
+        <li>Callback requests</li>
         <li>Email support</li>
       </ul>
       <button class="plan-btn outline" onclick="selectPlan('starter', this)">Get Started</button>
@@ -324,6 +324,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>2,000 conversations/month</li>
         <li>Registration flow</li>
         <li>Seat booking</li>
+        <li>Custom quick replies</li>
         <li>Priority support</li>
       </ul>
       <button class="plan-btn solid" onclick="selectPlan('growth', this)">Get Started</button>
@@ -335,9 +336,9 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       <ul class="plan-features">
         <li>Everything in Growth</li>
         <li>Unlimited conversations</li>
-        <li>Full CRM dashboard</li>
-        <li>Custom AI training</li>
-        <li>Dedicated manager</li>
+        <li>Automated re-engagement reminders</li>
+        <li>AI Voice Calling — coming soon</li>
+        <li>Priority support</li>
       </ul>
       <button class="plan-btn outline" onclick="selectPlan('pro', this)">Get Started</button>
     </div>
@@ -424,6 +425,11 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         </select>
       </div>
 
+      <div class="form-group">
+        <label>Coupon Code <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+        <input id="f-coupon" type="text" placeholder="e.g. FIRST50" style="text-transform:uppercase;">
+      </div>
+
       <div id="form-error" style="display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#C00;"></div>
 
       <button class="form-submit" id="pay-btn" onclick="startPayment()">
@@ -507,6 +513,7 @@ async function startPayment() {
   const phone    = document.getElementById("f-phone").value.trim();
   const bizType  = document.getElementById("f-type").value;
   const plan     = document.getElementById("f-plan").value || selectedPlan;
+  const coupon   = document.getElementById("f-coupon").value.trim();
 
   // Validation
   if (!name)    return showError("Please enter your name.");
@@ -522,7 +529,7 @@ async function startPayment() {
     const orderRes = await fetch(`${API_BASE}/api/create-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan, name, business, phone, email, business_type: bizType }),
+      body: JSON.stringify({ plan, name, business, phone, email, business_type: bizType, coupon_code: coupon }),
     });
     const order = await orderRes.json();
 
@@ -530,6 +537,12 @@ async function startPayment() {
       showError("Could not create order. Please try again.");
       setLoading(false);
       return;
+    }
+
+    // NEW: if a coupon was entered but wasn't valid, tell the customer --
+    // checkout still proceeds at full price rather than blocking them.
+    if (coupon && !order.coupon_applied) {
+      showError(order.coupon_error || "Coupon code could not be applied. Proceeding at full price.");
     }
 
     setLoading(false);
