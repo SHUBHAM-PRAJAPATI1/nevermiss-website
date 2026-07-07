@@ -225,250 +225,264 @@
 </main>
 
 <script>
-const SUPABASE_URL     = 'https://uwxthbxxiaujlgxosqjx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w';
-const BACKEND_URL      = 'https://my-saas-bot.onrender.com';
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let allLeads    = [];
-let currentUser = null;
-let wabaId      = null;
-let phoneNumberId = null;
-
-async function init() {
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) { window.location.href = 'login.html'; return; }
-  const { data: refreshed, error: refreshError } = await db.auth.refreshSession();
-  if (refreshError || !refreshed.session) { window.location.href = 'login.html'; return; }
-  currentUser = refreshed.session.user;
-  const email = currentUser.email || '';
-  document.getElementById('user-avatar').textContent = email.slice(0, 2).toUpperCase();
-  document.getElementById('user-name').textContent = email.split('@')[0];
-  await loadStats();
-  await loadOverviewLeads();
-  await loadOverviewConvs();
-  await checkExistingConnection();
-}
-
-async function checkExistingConnection() {
-  try {
-    var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
-    var data = await res.json();
-    if (data.success && data.client) {
-      showConnectedState(data.client.business_name, data.client.phone_number_id);
-    }
-  } catch(e) {
-    console.log('[checkExistingConnection] No connection found or error:', e);
-  }
-}
-
-function showConnectedState(businessName, phoneId) {
-  document.getElementById('connected-business-name').textContent = businessName || 'Your Business';
-  document.getElementById('connected-phone-id').textContent = 'Phone Number ID: ' + (phoneId || '—');
-  document.getElementById('connected-card').style.display = 'block';
-  document.getElementById('connect-banner').style.display = 'none';
-}
-
-async function handleLogout() {
-  await db.auth.signOut();
-  window.location.href = 'login.html';
-}
-
-function startEmbeddedSignup() {
-  // NEW: require the owner's WhatsApp number before allowing connection --
-  // this is what leads/bookings will actually be sent to for this client.
-  var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
-  if (!ownerNumberInput || ownerNumberInput.length < 10) {
-    alert('Please enter your WhatsApp number first -- this is where your customer leads will be sent.');
-    return;
-  }
-
-  var btn = document.getElementById('connect-btn');
-  btn.disabled = true;
-  btn.textContent = 'Opening Meta...';
-
-  FB.login(function(response) {
-    console.log('[FB.login] full response:', JSON.stringify(response));
-    if (response.authResponse && response.authResponse.accessToken) {
-      var accessToken = response.authResponse.accessToken.replace(/\\n/g, '').replace(/\s+/g, '').trim();
-      console.log('[FB.login] got accessToken directly:', accessToken.substring(0, 20) + '...');
-      exchangeToken(accessToken, ownerNumberInput);
+  const SUPABASE_URL     = 'https://uwxthbxxiaujlgxosqjx.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w';
+  const BACKEND_URL      = 'https://my-saas-bot.onrender.com';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  let allLeads       = [];
+  let currentUser    = null;
+  let wabaId         = null;
+  let phoneNumberId  = null;
+  let currentClientId = null;
+  
+  async function init() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    const { data: refreshed, error: refreshError } = await db.auth.refreshSession();
+    if (refreshError || !refreshed.session) { window.location.href = 'login.html'; return; }
+    currentUser = refreshed.session.user;
+    const email = currentUser.email || '';
+    document.getElementById('user-avatar').textContent = email.slice(0, 2).toUpperCase();
+    document.getElementById('user-name').textContent = email.split('@')[0];
+  
+    await checkExistingConnection();
+  
+    if (currentClientId) {
+      await loadStats();
+      await loadOverviewLeads();
+      await loadOverviewConvs();
     } else {
-      alert('WhatsApp connection cancelled or failed. Please try again.');
-      btn.disabled = false;
-      btn.textContent = 'Connect WhatsApp';
+      console.warn('[init] No client_id resolved -- dashboard data will not load until WhatsApp is connected.');
     }
-  }, {
-    scope: 'whatsapp_business_management,whatsapp_business_messaging',
-    return_scopes: true
-  });
-}
-
-window.addEventListener('message', function(event) {
-  if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
-  try {
-    var data = JSON.parse(event.data);
-    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
-      wabaId        = data.data.waba_id;
-      phoneNumberId = data.data.phone_number_id;
-      console.log('[SIGNUP] WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
+  }
+  
+  async function checkExistingConnection() {
+    try {
+      var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
+      var data = await res.json();
+      if (data.success && data.client) {
+        currentClientId = data.client.id;
+        showConnectedState(data.client.business_name, data.client.phone_number_id);
+      }
+    } catch(e) {
+      console.log('[checkExistingConnection] No connection found or error:', e);
     }
-  } catch(e) {}
-});
-
-async function exchangeToken(accessToken, ownerNumberInput) {
-  var btn = document.getElementById('connect-btn');
-  btn.textContent = 'Connecting...';
-  try {
-    var res = await fetch(BACKEND_URL + '/exchange-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        access_token:         accessToken,
-        user_email:           currentUser.email,
-        waba_id:              wabaId,
-        phone_number_id:      phoneNumberId,
-        // NEW: pass along the client's own WhatsApp number so leads route
-        // to them instead of defaulting to the NeverMiss founder's number.
-        owner_whatsapp_number: ownerNumberInput
-      })
+  }
+  
+  function showConnectedState(businessName, phoneId) {
+    document.getElementById('connected-business-name').textContent = businessName || 'Your Business';
+    document.getElementById('connected-phone-id').textContent = 'Phone Number ID: ' + (phoneId || '—');
+    document.getElementById('connected-card').style.display = 'block';
+    document.getElementById('connect-banner').style.display = 'none';
+  }
+  
+  async function handleLogout() {
+    await db.auth.signOut();
+    window.location.href = 'login.html';
+  }
+  
+  function startEmbeddedSignup() {
+    var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
+    if (!ownerNumberInput || ownerNumberInput.length < 10) {
+      alert('Please enter your WhatsApp number first -- this is where your customer leads will be sent.');
+      return;
+    }
+  
+    var btn = document.getElementById('connect-btn');
+    btn.disabled = true;
+    btn.textContent = 'Opening Meta...';
+  
+    FB.login(function(response) {
+      console.log('[FB.login] full response:', JSON.stringify(response));
+      if (response.authResponse && response.authResponse.accessToken) {
+        var accessToken = response.authResponse.accessToken.replace(/\\n/g, '').replace(/\s+/g, '').trim();
+        console.log('[FB.login] got accessToken directly:', accessToken.substring(0, 20) + '...');
+        exchangeToken(accessToken, ownerNumberInput);
+      } else {
+        alert('WhatsApp connection cancelled or failed. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Connect WhatsApp';
+      }
+    }, {
+      scope: 'whatsapp_business_management,whatsapp_business_messaging',
+      return_scopes: true
     });
-    var data = await res.json();
-    console.log('[exchangeToken] response:', data);
-    if (data.success) {
-      showConnectedState(data.business_name, data.phone_number_id);
-    } else {
-      alert('Connection failed: ' + (data.error || 'Unknown error'));
+  }
+  
+  window.addEventListener('message', function(event) {
+    if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
+    try {
+      var data = JSON.parse(event.data);
+      if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
+        wabaId        = data.data.waba_id;
+        phoneNumberId = data.data.phone_number_id;
+        console.log('[SIGNUP] WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
+      }
+    } catch(e) {}
+  });
+  
+  async function exchangeToken(accessToken, ownerNumberInput) {
+    var btn = document.getElementById('connect-btn');
+    btn.textContent = 'Connecting...';
+    try {
+      var res = await fetch(BACKEND_URL + '/exchange-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_token:         accessToken,
+          user_email:           currentUser.email,
+          waba_id:              wabaId,
+          phone_number_id:      phoneNumberId,
+          owner_whatsapp_number: ownerNumberInput
+        })
+      });
+      var data = await res.json();
+      console.log('[exchangeToken] response:', data);
+      if (data.success) {
+        showConnectedState(data.business_name, data.phone_number_id);
+        await checkExistingConnection();
+        await loadStats();
+        await loadOverviewLeads();
+        await loadOverviewConvs();
+      } else {
+        alert('Connection failed: ' + (data.error || 'Unknown error'));
+        btn.disabled = false;
+        btn.textContent = 'Connect WhatsApp';
+      }
+    } catch(err) {
+      console.error('[exchangeToken] network error:', err);
+      alert('Network error. Please try again.');
       btn.disabled = false;
       btn.textContent = 'Connect WhatsApp';
     }
-  } catch(err) {
-    console.error('[exchangeToken] network error:', err);
-    alert('Network error. Please try again.');
-    btn.disabled = false;
-    btn.textContent = 'Connect WhatsApp';
   }
-}
-async function loadStats() {
-  var today = new Date().toISOString().split('T')[0];
-  var results = await Promise.all([
-    db.from('leads').select('*', { count: 'exact', head: true }),
-    db.from('conversations').select('*', { count: 'exact', head: true }),
-    db.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', today)
-  ]);
-  document.getElementById('stat-leads').textContent = results[0].count ?? 0;
-  document.getElementById('stat-convs').textContent = results[1].count ?? 0;
-  document.getElementById('stat-today').textContent = results[2].count ?? 0;
-  document.getElementById('stat-leads-sub').textContent = 'Total captured';
-}
-
-async function loadOverviewLeads() {
-  var result = await db.from('leads').select('*').order('created_at', { ascending: false }).limit(5);
-  var el = document.getElementById('overview-leads-body');
-  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
-  allLeads = result.data;
-  el.innerHTML = leadsTable(result.data);
-}
-
-async function loadAllLeads() {
-  var result = await db.from('leads').select('*').order('created_at', { ascending: false });
-  var el = document.getElementById('leads-body');
-  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
-  allLeads = result.data;
-  el.innerHTML = leadsTable(result.data);
-}
-
-function filterLeads() {
-  var q = document.getElementById('leads-search').value.toLowerCase();
-  var filtered = allLeads.filter(function(l) {
-    return (l.name || '').toLowerCase().includes(q) || (l.whatsapp_number || l.phone || '').includes(q);
-  });
-  document.getElementById('leads-body').innerHTML = filtered.length ? leadsTable(filtered) : '<div class="empty">No results.</div>';
-}
-
-function leadsTable(leads) {
-  var rows = leads.map(function(l) {
-    var status = l.status || 'new';
-    var chipMap = { new: 'chip-new', hot: 'chip-hot', following_up: 'chip-follow', closed: 'chip-closed' };
-    var chipClass = chipMap[status] || 'chip-new';
-    var date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
-    return '<tr><td>' + (l.name || '—') + '</td><td class="phone">' + (l.whatsapp_number || l.phone || '—') + '</td><td>' + (l.lead_type || 'WhatsApp') + '</td><td><span class="chip ' + chipClass + '">' + status.replace('_', ' ') + '</span></td><td style="color:var(--text-muted);font-size:12px">' + date + '</td></tr>';
-  }).join('');
-  return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Status</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
-}
-
-async function loadOverviewConvs() {
-  var result = await db.from('conversations').select('*').order('id', { ascending: false }).limit(20);
-  var seen = {};
-  var grouped = (result.data || []).filter(function(c) {
-    if (seen[c.phone_number]) return false;
-    seen[c.phone_number] = true;
-    return true;
-  }).slice(0, 5);
-  renderConvs(grouped, 'overview-conv-body');
-}
-
-async function loadAllConvs() {
-  var result = await db.from('conversations').select('*').order('id', { ascending: false });
-  var seen = {};
-  var grouped = (result.data || []).filter(function(c) {
-    if (seen[c.phone_number]) return false;
-    seen[c.phone_number] = true;
-    return true;
-  });
-  renderConvs(grouped, 'conv-body');
-}
-
-function renderConvs(data, elId) {
-  var el = document.getElementById(elId);
-  if (!data || !data.length) { el.innerHTML = '<div class="empty">No conversations yet.</div>'; return; }
-  el.innerHTML = data.map(function(c) {
-    var name = (c.phone_number || 'Unknown').replace('whatsapp:', '');
-    var initials = name.replace('+91', '').slice(0, 2);
-    var msg = c.content || 'No message';
-    var time = c.id ? '#' + c.id : '';
-    return '<div class="conv-item"><div class="conv-av">' + initials + '</div><div style="flex:1;min-width:0"><div class="conv-name">' + name + '</div><div class="conv-msg">' + msg + '</div></div><div class="conv-time">' + time + '</div></div>';
-  }).join('');
-}
-
-async function loadQuickReplies() {
-  var el = document.getElementById('qr-body');
-  var sample = [
-    { keyword: '#fees',   reply: 'Our fees depend on the batch selected. Please share your preferred time slot.' },
-    { keyword: '#timing', reply: 'Batches are available at 8am, 11am, and 5pm Monday to Saturday.' },
-    { keyword: '#book',   reply: 'To book a slot, please share your full name and preferred batch time.' },
-    { keyword: '#demo',   reply: 'Free demo classes are held every Saturday at 10am. Seats are limited!' },
-  ];
-  el.innerHTML = sample.map(function(q, i) {
-    return '<div class="qr-item"><span class="qr-key">' + q.keyword + '</span><span class="qr-text">' + q.reply + '</span><button class="qr-edit" onclick="editQR(' + i + ')">Edit</button></div>';
-  }).join('');
-}
-
-function editQR(i) {
-  var newText = prompt('Edit reply:');
-  if (newText) alert('Saved!');
-}
-
-function addQuickReply() {
-  var keyword = prompt('Enter keyword (e.g. #hours):');
-  var reply   = prompt('Enter reply text:');
-  if (keyword && reply) alert('Added "' + keyword + '"!');
-}
-
-function showPage(page, el) {
-  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  document.getElementById('page-' + page).classList.add('active');
-  if (el) el.classList.add('active');
-  var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', connect: 'Connect WhatsApp' };
-  document.getElementById('page-title').textContent = titles[page];
-  document.getElementById('stats-row').style.display = ['overview', 'leads'].includes(page) ? 'grid' : 'none';
-  if (page === 'leads') loadAllLeads();
-  if (page === 'conversations') loadAllConvs();
-  if (page === 'quickreplies') loadQuickReplies();
-}
-
-init();
-</script>
+  
+  async function loadStats() {
+    if (!currentClientId) return;
+    var today = new Date().toISOString().split('T')[0];
+    var results = await Promise.all([
+      db.from('leads').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId),
+      db.from('conversations').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId),
+      db.from('leads').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId).gte('created_at', today)
+    ]);
+    document.getElementById('stat-leads').textContent = results[0].count ?? 0;
+    document.getElementById('stat-convs').textContent = results[1].count ?? 0;
+    document.getElementById('stat-today').textContent = results[2].count ?? 0;
+    document.getElementById('stat-leads-sub').textContent = 'Total captured';
+  }
+  
+  async function loadOverviewLeads() {
+    if (!currentClientId) return;
+    var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }).limit(5);
+    var el = document.getElementById('overview-leads-body');
+    if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
+    allLeads = result.data;
+    el.innerHTML = leadsTable(result.data);
+  }
+  
+  async function loadAllLeads() {
+    if (!currentClientId) { document.getElementById('leads-body').innerHTML = '<div class="empty">Connect WhatsApp first to see your leads.</div>'; return; }
+    var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false });
+    var el = document.getElementById('leads-body');
+    if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
+    allLeads = result.data;
+    el.innerHTML = leadsTable(result.data);
+  }
+  
+  function filterLeads() {
+    var q = document.getElementById('leads-search').value.toLowerCase();
+    var filtered = allLeads.filter(function(l) {
+      return (l.name || '').toLowerCase().includes(q) || (l.whatsapp_number || l.phone || '').includes(q);
+    });
+    document.getElementById('leads-body').innerHTML = filtered.length ? leadsTable(filtered) : '<div class="empty">No results.</div>';
+  }
+  
+  function leadsTable(leads) {
+    var rows = leads.map(function(l) {
+      var status = l.status || 'new';
+      var chipMap = { new: 'chip-new', hot: 'chip-hot', following_up: 'chip-follow', closed: 'chip-closed' };
+      var chipClass = chipMap[status] || 'chip-new';
+      var date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
+      return '<tr><td>' + (l.name || '—') + '</td><td class="phone">' + (l.whatsapp_number || l.phone || '—') + '</td><td>' + (l.lead_type || 'WhatsApp') + '</td><td><span class="chip ' + chipClass + '">' + status.replace('_', ' ') + '</span></td><td style="color:var(--text-muted);font-size:12px">' + date + '</td></tr>';
+    }).join('');
+    return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Status</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+  
+  async function loadOverviewConvs() {
+    if (!currentClientId) return;
+    var result = await db.from('conversations').select('*').eq('client_id', currentClientId).order('id', { ascending: false }).limit(20);
+    var seen = {};
+    var grouped = (result.data || []).filter(function(c) {
+      if (seen[c.phone_number]) return false;
+      seen[c.phone_number] = true;
+      return true;
+    }).slice(0, 5);
+    renderConvs(grouped, 'overview-conv-body');
+  }
+  
+  async function loadAllConvs() {
+    if (!currentClientId) { document.getElementById('conv-body').innerHTML = '<div class="empty">Connect WhatsApp first to see conversations.</div>'; return; }
+    var result = await db.from('conversations').select('*').eq('client_id', currentClientId).order('id', { ascending: false });
+    var seen = {};
+    var grouped = (result.data || []).filter(function(c) {
+      if (seen[c.phone_number]) return false;
+      seen[c.phone_number] = true;
+      return true;
+    });
+    renderConvs(grouped, 'conv-body');
+  }
+  
+  function renderConvs(data, elId) {
+    var el = document.getElementById(elId);
+    if (!data || !data.length) { el.innerHTML = '<div class="empty">No conversations yet.</div>'; return; }
+    el.innerHTML = data.map(function(c) {
+      var name = (c.phone_number || 'Unknown').replace('whatsapp:', '');
+      var initials = name.replace('+91', '').slice(0, 2);
+      var msg = c.content || 'No message';
+      var time = c.id ? '#' + c.id : '';
+      return '<div class="conv-item"><div class="conv-av">' + initials + '</div><div style="flex:1;min-width:0"><div class="conv-name">' + name + '</div><div class="conv-msg">' + msg + '</div></div><div class="conv-time">' + time + '</div></div>';
+    }).join('');
+  }
+  
+  async function loadQuickReplies() {
+    var el = document.getElementById('qr-body');
+    var sample = [
+      { keyword: '#fees',   reply: 'Our fees depend on the batch selected. Please share your preferred time slot.' },
+      { keyword: '#timing', reply: 'Batches are available at 8am, 11am, and 5pm Monday to Saturday.' },
+      { keyword: '#book',   reply: 'To book a slot, please share your full name and preferred batch time.' },
+      { keyword: '#demo',   reply: 'Free demo classes are held every Saturday at 10am. Seats are limited!' },
+    ];
+    el.innerHTML = sample.map(function(q, i) {
+      return '<div class="qr-item"><span class="qr-key">' + q.keyword + '</span><span class="qr-text">' + q.reply + '</span><button class="qr-edit" onclick="editQR(' + i + ')">Edit</button></div>';
+    }).join('');
+  }
+  
+  function editQR(i) {
+    var newText = prompt('Edit reply:');
+    if (newText) alert('Saved!');
+  }
+  
+  function addQuickReply() {
+    var keyword = prompt('Enter keyword (e.g. #hours):');
+    var reply   = prompt('Enter reply text:');
+    if (keyword && reply) alert('Added "' + keyword + '"!');
+  }
+  
+  function showPage(page, el) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    document.getElementById('page-' + page).classList.add('active');
+    if (el) el.classList.add('active');
+    var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', connect: 'Connect WhatsApp' };
+    document.getElementById('page-title').textContent = titles[page];
+    document.getElementById('stats-row').style.display = ['overview', 'leads'].includes(page) ? 'grid' : 'none';
+    if (page === 'leads') loadAllLeads();
+    if (page === 'conversations') loadAllConvs();
+    if (page === 'quickreplies') loadQuickReplies();
+  }
+  
+  init();
+  </script>
 </body>
 </html>
