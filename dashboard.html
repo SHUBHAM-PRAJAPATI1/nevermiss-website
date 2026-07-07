@@ -109,6 +109,29 @@
   .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; margin-right: 8px; vertical-align: middle; }
+
+  /* Institute Profile section */
+  .profile-tab { padding: 8px 16px; border: 1px solid var(--border); background: var(--white); border-radius: 8px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--text-muted); }
+  .profile-tab.active { background: var(--green); color: white; border-color: var(--green); }
+  .profile-section { display: none; }
+  .profile-section.active { display: block; }
+  .form-row { display: flex; gap: 10px; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .form-row input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; flex: 1; min-width: 120px; }
+  .form-row button { padding: 8px 14px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; cursor: pointer; }
+  .batch-row { display: flex; gap: 8px; margin-top: 6px; }
+  .batch-row input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
+  .item-row { display: flex; align-items: center; gap: 10px; padding: 12px 1.25rem; border-bottom: 1px solid var(--border); }
+  .item-row:last-child { border-bottom: none; }
+  .item-main { flex: 1; }
+  .item-title { font-size: 14px; font-weight: 500; }
+  .item-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .item-actions button { font-size: 12px; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: none; font-family: inherit; cursor: pointer; margin-left: 6px; }
+  .item-actions button:hover { background: var(--bg); }
+  .media-upload-group { margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+  .media-upload-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .media-upload-group input[type="text"] { width: 100%; max-width: 320px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; margin-bottom: 8px; }
+  .media-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); transition: transform 0.2s; }
     .sidebar.open { transform: translateX(0); }
@@ -129,6 +152,7 @@
   <a class="nav-item" onclick="showPage('leads', this)" href="javascript:void(0)"><span class="nav-icon">◎</span> Leads</a>
   <a class="nav-item" onclick="showPage('conversations', this)" href="javascript:void(0)"><span class="nav-icon">◻</span> Conversations</a>
   <a class="nav-item" onclick="showPage('quickreplies', this)" href="javascript:void(0)"><span class="nav-icon">◇</span> Quick replies</a>
+  <a class="nav-item" onclick="showPage('profile', this)" href="javascript:void(0)"><span class="nav-icon">🏫</span> Institute Profile</a>
   <a class="nav-item" onclick="showPage('connect', this)" href="javascript:void(0)"><span class="nav-icon">📱</span> Connect WhatsApp</a>
   <div class="sidebar-bottom">
     <div class="user-chip">
@@ -175,6 +199,62 @@
     <div class="card"><div class="card-head"><h2>Quick replies</h2><button class="add-qr-btn" onclick="addQuickReply()">+ Add</button></div><div class="qr-list" id="qr-body"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
   </div>
 
+  <div class="page" id="page-profile">
+    <div class="card">
+      <div class="card-head">
+        <div style="display:flex; gap:8px;">
+          <button class="profile-tab active" onclick="showProfileTab('courses', this)">Courses</button>
+          <button class="profile-tab" onclick="showProfileTab('results', this)">Results</button>
+          <button class="profile-tab" onclick="showProfileTab('facilities', this)">Facilities</button>
+          <button class="profile-tab" onclick="showProfileTab('media', this)">Media</button>
+        </div>
+      </div>
+
+      <!-- COURSES TAB -->
+      <div class="profile-section active" id="profile-courses">
+        <div class="card-head"><h2>Courses</h2><button class="add-qr-btn" onclick="openCourseForm()">+ Add Course</button></div>
+        <div id="courses-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+      </div>
+
+      <!-- RESULTS TAB -->
+      <div class="profile-section" id="profile-results">
+        <div class="card-head"><h2>Results / Selections</h2><button class="add-qr-btn" onclick="openResultForm()">+ Add Result</button></div>
+        <div id="results-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+      </div>
+
+      <!-- FACILITIES TAB -->
+      <div class="profile-section" id="profile-facilities">
+        <div class="card-head"><h2>Facilities</h2><button class="add-qr-btn" onclick="openFacilityForm()">+ Add Facility</button></div>
+        <div id="facilities-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+      </div>
+
+      <!-- MEDIA TAB -->
+      <div class="profile-section" id="profile-media">
+        <div class="card-head"><h2>Media (Brochure & Photos)</h2></div>
+        <div style="padding: 1.25rem;">
+          <div class="media-upload-group">
+            <label>Brochure (PDF)</label>
+            <input type="file" id="brochure-file" accept="application/pdf" />
+            <button class="add-qr-btn" onclick="uploadMedia('brochure', 'brochure-file')">Upload Brochure</button>
+          </div>
+          <div class="media-upload-group">
+            <label>Topper Photo</label>
+            <input type="text" id="topper-caption" placeholder="Caption (e.g. Rahul Sharma - AIR 342)" />
+            <input type="file" id="topper-file" accept="image/*" />
+            <button class="add-qr-btn" onclick="uploadMedia('topper_photo', 'topper-file', 'topper-caption')">Upload Photo</button>
+          </div>
+          <div class="media-upload-group">
+            <label>Facility Photo</label>
+            <input type="text" id="facility-caption" placeholder="Caption (e.g. Air-conditioned classroom)" />
+            <input type="file" id="facility-file" accept="image/*" />
+            <button class="add-qr-btn" onclick="uploadMedia('facility_photo', 'facility-file', 'facility-caption')">Upload Photo</button>
+          </div>
+        </div>
+        <div id="media-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
   <div class="page" id="page-connect">
 
     <!-- Shown after successful connection -->
@@ -196,9 +276,6 @@
         <p>Link your WhatsApp Business account to activate the NeverMiss bot for your number.</p>
       </div>
 
-      <!-- NEW: owner's own WhatsApp number, so THEIR leads and customer
-           notifications go to THEM, not to the NeverMiss founder's number.
-           Required before the Connect button can be used. -->
       <div class="owner-number-field">
         <label for="owner-whatsapp-input">Your WhatsApp number (for lead notifications)</label>
         <input type="tel" id="owner-whatsapp-input" placeholder="e.g. 9876543210" />
@@ -225,264 +302,469 @@
 </main>
 
 <script>
-  const SUPABASE_URL     = 'https://uwxthbxxiaujlgxosqjx.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w';
-  const BACKEND_URL      = 'https://my-saas-bot.onrender.com';
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
-  let allLeads       = [];
-  let currentUser    = null;
-  let wabaId         = null;
-  let phoneNumberId  = null;
-  let currentClientId = null;
-  
-  async function init() {
-    const { data: { session } } = await db.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
-    const { data: refreshed, error: refreshError } = await db.auth.refreshSession();
-    if (refreshError || !refreshed.session) { window.location.href = 'login.html'; return; }
-    currentUser = refreshed.session.user;
-    const email = currentUser.email || '';
-    document.getElementById('user-avatar').textContent = email.slice(0, 2).toUpperCase();
-    document.getElementById('user-name').textContent = email.split('@')[0];
-  
-    await checkExistingConnection();
-  
-    if (currentClientId) {
+const SUPABASE_URL     = 'https://uwxthbxxiaujlgxosqjx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w';
+const BACKEND_URL      = 'https://my-saas-bot.onrender.com';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allLeads       = [];
+let currentUser    = null;
+let wabaId         = null;
+let phoneNumberId  = null;
+let currentClientId = null;
+
+async function init() {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+  const { data: refreshed, error: refreshError } = await db.auth.refreshSession();
+  if (refreshError || !refreshed.session) { window.location.href = 'login.html'; return; }
+  currentUser = refreshed.session.user;
+  const email = currentUser.email || '';
+  document.getElementById('user-avatar').textContent = email.slice(0, 2).toUpperCase();
+  document.getElementById('user-name').textContent = email.split('@')[0];
+
+  await checkExistingConnection();
+
+  if (currentClientId) {
+    await loadStats();
+    await loadOverviewLeads();
+    await loadOverviewConvs();
+  } else {
+    console.warn('[init] No client_id resolved -- dashboard data will not load until WhatsApp is connected.');
+  }
+}
+
+async function checkExistingConnection() {
+  try {
+    var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
+    var data = await res.json();
+    if (data.success && data.client) {
+      currentClientId = data.client.id;
+      showConnectedState(data.client.business_name, data.client.phone_number_id);
+    }
+  } catch(e) {
+    console.log('[checkExistingConnection] No connection found or error:', e);
+  }
+}
+
+function showConnectedState(businessName, phoneId) {
+  document.getElementById('connected-business-name').textContent = businessName || 'Your Business';
+  document.getElementById('connected-phone-id').textContent = 'Phone Number ID: ' + (phoneId || '—');
+  document.getElementById('connected-card').style.display = 'block';
+  document.getElementById('connect-banner').style.display = 'none';
+}
+
+async function handleLogout() {
+  await db.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+function startEmbeddedSignup() {
+  var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
+  if (!ownerNumberInput || ownerNumberInput.length < 10) {
+    alert('Please enter your WhatsApp number first -- this is where your customer leads will be sent.');
+    return;
+  }
+
+  var btn = document.getElementById('connect-btn');
+  btn.disabled = true;
+  btn.textContent = 'Opening Meta...';
+
+  FB.login(function(response) {
+    console.log('[FB.login] full response:', JSON.stringify(response));
+    if (response.authResponse && response.authResponse.accessToken) {
+      var accessToken = response.authResponse.accessToken.replace(/\\n/g, '').replace(/\s+/g, '').trim();
+      console.log('[FB.login] got accessToken directly:', accessToken.substring(0, 20) + '...');
+      exchangeToken(accessToken, ownerNumberInput);
+    } else {
+      alert('WhatsApp connection cancelled or failed. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Connect WhatsApp';
+    }
+  }, {
+    scope: 'whatsapp_business_management,whatsapp_business_messaging',
+    return_scopes: true
+  });
+}
+
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
+  try {
+    var data = JSON.parse(event.data);
+    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
+      wabaId        = data.data.waba_id;
+      phoneNumberId = data.data.phone_number_id;
+      console.log('[SIGNUP] WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
+    }
+  } catch(e) {}
+});
+
+async function exchangeToken(accessToken, ownerNumberInput) {
+  var btn = document.getElementById('connect-btn');
+  btn.textContent = 'Connecting...';
+  try {
+    var res = await fetch(BACKEND_URL + '/exchange-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_token:         accessToken,
+        user_email:           currentUser.email,
+        waba_id:              wabaId,
+        phone_number_id:      phoneNumberId,
+        owner_whatsapp_number: ownerNumberInput
+      })
+    });
+    var data = await res.json();
+    console.log('[exchangeToken] response:', data);
+    if (data.success) {
+      showConnectedState(data.business_name, data.phone_number_id);
+      await checkExistingConnection();
       await loadStats();
       await loadOverviewLeads();
       await loadOverviewConvs();
     } else {
-      console.warn('[init] No client_id resolved -- dashboard data will not load until WhatsApp is connected.');
-    }
-  }
-  
-  async function checkExistingConnection() {
-    try {
-      var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
-      var data = await res.json();
-      if (data.success && data.client) {
-        currentClientId = data.client.id;
-        showConnectedState(data.client.business_name, data.client.phone_number_id);
-      }
-    } catch(e) {
-      console.log('[checkExistingConnection] No connection found or error:', e);
-    }
-  }
-  
-  function showConnectedState(businessName, phoneId) {
-    document.getElementById('connected-business-name').textContent = businessName || 'Your Business';
-    document.getElementById('connected-phone-id').textContent = 'Phone Number ID: ' + (phoneId || '—');
-    document.getElementById('connected-card').style.display = 'block';
-    document.getElementById('connect-banner').style.display = 'none';
-  }
-  
-  async function handleLogout() {
-    await db.auth.signOut();
-    window.location.href = 'login.html';
-  }
-  
-  function startEmbeddedSignup() {
-    var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
-    if (!ownerNumberInput || ownerNumberInput.length < 10) {
-      alert('Please enter your WhatsApp number first -- this is where your customer leads will be sent.');
-      return;
-    }
-  
-    var btn = document.getElementById('connect-btn');
-    btn.disabled = true;
-    btn.textContent = 'Opening Meta...';
-  
-    FB.login(function(response) {
-      console.log('[FB.login] full response:', JSON.stringify(response));
-      if (response.authResponse && response.authResponse.accessToken) {
-        var accessToken = response.authResponse.accessToken.replace(/\\n/g, '').replace(/\s+/g, '').trim();
-        console.log('[FB.login] got accessToken directly:', accessToken.substring(0, 20) + '...');
-        exchangeToken(accessToken, ownerNumberInput);
-      } else {
-        alert('WhatsApp connection cancelled or failed. Please try again.');
-        btn.disabled = false;
-        btn.textContent = 'Connect WhatsApp';
-      }
-    }, {
-      scope: 'whatsapp_business_management,whatsapp_business_messaging',
-      return_scopes: true
-    });
-  }
-  
-  window.addEventListener('message', function(event) {
-    if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
-    try {
-      var data = JSON.parse(event.data);
-      if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
-        wabaId        = data.data.waba_id;
-        phoneNumberId = data.data.phone_number_id;
-        console.log('[SIGNUP] WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
-      }
-    } catch(e) {}
-  });
-  
-  async function exchangeToken(accessToken, ownerNumberInput) {
-    var btn = document.getElementById('connect-btn');
-    btn.textContent = 'Connecting...';
-    try {
-      var res = await fetch(BACKEND_URL + '/exchange-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_token:         accessToken,
-          user_email:           currentUser.email,
-          waba_id:              wabaId,
-          phone_number_id:      phoneNumberId,
-          owner_whatsapp_number: ownerNumberInput
-        })
-      });
-      var data = await res.json();
-      console.log('[exchangeToken] response:', data);
-      if (data.success) {
-        showConnectedState(data.business_name, data.phone_number_id);
-        await checkExistingConnection();
-        await loadStats();
-        await loadOverviewLeads();
-        await loadOverviewConvs();
-      } else {
-        alert('Connection failed: ' + (data.error || 'Unknown error'));
-        btn.disabled = false;
-        btn.textContent = 'Connect WhatsApp';
-      }
-    } catch(err) {
-      console.error('[exchangeToken] network error:', err);
-      alert('Network error. Please try again.');
+      alert('Connection failed: ' + (data.error || 'Unknown error'));
       btn.disabled = false;
       btn.textContent = 'Connect WhatsApp';
     }
+  } catch(err) {
+    console.error('[exchangeToken] network error:', err);
+    alert('Network error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Connect WhatsApp';
   }
-  
-  async function loadStats() {
-    if (!currentClientId) return;
-    var today = new Date().toISOString().split('T')[0];
-    var results = await Promise.all([
-      db.from('leads').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId),
-      db.from('conversations').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId),
-      db.from('leads').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId).gte('created_at', today)
-    ]);
-    document.getElementById('stat-leads').textContent = results[0].count ?? 0;
-    document.getElementById('stat-convs').textContent = results[1].count ?? 0;
-    document.getElementById('stat-today').textContent = results[2].count ?? 0;
-    document.getElementById('stat-leads-sub').textContent = 'Total captured';
+}
+
+async function loadStats() {
+  if (!currentClientId) return;
+  var today = new Date().toISOString().split('T')[0];
+  var results = await Promise.all([
+    db.from('leads').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId),
+    db.from('conversations').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId),
+    db.from('leads').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId).gte('created_at', today)
+  ]);
+  document.getElementById('stat-leads').textContent = results[0].count ?? 0;
+  document.getElementById('stat-convs').textContent = results[1].count ?? 0;
+  document.getElementById('stat-today').textContent = results[2].count ?? 0;
+  document.getElementById('stat-leads-sub').textContent = 'Total captured';
+}
+
+async function loadOverviewLeads() {
+  if (!currentClientId) return;
+  var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }).limit(5);
+  var el = document.getElementById('overview-leads-body');
+  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
+  allLeads = result.data;
+  el.innerHTML = leadsTable(result.data);
+}
+
+async function loadAllLeads() {
+  if (!currentClientId) { document.getElementById('leads-body').innerHTML = '<div class="empty">Connect WhatsApp first to see your leads.</div>'; return; }
+  var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false });
+  var el = document.getElementById('leads-body');
+  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
+  allLeads = result.data;
+  el.innerHTML = leadsTable(result.data);
+}
+
+function filterLeads() {
+  var q = document.getElementById('leads-search').value.toLowerCase();
+  var filtered = allLeads.filter(function(l) {
+    return (l.name || '').toLowerCase().includes(q) || (l.whatsapp_number || l.phone || '').includes(q);
+  });
+  document.getElementById('leads-body').innerHTML = filtered.length ? leadsTable(filtered) : '<div class="empty">No results.</div>';
+}
+
+function leadsTable(leads) {
+  var rows = leads.map(function(l) {
+    var status = l.status || 'new';
+    var chipMap = { new: 'chip-new', hot: 'chip-hot', following_up: 'chip-follow', closed: 'chip-closed' };
+    var chipClass = chipMap[status] || 'chip-new';
+    var date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
+    return '<tr><td>' + (l.name || '—') + '</td><td class="phone">' + (l.whatsapp_number || l.phone || '—') + '</td><td>' + (l.lead_type || 'WhatsApp') + '</td><td><span class="chip ' + chipClass + '">' + status.replace('_', ' ') + '</span></td><td style="color:var(--text-muted);font-size:12px">' + date + '</td></tr>';
+  }).join('');
+  return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Status</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+async function loadOverviewConvs() {
+  if (!currentClientId) return;
+  var result = await db.from('conversations').select('*').eq('client_id', currentClientId).order('id', { ascending: false }).limit(20);
+  var seen = {};
+  var grouped = (result.data || []).filter(function(c) {
+    if (seen[c.phone_number]) return false;
+    seen[c.phone_number] = true;
+    return true;
+  }).slice(0, 5);
+  renderConvs(grouped, 'overview-conv-body');
+}
+
+async function loadAllConvs() {
+  if (!currentClientId) { document.getElementById('conv-body').innerHTML = '<div class="empty">Connect WhatsApp first to see conversations.</div>'; return; }
+  var result = await db.from('conversations').select('*').eq('client_id', currentClientId).order('id', { ascending: false });
+  var seen = {};
+  var grouped = (result.data || []).filter(function(c) {
+    if (seen[c.phone_number]) return false;
+    seen[c.phone_number] = true;
+    return true;
+  });
+  renderConvs(grouped, 'conv-body');
+}
+
+function renderConvs(data, elId) {
+  var el = document.getElementById(elId);
+  if (!data || !data.length) { el.innerHTML = '<div class="empty">No conversations yet.</div>'; return; }
+  el.innerHTML = data.map(function(c) {
+    var name = (c.phone_number || 'Unknown').replace('whatsapp:', '');
+    var initials = name.replace('+91', '').slice(0, 2);
+    var msg = c.content || 'No message';
+    var time = c.id ? '#' + c.id : '';
+    return '<div class="conv-item"><div class="conv-av">' + initials + '</div><div style="flex:1;min-width:0"><div class="conv-name">' + name + '</div><div class="conv-msg">' + msg + '</div></div><div class="conv-time">' + time + '</div></div>';
+  }).join('');
+}
+
+async function loadQuickReplies() {
+  var el = document.getElementById('qr-body');
+  var sample = [
+    { keyword: '#fees',   reply: 'Our fees depend on the batch selected. Please share your preferred time slot.' },
+    { keyword: '#timing', reply: 'Batches are available at 8am, 11am, and 5pm Monday to Saturday.' },
+    { keyword: '#book',   reply: 'To book a slot, please share your full name and preferred batch time.' },
+    { keyword: '#demo',   reply: 'Free demo classes are held every Saturday at 10am. Seats are limited!' },
+  ];
+  el.innerHTML = sample.map(function(q, i) {
+    return '<div class="qr-item"><span class="qr-key">' + q.keyword + '</span><span class="qr-text">' + q.reply + '</span><button class="qr-edit" onclick="editQR(' + i + ')">Edit</button></div>';
+  }).join('');
+}
+
+function editQR(i) {
+  var newText = prompt('Edit reply:');
+  if (newText) alert('Saved!');
+}
+
+function addQuickReply() {
+  var keyword = prompt('Enter keyword (e.g. #hours):');
+  var reply   = prompt('Enter reply text:');
+  if (keyword && reply) alert('Added "' + keyword + '"!');
+}
+
+// ---------------------------------------------------------------------
+// INSTITUTE PROFILE: Courses, Results, Facilities, Media
+// ---------------------------------------------------------------------
+
+function showProfileTab(tab, el) {
+  document.querySelectorAll('.profile-section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.profile-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('profile-' + tab).classList.add('active');
+  el.classList.add('active');
+  if (tab === 'courses') loadCourses();
+  if (tab === 'results') loadResults();
+  if (tab === 'facilities') loadFacilities();
+  if (tab === 'media') loadMedia();
+}
+
+// ---------- COURSES ----------
+
+async function loadCourses() {
+  if (!currentClientId) { document.getElementById('courses-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
+  var result = await db.from('courses').select('*, course_batches(*)').eq('client_id', currentClientId).order('display_order');
+  var el = document.getElementById('courses-body');
+  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No courses added yet.</div>'; return; }
+  el.innerHTML = result.data.map(function(c) {
+    var batchText = (c.course_batches || []).map(function(b) { return b.batch_label + ': ' + b.start_time + '-' + b.end_time; }).join(', ') || 'No batches';
+    return '<div class="item-row"><div class="item-main"><div class="item-title">' + c.course_name + ' — Rs ' + c.fees + '</div><div class="item-sub">' + batchText + ' | Seats: ' + c.seats_available + '</div></div><div class="item-actions"><button onclick="deleteCourse(\'' + c.id + '\')">Delete</button></div></div>';
+  }).join('');
+}
+
+function openCourseForm() {
+  var name = prompt('Course name (e.g. JEE Engineering):');
+  if (!name) return;
+  var fees = prompt('Fees (numbers only):');
+  if (!fees) return;
+  var seats = prompt('Seats available:') || '0';
+  var batchLabel = prompt('Batch label (e.g. Batch 1):') || 'Batch 1';
+  var startTime = prompt('Start time (e.g. 7:00 AM):') || '';
+  var endTime = prompt('End time (e.g. 9:00 AM):') || '';
+
+  saveCourse(name, fees, seats, batchLabel, startTime, endTime);
+}
+
+async function saveCourse(name, fees, seats, batchLabel, startTime, endTime) {
+  var result = await db.from('courses').insert({
+    client_id: currentClientId,
+    course_name: name,
+    fees: parseFloat(fees),
+    seats_available: parseInt(seats),
+    demo_available: true
+  }).select();
+
+  if (result.error || !result.data || !result.data.length) {
+    alert('Failed to save course: ' + (result.error ? result.error.message : 'Unknown error'));
+    return;
   }
-  
-  async function loadOverviewLeads() {
-    if (!currentClientId) return;
-    var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }).limit(5);
-    var el = document.getElementById('overview-leads-body');
-    if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
-    allLeads = result.data;
-    el.innerHTML = leadsTable(result.data);
-  }
-  
-  async function loadAllLeads() {
-    if (!currentClientId) { document.getElementById('leads-body').innerHTML = '<div class="empty">Connect WhatsApp first to see your leads.</div>'; return; }
-    var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false });
-    var el = document.getElementById('leads-body');
-    if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
-    allLeads = result.data;
-    el.innerHTML = leadsTable(result.data);
-  }
-  
-  function filterLeads() {
-    var q = document.getElementById('leads-search').value.toLowerCase();
-    var filtered = allLeads.filter(function(l) {
-      return (l.name || '').toLowerCase().includes(q) || (l.whatsapp_number || l.phone || '').includes(q);
+
+  var courseId = result.data[0].id;
+  if (startTime && endTime) {
+    await db.from('course_batches').insert({
+      course_id: courseId,
+      batch_label: batchLabel,
+      start_time: startTime,
+      end_time: endTime
     });
-    document.getElementById('leads-body').innerHTML = filtered.length ? leadsTable(filtered) : '<div class="empty">No results.</div>';
   }
-  
-  function leadsTable(leads) {
-    var rows = leads.map(function(l) {
-      var status = l.status || 'new';
-      var chipMap = { new: 'chip-new', hot: 'chip-hot', following_up: 'chip-follow', closed: 'chip-closed' };
-      var chipClass = chipMap[status] || 'chip-new';
-      var date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
-      return '<tr><td>' + (l.name || '—') + '</td><td class="phone">' + (l.whatsapp_number || l.phone || '—') + '</td><td>' + (l.lead_type || 'WhatsApp') + '</td><td><span class="chip ' + chipClass + '">' + status.replace('_', ' ') + '</span></td><td style="color:var(--text-muted);font-size:12px">' + date + '</td></tr>';
-    }).join('');
-    return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Status</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  loadCourses();
+}
+
+async function deleteCourse(id) {
+  if (!confirm('Delete this course? This also removes its batches.')) return;
+  await db.from('courses').delete().eq('id', id);
+  loadCourses();
+}
+
+// ---------- RESULTS ----------
+
+async function loadResults() {
+  if (!currentClientId) { document.getElementById('results-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
+  var result = await db.from('institute_results').select('*').eq('client_id', currentClientId).order('display_order');
+  var el = document.getElementById('results-body');
+  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No results added yet.</div>'; return; }
+  el.innerHTML = result.data.map(function(r) {
+    var sub = [r.student_name, r.course_name, r.year].filter(Boolean).join(' | ');
+    return '<div class="item-row"><div class="item-main"><div class="item-title">' + r.achievement + '</div><div class="item-sub">' + sub + '</div></div><div class="item-actions"><button onclick="deleteResult(\'' + r.id + '\')">Delete</button></div></div>';
+  }).join('');
+}
+
+function openResultForm() {
+  var achievement = prompt('Achievement (e.g. AIR 342 in JEE Mains 2026):');
+  if (!achievement) return;
+  var studentName = prompt('Student name (optional):') || null;
+  var courseName = prompt('Course (optional):') || null;
+  var year = prompt('Year (optional):') || null;
+  saveResult(achievement, studentName, courseName, year);
+}
+
+async function saveResult(achievement, studentName, courseName, year) {
+  var result = await db.from('institute_results').insert({
+    client_id: currentClientId,
+    achievement: achievement,
+    student_name: studentName,
+    course_name: courseName,
+    year: year
+  });
+  if (result.error) { alert('Failed to save: ' + result.error.message); return; }
+  loadResults();
+}
+
+async function deleteResult(id) {
+  if (!confirm('Delete this result?')) return;
+  await db.from('institute_results').delete().eq('id', id);
+  loadResults();
+}
+
+// ---------- FACILITIES ----------
+
+async function loadFacilities() {
+  if (!currentClientId) { document.getElementById('facilities-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
+  var result = await db.from('institute_facilities').select('*').eq('client_id', currentClientId).order('display_order');
+  var el = document.getElementById('facilities-body');
+  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No facilities added yet.</div>'; return; }
+  el.innerHTML = result.data.map(function(f) {
+    return '<div class="item-row"><div class="item-main"><div class="item-title">' + f.facility_name + '</div><div class="item-sub">' + (f.description || '') + '</div></div><div class="item-actions"><button onclick="deleteFacility(\'' + f.id + '\')">Delete</button></div></div>';
+  }).join('');
+}
+
+function openFacilityForm() {
+  var name = prompt('Facility name (e.g. Air-conditioned classrooms):');
+  if (!name) return;
+  var description = prompt('Description (optional):') || null;
+  saveFacility(name, description);
+}
+
+async function saveFacility(name, description) {
+  var result = await db.from('institute_facilities').insert({
+    client_id: currentClientId,
+    facility_name: name,
+    description: description
+  });
+  if (result.error) { alert('Failed to save: ' + result.error.message); return; }
+  loadFacilities();
+}
+
+async function deleteFacility(id) {
+  if (!confirm('Delete this facility?')) return;
+  await db.from('institute_facilities').delete().eq('id', id);
+  loadFacilities();
+}
+
+// ---------- MEDIA ----------
+
+async function loadMedia() {
+  if (!currentClientId) { document.getElementById('media-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
+  var result = await db.from('institute_media').select('*').eq('client_id', currentClientId).order('display_order');
+  var el = document.getElementById('media-body');
+  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No media uploaded yet.</div>'; return; }
+  el.innerHTML = result.data.map(function(m) {
+    var thumb = m.media_type === 'brochure'
+      ? '📄'
+      : '<img class="media-thumb" src="' + m.file_url + '" />';
+    return '<div class="item-row"><div style="margin-right:10px">' + thumb + '</div><div class="item-main"><div class="item-title">' + (m.caption || m.media_type) + '</div><div class="item-sub">' + m.media_type + '</div></div><div class="item-actions"><button onclick="deleteMedia(\'' + m.id + '\')">Delete</button></div></div>';
+  }).join('');
+}
+
+async function uploadMedia(mediaType, fileInputId, captionInputId) {
+  if (!currentClientId) { alert('Connect WhatsApp first.'); return; }
+  var fileInput = document.getElementById(fileInputId);
+  var file = fileInput.files[0];
+  if (!file) { alert('Please choose a file first.'); return; }
+
+  var caption = captionInputId ? document.getElementById(captionInputId).value.trim() : '';
+  var filePath = currentClientId + '/' + Date.now() + '_' + file.name;
+
+  var uploadResult = await db.storage.from('institute-media').upload(filePath, file);
+  if (uploadResult.error) {
+    alert('Upload failed: ' + uploadResult.error.message);
+    return;
   }
-  
-  async function loadOverviewConvs() {
-    if (!currentClientId) return;
-    var result = await db.from('conversations').select('*').eq('client_id', currentClientId).order('id', { ascending: false }).limit(20);
-    var seen = {};
-    var grouped = (result.data || []).filter(function(c) {
-      if (seen[c.phone_number]) return false;
-      seen[c.phone_number] = true;
-      return true;
-    }).slice(0, 5);
-    renderConvs(grouped, 'overview-conv-body');
+
+  var publicUrlResult = db.storage.from('institute-media').getPublicUrl(filePath);
+  var fileUrl = publicUrlResult.data.publicUrl;
+
+  var insertResult = await db.from('institute_media').insert({
+    client_id: currentClientId,
+    media_type: mediaType,
+    file_url: fileUrl,
+    caption: caption || null
+  });
+
+  if (insertResult.error) {
+    alert('Saved file but failed to record it: ' + insertResult.error.message);
+    return;
   }
-  
-  async function loadAllConvs() {
-    if (!currentClientId) { document.getElementById('conv-body').innerHTML = '<div class="empty">Connect WhatsApp first to see conversations.</div>'; return; }
-    var result = await db.from('conversations').select('*').eq('client_id', currentClientId).order('id', { ascending: false });
-    var seen = {};
-    var grouped = (result.data || []).filter(function(c) {
-      if (seen[c.phone_number]) return false;
-      seen[c.phone_number] = true;
-      return true;
-    });
-    renderConvs(grouped, 'conv-body');
-  }
-  
-  function renderConvs(data, elId) {
-    var el = document.getElementById(elId);
-    if (!data || !data.length) { el.innerHTML = '<div class="empty">No conversations yet.</div>'; return; }
-    el.innerHTML = data.map(function(c) {
-      var name = (c.phone_number || 'Unknown').replace('whatsapp:', '');
-      var initials = name.replace('+91', '').slice(0, 2);
-      var msg = c.content || 'No message';
-      var time = c.id ? '#' + c.id : '';
-      return '<div class="conv-item"><div class="conv-av">' + initials + '</div><div style="flex:1;min-width:0"><div class="conv-name">' + name + '</div><div class="conv-msg">' + msg + '</div></div><div class="conv-time">' + time + '</div></div>';
-    }).join('');
-  }
-  
-  async function loadQuickReplies() {
-    var el = document.getElementById('qr-body');
-    var sample = [
-      { keyword: '#fees',   reply: 'Our fees depend on the batch selected. Please share your preferred time slot.' },
-      { keyword: '#timing', reply: 'Batches are available at 8am, 11am, and 5pm Monday to Saturday.' },
-      { keyword: '#book',   reply: 'To book a slot, please share your full name and preferred batch time.' },
-      { keyword: '#demo',   reply: 'Free demo classes are held every Saturday at 10am. Seats are limited!' },
-    ];
-    el.innerHTML = sample.map(function(q, i) {
-      return '<div class="qr-item"><span class="qr-key">' + q.keyword + '</span><span class="qr-text">' + q.reply + '</span><button class="qr-edit" onclick="editQR(' + i + ')">Edit</button></div>';
-    }).join('');
-  }
-  
-  function editQR(i) {
-    var newText = prompt('Edit reply:');
-    if (newText) alert('Saved!');
-  }
-  
-  function addQuickReply() {
-    var keyword = prompt('Enter keyword (e.g. #hours):');
-    var reply   = prompt('Enter reply text:');
-    if (keyword && reply) alert('Added "' + keyword + '"!');
-  }
-  
-  function showPage(page, el) {
-    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-    document.getElementById('page-' + page).classList.add('active');
-    if (el) el.classList.add('active');
-    var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', connect: 'Connect WhatsApp' };
-    document.getElementById('page-title').textContent = titles[page];
-    document.getElementById('stats-row').style.display = ['overview', 'leads'].includes(page) ? 'grid' : 'none';
-    if (page === 'leads') loadAllLeads();
-    if (page === 'conversations') loadAllConvs();
-    if (page === 'quickreplies') loadQuickReplies();
-  }
-  
-  init();
-  </script>
+
+  fileInput.value = '';
+  if (captionInputId) document.getElementById(captionInputId).value = '';
+  loadMedia();
+}
+
+async function deleteMedia(id) {
+  if (!confirm('Delete this media?')) return;
+  await db.from('institute_media').delete().eq('id', id);
+  loadMedia();
+}
+
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', profile: 'Institute Profile', connect: 'Connect WhatsApp' };
+  document.getElementById('page-title').textContent = titles[page];
+  document.getElementById('stats-row').style.display = ['overview', 'leads'].includes(page) ? 'grid' : 'none';
+  if (page === 'leads') loadAllLeads();
+  if (page === 'conversations') loadAllConvs();
+  if (page === 'quickreplies') loadQuickReplies();
+  if (page === 'profile') loadCourses();
+}
+
+init();
+</script>
 </body>
 </html>
