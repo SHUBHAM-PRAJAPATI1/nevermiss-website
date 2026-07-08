@@ -346,7 +346,12 @@ async function checkExistingConnection() {
     var data = await res.json();
     if (data.success && data.client) {
       currentClientId = data.client.id;
-      showConnectedState(data.client.business_name, data.client.phone_number_id);
+      // Only show "connected" if a real phone_number_id exists --
+      // status alone (e.g. from a test-mode payment) doesn't mean
+      // WhatsApp was actually linked via Meta Embedded Signup.
+      if (data.client.phone_number_id) {
+        showConnectedState(data.client.business_name, data.client.phone_number_id);
+      }
     }
   } catch(e) {
     console.log('[checkExistingConnection] No connection found or error:', e);
