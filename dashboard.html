@@ -345,11 +345,16 @@ async function checkExistingConnection() {
     var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
     var data = await res.json();
     if (data.success && data.client) {
-      currentClientId = data.client.id;
-      // Only show "connected" if a real phone_number_id exists --
-      // status alone (e.g. from a test-mode payment) doesn't mean
-      // WhatsApp was actually linked via Meta Embedded Signup.
-      if (data.client.phone_number_id) {
+      if (data.client.status === 'awaiting_connection') {
+        // Automated connection failed on Meta's side (known platform bug) --
+        // client is queued for manual completion, show a friendly pending
+        // state instead of the normal "Connect WhatsApp" banner.
+        showPendingState();
+      } else if (data.client.phone_number_id) {
+        // Only show "connected" if a real phone_number_id exists --
+        // status alone (e.g. from a test-mode payment) doesn't mean
+        // WhatsApp was actually linked via Meta Embedded Signup.
+        currentClientId = data.client.id;
         showConnectedState(data.client.business_name, data.client.phone_number_id);
       }
     }
@@ -363,6 +368,32 @@ function showConnectedState(businessName, phoneId) {
   document.getElementById('connected-phone-id').textContent = 'Phone Number ID: ' + (phoneId || '—');
   document.getElementById('connected-card').style.display = 'block';
   document.getElementById('connect-banner').style.display = 'none';
+  var pendingCard = document.getElementById('pending-card');
+  if (pendingCard) pendingCard.style.display = 'none';
+}
+
+function showPendingState() {
+  document.getElementById('connect-banner').style.display = 'none';
+  var pendingCard = document.getElementById('pending-card');
+  if (pendingCard) {
+    pendingCard.style.display = 'block';
+    return;
+  }
+  var el = document.createElement('div');
+  el.id = 'pending-card';
+  el.className = 'connected-card';
+  el.style.display = 'block';
+  el.style.background = '#FFF7E6';
+  el.style.borderColor = '#FFD591';
+  el.innerHTML =
+    '<div class="connected-card-inner">' +
+      '<div class="connected-icon" style="background:#FA8C16">⏳</div>' +
+      '<div class="connected-info">' +
+        '<h4 style="color:#AD6800">Verification pending</h4>' +
+        '<p style="color:#AD6800">We\'re finishing your WhatsApp connection on our end — usually ready within a few hours. We\'ll notify you once it\'s live.</p>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('connect-banner').insertAdjacentElement('afterend', el);
 }
 
 async function handleLogout() {
@@ -383,9 +414,9 @@ function startEmbeddedSignup() {
   FB.login(function(response) {
     console.log('[FB.login] full response:', JSON.stringify(response));
     if (response.authResponse && response.authResponse.code) {
-  var authCode = response.authResponse.code;
-  console.log('[FB.login] got auth code:', authCode.substring(0, 20) + '...');
-  exchangeToken(authCode, ownerNumberInput);
+      var authCode = response.authResponse.code;
+      console.log('[FB.login] got auth code:', authCode.substring(0, 20) + '...');
+      exchangeToken(authCode, ownerNumberInput);
     } else {
       alert('WhatsApp connection cancelled or failed. Please try again.');
       btn.disabled = false;
@@ -435,6 +466,10 @@ async function exchangeToken(accessToken, ownerNumberInput) {
       await loadStats();
       await loadOverviewLeads();
       await loadOverviewConvs();
+    } else if (data.pending) {
+      // Automated code exchange failed (currently a known Meta platform-side
+      // bug) -- backend has queued this client for manual completion.
+      showPendingState();
     } else {
       alert('Connection failed: ' + (data.error || 'Unknown error'));
       btn.disabled = false;
