@@ -309,6 +309,12 @@
       </div>
 
       <div class="owner-number-field">
+        <label for="business-whatsapp-input">WhatsApp Business number you want to connect</label>
+        <input type="tel" id="business-whatsapp-input" placeholder="e.g. 9876543210" />
+        <div class="hint">This is the number your customers will message and your bot will reply from.</div>
+      </div>
+
+      <div class="owner-number-field">
         <label for="owner-whatsapp-input">Your WhatsApp number (for lead notifications)</label>
         <input type="tel" id="owner-whatsapp-input" placeholder="e.g. 9876543210" />
         <div class="hint">New leads, bookings, and demo requests from your customers will be sent to this number.</div>
@@ -476,7 +482,12 @@ async function handleLogout() {
 }
 
 function startEmbeddedSignup() {
+  var businessNumberInput = document.getElementById('business-whatsapp-input').value.trim();
   var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
+  if (!businessNumberInput || businessNumberInput.length < 10) {
+    alert('Please enter the WhatsApp Business number you want to connect -- this is the number your bot will run on.');
+    return;
+  }
   if (!ownerNumberInput || ownerNumberInput.length < 10) {
     alert('Please enter your WhatsApp number first -- this is where your customer leads will be sent.');
     return;
@@ -490,7 +501,7 @@ function startEmbeddedSignup() {
     if (response.authResponse && response.authResponse.code) {
       var authCode = response.authResponse.code;
       console.log('[FB.login] got auth code:', authCode.substring(0, 20) + '...');
-      exchangeToken(authCode, ownerNumberInput);
+      exchangeToken(authCode, ownerNumberInput, businessNumberInput);
     } else {
       alert('WhatsApp connection cancelled or failed. Please try again.');
       btn.disabled = false;
@@ -517,7 +528,7 @@ window.addEventListener('message', function(event) {
   } catch(e) {}
 });
 
-async function exchangeToken(accessToken, ownerNumberInput) {
+async function exchangeToken(accessToken, ownerNumberInput, businessNumberInput) {
   var btn = document.getElementById('connect-btn');
   btn.textContent = 'Connecting...';
   try {
@@ -529,7 +540,8 @@ async function exchangeToken(accessToken, ownerNumberInput) {
         user_email:           currentUser.email,
         waba_id:              wabaId,
         phone_number_id:      phoneNumberId,
-        owner_whatsapp_number: ownerNumberInput
+        owner_whatsapp_number: ownerNumberInput,
+        business_whatsapp_number: businessNumberInput
       })
     });
     var data = await res.json();
