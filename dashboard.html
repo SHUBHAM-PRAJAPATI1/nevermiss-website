@@ -138,6 +138,19 @@
     .main { margin-left: 0; padding: 1rem; max-width: 100vw; }
     .stats { grid-template-columns: repeat(2, 1fr); }
   }
+
+  /* Setup progress widget */
+  .setup-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
+  .setup-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+  .setup-head h3 { font-size: 15px; font-weight: 500; }
+  .setup-pct { font-size: 13px; font-weight: 500; color: var(--green-dark); font-family: 'DM Mono', monospace; }
+  .setup-bar-track { width: 100%; height: 8px; background: var(--bg); border-radius: 20px; overflow: hidden; margin-bottom: 1.1rem; }
+  .setup-bar-fill { height: 100%; background: var(--green); border-radius: 20px; transition: width 0.4s ease; width: 0%; }
+  .setup-steps { display: flex; flex-direction: column; gap: 8px; }
+  .setup-step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
+  .setup-step.done { color: var(--text); }
+  .setup-step-icon { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+  .setup-step.done .setup-step-icon { background: var(--green); border-color: var(--green); color: white; }
 </style>
 </head>
 <body>
@@ -186,6 +199,19 @@
   </div>
 
   <div class="page active" id="page-overview">
+    <div class="setup-card" id="setup-card">
+      <div class="setup-head">
+        <h3>Setup progress</h3>
+        <span class="setup-pct" id="setup-pct">0%</span>
+      </div>
+      <div class="setup-bar-track"><div class="setup-bar-fill" id="setup-bar-fill"></div></div>
+      <div class="setup-steps">
+        <div class="setup-step done" id="step-account"><span class="setup-step-icon">✓</span> Account created</div>
+        <div class="setup-step" id="step-whatsapp"><span class="setup-step-icon"></span> WhatsApp connected</div>
+        <div class="setup-step" id="step-courses"><span class="setup-step-icon"></span> At least one course added</div>
+        <div class="setup-step" id="step-live"><span class="setup-step-icon"></span> Bot is live</div>
+      </div>
+    </div>
     <div class="card"><div class="card-head"><h2>Recent leads</h2></div><div id="overview-leads-body"><div class="loading"><span class="spinner"></span>Loading leads...</div></div></div>
     <div class="card"><div class="card-head"><h2>Recent conversations</h2></div><div class="conv-list" id="overview-conv-body"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
   </div>
@@ -339,6 +365,7 @@ async function init() {
   document.getElementById('user-name').textContent = email.split('@')[0];
 
   await checkExistingConnection();
+  await updateSetupProgress();
 
   if (currentClientId) {
     await loadStats();
@@ -379,6 +406,44 @@ function showConnectedState(businessName, phoneId) {
   document.getElementById('connect-banner').style.display = 'none';
   var pendingCard = document.getElementById('pending-card');
   if (pendingCard) pendingCard.style.display = 'none';
+}
+
+async function updateSetupProgress() {
+  var whatsappConnected = !!currentClientId;
+  var hasCourses = false;
+
+  if (currentClientId) {
+    var result = await db.from('courses').select('id', { count: 'exact', head: true }).eq('client_id', currentClientId);
+    hasCourses = (result.count || 0) > 0;
+  }
+
+  var botLive = whatsappConnected && hasCourses;
+
+  var steps = [
+    { id: 'step-whatsapp', done: whatsappConnected },
+    { id: 'step-courses',  done: hasCourses },
+    { id: 'step-live',     done: botLive },
+  ];
+
+  var doneCount = 1; // account created is always done
+  steps.forEach(function(s) {
+    var el = document.getElementById(s.id);
+    if (s.done) {
+      el.classList.add('done');
+      el.querySelector('.setup-step-icon').textContent = '✓';
+      doneCount++;
+    } else {
+      el.classList.remove('done');
+      el.querySelector('.setup-step-icon').textContent = '';
+    }
+  });
+
+  var pct = Math.round((doneCount / 4) * 100);
+  document.getElementById('setup-pct').textContent = pct + '%';
+  document.getElementById('setup-bar-fill').style.width = pct + '%';
+
+  var card = document.getElementById('setup-card');
+  card.style.display = botLive ? 'none' : 'block';
 }
 
 function showPendingState() {
@@ -668,6 +733,7 @@ async function saveCourse(name, fees, seats, batchLabel, startTime, endTime) {
     });
   }
   loadCourses();
+  updateSetupProgress();
 }
 
 async function deleteCourse(id) {
