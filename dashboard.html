@@ -242,6 +242,7 @@
           <button class="profile-tab" onclick="showProfileTab('results', this)">Results</button>
           <button class="profile-tab" onclick="showProfileTab('facilities', this)">Facilities</button>
           <button class="profile-tab" onclick="showProfileTab('media', this)">Media</button>
+          <button class="profile-tab" onclick="showProfileTab('settings', this)">Business Info</button>
         </div>
       </div>
 
@@ -286,6 +287,30 @@
           </div>
         </div>
         <div id="media-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+      </div>
+
+      <!-- BUSINESS INFO TAB -->
+      <div class="profile-section" id="profile-settings">
+        <div class="card-head"><h2>Business Info</h2></div>
+        <div style="padding: 1.25rem;">
+          <div class="owner-number-field">
+            <label for="settings-business-name">Coaching / Business name</label>
+            <input type="text" id="settings-business-name" placeholder="e.g. Excel Coaching Institute" />
+          </div>
+          <div class="owner-number-field">
+            <label for="settings-location">Location</label>
+            <input type="text" id="settings-location" placeholder="e.g. Pune, Maharashtra" />
+          </div>
+          <div class="owner-number-field">
+            <label for="settings-contact-phone">Contact phone (shown to students)</label>
+            <input type="tel" id="settings-contact-phone" placeholder="e.g. 9876543210" />
+          </div>
+          <div class="owner-number-field">
+            <label for="settings-timings">Institute timings</label>
+            <input type="text" id="settings-timings" placeholder="e.g. Monday to Saturday, 8am - 8pm" />
+          </div>
+          <button class="add-qr-btn" onclick="saveBusinessSettings()">Save changes</button>
+        </div>
       </div>
     </div>
   </div>
@@ -684,7 +709,7 @@ function addQuickReply() {
 }
 
 // ---------------------------------------------------------------------
-// INSTITUTE PROFILE: Courses, Results, Facilities, Media
+// INSTITUTE PROFILE: Courses, Results, Facilities, Media, Business Info
 // ---------------------------------------------------------------------
 
 function showProfileTab(tab, el) {
@@ -696,6 +721,7 @@ function showProfileTab(tab, el) {
   if (tab === 'results') loadResults();
   if (tab === 'facilities') loadFacilities();
   if (tab === 'media') loadMedia();
+  if (tab === 'settings') loadBusinessSettings();
 }
 
 // ---------- COURSES ----------
@@ -886,6 +912,52 @@ async function deleteMedia(id) {
   if (!confirm('Delete this media?')) return;
   await db.from('institute_media').delete().eq('id', id);
   loadMedia();
+}
+
+// ---------- BUSINESS INFO / SETTINGS ----------
+
+async function loadBusinessSettings() {
+  if (!currentClientId) return;
+  var result = await db.from('clients')
+    .select('business_name, location, contact_phone, institute_timings')
+    .eq('id', currentClientId)
+    .single();
+
+  if (result.error) {
+    alert('Failed to load business info: ' + result.error.message);
+    return;
+  }
+
+  var c = result.data;
+  document.getElementById('settings-business-name').value = c.business_name || '';
+  document.getElementById('settings-location').value = c.location || '';
+  document.getElementById('settings-contact-phone').value = c.contact_phone || '';
+  document.getElementById('settings-timings').value = c.institute_timings || '';
+}
+
+async function saveBusinessSettings() {
+  if (!currentClientId) { alert('Connect WhatsApp first.'); return; }
+
+  var businessName = document.getElementById('settings-business-name').value.trim();
+  var location = document.getElementById('settings-location').value.trim();
+  var contactPhone = document.getElementById('settings-contact-phone').value.trim();
+  var timings = document.getElementById('settings-timings').value.trim();
+
+  if (!businessName) { alert('Business name cannot be empty.'); return; }
+
+  var result = await db.from('clients').update({
+    business_name: businessName,
+    location: location,
+    contact_phone: contactPhone,
+    institute_timings: timings
+  }).eq('id', currentClientId);
+
+  if (result.error) {
+    alert('Failed to save: ' + result.error.message);
+    return;
+  }
+
+  alert('Business info updated! This will reflect in your bot immediately.');
 }
 
 function showPage(page, el) {
