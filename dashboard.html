@@ -157,9 +157,14 @@
   .leads-column-head { padding: 12px 14px; font-size: 13px; font-weight: 500; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; }
   .leads-count { background: var(--green-light); color: var(--green-dark); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
   .leads-column-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 620px; overflow-y: auto; }
-  .lead-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; cursor: pointer; transition: background 0.12s; }
+  .lead-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; cursor: pointer; transition: background 0.12s, opacity 0.2s; }
   .lead-card:hover { background: var(--bg); }
   .lead-card.unread { border-left: 3px solid var(--green); background: #FAFFFE; }
+  .lead-card.done { opacity: 0.5; background: var(--bg); }
+  .lead-card.done .lead-name { text-decoration: line-through; }
+  .lead-card-top { display: flex; align-items: flex-start; gap: 8px; }
+  .lead-checkbox { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+  .lead-card-main { flex: 1; min-width: 0; }
   .lead-card .lead-name { font-weight: 500; margin-bottom: 2px; }
   .lead-card .lead-phone { font-family: 'DM Mono', monospace; color: var(--text-muted); font-size: 12px; }
   .lead-card .lead-course { color: var(--text-muted); font-size: 12px; margin-top: 3px; }
@@ -707,10 +712,15 @@ function renderLeadsBoard(leads) {
   });
 
   Object.keys(LEAD_COLUMNS).forEach(function(type) {
-    var items = grouped[type];
+    // Pending leads first (most recent first, since `leads` array is
+    // already ordered by created_at desc), done leads pushed to the bottom.
+    var items = grouped[type].slice().sort(function(a, b) {
+      return (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1);
+    });
+    var pendingCount = items.filter(function(l) { return !l.is_done; }).length;
     var bodyEl = document.getElementById(LEAD_COLUMNS[type]);
     var countEl = document.getElementById('count-' + type);
-    countEl.textContent = items.length;
+    countEl.textContent = pendingCount;
     bodyEl.innerHTML = items.length ? items.map(leadCard).join('') : '<div class="empty" style="padding:1rem; font-size:12px;">None yet.</div>';
   });
 }
@@ -718,15 +728,30 @@ function renderLeadsBoard(leads) {
 function leadCard(l) {
   var date = l.created_at ? new Date(l.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
   var unreadClass = l.is_read ? '' : ' unread';
+  var doneClass = l.is_done ? ' done' : '';
+  var checkedAttr = l.is_done ? 'checked' : '';
   var courseLine = l.course ? '<div class="lead-course">' + l.course + '</div>' : '';
   return (
-    '<div class="lead-card' + unreadClass + '" onclick="markLeadRead(\'' + l.id + '\', this)">' +
-      '<div class="lead-name">' + (l.name || 'Unknown') + '</div>' +
-      '<div class="lead-phone">' + (l.whatsapp_number || l.phone || '—') + '</div>' +
-      courseLine +
-      '<div class="lead-time">' + date + '</div>' +
+    '<div class="lead-card' + unreadClass + doneClass + '" id="lead-card-' + l.id + '" onclick="markLeadRead(\'' + l.id + '\', this)">' +
+      '<div class="lead-card-top">' +
+        '<input type="checkbox" class="lead-checkbox" ' + checkedAttr + ' onclick="event.stopPropagation(); toggleLeadDone(\'' + l.id + '\', this)" />' +
+        '<div class="lead-card-main">' +
+          '<div class="lead-name">' + (l.name || 'Unknown') + '</div>' +
+          '<div class="lead-phone">' + (l.whatsapp_number || l.phone || '—') + '</div>' +
+          courseLine +
+          '<div class="lead-time">' + date + '</div>' +
+        '</div>' +
+      '</div>' +
     '</div>'
   );
+}
+
+async function toggleLeadDone(leadId, checkboxEl) {
+  var isDone = checkboxEl.checked;
+  var lead = allLeads.find(function(l) { return l.id === leadId; });
+  if (lead) lead.is_done = isDone;
+  renderLeadsBoard(allLeads);
+  await db.from('leads').update({ is_done: isDone }).eq('id', leadId);
 }
 
 async function markLeadRead(leadId, cardEl) {
