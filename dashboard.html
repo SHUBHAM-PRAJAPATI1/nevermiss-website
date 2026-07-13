@@ -671,8 +671,15 @@ async function loadOverviewLeads() {
   var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }).limit(5);
   var el = document.getElementById('overview-leads-body');
   if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
-  allLeads = result.data;
   el.innerHTML = leadsTable(result.data);
+}
+
+function leadsTable(leads) {
+  var rows = leads.map(function(l) {
+    var date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
+    return '<tr><td>' + (l.name || '—') + '</td><td class="phone">' + (l.whatsapp_number || l.phone || '—') + '</td><td>' + (l.lead_type || 'WhatsApp') + '</td><td style="color:var(--text-muted);font-size:12px">' + date + '</td></tr>';
+  }).join('');
+  return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
 var LEAD_COLUMNS = {
