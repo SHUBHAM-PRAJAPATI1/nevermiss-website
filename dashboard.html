@@ -849,26 +849,62 @@ function renderConvs(data, elId) {
 
 async function loadQuickReplies() {
   var el = document.getElementById('qr-body');
-  var sample = [
-    { keyword: '#fees',   reply: 'Our fees depend on the batch selected. Please share your preferred time slot.' },
-    { keyword: '#timing', reply: 'Batches are available at 8am, 11am, and 5pm Monday to Saturday.' },
-    { keyword: '#book',   reply: 'To book a slot, please share your full name and preferred batch time.' },
-    { keyword: '#demo',   reply: 'Free demo classes are held every Saturday at 10am. Seats are limited!' },
-  ];
-  el.innerHTML = sample.map(function(q, i) {
-    return '<div class="qr-item"><span class="qr-key">' + q.keyword + '</span><span class="qr-text">' + q.reply + '</span><button class="qr-edit" onclick="editQR(' + i + ')">Edit</button></div>';
+  if (!currentClientId) { el.innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
+  var result = await db.from('quick_replies').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false });
+  if (result.error || !result.data || !result.data.length) {
+    el.innerHTML = '<div class="empty">No quick replies yet. Click "+ Add" to create one.</div>';
+    return;
+  }
+  el.innerHTML = result.data.map(function(q) {
+    return (
+      '<div class="qr-item">' +
+        '<span class="qr-key">#' + q.keyword + '</span>' +
+        '<span class="qr-text">' + q.reply_text + '</span>' +
+        '<button class="qr-edit" onclick="editQR(\'' + q.id + '\', \'' + q.keyword.replace(/'/g, "\\'") + '\', \'' + q.reply_text.replace(/'/g, "\\'") + '\')">Edit</button>' +
+        '<button class="qr-edit" onclick="deleteQR(\'' + q.id + '\')">Delete</button>' +
+      '</div>'
+    );
   }).join('');
 }
 
-function editQR(i) {
-  var newText = prompt('Edit reply:');
-  if (newText) alert('Saved!');
+async function addQuickReply() {
+  if (!currentClientId) { alert('Connect WhatsApp first.'); return; }
+  var keyword = prompt('Enter keyword (e.g. hours) -- students can trigger this by typing it with or without a # in front:');
+  if (!keyword) return;
+  keyword = keyword.trim().replace(/^#/, '').toLowerCase();
+  var reply = prompt('Enter reply text:');
+  if (!reply) return;
+
+  var result = await db.from('quick_replies').insert({
+    client_id: currentClientId,
+    keyword: keyword,
+    reply_text: reply
+  });
+
+  if (result.error) { alert('Failed to save: ' + result.error.message); return; }
+  loadQuickReplies();
 }
 
-function addQuickReply() {
-  var keyword = prompt('Enter keyword (e.g. #hours):');
-  var reply   = prompt('Enter reply text:');
-  if (keyword && reply) alert('Added "' + keyword + '"!');
+async function editQR(id, currentKeyword, currentReply) {
+  var newKeyword = prompt('Edit keyword:', currentKeyword);
+  if (!newKeyword) return;
+  newKeyword = newKeyword.trim().replace(/^#/, '').toLowerCase();
+  var newReply = prompt('Edit reply text:', currentReply);
+  if (!newReply) return;
+
+  var result = await db.from('quick_replies').update({
+    keyword: newKeyword,
+    reply_text: newReply
+  }).eq('id', id);
+
+  if (result.error) { alert('Failed to update: ' + result.error.message); return; }
+  loadQuickReplies();
+}
+
+async function deleteQR(id) {
+  if (!confirm('Delete this quick reply?')) return;
+  await db.from('quick_replies').delete().eq('id', id);
+  loadQuickReplies();
 }
 
 // ---------------------------------------------------------------------
