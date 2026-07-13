@@ -142,6 +142,31 @@
     .stats { grid-template-columns: repeat(2, 1fr); }
   }
 
+  /* Bell notification */
+  .bell-wrap { position: relative; cursor: pointer; font-size: 19px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; transition: background 0.12s; }
+  .bell-wrap:hover { background: var(--bg); }
+  .bell-badge { position: absolute; top: -2px; right: -2px; background: #DC2626; color: white; font-size: 10px; font-weight: 600; border-radius: 10px; padding: 1px 5px; min-width: 15px; text-align: center; line-height: 1.4; display: none; }
+  .toast-notif { position: fixed; top: 20px; right: 20px; background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 10px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 1000; max-width: 300px; font-size: 13px; animation: slideIn 0.25s ease; cursor: pointer; }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .toast-notif .toast-title { font-weight: 500; margin-bottom: 3px; }
+  .toast-notif .toast-body { color: var(--text-muted); }
+
+  /* Leads board */
+  .leads-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: start; }
+  .leads-column { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .leads-column-head { padding: 12px 14px; font-size: 13px; font-weight: 500; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; }
+  .leads-count { background: var(--green-light); color: var(--green-dark); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+  .leads-column-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 620px; overflow-y: auto; }
+  .lead-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; cursor: pointer; transition: background 0.12s; }
+  .lead-card:hover { background: var(--bg); }
+  .lead-card.unread { border-left: 3px solid var(--green); background: #FAFFFE; }
+  .lead-card .lead-name { font-weight: 500; margin-bottom: 2px; }
+  .lead-card .lead-phone { font-family: 'DM Mono', monospace; color: var(--text-muted); font-size: 12px; }
+  .lead-card .lead-course { color: var(--text-muted); font-size: 12px; margin-top: 3px; }
+  .lead-card .lead-time { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
+  @media (max-width: 900px) { .leads-board { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .leads-board { grid-template-columns: 1fr; } }
+
   /* Setup progress widget */
   .setup-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
   .setup-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
@@ -191,7 +216,13 @@
 <main class="main">
   <div class="topbar">
     <h1 id="page-title">Overview</h1>
-    <div class="badge-live"><div class="dot"></div> Bot live</div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="bell-wrap" id="bell-wrap" onclick="showPage('leads', document.querySelector('.nav-item[onclick*=leads]'))" title="New leads">
+        🔔
+        <span class="bell-badge" id="bell-badge">0</span>
+      </div>
+      <div class="badge-live"><div class="dot"></div> Bot live</div>
+    </div>
   </div>
 
   <div class="stats" id="stats-row">
@@ -220,9 +251,26 @@
   </div>
 
   <div class="page" id="page-leads">
-    <div class="card">
-      <div class="card-head"><h2>All leads</h2><div class="card-head-right"><input class="search-input" id="leads-search" placeholder="Search name or phone..." oninput="filterLeads()"/></div></div>
-      <div id="leads-body"><div class="loading"><span class="spinner"></span>Loading leads...</div></div>
+    <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+      <input class="search-input" id="leads-search" placeholder="Search name or phone..." oninput="filterLeads()" style="width:260px;"/>
+    </div>
+    <div class="leads-board" id="leads-board">
+      <div class="leads-column">
+        <div class="leads-column-head">📞 Callback Requests <span class="leads-count" id="count-callback">0</span></div>
+        <div class="leads-column-body" id="col-callback"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+      <div class="leads-column">
+        <div class="leads-column-head">📋 Registrations <span class="leads-count" id="count-registration">0</span></div>
+        <div class="leads-column-body" id="col-registration"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+      <div class="leads-column">
+        <div class="leads-column-head">🎓 Demo Bookings <span class="leads-count" id="count-demo">0</span></div>
+        <div class="leads-column-body" id="col-demo"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+      <div class="leads-column">
+        <div class="leads-column-head">💺 Seat Bookings <span class="leads-count" id="count-booking">0</span></div>
+        <div class="leads-column-body" id="col-booking"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
     </div>
   </div>
 
@@ -405,6 +453,8 @@ async function init() {
     await loadStats();
     await loadOverviewLeads();
     await loadOverviewConvs();
+    await loadAllLeads();
+    subscribeToLeadsRealtime();
   } else {
     console.warn('[init] No client_id resolved -- dashboard data will not load until WhatsApp is connected.');
   }
@@ -620,13 +670,25 @@ async function loadOverviewLeads() {
   el.innerHTML = leadsTable(result.data);
 }
 
+var LEAD_COLUMNS = {
+  callback:     'col-callback',
+  registration: 'col-registration',
+  demo:         'col-demo',
+  booking:      'col-booking'
+};
+
 async function loadAllLeads() {
-  if (!currentClientId) { document.getElementById('leads-body').innerHTML = '<div class="empty">Connect WhatsApp first to see your leads.</div>'; return; }
+  if (!currentClientId) {
+    Object.values(LEAD_COLUMNS).forEach(function(id) {
+      document.getElementById(id).innerHTML = '<div class="empty" style="padding:1.5rem;">Connect WhatsApp first.</div>';
+    });
+    return;
+  }
   var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false });
-  var el = document.getElementById('leads-body');
-  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
-  allLeads = result.data;
-  el.innerHTML = leadsTable(result.data);
+  if (result.error) { console.error('[loadAllLeads]', result.error); return; }
+  allLeads = result.data || [];
+  renderLeadsBoard(allLeads);
+  updateBellBadge();
 }
 
 function filterLeads() {
@@ -634,18 +696,94 @@ function filterLeads() {
   var filtered = allLeads.filter(function(l) {
     return (l.name || '').toLowerCase().includes(q) || (l.whatsapp_number || l.phone || '').includes(q);
   });
-  document.getElementById('leads-body').innerHTML = filtered.length ? leadsTable(filtered) : '<div class="empty">No results.</div>';
+  renderLeadsBoard(filtered);
 }
 
-function leadsTable(leads) {
-  var rows = leads.map(function(l) {
-    var status = l.status || 'new';
-    var chipMap = { new: 'chip-new', hot: 'chip-hot', following_up: 'chip-follow', closed: 'chip-closed' };
-    var chipClass = chipMap[status] || 'chip-new';
-    var date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
-    return '<tr><td>' + (l.name || '—') + '</td><td class="phone">' + (l.whatsapp_number || l.phone || '—') + '</td><td>' + (l.lead_type || 'WhatsApp') + '</td><td><span class="chip ' + chipClass + '">' + status.replace('_', ' ') + '</span></td><td style="color:var(--text-muted);font-size:12px">' + date + '</td></tr>';
-  }).join('');
-  return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Status</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
+function renderLeadsBoard(leads) {
+  var grouped = { callback: [], registration: [], demo: [], booking: [] };
+  leads.forEach(function(l) {
+    var type = (l.lead_type || '').toLowerCase();
+    if (grouped[type]) grouped[type].push(l);
+  });
+
+  Object.keys(LEAD_COLUMNS).forEach(function(type) {
+    var items = grouped[type];
+    var bodyEl = document.getElementById(LEAD_COLUMNS[type]);
+    var countEl = document.getElementById('count-' + type);
+    countEl.textContent = items.length;
+    bodyEl.innerHTML = items.length ? items.map(leadCard).join('') : '<div class="empty" style="padding:1rem; font-size:12px;">None yet.</div>';
+  });
+}
+
+function leadCard(l) {
+  var date = l.created_at ? new Date(l.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+  var unreadClass = l.is_read ? '' : ' unread';
+  var courseLine = l.course ? '<div class="lead-course">' + l.course + '</div>' : '';
+  return (
+    '<div class="lead-card' + unreadClass + '" onclick="markLeadRead(\'' + l.id + '\', this)">' +
+      '<div class="lead-name">' + (l.name || 'Unknown') + '</div>' +
+      '<div class="lead-phone">' + (l.whatsapp_number || l.phone || '—') + '</div>' +
+      courseLine +
+      '<div class="lead-time">' + date + '</div>' +
+    '</div>'
+  );
+}
+
+async function markLeadRead(leadId, cardEl) {
+  cardEl.classList.remove('unread');
+  var lead = allLeads.find(function(l) { return l.id === leadId; });
+  if (lead) lead.is_read = true;
+  updateBellBadge();
+  await db.from('leads').update({ is_read: true }).eq('id', leadId);
+}
+
+function updateBellBadge() {
+  var unreadCount = allLeads.filter(function(l) { return !l.is_read; }).length;
+  var badge = document.getElementById('bell-badge');
+  if (unreadCount > 0) {
+    badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function showLeadToast(lead) {
+  var titles = { callback: '📞 New Callback Request', registration: '📋 New Registration', demo: '🎓 New Demo Booking', booking: '💺 New Seat Booking' };
+  var title = titles[(lead.lead_type || '').toLowerCase()] || '🔔 New Lead';
+  var toast = document.createElement('div');
+  toast.className = 'toast-notif';
+  toast.innerHTML = '<div class="toast-title">' + title + '</div><div class="toast-body">' + (lead.name || 'Someone') + ' — ' + (lead.whatsapp_number || lead.phone || '') + '</div>';
+  toast.onclick = function() {
+    toast.remove();
+    showPage('leads', document.querySelector('.nav-item[onclick*=leads]'));
+  };
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 6000);
+}
+
+var leadsRealtimeChannel = null;
+
+function subscribeToLeadsRealtime() {
+  if (!currentClientId || leadsRealtimeChannel) return;
+  leadsRealtimeChannel = db
+    .channel('leads-realtime-' + currentClientId)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'leads',
+      filter: 'client_id=eq.' + currentClientId
+    }, function(payload) {
+      var newLead = payload.new;
+      allLeads.unshift(newLead);
+      updateBellBadge();
+      showLeadToast(newLead);
+      // If the Leads page is currently open, refresh the board immediately
+      if (document.getElementById('page-leads').classList.contains('active')) {
+        renderLeadsBoard(allLeads);
+      }
+    })
+    .subscribe();
 }
 
 async function loadOverviewConvs() {
