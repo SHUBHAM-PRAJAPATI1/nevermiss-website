@@ -7,18 +7,6 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico"/>
 <link rel="apple-touch-icon" href="images/logo/app-icon.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId: '1662583918327842',
-      autoLogAppEvents: true,
-      xfbml: true,
-      version: 'v20.0'
-    });
-  };
-</script>
-<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
 <style>
   :root {
     --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56;
@@ -61,7 +49,6 @@
   .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.25rem; }
   .card-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
   .card-head h2 { font-size: 15px; font-weight: 500; }
-  .card-head-right { display: flex; align-items: center; gap: 10px; }
   .search-input { padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 200px; }
   .search-input:focus { border-color: var(--green); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -69,11 +56,6 @@
   td { padding: 12px 1.25rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--bg); }
-  .chip { display: inline-block; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
-  .chip-new { background: #E1F5EE; color: #0F6E56; }
-  .chip-hot { background: #FAECE7; color: #993C1D; }
-  .chip-follow { background: #E6F1FB; color: #185FA5; }
-  .chip-closed { background: #F1EFE8; color: #5F5E5A; }
   .phone { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-muted); }
   .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 14px; }
   .conv-list { padding: 0 1.25rem; }
@@ -112,17 +94,10 @@
   .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; margin-right: 8px; vertical-align: middle; }
-
-  /* Institute Profile section */
   .profile-tab { padding: 8px 16px; border: 1px solid var(--border); background: var(--white); border-radius: 8px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--text-muted); }
   .profile-tab.active { background: var(--green); color: white; border-color: var(--green); }
   .profile-section { display: none; }
   .profile-section.active { display: block; }
-  .form-row { display: flex; gap: 10px; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-  .form-row input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; flex: 1; min-width: 120px; }
-  .form-row button { padding: 8px 14px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; cursor: pointer; }
-  .batch-row { display: flex; gap: 8px; margin-top: 6px; }
-  .batch-row input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
   .item-row { display: flex; align-items: center; gap: 10px; padding: 12px 1.25rem; border-bottom: 1px solid var(--border); }
   .item-row:last-child { border-bottom: none; }
   .item-main { flex: 1; }
@@ -134,15 +109,12 @@
   .media-upload-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
   .media-upload-group input[type="text"] { width: 100%; max-width: 320px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; margin-bottom: 8px; }
   .media-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); transition: transform 0.2s; }
     .sidebar.open { transform: translateX(0); }
     .main { margin-left: 0; padding: 1rem; max-width: 100vw; }
     .stats { grid-template-columns: repeat(2, 1fr); }
   }
-
-  /* Bell notification */
   .bell-wrap { position: relative; cursor: pointer; font-size: 19px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; transition: background 0.12s; }
   .bell-wrap:hover { background: var(--bg); }
   .bell-badge { position: absolute; top: -2px; right: -2px; background: #DC2626; color: white; font-size: 10px; font-weight: 600; border-radius: 10px; padding: 1px 5px; min-width: 15px; text-align: center; line-height: 1.4; display: none; }
@@ -150,8 +122,6 @@
   @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   .toast-notif .toast-title { font-weight: 500; margin-bottom: 3px; }
   .toast-notif .toast-body { color: var(--text-muted); }
-
-  /* Leads board */
   .leads-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: start; }
   .leads-column { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
   .leads-column-head { padding: 12px 14px; font-size: 13px; font-weight: 500; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; }
@@ -171,8 +141,6 @@
   .lead-card .lead-time { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
   @media (max-width: 900px) { .leads-board { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 600px) { .leads-board { grid-template-columns: 1fr; } }
-
-  /* Setup progress widget */
   .setup-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
   .setup-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
   .setup-head h3 { font-size: 15px; font-weight: 500; }
@@ -184,6 +152,11 @@
   .setup-step.done { color: var(--text); }
   .setup-step-icon { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
   .setup-step.done .setup-step-icon { background: var(--green); border-color: var(--green); color: white; }
+  .request-sent-card { background: var(--green-light); border: 1.5px solid #a7e6cf; border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
+  .request-sent-card-inner { display: flex; align-items: center; gap: 14px; }
+  .request-sent-icon { width: 44px; height: 44px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .request-sent-info h4 { font-size: 15px; font-weight: 500; color: var(--green-dark); margin-bottom: 3px; }
+  .request-sent-info p { font-size: 13px; color: var(--green-dark); opacity: 0.8; }
 </style>
 </head>
 <body>
@@ -299,25 +272,21 @@
         </div>
       </div>
 
-      <!-- COURSES TAB -->
       <div class="profile-section active" id="profile-courses">
         <div class="card-head"><h2>Courses</h2><button class="add-qr-btn" onclick="openCourseForm()">+ Add Course</button></div>
         <div id="courses-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
       </div>
 
-      <!-- RESULTS TAB -->
       <div class="profile-section" id="profile-results">
         <div class="card-head"><h2>Results / Selections</h2><button class="add-qr-btn" onclick="openResultForm()">+ Add Result</button></div>
         <div id="results-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
       </div>
 
-      <!-- FACILITIES TAB -->
       <div class="profile-section" id="profile-facilities">
         <div class="card-head"><h2>Facilities</h2><button class="add-qr-btn" onclick="openFacilityForm()">+ Add Facility</button></div>
         <div id="facilities-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
       </div>
 
-      <!-- MEDIA TAB -->
       <div class="profile-section" id="profile-media">
         <div class="card-head"><h2>Media (Brochure & Photos)</h2></div>
         <div style="padding: 1.25rem;">
@@ -342,7 +311,6 @@
         <div id="media-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
       </div>
 
-      <!-- BUSINESS INFO TAB -->
       <div class="profile-section" id="profile-settings">
         <div class="card-head"><h2>Business Info</h2></div>
         <div style="padding: 1.25rem;">
@@ -370,7 +338,6 @@
 
   <div class="page" id="page-connect">
 
-    <!-- Shown after successful connection -->
     <div class="connected-card" id="connected-card">
       <div class="connected-card-inner">
         <div class="connected-icon">✅</div>
@@ -382,11 +349,20 @@
       </div>
     </div>
 
-    <!-- Shown before connection -->
+    <div class="request-sent-card" id="request-sent-card">
+      <div class="request-sent-card-inner">
+        <div class="request-sent-icon">📩</div>
+        <div class="request-sent-info">
+          <h4>Request received!</h4>
+          <p id="request-sent-detail">We've got your number and will have your bot live shortly. We'll notify you the moment it's ready.</p>
+        </div>
+      </div>
+    </div>
+
     <div class="connect-banner" id="connect-banner">
       <div class="connect-banner-text">
         <h3>📱 Connect your WhatsApp Business number</h3>
-        <p>Link your WhatsApp Business account to activate the NeverMiss bot for your number.</p>
+        <p>We'll connect this for you — no Facebook login or setup needed on your end. Just enter your number below and we'll take it from there.</p>
       </div>
 
       <div class="owner-number-field">
@@ -401,9 +377,9 @@
         <div class="hint">New leads, bookings, and demo requests from your customers will be sent to this number.</div>
       </div>
 
-      <button class="connect-wp-btn" id="connect-btn" onclick="startEmbeddedSignup()">
+      <button class="connect-wp-btn" id="connect-btn" onclick="submitConnectionRequest()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Connect WhatsApp
+        Request Connection
       </button>
     </div>
 
@@ -411,10 +387,9 @@
       <div class="card-head"><h2>How it works</h2></div>
       <div style="padding: 1.25rem; font-size: 14px; color: var(--text-muted); line-height: 2;">
         <div>1️⃣ &nbsp;Enter your WhatsApp number above (this is where you'll get customer leads)</div>
-        <div>2️⃣ &nbsp;Click <strong>Connect WhatsApp</strong></div>
-        <div>3️⃣ &nbsp;Log in with the Facebook account linked to your WhatsApp Business</div>
-        <div>4️⃣ &nbsp;Select or create your WhatsApp Business number</div>
-        <div>5️⃣ &nbsp;Your bot usually goes live within a few hours, but can occasionally take up to 24. If it takes longer, we'll finish the connection on our end and notify you.</div>
+        <div>2️⃣ &nbsp;Click <strong>Request Connection</strong></div>
+        <div>3️⃣ &nbsp;Our team connects your number on our end — no Facebook login needed from you</div>
+        <div>4️⃣ &nbsp;Your bot usually goes live within a few hours, but can occasionally take up to 24. We'll notify you the moment it's ready.</div>
       </div>
       <div style="padding: 0 1.25rem 1.25rem; font-size: 13px; color: var(--text-muted);">
         Stuck or have questions? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20help%20connecting%20WhatsApp" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:500;">Message us on WhatsApp</a> or email <a href="mailto:support@nevermiss.co.in" style="color:var(--green-dark);font-weight:500;">support@nevermiss.co.in</a>.
@@ -423,6 +398,7 @@
   </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL     = 'https://uwxthbxxiaujlgxosqjx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w';
@@ -437,8 +413,6 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 let allLeads       = [];
 let currentUser    = null;
-let wabaId         = null;
-let phoneNumberId  = null;
 let currentClientId = null;
 
 async function init() {
@@ -479,14 +453,14 @@ async function checkExistingConnection() {
     var data = await res.json();
     if (data.success && data.client) {
       if (data.client.status === 'awaiting_connection') {
-        // Automated connection failed on Meta's side (known platform bug) --
-        // client is queued for manual completion, show a friendly pending
-        // state instead of the normal "Connect WhatsApp" banner.
-        showPendingState();
+        // Either they submitted a connection request (new manual-connect
+        // flow below) or hit the old Embedded Signup failure path -- both
+        // land here and show the same "we're finishing this" message.
+        showRequestSentState();
       } else if (data.client.phone_number_id) {
         // Only show "connected" if a real phone_number_id exists --
         // status alone (e.g. from a test-mode payment) doesn't mean
-        // WhatsApp was actually linked via Meta Embedded Signup.
+        // WhatsApp was actually linked.
         currentClientId = data.client.id;
         showConnectedState(data.client.business_name, data.client.phone_number_id);
       }
@@ -501,8 +475,7 @@ function showConnectedState(businessName, phoneId) {
   document.getElementById('connected-phone-id').textContent = 'Phone Number ID: ' + (phoneId || '—');
   document.getElementById('connected-card').style.display = 'block';
   document.getElementById('connect-banner').style.display = 'none';
-  var pendingCard = document.getElementById('pending-card');
-  if (pendingCard) pendingCard.style.display = 'none';
+  document.getElementById('request-sent-card').style.display = 'none';
 }
 
 async function updateSetupProgress() {
@@ -543,28 +516,9 @@ async function updateSetupProgress() {
   card.style.display = botLive ? 'none' : 'block';
 }
 
-function showPendingState() {
+function showRequestSentState() {
   document.getElementById('connect-banner').style.display = 'none';
-  var pendingCard = document.getElementById('pending-card');
-  if (pendingCard) {
-    pendingCard.style.display = 'block';
-    return;
-  }
-  var el = document.createElement('div');
-  el.id = 'pending-card';
-  el.className = 'connected-card';
-  el.style.display = 'block';
-  el.style.background = '#FFF7E6';
-  el.style.borderColor = '#FFD591';
-  el.innerHTML =
-    '<div class="connected-card-inner">' +
-      '<div class="connected-icon" style="background:#FA8C16">⏳</div>' +
-      '<div class="connected-info">' +
-        '<h4 style="color:#AD6800">Verification pending</h4>' +
-        '<p style="color:#AD6800">We\'re finishing your WhatsApp connection on our end — this usually takes a few hours, but can occasionally take up to 24. We\'ll notify you the moment it\'s live. Still waiting after 24 hours? Message us and we\'ll check on it.</p>' +
-      '</div>' +
-    '</div>';
-  document.getElementById('connect-banner').insertAdjacentElement('afterend', el);
+  document.getElementById('request-sent-card').style.display = 'block';
 }
 
 async function handleLogout() {
@@ -572,7 +526,13 @@ async function handleLogout() {
   window.location.href = 'login.html';
 }
 
-function startEmbeddedSignup() {
+// NEW: replaces the old Facebook Embedded Signup flow. Client just submits
+// their business WhatsApp number + notification number -- no Facebook
+// login required. Backend saves the request and notifies the founder
+// directly, same pattern as a new-subscription alert. The founder then
+// completes the connection manually via Graph API Explorer +
+// /admin/manual-connect.
+async function submitConnectionRequest() {
   var businessNumberInput = document.getElementById('business-whatsapp-input').value.trim();
   var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
   if (!businessNumberInput || businessNumberInput.length < 10) {
@@ -586,77 +546,31 @@ function startEmbeddedSignup() {
 
   var btn = document.getElementById('connect-btn');
   btn.disabled = true;
-  btn.textContent = 'Opening Meta...';
-  FB.login(function(response) {
-    console.log('[FB.login] full response:', JSON.stringify(response));
-    if (response.authResponse && response.authResponse.code) {
-      var authCode = response.authResponse.code;
-      console.log('[FB.login] got auth code:', authCode.substring(0, 20) + '...');
-      exchangeToken(authCode, ownerNumberInput, businessNumberInput);
-    } else {
-      alert('WhatsApp connection cancelled or failed. Please try again.');
-      btn.disabled = false;
-      btn.textContent = 'Connect WhatsApp';
-    }
-  }, {
-    config_id: '1027397859743156',
-    response_type: 'code',
-    override_default_response_type: true,
-    scope: 'whatsapp_business_management,whatsapp_business_messaging',
-    return_scopes: true
-  });
-}
+  btn.textContent = 'Sending request...';
 
-window.addEventListener('message', function(event) {
-  if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
   try {
-    var data = JSON.parse(event.data);
-    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
-      wabaId        = data.data.waba_id;
-      phoneNumberId = data.data.phone_number_id;
-      console.log('[SIGNUP] WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
-    }
-  } catch(e) {}
-});
-
-async function exchangeToken(accessToken, ownerNumberInput, businessNumberInput) {
-  var btn = document.getElementById('connect-btn');
-  btn.textContent = 'Connecting...';
-  try {
-    var res = await fetch(BACKEND_URL + '/exchange-token', {
+    var res = await fetch(BACKEND_URL + '/request-connection', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        access_token:         accessToken,
-        user_email:           currentUser.email,
-        waba_id:              wabaId,
-        phone_number_id:      phoneNumberId,
-        owner_whatsapp_number: ownerNumberInput,
+        user_email:               currentUser.email,
+        owner_whatsapp_number:    ownerNumberInput,
         business_whatsapp_number: businessNumberInput
       })
     });
     var data = await res.json();
-    console.log('[exchangeToken] response:', data);
     if (data.success) {
-      showConnectedState(data.business_name, data.phone_number_id);
-      await checkExistingConnection();
-      await loadStats();
-      await loadOverviewLeads();
-      await loadOverviewConvs();
-    } else if (data.pending) {
-      // Automated code exchange failed (currently a known Meta platform-side
-      // bug) -- backend has queued this client for manual completion.
-      showPendingState();
+      showRequestSentState();
     } else {
-      alert('Connection failed: ' + (data.error || 'Unknown error'));
+      alert('Could not send request: ' + (data.error || 'Unknown error'));
       btn.disabled = false;
-      btn.textContent = 'Connect WhatsApp';
+      btn.textContent = 'Request Connection';
     }
   } catch(err) {
-    console.error('[exchangeToken] network error:', err);
+    console.error('[submitConnectionRequest] network error:', err);
     alert('Network error. Please try again.');
     btn.disabled = false;
-    btn.textContent = 'Connect WhatsApp';
+    btn.textContent = 'Request Connection';
   }
 }
 
@@ -727,8 +641,6 @@ function renderLeadsBoard(leads) {
   });
 
   Object.keys(LEAD_COLUMNS).forEach(function(type) {
-    // Pending leads first (most recent first, since `leads` array is
-    // already ordered by created_at desc), done leads pushed to the bottom.
     var items = grouped[type].slice().sort(function(a, b) {
       return (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1);
     });
@@ -818,7 +730,6 @@ function subscribeToLeadsRealtime() {
       allLeads.unshift(newLead);
       updateBellBadge();
       showLeadToast(newLead);
-      // If the Leads page is currently open, refresh the board immediately
       if (document.getElementById('page-leads').classList.contains('active')) {
         renderLeadsBoard(allLeads);
       }
@@ -922,10 +833,6 @@ async function deleteQR(id) {
   loadQuickReplies();
 }
 
-// ---------------------------------------------------------------------
-// INSTITUTE PROFILE: Courses, Results, Facilities, Media, Business Info
-// ---------------------------------------------------------------------
-
 function showProfileTab(tab, el) {
   document.querySelectorAll('.profile-section').forEach(function(s) { s.classList.remove('active'); });
   document.querySelectorAll('.profile-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -937,8 +844,6 @@ function showProfileTab(tab, el) {
   if (tab === 'media') loadMedia();
   if (tab === 'settings') loadBusinessSettings();
 }
-
-// ---------- COURSES ----------
 
 async function loadCourses() {
   if (!currentClientId) { document.getElementById('courses-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
@@ -997,8 +902,6 @@ async function deleteCourse(id) {
   loadCourses();
 }
 
-// ---------- RESULTS ----------
-
 async function loadResults() {
   if (!currentClientId) { document.getElementById('results-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
   var result = await db.from('institute_results').select('*').eq('client_id', currentClientId).order('display_order');
@@ -1037,8 +940,6 @@ async function deleteResult(id) {
   loadResults();
 }
 
-// ---------- FACILITIES ----------
-
 async function loadFacilities() {
   if (!currentClientId) { document.getElementById('facilities-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
   var result = await db.from('institute_facilities').select('*').eq('client_id', currentClientId).order('display_order');
@@ -1071,8 +972,6 @@ async function deleteFacility(id) {
   await db.from('institute_facilities').delete().eq('id', id);
   loadFacilities();
 }
-
-// ---------- MEDIA ----------
 
 async function loadMedia() {
   if (!currentClientId) { document.getElementById('media-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
@@ -1127,8 +1026,6 @@ async function deleteMedia(id) {
   await db.from('institute_media').delete().eq('id', id);
   loadMedia();
 }
-
-// ---------- BUSINESS INFO / SETTINGS ----------
 
 async function loadBusinessSettings() {
   if (!currentClientId) return;
