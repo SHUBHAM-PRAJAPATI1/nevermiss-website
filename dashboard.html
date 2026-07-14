@@ -445,7 +445,15 @@ async function init() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
   const { data: refreshed, error: refreshError } = await db.auth.refreshSession();
-  if (refreshError || !refreshed.session) { window.location.href = 'login.html'; return; }
+  if (refreshError || !refreshed.session) {
+    // Session token is stale/invalid (e.g. the Auth user no longer exists
+    // server-side). Must explicitly sign out to clear localStorage --
+    // otherwise login.html sees the same stale token and bounces straight
+    // back here, causing the infinite login <-> dashboard loop.
+    await db.auth.signOut();
+    window.location.href = 'login.html';
+    return;
+  }
   currentUser = refreshed.session.user;
   const email = currentUser.email || '';
   document.getElementById('user-avatar').textContent = email.slice(0, 2).toUpperCase();
