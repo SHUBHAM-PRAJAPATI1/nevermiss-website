@@ -131,14 +131,17 @@ h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px rgba(255,255
 .plan-btn.outline:hover{border-color:var(--blue);color:var(--blue);}
 .plan-btn.solid{background:white;color:var(--blue);}
 .plan-btn.solid:hover{background:var(--blue-light);}
-.testimonial{background:var(--blue-light);padding:6rem 3rem;}
-.testimonial-inner{max-width:700px;margin:0 auto;text-align:center;}
-.quote-mark{font-size:5rem;color:var(--blue);line-height:0.5;display:block;margin-bottom:1.5rem;font-family:'Clash Display',sans-serif;}
-.quote{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:600;color:var(--black);line-height:1.4;margin-bottom:1.5rem;}
-.testimonial-author{display:flex;align-items:center;justify-content:center;gap:0.75rem;}
-.author-avatar{width:44px;height:44px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;}
-.author-name{font-weight:600;font-size:0.9rem;color:var(--black);}
-.author-role{font-size:0.78rem;color:var(--muted);}
+.benefits{background:var(--blue-light);padding:6rem 3rem;}
+.benefits-inner{max-width:1100px;margin:0 auto;}
+.benefits-header{text-align:center;max-width:600px;margin:0 auto 3.5rem;}
+.benefits-header .section-label{margin-left:auto;margin-right:auto;}
+.benefits-header .section-sub{margin:0 auto;}
+.benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
+.benefit-card{background:white;border:1px solid var(--gray2);border-radius:18px;padding:1.75rem 1.5rem;transition:all 0.3s;}
+.benefit-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:0 12px 30px rgba(27,79,255,0.1);}
+.benefit-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:1.1rem;}
+.benefit-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;color:var(--black);margin-bottom:0.5rem;}
+.benefit-desc{font-size:0.85rem;color:var(--muted);line-height:1.6;}
 .cta-section{background:var(--black);padding:6rem 3rem;text-align:center;}
 .cta-inner{max-width:600px;margin:0 auto;}
 .cta-inner h2{font-family:'Clash Display',sans-serif;font-size:3rem;font-weight:700;color:white;line-height:1.15;margin-bottom:1rem;}
@@ -171,11 +174,14 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
   .mobile-login{display:inline-block;text-decoration:none;color:var(--blue);font-size:0.85rem;font-weight:600;}
   .hero{padding:6rem 1.5rem 3rem;}.hero-inner{grid-template-columns:1fr;gap:3rem;}
   h1{font-size:2.4rem;}.phone-wrap{order:-1;}
-  .features-grid,.plans,.who-grid,.steps{grid-template-columns:1fr;}
+  .features-grid,.plans,.who-grid,.steps,.benefits-grid{grid-template-columns:1fr;}
   .plan.popular{transform:none;}
-  .section,.how,.who,.pricing,.contact-section,.cta-section,.testimonial{padding:4rem 1.5rem;}
+  .section,.how,.who,.pricing,.contact-section,.cta-section,.benefits{padding:4rem 1.5rem;}
   .section-title{font-size:2rem;}.cta-inner h2{font-size:2rem;}
   .footer-inner{flex-direction:column;text-align:center;}
+}
+@media(max-width:900px) and (min-width:769px){
+  .benefits-grid{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 </head>
@@ -330,6 +336,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Registration flow</li>
         <li>Seat booking</li>
         <li>Custom quick replies</li>
+        <li>Automated re-engagement reminders</li>
         <li>Priority support</li>
       </ul>
       <button class="plan-btn solid" onclick="selectPlan('growth', this)">Get Started</button>
@@ -341,7 +348,6 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       <ul class="plan-features">
         <li>Everything in Growth</li>
         <li>Unlimited conversations</li>
-        <li>Automated re-engagement reminders</li>
         <li>AI Voice Calling — coming soon</li>
         <li>Priority support</li>
       </ul>
@@ -350,15 +356,43 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
   </div>
 </section>
 
-<section class="testimonial">
-  <div class="testimonial-inner fade-in">
-    <span class="quote-mark">"</span>
-    <p class="quote">Before NeverMiss, we missed 40% of WhatsApp enquiries after hours. Now every student gets an instant reply and our admissions have gone up significantly.</p>
-    <div class="testimonial-author">
-      <div class="author-avatar">RS</div>
-      <div>
-        <div class="author-name">Rajesh Sir</div>
-        <div class="author-role">Director, Shubh Coaching Institute, Pune</div>
+<section class="benefits">
+  <div class="benefits-inner">
+    <div class="benefits-header fade-in">
+      <div class="section-label">Why Institutes Choose Us</div>
+      <h2 class="section-title">Why coaching institutes choose NeverMiss</h2>
+      <p class="section-sub">Every enquiry answered, every lead captured — without adding to your front desk's workload.</p>
+    </div>
+    <div class="benefits-grid">
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">📈</div>
+        <div class="benefit-title">More admissions</div>
+        <p class="benefit-desc">Every WhatsApp enquiry gets an instant reply, even after hours — so you don't lose students to institutes that respond faster.</p>
+      </div>
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">🎯</div>
+        <div class="benefit-title">Never miss a lead</div>
+        <p class="benefit-desc">Every conversation, callback request, and registration is captured and organized — nothing falls through the cracks.</p>
+      </div>
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">🕐</div>
+        <div class="benefit-title">24/7 availability</div>
+        <p class="benefit-desc">Your bot never sleeps. Students get answers at midnight, on weekends, or whenever they're browsing — not just office hours.</p>
+      </div>
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">⚡</div>
+        <div class="benefit-title">Instant answers, zero wait</div>
+        <p class="benefit-desc">Questions about timings, fees, courses, and facilities get answered immediately — no student ever waits for a callback.</p>
+      </div>
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">✅</div>
+        <div class="benefit-title">Effortless handling</div>
+        <p class="benefit-desc">Registrations, demo bookings, and seat bookings happen right inside the chat — no manual back-and-forth needed.</p>
+      </div>
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">🔔</div>
+        <div class="benefit-title">Stay on top of every enquiry</div>
+        <p class="benefit-desc">Get notified the moment a new lead comes in, right on your own WhatsApp — so nothing sits unattended.</p>
       </div>
     </div>
   </div>
