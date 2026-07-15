@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>NeverMiss — Admin</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56;
+    --text: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb;
+    --bg: #f9fafb; --white: #ffffff; --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+  .card h2 { font-size: 15px; font-weight: 500; margin-bottom: 0.75rem; }
+  .field { margin-bottom: 1rem; }
+  .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .field input, .field textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; }
+  .field input:focus, .field textarea:focus { border-color: var(--green); }
+  .btn { background: var(--green); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn:hover { background: var(--green-dark); }
+  .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+  .pending-item { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+  .pending-item .meta { font-size: 13px; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.7; }
+  .pending-item .meta strong { color: var(--text); }
+  .pending-item .connect-form { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .pending-item .connect-form .full { grid-column: 1 / -1; }
+  .empty { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
+  .status-msg { font-size: 13px; margin-top: 0.5rem; }
+  .status-msg.success { color: var(--green-dark); }
+  .status-msg.error { color: #C00; }
+  #login-card { max-width: 360px; margin: 4rem auto; }
+  #main-content { display: none; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="card" id="login-card">
+    <h2>Admin access</h2>
+    <div class="field">
+      <label for="admin-secret-input">Admin secret</label>
+      <input type="password" id="admin-secret-input" placeholder="Enter admin secret" />
+    </div>
+    <button class="btn" onclick="unlock()">Unlock</button>
+    <div class="status-msg error" id="login-error" style="display:none;">Incorrect secret or connection failed.</div>
+  </div>
+
+  <div id="main-content">
+    <h1>Pending WhatsApp Connections</h1>
+    <div id="pending-list"><div class="empty">Loading...</div></div>
+  </div>
+</div>
+
+<script>
+const BACKEND_URL = 'https://my-saas-bot.onrender.com';
+let adminSecret = '';
+
+function unlock() {
+  adminSecret = document.getElementById('admin-secret-input').value.trim();
+  if (!adminSecret) return;
+  loadPending();
+}
+
+async function loadPending() {
+  var listEl = document.getElementById('pending-list');
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/pending-connections?admin_secret=' + encodeURIComponent(adminSecret));
+    var data = await res.json();
+    if (!data.success) {
+      document.getElementById('login-error').style.display = 'block';
+      return;
+    }
+    document.getElementById('login-card').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    sessionStorage.setItem('nm_admin_secret', adminSecret);
+    renderPending(data.pending);
+  } catch (e) {
+    document.getElementById('login-error').textContent = 'Network error. Please try again.';
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function renderPending(pending) {
+  var listEl = document.getElementById('pending-list');
+  if (!pending || !pending.length) {
+    listEl.innerHTML = '<div class="empty">No pending connections right now.</div>';
+    return;
+  }
+  listEl.innerHTML = pending.map(function(p, i) {
+    var created = p.created_at ? new Date(p.created_at).toLocaleString('en-IN') : '—';
+    return (
+      '<div class="pending-item" id="pending-' + i + '">' +
+        '<div class="meta">' +
+          '<div><strong>Business:</strong> ' + (p.business_name || '—') + '</div>' +
+          '<div><strong>Email:</strong> ' + (p.user_email || '—') + '</div>' +
+          '<div><strong>Number to connect:</strong> ' + (p.requested_business_number || '—') + '</div>' +
+          '<div><strong>Notification number:</strong> ' + (p.owner_whatsapp || '—') + '</div>' +
+          '<div><strong>Requested:</strong> ' + created + '</div>' +
+        '</div>' +
+        '<div class="connect-form">' +
+          '<div class="field full"><label>Access Token (System User)</label><textarea rows="2" id="token-' + i + '" placeholder="Paste access token"></textarea></div>' +
+          '<div class="field"><label>WABA ID</label><input type="text" id="waba-' + i + '" placeholder="e.g. 1015988340769375" /></div>' +
+          '<div class="field"><label>Phone Number ID</label><input type="text" id="phoneid-' + i + '" placeholder="e.g. 1166327266571546" /></div>' +
+        '</div>' +
+        '<button class="btn" onclick="activate(' + i + ', \'' + (p.user_email || '').replace(/'/g, "\\'") + '\', \'' + (p.business_name || '').replace(/'/g, "\\'") + '\')">Activate</button>' +
+        '<div class="status-msg" id="status-' + i + '"></div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+async function activate(i, userEmail, businessName) {
+  var token = document.getElementById('token-' + i).value.trim();
+  var wabaId = document.getElementById('waba-' + i).value.trim();
+  var phoneId = document.getElementById('phoneid-' + i).value.trim();
+  var statusEl = document.getElementById('status-' + i);
+
+  if (!token || !wabaId || !phoneId) {
+    statusEl.className = 'status-msg error';
+    statusEl.textContent = 'Please fill in all three fields.';
+    return;
+  }
+
+  statusEl.className = 'status-msg';
+  statusEl.textContent = 'Activating...';
+
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/manual-connect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        admin_secret: adminSecret,
+        user_email: userEmail,
+        access_token: token,
+        waba_id: wabaId,
+        phone_number_id: phoneId,
+        business_name: businessName
+      })
+    });
+    var data = await res.json();
+    if (data.success) {
+      statusEl.className = 'status-msg success';
+      statusEl.textContent = '✅ Connected! This client is now active.';
+      setTimeout(function() { loadPending(); }, 1500);
+    } else {
+      statusEl.className = 'status-msg error';
+      statusEl.textContent = 'Failed: ' + (data.error || 'Unknown error');
+    }
+  } catch (e) {
+    statusEl.className = 'status-msg error';
+    statusEl.textContent = 'Network error. Please try again.';
+  }
+}
+
+// Auto-unlock if secret was already entered this session
+window.addEventListener('load', function() {
+  var saved = sessionStorage.getItem('nm_admin_secret');
+  if (saved) {
+    document.getElementById('admin-secret-input').value = saved;
+    adminSecret = saved;
+    loadPending();
+  }
+});
+</script>
+</body>
+</html>
