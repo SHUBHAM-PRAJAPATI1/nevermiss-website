@@ -452,6 +452,13 @@ async function checkExistingConnection() {
     var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
     var data = await res.json();
     if (data.success && data.client) {
+      // NEW: sidebar previously always said "Starter plan" as static
+      // hardcoded text, regardless of the client's actual plan. Now it's
+      // set from the real value returned by the backend.
+      if (data.client.plan) {
+        var planLabel = data.client.plan.charAt(0).toUpperCase() + data.client.plan.slice(1) + ' plan';
+        document.getElementById('user-plan').textContent = planLabel;
+      }
       if (data.client.status === 'awaiting_connection') {
         // Either they submitted a connection request (new manual-connect
         // flow below) or hit the old Embedded Signup failure path -- both
