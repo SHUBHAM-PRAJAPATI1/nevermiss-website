@@ -7,6 +7,17 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico"/>
 <link rel="apple-touch-icon" href="images/logo/app-icon.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId: '1662583918327842',
+      autoLogAppEvents: true,
+      xfbml: true,
+      version: 'v20.0'
+    });
+  };
+</script>
+<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
 <style>
   :root {
     --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56;
@@ -362,7 +373,7 @@
     <div class="connect-banner" id="connect-banner">
       <div class="connect-banner-text">
         <h3>📱 Connect your WhatsApp Business number</h3>
-        <p>We'll connect this for you — no Facebook login or setup needed on your end. Just enter your number below and we'll take it from there.</p>
+        <p>Link your WhatsApp Business account to activate the NeverMiss bot for your number.</p>
       </div>
 
       <div class="owner-number-field">
@@ -377,10 +388,23 @@
         <div class="hint">New leads, bookings, and demo requests from your customers will be sent to this number.</div>
       </div>
 
-      <button class="connect-wp-btn" id="connect-btn" onclick="submitConnectionRequest()">
+      <button class="connect-wp-btn" id="connect-btn" onclick="startEmbeddedSignup()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Request Connection
+        Connect WhatsApp
       </button>
+
+      <div style="margin-top: 10px;">
+        <a href="javascript:void(0)" onclick="toggleManualFallback()" style="font-size: 12px; color: var(--text-muted); text-decoration: underline;">
+          Having trouble? Let us connect it manually instead
+        </a>
+      </div>
+
+      <div id="manual-fallback-section" style="display:none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 0.75rem;">No Facebook login needed — just confirm the numbers above and we'll connect it on our end.</p>
+        <button class="connect-wp-btn" id="manual-connect-btn" onclick="submitConnectionRequest()" style="background: var(--green);">
+          Request Manual Connection
+        </button>
+      </div>
     </div>
 
     <div class="card">
@@ -533,13 +557,15 @@ async function handleLogout() {
   window.location.href = 'login.html';
 }
 
-// NEW: replaces the old Facebook Embedded Signup flow. Client just submits
-// their business WhatsApp number + notification number -- no Facebook
-// login required. Backend saves the request and notifies the founder
-// directly, same pattern as a new-subscription alert. The founder then
-// completes the connection manually via Graph API Explorer +
-// /admin/manual-connect.
-async function submitConnectionRequest() {
+let wabaId = null;
+let phoneNumberId = null;
+
+function toggleManualFallback() {
+  var section = document.getElementById('manual-fallback-section');
+  section.style.display = section.style.display === 'none' ? 'block' : 'none';
+}
+
+function startEmbeddedSignup() {
   var businessNumberInput = document.getElementById('business-whatsapp-input').value.trim();
   var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
   if (!businessNumberInput || businessNumberInput.length < 10) {
@@ -552,6 +578,99 @@ async function submitConnectionRequest() {
   }
 
   var btn = document.getElementById('connect-btn');
+  btn.disabled = true;
+  btn.textContent = 'Opening Meta...';
+  FB.login(function(response) {
+    console.log('[FB.login] full response:', JSON.stringify(response));
+    if (response.authResponse && response.authResponse.code) {
+      var authCode = response.authResponse.code;
+      console.log('[FB.login] got auth code:', authCode.substring(0, 20) + '...');
+      exchangeToken(authCode, ownerNumberInput, businessNumberInput);
+    } else {
+      alert('WhatsApp connection cancelled or failed. You can try again, or use "Let us connect it manually instead" below.');
+      btn.disabled = false;
+      btn.textContent = 'Connect WhatsApp';
+    }
+  }, {
+    config_id: '1027397859743156',
+    response_type: 'code',
+    override_default_response_type: true,
+    scope: 'whatsapp_business_management,whatsapp_business_messaging',
+    return_scopes: true
+  });
+}
+
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
+  try {
+    var data = JSON.parse(event.data);
+    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
+      wabaId        = data.data.waba_id;
+      phoneNumberId = data.data.phone_number_id;
+      console.log('[SIGNUP] WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
+    }
+  } catch(e) {}
+});
+
+async function exchangeToken(accessToken, ownerNumberInput, businessNumberInput) {
+  var btn = document.getElementById('connect-btn');
+  btn.textContent = 'Connecting...';
+  try {
+    var res = await fetch(BACKEND_URL + '/exchange-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_token:         accessToken,
+        user_email:           currentUser.email,
+        waba_id:              wabaId,
+        phone_number_id:      phoneNumberId,
+        owner_whatsapp_number: ownerNumberInput,
+        business_whatsapp_number: businessNumberInput
+      })
+    });
+    var data = await res.json();
+    console.log('[exchangeToken] response:', data);
+    if (data.success) {
+      showConnectedState(data.business_name, data.phone_number_id);
+      await checkExistingConnection();
+      await loadStats();
+      await loadOverviewLeads();
+      await loadOverviewConvs();
+    } else if (data.pending) {
+      // Automated code exchange failed (currently a known Meta platform-side
+      // bug, error_subcode 36008) -- backend has queued this client for
+      // manual completion, same as the manual-request fallback path.
+      showRequestSentState();
+    } else {
+      alert('Connection failed: ' + (data.error || 'Unknown error') + '. You can try again, or use "Let us connect it manually instead" below.');
+      btn.disabled = false;
+      btn.textContent = 'Connect WhatsApp';
+    }
+  } catch(err) {
+    console.error('[exchangeToken] network error:', err);
+    alert('Network error. Please try again, or use "Let us connect it manually instead" below.');
+    btn.disabled = false;
+    btn.textContent = 'Connect WhatsApp';
+  }
+}
+
+// Manual connection request (fallback if Embedded Signup fails or the
+// client prefers not to use Facebook login). Backend saves the request
+// and notifies the founder directly, who completes it via Graph API
+// Explorer + /admin/manual-connect.
+async function submitConnectionRequest() {
+  var businessNumberInput = document.getElementById('business-whatsapp-input').value.trim();
+  var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
+  if (!businessNumberInput || businessNumberInput.length < 10) {
+    alert('Please enter the WhatsApp Business number you want to connect -- this is the number your bot will run on.');
+    return;
+  }
+  if (!ownerNumberInput || ownerNumberInput.length < 10) {
+    alert('Please enter your WhatsApp number first -- this is where your customer leads will be sent.');
+    return;
+  }
+
+  var btn = document.getElementById('manual-connect-btn');
   btn.disabled = true;
   btn.textContent = 'Sending request...';
 
@@ -571,13 +690,13 @@ async function submitConnectionRequest() {
     } else {
       alert('Could not send request: ' + (data.error || 'Unknown error'));
       btn.disabled = false;
-      btn.textContent = 'Request Connection';
+      btn.textContent = 'Request Manual Connection';
     }
   } catch(err) {
     console.error('[submitConnectionRequest] network error:', err);
     alert('Network error. Please try again.');
     btn.disabled = false;
-    btn.textContent = 'Request Connection';
+    btn.textContent = 'Request Manual Connection';
   }
 }
 
