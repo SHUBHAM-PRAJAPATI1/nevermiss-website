@@ -504,7 +504,10 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 // ── CONFIGURATION — replace with your real keys ──────────────────────────────
-const RAZORPAY_KEY_ID = "rzp_test_T90hNZxbwvr6EK"; // ← current active test key
+// NOTE: Razorpay key is no longer hardcoded here. It comes back from the
+// backend's /api/create-order response (order.key_id), which automatically
+// reflects whichever mode (test/live) PAYMENT_MODE is set to in Render --
+// so this file never needs manual updates when switching modes.
 const API_BASE = "https://my-saas-bot.onrender.com";  // your Render backend
 
 const PLAN_LABELS = {
@@ -599,7 +602,7 @@ async function startPayment() {
 
     // 2. Open Razorpay checkout
     const options = {
-      key: RAZORPAY_KEY_ID,
+      key: order.key_id,
       amount: order.amount,
       currency: "INR",
       name: "NeverMiss",
