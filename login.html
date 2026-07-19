@@ -6,7 +6,7 @@
 <title>NeverMiss — Login</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-  :root { --green:#1D9E75; --green-dark:#0F6E56; --text:#1a1a1a; --muted:#6b7280; --border:#e5e7eb; --bg:#f9fafb; --white:#fff; --error:#dc2626; --r:12px; }
+  :root { --green:#1D9E75; --green-dark:#0F6E56; --text:#1a1a1a; --muted:#6b7280; --border:#e5e7eb; --bg:#f9fafb; --white:#fff; --error:#dc2626; --success:#0F6E56; --r:12px; }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
   .card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:400px;box-shadow:0 4px 24px rgba(0,0,0,.06);}
@@ -23,7 +23,11 @@
   .btn:hover{background:var(--green-dark);}
   .btn:disabled{opacity:.6;cursor:not-allowed;}
   .err{font-size:13px;color:var(--error);background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;margin-bottom:1rem;display:none;}
+  .success{font-size:13px;color:var(--success);background:#E1F5EE;border:1px solid #a7e6cf;border-radius:8px;padding:10px 12px;margin-bottom:1rem;display:none;}
   .footer{text-align:center;font-size:12px;color:var(--muted);margin-top:1.5rem;}
+  .forgot-link{display:block;text-align:center;font-size:13px;color:var(--muted);text-decoration:underline;cursor:pointer;margin-top:0.75rem;background:none;border:none;font-family:inherit;padding:0;}
+  .forgot-link:hover{color:var(--text);}
+  #reset-section{display:none;}
 </style>
 </head>
 <body>
@@ -32,15 +36,37 @@
     <div class="logo-icon">✦</div>
     <div class="logo-text">Never<span>Miss</span></div>
   </div>
-  <h1>Welcome back</h1>
-  <p class="sub">Sign in to your dashboard</p>
-  <div class="err" id="err"></div>
-  <label>Email</label>
-  <input type="email" id="femail" placeholder="you@example.com"/>
-  <label>Password</label>
-  <input type="password" id="fpass" placeholder="••••••••"/>
-  <button class="btn" id="fbtn" onclick="doLogin()">Sign in</button>
-  <div class="footer">Need access? Contact NeverMiss support.</div>
+
+  <!-- Normal sign-in form -->
+  <div id="login-section">
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to your dashboard</p>
+    <div class="err" id="err"></div>
+    <label>Email</label>
+    <input type="email" id="femail" placeholder="you@example.com"/>
+    <label>Password</label>
+    <input type="password" id="fpass" placeholder="••••••••"/>
+    <button class="btn" id="fbtn" onclick="doLogin()">Sign in</button>
+    <button class="forgot-link" onclick="showResetSection()">Forgot password?</button>
+    <div class="footer">Need access? Contact NeverMiss support.</div>
+  </div>
+
+  <!-- NEW: forgot-password form -- toggled in via showResetSection(),
+       hidden by default. Uses Supabase's resetPasswordForEmail(), which
+       emails a recovery link. That link redirects to set-password.html,
+       which already works generically for BOTH invite and password-reset
+       links (it just waits for any Supabase session to appear from the
+       URL) -- so no changes were needed there. -->
+  <div id="reset-section">
+    <h1>Reset your password</h1>
+    <p class="sub">Enter your email and we'll send you a reset link</p>
+    <div class="err" id="reset-err"></div>
+    <div class="success" id="reset-success"></div>
+    <label>Email</label>
+    <input type="email" id="reset-email" placeholder="you@example.com"/>
+    <button class="btn" id="reset-btn" onclick="sendResetLink()">Send reset link</button>
+    <button class="forgot-link" onclick="showLoginSection()">Back to sign in</button>
+  </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
@@ -63,7 +89,72 @@ async function doLogin(){
   if(r.error){err.textContent=r.error.message;err.style.display='block';btn.disabled=false;btn.textContent='Sign in';return;}
   location.href='dashboard.html';
 }
-document.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+// NEW: toggles between the sign-in form and the forgot-password form.
+// Prefills the reset email field with whatever they already typed in
+// the login email field, so they don't have to retype it.
+function showResetSection(){
+  var loginEmail = document.getElementById('femail').value.trim();
+  document.getElementById('login-section').style.display = 'none';
+  document.getElementById('reset-section').style.display = 'block';
+  document.getElementById('reset-err').style.display = 'none';
+  document.getElementById('reset-success').style.display = 'none';
+  if (loginEmail) document.getElementById('reset-email').value = loginEmail;
+}
+
+function showLoginSection(){
+  document.getElementById('reset-section').style.display = 'none';
+  document.getElementById('login-section').style.display = 'block';
+}
+
+// NEW: sends a Supabase password-recovery email. Deliberately shows the
+// same success message whether or not the email actually exists in
+// Auth -- Supabase itself doesn't reveal that distinction via the API
+// response either, and showing a different message for "email not
+// found" would let someone probe which emails have NeverMiss accounts.
+async function sendResetLink(){
+  var email = document.getElementById('reset-email').value.trim();
+  var btn   = document.getElementById('reset-btn');
+  var err   = document.getElementById('reset-err');
+  var success = document.getElementById('reset-success');
+  err.style.display = 'none';
+  success.style.display = 'none';
+
+  if (!email) {
+    err.textContent = 'Please enter your email.';
+    err.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  var r = await _db.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://nevermiss.co.in/set-password.html'
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Send reset link';
+
+  if (r.error) {
+    err.textContent = r.error.message;
+    err.style.display = 'block';
+    return;
+  }
+
+  success.textContent = 'If an account exists for that email, a reset link has been sent. Check your inbox.';
+  success.style.display = 'block';
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){
+    if (document.getElementById('reset-section').style.display === 'block') {
+      sendResetLink();
+    } else {
+      doLogin();
+    }
+  }
+});
 </script>
 </body>
 </html>
