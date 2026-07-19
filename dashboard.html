@@ -183,10 +183,27 @@
   .billing-renew-btn { padding: 9px 20px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
   .billing-renew-btn:hover { background: var(--green-dark); }
   .billing-renew-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-  .billing-plan-select { font-family: inherit; font-size: 15px; font-weight: 500; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; margin-bottom: 4px; background: var(--white); cursor: pointer; }
-  .billing-plan-select:focus { outline: none; border-color: var(--green); }
-  .plan-modal-select { display: block; width: 100%; font-family: inherit; font-size: 14px; font-weight: 500; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; margin-bottom: 1rem; background: var(--white); cursor: pointer; }
-  .plan-modal-select:focus { outline: none; border-color: var(--green); }
+
+  /* NEW: full plan comparison cards on the Plan & Billing page. Each
+     card is clickable to select it for the pending renewal/upgrade;
+     .selected marks the currently chosen one (defaults to their
+     current plan). */
+  .plan-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 1.25rem; }
+  @media (max-width: 900px) { .plan-cards-grid { grid-template-columns: 1fr; } }
+  .plan-card { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; position: relative; }
+  .plan-card:hover { border-color: #a7e6cf; }
+  .plan-card.selected { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+  .plan-card-current-badge { position: absolute; top: -10px; right: 14px; background: var(--text); color: white; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 10px; }
+  .plan-card h3 { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+  .plan-card .plan-card-price { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: var(--green-dark); margin-bottom: 1rem; }
+  .plan-card .plan-card-price span { font-size: 12px; font-weight: 400; color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
+  .plan-card ul { list-style: none; padding: 0; margin: 0; }
+  .plan-card li { font-size: 13px; color: var(--text); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; }
+  .plan-card li::before { content: "✓"; color: var(--green); font-weight: 600; flex-shrink: 0; }
+  .plan-page-cta-row { text-align: center; padding: 1rem 0; }
+  .plan-page-cta-btn { padding: 12px 32px; background: var(--green); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .plan-page-cta-btn:hover { background: var(--green-dark); }
+  .plan-page-cta-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
   /* NEW: plan expiry modal -- blocking overlay shown when a client's
      clients.plan_expires_at has passed. Covers both trial-coupon
@@ -221,6 +238,7 @@
   <a class="nav-item" onclick="showPage('quickreplies', this)" href="javascript:void(0)"><span class="nav-icon">◇</span> Quick replies</a>
   <a class="nav-item" onclick="showPage('profile', this)" href="javascript:void(0)"><span class="nav-icon">🏫</span> Institute Profile</a>
   <a class="nav-item" onclick="showPage('connect', this)" href="javascript:void(0)"><span class="nav-icon">📱</span> Connect WhatsApp</a>
+  <a class="nav-item" onclick="showPage('billing', this)" href="javascript:void(0)"><span class="nav-icon">💳</span> Plan & Billing</a>
   <div class="sidebar-bottom">
     <div class="user-chip">
       <div class="avatar" id="user-avatar">?</div>
@@ -273,21 +291,17 @@
       </div>
     </div>
 
-    <!-- NEW: billing card -- populated and shown by renderBillingCard(),
+    <!-- NEW: compact billing summary -- populated by renderBillingCard(),
          only once a connected client's plan/plan_expires_at is known.
-         Plan dropdown lets a client upgrade/downgrade at renewal time,
-         not just repay for whatever plan they're already on. -->
+         Links to the full Plan & Billing page rather than trying to do
+         plan selection inline here. -->
     <div class="billing-card" id="billing-card">
       <div class="billing-card-inner">
         <div class="billing-info">
-          <select class="billing-plan-select" id="billing-plan-select" onchange="onPlanSelectChange(this.value)">
-            <option value="starter">Starter — ₹3,999/month</option>
-            <option value="growth">Growth — ₹5,999/month</option>
-            <option value="pro">Pro — ₹8,999/month</option>
-          </select>
+          <h3 id="billing-plan-name">—</h3>
           <p id="billing-status-line">Loading billing info...</p>
         </div>
-        <button class="billing-renew-btn" id="billing-renew-btn" onclick="startRenewal()">Renew</button>
+        <button class="billing-renew-btn" id="billing-renew-btn" onclick="showPage('billing', document.querySelector('.nav-item[onclick*=billing]'))">Manage Plan</button>
       </div>
     </div>
 
@@ -476,23 +490,43 @@
       </div>
     </div>
   </div>
+
+  <!-- NEW: full Plan & Billing page -- shows current status plus all
+       three plan tiers side by side with what's included in each, so a
+       client can browse plans any time (not just when locked out).
+       Populated by renderPlanPage(). -->
+  <div class="page" id="page-billing">
+    <div class="card">
+      <div class="card-head"><h2>Current plan</h2></div>
+      <div style="padding: 1.25rem;">
+        <p id="billing-page-status-line" style="font-size: 14px; color: var(--text-muted);">Loading...</p>
+      </div>
+    </div>
+
+    <div class="plan-cards-grid" id="plan-cards-grid">
+      <!-- plan cards injected by renderPlanPage() -->
+    </div>
+
+    <div class="plan-page-cta-row">
+      <button class="plan-page-cta-btn" id="plan-page-cta-btn" onclick="startRenewal()">Continue</button>
+      <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Or message us on WhatsApp: <a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20discuss%20my%20NeverMiss%20plan" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:500;">+91 74848 49508</a></p>
+    </div>
+  </div>
 </main>
 
 <!-- NEW: plan expiry modal -- hidden by default, shown via JS in
      checkExistingConnection() if data.client.plan_expires_at has passed.
      Covers both trial-coupon clients and regular paid clients whose
-     monthly plan has lapsed. Deliberately has no close/dismiss control. -->
+     monthly plan has lapsed. Deliberately has no close/dismiss control
+     EXCEPT via "View Plans & Renew", which opens the full Plan & Billing
+     page underneath -- the modal reappears automatically on next load
+     (via checkExistingConnection()) if they leave without paying. -->
 <div class="plan-modal-overlay" id="plan-modal-overlay">
   <div class="plan-modal">
     <div class="plan-modal-icon">⏳</div>
     <h2>Your plan has expired</h2>
     <p>Your NeverMiss plan needs renewal. Renew now to keep your bot active and keep receiving leads from your students.</p>
-    <select class="plan-modal-select" id="modal-plan-select" onchange="onPlanSelectChange(this.value)">
-      <option value="starter">Starter — ₹3,999/month</option>
-      <option value="growth">Growth — ₹5,999/month</option>
-      <option value="pro">Pro — ₹8,999/month</option>
-    </select>
-    <button class="plan-modal-btn" id="plan-modal-renew-btn" onclick="startRenewal()">Renew Now</button>
+    <button class="plan-modal-btn" onclick="openPlansFromModal()">View Plans & Renew</button>
     <a class="plan-modal-alt" href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20renew%20my%20NeverMiss%20plan" target="_blank" rel="noopener">Or message us on WhatsApp</a>
   </div>
 </div>
@@ -519,10 +553,10 @@ let currentPlan          = null;
 let currentPlanExpiresAt = null;
 let currentClientPhone   = null;
 let currentBusinessName  = null;
-// NEW: the plan currently selected in either dropdown (billing card or
-// modal) for the NEXT renewal payment -- defaults to currentPlan but can
-// be changed by the client to upgrade/downgrade at renewal time. Kept in
-// sync across both dropdowns via onPlanSelectChange().
+// NEW: the plan currently selected on the Plan & Billing page's cards
+// for the NEXT renewal payment -- defaults to currentPlan but can be
+// changed by the client to upgrade/downgrade before paying. Set by
+// renderPlanPage()/selectPlanCard().
 let selectedRenewalPlan  = null;
 
 // NEW: must stay in sync with plan_amounts in payment_handler.py's
@@ -534,6 +568,33 @@ var PLAN_PRICING = {
   starter: { label: 'Starter', amount: 399900, display: '₹3,999/month' },
   growth:  { label: 'Growth',  amount: 599900, display: '₹5,999/month' },
   pro:     { label: 'Pro',     amount: 899900, display: '₹8,999/month' }
+};
+
+// NEW: feature lists shown on the Plan & Billing page. Must stay in sync
+// with FEATURES_BY_PLAN in app.py (which actually gates bot behavior)
+// and the locked pricing tiers -- this is display-only, doesn't affect
+// what a client's bot can actually do, that's still controlled
+// server-side regardless of what's shown here.
+var PLAN_FEATURES = {
+  starter: [
+    'FAQ bot & 24/7 auto-replies',
+    'Lead capture',
+    'Callback requests',
+    'Up to 1,000 conversations/month'
+  ],
+  growth: [
+    'Everything in Starter',
+    'Admission / registration',
+    'Seat booking',
+    'Custom quick replies',
+    'Up to 2,000 conversations/month'
+  ],
+  pro: [
+    'Everything in Growth',
+    'Unlimited conversations',
+    'Re-engagement reminders',
+    'AI Voice Calling (coming soon)'
+  ]
 };
 
 async function init() {
@@ -625,24 +686,21 @@ async function checkExistingConnection() {
   }
 }
 
-// NEW: populates the always-visible Overview billing card with the
-// client's current plan, price, and renewal date -- and triggers the
-// blocking modal if plan_expires_at has passed. Called after every
+// NEW: populates the always-visible Overview billing summary with the
+// client's current plan and renewal date -- and triggers the blocking
+// modal if plan_expires_at has passed. Called after every
 // checkExistingConnection() (initial load AND after a successful
-// renewal payment, so the card and modal both refresh immediately).
+// renewal payment, so the summary and modal both refresh immediately).
+// Full plan browsing/selection now happens on the dedicated Plan &
+// Billing page (renderPlanPage()), not inline here.
 function renderBillingCard() {
   var card = document.getElementById('billing-card');
   if (!currentPlan) { card.style.display = 'none'; return; }
 
-  // Reset the renewal selection back to their current plan on every
-  // fresh load -- if they open the page, don't touch the dropdown, and
-  // it should renew what they're already on, not something stale from
-  // a previous visit.
   selectedRenewalPlan = currentPlan;
-  var billingSelect = document.getElementById('billing-plan-select');
-  var modalSelect    = document.getElementById('modal-plan-select');
-  if (billingSelect) billingSelect.value = currentPlan;
-  if (modalSelect)    modalSelect.value  = currentPlan;
+
+  var pricing = PLAN_PRICING[currentPlan] || PLAN_PRICING.starter;
+  document.getElementById('billing-plan-name').textContent = pricing.label + ' Plan — ' + pricing.display;
 
   var statusLine = document.getElementById('billing-status-line');
   var isExpired = false;
@@ -670,16 +728,79 @@ function renderBillingCard() {
   }
 }
 
-// NEW: fired when either the billing-card dropdown or the modal dropdown
-// changes. Keeps both in sync (so switching one updates the other, in
-// case both happen to be visible/interacted with) and updates
-// selectedRenewalPlan, which startRenewal() actually charges for.
-function onPlanSelectChange(newPlan) {
-  selectedRenewalPlan = newPlan;
-  var billingSelect = document.getElementById('billing-plan-select');
-  var modalSelect    = document.getElementById('modal-plan-select');
-  if (billingSelect) billingSelect.value = newPlan;
-  if (modalSelect)    modalSelect.value  = newPlan;
+// NEW: builds the three plan comparison cards on the Plan & Billing
+// page, marks the client's current plan with a badge, and pre-selects
+// it (selectedRenewalPlan). Clicking any card calls selectPlanCard() to
+// change the selection without immediately charging anything -- payment
+// only happens when they click the single "Continue" button below the
+// cards.
+function renderPlanPage() {
+  var statusEl = document.getElementById('billing-page-status-line');
+  if (currentPlanExpiresAt) {
+    var expiresAt = new Date(currentPlanExpiresAt);
+    var isExpired = expiresAt < new Date();
+    var dateStr = expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    var pricing = PLAN_PRICING[currentPlan] || PLAN_PRICING.starter;
+    statusEl.textContent = (isExpired ? 'Expired on ' : 'Active — valid until ') + dateStr + '. Currently on the ' + pricing.label + ' plan.';
+  } else {
+    statusEl.textContent = 'Billing info unavailable.';
+  }
+
+  if (!selectedRenewalPlan) selectedRenewalPlan = currentPlan || 'starter';
+
+  var grid = document.getElementById('plan-cards-grid');
+  var planKeys = ['starter', 'growth', 'pro'];
+  grid.innerHTML = planKeys.map(function(key) {
+    var pricing = PLAN_PRICING[key];
+    var features = PLAN_FEATURES[key];
+    var isCurrent = key === currentPlan;
+    var isSelected = key === selectedRenewalPlan;
+    var featureList = features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
+    return (
+      '<div class="plan-card' + (isSelected ? ' selected' : '') + '" onclick="selectPlanCard(\'' + key + '\')">' +
+        (isCurrent ? '<div class="plan-card-current-badge">Current plan</div>' : '') +
+        '<h3>' + pricing.label + '</h3>' +
+        '<div class="plan-card-price">' + pricing.display.split('/')[0] + ' <span>/month</span></div>' +
+        '<ul>' + featureList + '</ul>' +
+      '</div>'
+    );
+  }).join('');
+
+  updatePlanPageCta();
+}
+
+// NEW: called when a plan card is clicked. Updates selectedRenewalPlan
+// and re-renders just the selection state + CTA button, without
+// rebuilding the whole grid from scratch.
+function selectPlanCard(planKey) {
+  selectedRenewalPlan = planKey;
+  document.querySelectorAll('.plan-card').forEach(function(cardEl, i) {
+    var keys = ['starter', 'growth', 'pro'];
+    cardEl.classList.toggle('selected', keys[i] === planKey);
+  });
+  updatePlanPageCta();
+}
+
+// NEW: keeps the bottom "Continue" button's label in sync with whatever
+// plan is currently selected -- e.g. "Continue — ₹5,999/month" -- so
+// it's always clear what they're about to pay before they click it.
+function updatePlanPageCta() {
+  var btn = document.getElementById('plan-page-cta-btn');
+  if (!btn) return;
+  var pricing = PLAN_PRICING[selectedRenewalPlan] || PLAN_PRICING.starter;
+  var isSamePlan = selectedRenewalPlan === currentPlan;
+  btn.textContent = (isSamePlan ? 'Renew — ' : 'Switch & Pay — ') + pricing.display;
+}
+
+// NEW: called from the expiry modal's "View Plans & Renew" button.
+// Hides the blocking overlay so the client can browse/select a plan on
+// the full Plan & Billing page underneath. If they leave without
+// completing payment, the modal simply reappears on next dashboard
+// load via checkExistingConnection() -- nothing else needs to track
+// that state.
+function openPlansFromModal() {
+  document.getElementById('plan-modal-overlay').classList.remove('active');
+  showPage('billing', document.querySelector('.nav-item[onclick*=billing]'));
 }
 
 // NEW: opens Razorpay checkout directly in the dashboard for renewal --
@@ -697,14 +818,11 @@ async function startRenewal() {
     return;
   }
 
-  var buttons = [
-    document.getElementById('billing-renew-btn'),
-    document.getElementById('plan-modal-renew-btn')
-  ].filter(Boolean);
-  buttons.forEach(function(b) { b.disabled = true; b.textContent = 'Loading...'; });
+  var btn = document.getElementById('plan-page-cta-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
 
-  function resetButtons(label) {
-    buttons.forEach(function(b) { b.disabled = false; b.textContent = label; });
+  function resetButton() {
+    if (btn) { btn.disabled = false; updatePlanPageCta(); }
   }
 
   try {
@@ -723,7 +841,7 @@ async function startRenewal() {
 
     if (!orderData.id || !orderData.key_id) {
       alert('Could not start renewal. Please try again, or message us on WhatsApp.');
-      resetButtons('Renew');
+      resetButton();
       return;
     }
 
@@ -747,7 +865,7 @@ async function startRenewal() {
       },
       modal: {
         ondismiss: function() {
-          resetButtons('Renew');
+          resetButton();
         }
       }
     });
@@ -755,19 +873,19 @@ async function startRenewal() {
   } catch(err) {
     console.error('[startRenewal] error:', err);
     alert('Network error. Please try again, or message us on WhatsApp.');
-    resetButtons('Renew');
+    resetButton();
   }
 }
 
 // NEW: confirms the Razorpay payment with the backend, same
 // verify-payment route the public checkout page uses. On success,
-// re-runs checkExistingConnection() so the billing card, expiry modal,
-// and plan_expires_at all refresh immediately without a page reload.
+// re-runs checkExistingConnection() so the billing summary, expiry
+// modal, and plan_expires_at all refresh immediately without a page
+// reload, and re-renders the plan page so the "Current plan" badge
+// moves to whichever plan was just paid for.
 async function verifyRenewal(razorpayResponse, chargedPlan) {
-  var billingBtn = document.getElementById('billing-renew-btn');
-  var modalBtn   = document.getElementById('plan-modal-renew-btn');
-  if (billingBtn) billingBtn.textContent = 'Confirming...';
-  if (modalBtn)   modalBtn.textContent   = 'Confirming...';
+  var btn = document.getElementById('plan-page-cta-btn');
+  if (btn) btn.textContent = 'Confirming...';
 
   try {
     var verifyRes = await fetch(BACKEND_URL + '/api/verify-payment', {
@@ -791,6 +909,7 @@ async function verifyRenewal(razorpayResponse, chargedPlan) {
     if (verifyData.success) {
       document.getElementById('plan-modal-overlay').classList.remove('active');
       await checkExistingConnection();
+      renderPlanPage();
       alert('Payment successful! Your plan has been renewed.');
     } else {
       alert('Payment completed but we could not confirm it automatically. Please message us on WhatsApp with your payment ID so we can activate it manually.');
@@ -799,8 +918,7 @@ async function verifyRenewal(razorpayResponse, chargedPlan) {
     console.error('[verifyRenewal] error:', err);
     alert('Payment completed but confirmation failed. Please message us on WhatsApp with your payment ID so we can activate it manually.');
   } finally {
-    if (billingBtn) { billingBtn.disabled = false; billingBtn.textContent = 'Renew'; }
-    if (modalBtn)   { modalBtn.disabled = false;   modalBtn.textContent   = 'Renew Now'; }
+    if (btn) { btn.disabled = false; updatePlanPageCta(); }
   }
 }
 
@@ -1505,13 +1623,14 @@ function showPage(page, el) {
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   document.getElementById('page-' + page).classList.add('active');
   if (el) el.classList.add('active');
-  var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', profile: 'Institute Profile', connect: 'Connect WhatsApp' };
+  var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', profile: 'Institute Profile', connect: 'Connect WhatsApp', billing: 'Plan & Billing' };
   document.getElementById('page-title').textContent = titles[page];
   document.getElementById('stats-row').style.display = ['overview', 'leads'].includes(page) ? 'grid' : 'none';
   if (page === 'leads') loadAllLeads();
   if (page === 'conversations') loadAllConvs();
   if (page === 'quickreplies') loadQuickReplies();
   if (page === 'profile') loadCourses();
+  if (page === 'billing') renderPlanPage();
 }
 
 init();
