@@ -18,6 +18,7 @@
   };
 </script>
 <script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
   :root {
     --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56;
@@ -169,6 +170,24 @@
   .request-sent-info h4 { font-size: 15px; font-weight: 500; color: var(--green-dark); margin-bottom: 3px; }
   .request-sent-info p { font-size: 13px; color: var(--green-dark); opacity: 0.8; }
 
+  /* NEW: billing card -- always visible on Overview (not just when
+     expired), shows current plan, price, and renewal date, with a
+     Renew button that opens Razorpay checkout right in the dashboard
+     instead of redirecting out to the marketing site. */
+  .billing-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
+  .billing-card-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .billing-info h3 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .billing-info .billing-price { font-family: 'DM Mono', monospace; color: var(--green-dark); font-weight: 500; }
+  .billing-info p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .billing-info p.expired { color: #DC2626; font-weight: 500; }
+  .billing-renew-btn { padding: 9px 20px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .billing-renew-btn:hover { background: var(--green-dark); }
+  .billing-renew-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+  .billing-plan-select { font-family: inherit; font-size: 15px; font-weight: 500; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; margin-bottom: 4px; background: var(--white); cursor: pointer; }
+  .billing-plan-select:focus { outline: none; border-color: var(--green); }
+  .plan-modal-select { display: block; width: 100%; font-family: inherit; font-size: 14px; font-weight: 500; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; margin-bottom: 1rem; background: var(--white); cursor: pointer; }
+  .plan-modal-select:focus { outline: none; border-color: var(--green); }
+
   /* NEW: plan expiry modal -- blocking overlay shown when a client's
      clients.plan_expires_at has passed. Covers both trial-coupon
      clients (14 days) and regular paid clients whose monthly plan has
@@ -253,6 +272,25 @@
         <div class="setup-step" id="step-live"><span class="setup-step-icon"></span> Bot is live</div>
       </div>
     </div>
+
+    <!-- NEW: billing card -- populated and shown by renderBillingCard(),
+         only once a connected client's plan/plan_expires_at is known.
+         Plan dropdown lets a client upgrade/downgrade at renewal time,
+         not just repay for whatever plan they're already on. -->
+    <div class="billing-card" id="billing-card">
+      <div class="billing-card-inner">
+        <div class="billing-info">
+          <select class="billing-plan-select" id="billing-plan-select" onchange="onPlanSelectChange(this.value)">
+            <option value="starter">Starter — ₹3,999/month</option>
+            <option value="growth">Growth — ₹5,999/month</option>
+            <option value="pro">Pro — ₹8,999/month</option>
+          </select>
+          <p id="billing-status-line">Loading billing info...</p>
+        </div>
+        <button class="billing-renew-btn" id="billing-renew-btn" onclick="startRenewal()">Renew</button>
+      </div>
+    </div>
+
     <div class="card"><div class="card-head"><h2>Recent leads</h2></div><div id="overview-leads-body"><div class="loading"><span class="spinner"></span>Loading leads...</div></div></div>
     <div class="card"><div class="card-head"><h2>Recent conversations</h2></div><div class="conv-list" id="overview-conv-body"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
   </div>
@@ -449,7 +487,12 @@
     <div class="plan-modal-icon">⏳</div>
     <h2>Your plan has expired</h2>
     <p>Your NeverMiss plan needs renewal. Renew now to keep your bot active and keep receiving leads from your students.</p>
-    <button class="plan-modal-btn" onclick="window.open('https://nevermiss.co.in/#pricing', '_blank')">Renew Now</button>
+    <select class="plan-modal-select" id="modal-plan-select" onchange="onPlanSelectChange(this.value)">
+      <option value="starter">Starter — ₹3,999/month</option>
+      <option value="growth">Growth — ₹5,999/month</option>
+      <option value="pro">Pro — ₹8,999/month</option>
+    </select>
+    <button class="plan-modal-btn" id="plan-modal-renew-btn" onclick="startRenewal()">Renew Now</button>
     <a class="plan-modal-alt" href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20renew%20my%20NeverMiss%20plan" target="_blank" rel="noopener">Or message us on WhatsApp</a>
   </div>
 </div>
@@ -470,6 +513,28 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 let allLeads       = [];
 let currentUser    = null;
 let currentClientId = null;
+
+// NEW: billing/renewal state, populated by checkExistingConnection().
+let currentPlan          = null;
+let currentPlanExpiresAt = null;
+let currentClientPhone   = null;
+let currentBusinessName  = null;
+// NEW: the plan currently selected in either dropdown (billing card or
+// modal) for the NEXT renewal payment -- defaults to currentPlan but can
+// be changed by the client to upgrade/downgrade at renewal time. Kept in
+// sync across both dropdowns via onPlanSelectChange().
+let selectedRenewalPlan  = null;
+
+// NEW: must stay in sync with plan_amounts in payment_handler.py's
+// /create-order route (amounts in paise). Used only for display here --
+// the backend is always the source of truth for what actually gets
+// charged, since /create-order recalculates the amount server-side
+// regardless of what the dashboard sends.
+var PLAN_PRICING = {
+  starter: { label: 'Starter', amount: 399900, display: '₹3,999/month' },
+  growth:  { label: 'Growth',  amount: 599900, display: '₹5,999/month' },
+  pro:     { label: 'Pro',     amount: 899900, display: '₹8,999/month' }
+};
 
 async function init() {
   const { data: { session } } = await db.auth.getSession();
@@ -531,24 +596,211 @@ async function checkExistingConnection() {
         // status alone (e.g. from a test-mode payment) doesn't mean
         // WhatsApp was actually linked.
         currentClientId = data.client.id;
+        currentPlan = data.client.plan || 'starter';
+        currentPlanExpiresAt = data.client.plan_expires_at || null;
+        currentBusinessName = data.client.business_name || '';
         showConnectedState(data.client.business_name, data.client.phone_number_id);
 
-        // NEW: plan expiry check -- covers both trial-coupon clients and
-        // regular paid clients whose monthly plan has lapsed. Every
-        // active client should have a plan_expires_at value (set on
-        // every successful payment); null/undefined here would only
-        // mean something upstream never completed correctly, in which
-        // case this simply does nothing rather than false-triggering.
-        if (data.client.plan_expires_at) {
-          var expiresAt = new Date(data.client.plan_expires_at);
-          if (expiresAt < new Date()) {
-            showPlanExpiredModal();
-          }
+        // NEW: /get-client doesn't return contact_phone (it's not needed
+        // for the connection-status checks above), but the renewal flow
+        // needs it to prefill Razorpay checkout and pass to /create-order.
+        // Fetched separately via Supabase directly, same pattern as
+        // loadBusinessSettings() below.
+        try {
+          var phoneResult = await db.from('clients').select('contact_phone').eq('id', currentClientId).single();
+          if (phoneResult.data) currentClientPhone = phoneResult.data.contact_phone || '';
+        } catch(phoneErr) {
+          console.log('[checkExistingConnection] Could not fetch contact_phone:', phoneErr);
         }
+
+        // NEW: renders the always-visible billing card AND shows the
+        // blocking modal if plan_expires_at has passed -- both driven by
+        // the same plan_expires_at field, covers trial-coupon clients and
+        // regular paid clients whose monthly plan has lapsed alike.
+        renderBillingCard();
       }
     }
   } catch(e) {
     console.log('[checkExistingConnection] No connection found or error:', e);
+  }
+}
+
+// NEW: populates the always-visible Overview billing card with the
+// client's current plan, price, and renewal date -- and triggers the
+// blocking modal if plan_expires_at has passed. Called after every
+// checkExistingConnection() (initial load AND after a successful
+// renewal payment, so the card and modal both refresh immediately).
+function renderBillingCard() {
+  var card = document.getElementById('billing-card');
+  if (!currentPlan) { card.style.display = 'none'; return; }
+
+  // Reset the renewal selection back to their current plan on every
+  // fresh load -- if they open the page, don't touch the dropdown, and
+  // it should renew what they're already on, not something stale from
+  // a previous visit.
+  selectedRenewalPlan = currentPlan;
+  var billingSelect = document.getElementById('billing-plan-select');
+  var modalSelect    = document.getElementById('modal-plan-select');
+  if (billingSelect) billingSelect.value = currentPlan;
+  if (modalSelect)    modalSelect.value  = currentPlan;
+
+  var statusLine = document.getElementById('billing-status-line');
+  var isExpired = false;
+
+  if (currentPlanExpiresAt) {
+    var expiresAt = new Date(currentPlanExpiresAt);
+    isExpired = expiresAt < new Date();
+    var dateStr = expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    if (isExpired) {
+      statusLine.textContent = 'Expired on ' + dateStr + ' — renew to reactivate your bot';
+      statusLine.classList.add('expired');
+    } else {
+      statusLine.textContent = 'Valid until ' + dateStr;
+      statusLine.classList.remove('expired');
+    }
+  } else {
+    statusLine.textContent = 'Billing info unavailable';
+    statusLine.classList.remove('expired');
+  }
+
+  card.style.display = 'block';
+
+  if (isExpired) {
+    showPlanExpiredModal();
+  }
+}
+
+// NEW: fired when either the billing-card dropdown or the modal dropdown
+// changes. Keeps both in sync (so switching one updates the other, in
+// case both happen to be visible/interacted with) and updates
+// selectedRenewalPlan, which startRenewal() actually charges for.
+function onPlanSelectChange(newPlan) {
+  selectedRenewalPlan = newPlan;
+  var billingSelect = document.getElementById('billing-plan-select');
+  var modalSelect    = document.getElementById('modal-plan-select');
+  if (billingSelect) billingSelect.value = newPlan;
+  if (modalSelect)    modalSelect.value  = newPlan;
+}
+
+// NEW: opens Razorpay checkout directly in the dashboard for renewal --
+// no redirect to the marketing site. Reuses the exact same backend
+// endpoints (/api/create-order, /api/verify-payment) as the public
+// checkout page, so all existing server-side logic (amount calculation,
+// signature verification, plan_expires_at extension, invite/renewal
+// detection) applies identically. Renews whatever plan the client is
+// currently on -- this button doesn't offer upgrading/downgrading.
+async function startRenewal() {
+  var planToCharge = selectedRenewalPlan || currentPlan;
+
+  if (!planToCharge || !currentClientPhone) {
+    alert('Could not load your billing details. Please refresh the page or contact us on WhatsApp.');
+    return;
+  }
+
+  var buttons = [
+    document.getElementById('billing-renew-btn'),
+    document.getElementById('plan-modal-renew-btn')
+  ].filter(Boolean);
+  buttons.forEach(function(b) { b.disabled = true; b.textContent = 'Loading...'; });
+
+  function resetButtons(label) {
+    buttons.forEach(function(b) { b.disabled = false; b.textContent = label; });
+  }
+
+  try {
+    var orderRes = await fetch(BACKEND_URL + '/api/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plan:  planToCharge,
+        name:  currentUser.email.split('@')[0],
+        business: currentBusinessName,
+        phone: currentClientPhone,
+        email: currentUser.email
+      })
+    });
+    var orderData = await orderRes.json();
+
+    if (!orderData.id || !orderData.key_id) {
+      alert('Could not start renewal. Please try again, or message us on WhatsApp.');
+      resetButtons('Renew');
+      return;
+    }
+
+    var pricing = PLAN_PRICING[planToCharge] || PLAN_PRICING.starter;
+
+    var rzp = new Razorpay({
+      key:      orderData.key_id,
+      amount:   orderData.amount,
+      currency: orderData.currency || 'INR',
+      order_id: orderData.id,
+      name:     'NeverMiss',
+      description: pricing.label + ' Plan Renewal',
+      prefill: {
+        name:    currentUser.email.split('@')[0],
+        email:   currentUser.email,
+        contact: currentClientPhone
+      },
+      theme: { color: '#1D9E75' },
+      handler: function(response) {
+        verifyRenewal(response, planToCharge);
+      },
+      modal: {
+        ondismiss: function() {
+          resetButtons('Renew');
+        }
+      }
+    });
+    rzp.open();
+  } catch(err) {
+    console.error('[startRenewal] error:', err);
+    alert('Network error. Please try again, or message us on WhatsApp.');
+    resetButtons('Renew');
+  }
+}
+
+// NEW: confirms the Razorpay payment with the backend, same
+// verify-payment route the public checkout page uses. On success,
+// re-runs checkExistingConnection() so the billing card, expiry modal,
+// and plan_expires_at all refresh immediately without a page reload.
+async function verifyRenewal(razorpayResponse, chargedPlan) {
+  var billingBtn = document.getElementById('billing-renew-btn');
+  var modalBtn   = document.getElementById('plan-modal-renew-btn');
+  if (billingBtn) billingBtn.textContent = 'Confirming...';
+  if (modalBtn)   modalBtn.textContent   = 'Confirming...';
+
+  try {
+    var verifyRes = await fetch(BACKEND_URL + '/api/verify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        razorpay_order_id:   razorpayResponse.razorpay_order_id,
+        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+        razorpay_signature:  razorpayResponse.razorpay_signature,
+        customer: {
+          plan:     chargedPlan,
+          name:     currentUser.email.split('@')[0],
+          business: currentBusinessName,
+          phone:    currentClientPhone,
+          email:    currentUser.email
+        }
+      })
+    });
+    var verifyData = await verifyRes.json();
+
+    if (verifyData.success) {
+      document.getElementById('plan-modal-overlay').classList.remove('active');
+      await checkExistingConnection();
+      alert('Payment successful! Your plan has been renewed.');
+    } else {
+      alert('Payment completed but we could not confirm it automatically. Please message us on WhatsApp with your payment ID so we can activate it manually.');
+    }
+  } catch(err) {
+    console.error('[verifyRenewal] error:', err);
+    alert('Payment completed but confirmation failed. Please message us on WhatsApp with your payment ID so we can activate it manually.');
+  } finally {
+    if (billingBtn) { billingBtn.disabled = false; billingBtn.textContent = 'Renew'; }
+    if (modalBtn)   { modalBtn.disabled = false;   modalBtn.textContent   = 'Renew Now'; }
   }
 }
 
