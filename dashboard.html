@@ -168,6 +168,24 @@
   .request-sent-icon { width: 44px; height: 44px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .request-sent-info h4 { font-size: 15px; font-weight: 500; color: var(--green-dark); margin-bottom: 3px; }
   .request-sent-info p { font-size: 13px; color: var(--green-dark); opacity: 0.8; }
+
+  /* NEW: plan expiry modal -- blocking overlay shown when a client's
+     clients.plan_expires_at has passed. Covers both trial-coupon
+     clients (14 days) and regular paid clients whose monthly plan has
+     lapsed (30 days) -- same field, same modal. Not dismissible on
+     purpose (no close button, no click-outside-to-close) since the
+     whole point is to make renewal unavoidable rather than easy to
+     ignore. */
+  .plan-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 2000; align-items: center; justify-content: center; }
+  .plan-modal-overlay.active { display: flex; }
+  .plan-modal { background: var(--white); border-radius: var(--radius); padding: 2rem; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+  .plan-modal .plan-modal-icon { font-size: 34px; margin-bottom: 0.75rem; }
+  .plan-modal h2 { font-size: 18px; font-weight: 500; margin-bottom: 0.6rem; }
+  .plan-modal p { font-size: 14px; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
+  .plan-modal-btn { padding: 10px 24px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .plan-modal-btn:hover { background: var(--green-dark); }
+  .plan-modal-alt { display: block; margin-top: 0.9rem; font-size: 12px; color: var(--text-muted); text-decoration: none; }
+  .plan-modal-alt:hover { color: var(--text); }
 </style>
 </head>
 <body>
@@ -422,6 +440,20 @@
   </div>
 </main>
 
+<!-- NEW: plan expiry modal -- hidden by default, shown via JS in
+     checkExistingConnection() if data.client.plan_expires_at has passed.
+     Covers both trial-coupon clients and regular paid clients whose
+     monthly plan has lapsed. Deliberately has no close/dismiss control. -->
+<div class="plan-modal-overlay" id="plan-modal-overlay">
+  <div class="plan-modal">
+    <div class="plan-modal-icon">⏳</div>
+    <h2>Your plan has expired</h2>
+    <p>Your NeverMiss plan needs renewal. Renew now to keep your bot active and keep receiving leads from your students.</p>
+    <button class="plan-modal-btn" onclick="window.open('https://nevermiss.co.in/#pricing', '_blank')">Renew Now</button>
+    <a class="plan-modal-alt" href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20renew%20my%20NeverMiss%20plan" target="_blank" rel="noopener">Or message us on WhatsApp</a>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL     = 'https://uwxthbxxiaujlgxosqjx.supabase.co';
@@ -471,6 +503,12 @@ async function init() {
   }
 }
 
+// NEW: shows the blocking plan-expiry modal. Called from
+// checkExistingConnection() once we know plan_expires_at has passed.
+function showPlanExpiredModal() {
+  document.getElementById('plan-modal-overlay').classList.add('active');
+}
+
 async function checkExistingConnection() {
   try {
     var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
@@ -494,6 +532,19 @@ async function checkExistingConnection() {
         // WhatsApp was actually linked.
         currentClientId = data.client.id;
         showConnectedState(data.client.business_name, data.client.phone_number_id);
+
+        // NEW: plan expiry check -- covers both trial-coupon clients and
+        // regular paid clients whose monthly plan has lapsed. Every
+        // active client should have a plan_expires_at value (set on
+        // every successful payment); null/undefined here would only
+        // mean something upstream never completed correctly, in which
+        // case this simply does nothing rather than false-triggering.
+        if (data.client.plan_expires_at) {
+          var expiresAt = new Date(data.client.plan_expires_at);
+          if (expiresAt < new Date()) {
+            showPlanExpiredModal();
+          }
+        }
       }
     }
   } catch(e) {
