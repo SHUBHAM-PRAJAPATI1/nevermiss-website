@@ -197,6 +197,8 @@
   .plan-card h3 { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
   .plan-card .plan-card-price { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: var(--green-dark); margin-bottom: 1rem; }
   .plan-card .plan-card-price span { font-size: 12px; font-weight: 400; color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
+  .plan-card-strike { display: flex; align-items: center; gap: 8px; font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text-muted); text-decoration: line-through; margin-bottom: 2px; }
+  .plan-card-save-badge { display: inline-block; background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; text-decoration: none; font-family: 'DM Sans', sans-serif; }
   .plan-card ul { list-style: none; padding: 0; margin: 0; }
   .plan-card li { font-size: 13px; color: var(--text); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; }
   .plan-card li::before { content: "✓"; color: var(--green); font-weight: 600; flex-shrink: 0; }
@@ -612,20 +614,20 @@ var PLAN_PRICING = {
   starter: {
     label: 'Starter',
     monthly:     { amount: 399900,  display: '₹3,999/month' },
-    half_yearly: { amount: 2199900, display: '₹21,999/6 months' },
-    yearly:      { amount: 3999000, display: '₹39,990/year' }
+    half_yearly: { amount: 2199900, display: '₹21,999/6 months', fullDisplay: '₹23,994' },
+    yearly:      { amount: 3999000, display: '₹39,990/year',     fullDisplay: '₹47,988' }
   },
   growth: {
     label: 'Growth',
     monthly:     { amount: 599900,  display: '₹5,999/month' },
-    half_yearly: { amount: 3299900, display: '₹32,999/6 months' },
-    yearly:      { amount: 5999000, display: '₹59,990/year' }
+    half_yearly: { amount: 3299900, display: '₹32,999/6 months', fullDisplay: '₹35,994' },
+    yearly:      { amount: 5999000, display: '₹59,990/year',     fullDisplay: '₹71,988' }
   },
   pro: {
     label: 'Pro',
     monthly:     { amount: 899900,  display: '₹8,999/month' },
-    half_yearly: { amount: 4899900, display: '₹48,999/6 months' },
-    yearly:      { amount: 8999000, display: '₹89,990/year' }
+    half_yearly: { amount: 4899900, display: '₹48,999/6 months', fullDisplay: '₹53,994' },
+    yearly:      { amount: 8999000, display: '₹89,990/year',     fullDisplay: '₹1,07,988' }
   }
 };
 
@@ -837,10 +839,23 @@ function renderPlanPage() {
     var isSelected = key === selectedRenewalPlan;
     var featureList = features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
     var priceParts = cyclePricing.display.split('/');
+
+    // NEW: for half-yearly/yearly, show the undiscounted full price
+    // struck through above the actual price, plus a "Save X%" badge --
+    // makes the discount visible rather than just showing a flat total.
+    var strikeHtml = '';
+    if (cyclePricing.fullDisplay) {
+      var fullNum = parseInt(cyclePricing.fullDisplay.replace(/[^\d]/g, ''), 10);
+      var actualNum = cyclePricing.amount / 100;
+      var savePct = Math.round((1 - actualNum / fullNum) * 100);
+      strikeHtml = '<div class="plan-card-strike">' + cyclePricing.fullDisplay + ' <span class="plan-card-save-badge">Save ' + savePct + '%</span></div>';
+    }
+
     return (
       '<div class="plan-card' + (isSelected ? ' selected' : '') + '" onclick="selectPlanCard(\'' + key + '\')">' +
         (isCurrent ? '<div class="plan-card-current-badge">Current plan</div>' : '') +
         '<h3>' + pricing.label + '</h3>' +
+        strikeHtml +
         '<div class="plan-card-price">' + priceParts[0] + ' <span>/' + priceParts[1] + '</span></div>' +
         '<ul>' + featureList + '</ul>' +
       '</div>'
