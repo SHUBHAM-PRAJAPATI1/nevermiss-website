@@ -551,7 +551,7 @@
           Share your code with other institutes. They get 20% off their first payment, and you get 20% off your next renewal once they sign up.
         </p>
         <div class="referral-code-box" id="referral-code-box">Loading your code...</div>
-        <a class="add-qr-btn" id="referral-share-btn" href="#" target="_blank" rel="noopener" style="display:inline-flex; margin-top: 12px; text-decoration:none;">Share on WhatsApp</a>
+        <button class="add-qr-btn" id="referral-share-btn" onclick="shareReferralCode()" style="display:inline-flex; margin-top: 12px;">Share on WhatsApp</button>
       </div>
     </div>
   </div>
@@ -907,14 +907,23 @@ function openPlansFromModal() {
   showPage('billing', document.querySelector('.nav-item[onclick*=billing]'));
 }
 
+// NEW: holds the built wa.me share URL once loadReferralCode() succeeds.
+// shareReferralCode() reads this on click -- kept as a JS variable
+// rather than an anchor href, since setting href on a button that may
+// get clicked before the fetch resolves was causing a stale "#" link to
+// navigate (looked like the page randomly refreshing).
+var referralShareUrl = null;
+
 // NEW: fetches (or triggers lazy generation of) this client's own
 // referral code, displays it, and builds a ready-to-send WhatsApp share
 // link with a prefilled message that includes the code and a link to
 // the site. Called whenever the Plan & Billing page is opened.
 async function loadReferralCode() {
   var box = document.getElementById('referral-code-box');
-  var shareBtn = document.getElementById('referral-share-btn');
+  referralShareUrl = null;
   if (!currentUser) return;
+
+  box.textContent = 'Loading your code...';
 
   try {
     var res = await fetch(BACKEND_URL + '/api/referral-code?email=' + encodeURIComponent(currentUser.email));
@@ -922,13 +931,26 @@ async function loadReferralCode() {
     if (data.success && data.referral_code) {
       box.textContent = data.referral_code;
       var shareText = 'Hi! I use NeverMiss for my coaching institute\'s WhatsApp — it auto-replies to student questions and helps capture leads. Use my code ' + data.referral_code + ' to get 20% off your first payment: https://nevermiss.co.in';
-      shareBtn.href = 'https://wa.me/?text=' + encodeURIComponent(shareText);
+      referralShareUrl = 'https://wa.me/?text=' + encodeURIComponent(shareText);
     } else {
       box.textContent = 'Could not load your code';
     }
   } catch(err) {
     console.error('[loadReferralCode] error:', err);
     box.textContent = 'Could not load your code';
+  }
+}
+
+// NEW: click handler for the Share on WhatsApp button. Only navigates
+// if loadReferralCode() actually succeeded -- otherwise gives clear
+// feedback (retry) instead of silently doing nothing or jumping the
+// page, which is what the old href="#" anchor version did.
+function shareReferralCode() {
+  if (referralShareUrl) {
+    window.open(referralShareUrl, '_blank');
+  } else {
+    alert('Your referral code is still loading. Please wait a moment and try again.');
+    loadReferralCode();
   }
 }
 
