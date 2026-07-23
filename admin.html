@@ -15,7 +15,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; }
-  .wrap { max-width: 720px; margin: 0 auto; }
+  .wrap { max-width: 900px; margin: 0 auto; }
   h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; }
   .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
   .card h2 { font-size: 15px; font-weight: 500; margin-bottom: 0.75rem; }
@@ -37,6 +37,32 @@
   .status-msg.error { color: #C00; }
   #login-card { max-width: 360px; margin: 4rem auto; }
   #main-content { display: none; }
+
+  /* NEW: tab navigation between admin pages */
+  .admin-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .admin-tab { padding: 8px 16px; border: 1px solid var(--border); background: var(--white); border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text-muted); }
+  .admin-tab.active { background: var(--green); color: white; border-color: var(--green); }
+  .admin-page { display: none; }
+  .admin-page.active { display: block; }
+
+  /* NEW: helpline conversation thread list */
+  .search-input { width: 100%; max-width: 320px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; margin-bottom: 1.25rem; }
+  .search-input:focus { border-color: var(--green); }
+  .thread { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1rem; overflow: hidden; }
+  .thread-head { padding: 12px 16px; background: var(--bg); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .thread-head:hover { background: var(--green-light); }
+  .thread-phone { font-family: 'DM Mono', monospace; font-weight: 500; }
+  .thread-preview { font-size: 12px; color: var(--text-muted); margin-top: 2px; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .thread-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .thread-body { display: none; padding: 1rem; max-height: 400px; overflow-y: auto; }
+  .thread.expanded .thread-body { display: block; }
+  .msg-row { margin-bottom: 10px; display: flex; }
+  .msg-row.user { justify-content: flex-start; }
+  .msg-row.assistant { justify-content: flex-end; }
+  .msg-bubble { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+  .msg-row.user .msg-bubble { background: var(--bg); color: var(--text); }
+  .msg-row.assistant .msg-bubble { background: var(--green-light); color: var(--green-dark); }
+  .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 </style>
 </head>
 <body>
@@ -53,19 +79,48 @@
   </div>
 
   <div id="main-content">
-    <h1>Pending WhatsApp Connections</h1>
-    <div id="pending-list"><div class="empty">Loading...</div></div>
+    <!-- NEW: tab bar switching between the two admin pages -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="tab-pending" onclick="showAdminPage('pending')">Pending Connections</button>
+      <button class="admin-tab" id="tab-conversations" onclick="showAdminPage('conversations')">Helpline Conversations</button>
+    </div>
+
+    <div class="admin-page active" id="page-pending">
+      <h1>Pending WhatsApp Connections</h1>
+      <div id="pending-list"><div class="empty">Loading...</div></div>
+    </div>
+
+    <!-- NEW: helpline conversations page -->
+    <div class="admin-page" id="page-conversations">
+      <h1>Helpline Conversations</h1>
+      <input type="text" class="search-input" id="conv-search" placeholder="Search by phone number..." oninput="renderConversations()" />
+      <div id="conversations-list"><div class="empty">Loading...</div></div>
+    </div>
   </div>
 </div>
 
 <script>
 const BACKEND_URL = 'https://my-saas-bot.onrender.com';
 let adminSecret = '';
+let allSupportConversations = []; // flat list from the API, grouped client-side
 
 function unlock() {
   adminSecret = document.getElementById('admin-secret-input').value.trim();
   if (!adminSecret) return;
   loadPending();
+}
+
+// NEW: switches between the Pending Connections and Helpline
+// Conversations pages. Loads conversation data lazily on first visit
+// to that tab, not on initial unlock, so unlocking stays fast.
+function showAdminPage(page) {
+  document.querySelectorAll('.admin-page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('tab-' + page).classList.add('active');
+  if (page === 'conversations' && allSupportConversations.length === 0) {
+    loadSupportConversations();
+  }
 }
 
 async function loadPending() {
@@ -157,6 +212,95 @@ async function activate(i, userEmail, businessName) {
     statusEl.className = 'status-msg error';
     statusEl.textContent = 'Network error. Please try again.';
   }
+}
+
+// NEW: fetches all helpline conversation history (flat list, most
+// recent first) and stores it for client-side grouping/rendering.
+async function loadSupportConversations() {
+  var listEl = document.getElementById('conversations-list');
+  listEl.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/support-conversations?admin_secret=' + encodeURIComponent(adminSecret));
+    var data = await res.json();
+    if (!data.success) {
+      listEl.innerHTML = '<div class="empty">Failed to load conversations.</div>';
+      return;
+    }
+    allSupportConversations = data.conversations || [];
+    renderConversations();
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error loading conversations.</div>';
+  }
+}
+
+// NEW: groups the flat message list into per-phone-number threads,
+// sorted by most recent activity, filtered by the search box if a
+// phone number substring is typed in. Each thread starts collapsed,
+// showing just the phone number and a preview of the latest message --
+// clicking expands the full back-and-forth.
+function renderConversations() {
+  var listEl = document.getElementById('conversations-list');
+  var query = (document.getElementById('conv-search').value || '').trim();
+
+  var grouped = {};
+  allSupportConversations.forEach(function(m) {
+    if (!grouped[m.phone_number]) grouped[m.phone_number] = [];
+    grouped[m.phone_number].push(m);
+  });
+
+  var phones = Object.keys(grouped);
+  if (query) {
+    phones = phones.filter(function(p) { return p.includes(query); });
+  }
+
+  if (!phones.length) {
+    listEl.innerHTML = '<div class="empty">No conversations found.</div>';
+    return;
+  }
+
+  // Sort threads by their most recent message, newest first. Messages
+  // within each thread come back created_at DESC from the API, so
+  // index 0 is already the latest for that phone number.
+  phones.sort(function(a, b) {
+    return new Date(grouped[b][0].created_at) - new Date(grouped[a][0].created_at);
+  });
+
+  listEl.innerHTML = phones.map(function(phone, idx) {
+    var messages = grouped[phone].slice().reverse(); // oldest first for display
+    var latest = grouped[phone][0];
+    var latestTime = latest.created_at ? new Date(latest.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+    var preview = (latest.content || '').slice(0, 60);
+
+    var bubbles = messages.map(function(m) {
+      var t = m.created_at ? new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '';
+      return (
+        '<div class="msg-row ' + m.role + '">' +
+          '<div><div class="msg-bubble">' + escapeHtml(m.content) + '</div>' +
+          '<div class="msg-time">' + t + '</div></div>' +
+        '</div>'
+      );
+    }).join('');
+
+    return (
+      '<div class="thread" id="thread-' + idx + '">' +
+        '<div class="thread-head" onclick="toggleThread(' + idx + ')">' +
+          '<div><div class="thread-phone">' + phone + '</div><div class="thread-preview">' + escapeHtml(preview) + '</div></div>' +
+          '<div class="thread-time">' + latestTime + '</div>' +
+        '</div>' +
+        '<div class="thread-body">' + bubbles + '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+function toggleThread(idx) {
+  document.getElementById('thread-' + idx).classList.toggle('expanded');
+}
+
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
 }
 
 // Auto-unlock if secret was already entered this session
