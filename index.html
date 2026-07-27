@@ -131,6 +131,24 @@ h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px rgba(255,255
 .plan-btn.outline:hover{border-color:var(--blue);color:var(--blue);}
 .plan-btn.solid{background:white;color:var(--blue);}
 .plan-btn.solid:hover{background:var(--blue-light);}
+.custom-strip{max-width:1000px;margin:2.5rem auto 0;background:var(--black);border-radius:24px;padding:2.2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;position:relative;overflow:hidden;}
+.custom-strip::after{content:'';position:absolute;top:-130px;right:-70px;width:360px;height:300px;background:radial-gradient(ellipse,rgba(27,79,255,0.35) 0%,transparent 70%);pointer-events:none;}
+.custom-strip-text{position:relative;z-index:1;max-width:560px;}
+.custom-strip-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7B9FFF;margin-bottom:0.5rem;}
+.custom-strip h3{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:600;color:white;margin-bottom:0.5rem;}
+.custom-strip p{font-size:0.9rem;color:rgba(255,255,255,0.5);line-height:1.65;}
+.custom-strip .btn-primary{position:relative;z-index:1;flex-shrink:0;border:none;cursor:pointer;font-family:'Instrument Sans',sans-serif;}
+.custom-fields{display:none;flex-direction:column;gap:1.2rem;}
+.custom-fields.active{display:flex;}
+.check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;}
+.check-item{display:flex;align-items:center;gap:0.55rem;padding:0.65rem 0.8rem;border:1.5px solid var(--gray2);border-radius:10px;background:var(--gray);font-size:0.82rem;color:var(--text);cursor:pointer;transition:all 0.2s;}
+.check-item:hover{border-color:var(--blue);}
+.check-item.checked{border-color:var(--blue);background:var(--blue-light);}
+.check-item input{accent-color:var(--blue);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+.estimate-box{background:var(--blue-light);border:1.5px solid var(--blue);border-radius:14px;padding:1.1rem 1.3rem;}
+.estimate-label{font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--blue);margin-bottom:0.35rem;}
+.estimate-num{font-family:'Clash Display',sans-serif;font-size:1.55rem;font-weight:700;color:var(--black);line-height:1.2;}
+.estimate-note{font-size:0.76rem;color:var(--muted);margin-top:0.45rem;line-height:1.55;}
 .benefits{background:var(--blue-light);padding:6rem 3rem;}
 .benefits-inner{max-width:1100px;margin:0 auto;}
 .benefits-header{text-align:center;max-width:600px;margin:0 auto 3.5rem;}
@@ -179,6 +197,9 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
   .section,.how,.who,.pricing,.contact-section,.cta-section,.benefits{padding:4rem 1.5rem;}
   .section-title{font-size:2rem;}.cta-inner h2{font-size:2rem;}
   .footer-inner{flex-direction:column;text-align:center;}
+  .custom-strip{padding:1.8rem 1.5rem;flex-direction:column;align-items:flex-start;}
+  .custom-strip .btn-primary{width:100%;justify-content:center;}
+  .check-grid{grid-template-columns:1fr;}
 }
 @media(max-width:900px) and (min-width:769px){
   .benefits-grid{grid-template-columns:repeat(2,1fr);}
@@ -356,6 +377,15 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       <button class="plan-btn outline" onclick="selectPlan('pro', this)">Get Started</button>
     </div>
   </div>
+
+  <div class="custom-strip fade-in">
+    <div class="custom-strip-text">
+      <div class="custom-strip-eyebrow">Something else?</div>
+      <h3>Custom build for your sector</h3>
+      <p>Skilling centres, training institutes, clinics, agencies — if the three plans above don't fit how you work, tell us what you need and we'll build and price it around that. Monthly, per conversation, or whatever suits you.</p>
+    </div>
+    <button class="btn-primary" onclick="selectCustom()">Tell us what you need →</button>
+  </div>
 </section>
 
 <section class="benefits">
@@ -446,14 +476,14 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       </div>
       <div class="form-group">
         <label>Business Type</label>
-        <select id="f-type">
+        <select id="f-type" onchange="if(this.value==='Custom / Not listed') selectCustom();">
           <option value="">Select your business type</option>
           <option>Coaching Institute</option>
           <option>Hospital / Clinic</option>
           <option>Real Estate</option>
           <option>Dentist / Doctor</option>
           <option>College / University</option>
-          <option>Other</option>
+          <option>Custom / Not listed</option>
         </select>
       </div>
       <div class="form-group" id="plan-select-group">
@@ -463,21 +493,77 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
           <option value="starter">Starter — ₹3,999/month</option>
           <option value="growth">Growth — ₹5,999/month</option>
           <option value="pro">Pro — ₹8,999/month</option>
+          <option value="custom">Custom — built around your needs</option>
         </select>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" id="coupon-group">
         <label>Coupon Code <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
         <input id="f-coupon" type="text" placeholder="Enter code if you have one" style="text-transform:uppercase;">
       </div>
 
+      <!-- Custom requirements — shown only when the custom track is selected -->
+      <div class="custom-fields" id="custom-fields">
+        <div class="form-group">
+          <label>What does your organisation do? *</label>
+          <input id="c-sector" type="text" placeholder="e.g. Skilling centre, diagnostic lab, travel agency" oninput="updateEstimate()">
+        </div>
+
+        <div class="form-group">
+          <label>Roughly how many WhatsApp enquiries a month? *</label>
+          <select id="c-volume" onchange="updateEstimate()">
+            <option value="">Select a range</option>
+            <option value="low">Under 500</option>
+            <option value="mid">500 – 2,000</option>
+            <option value="high">2,000 – 5,000</option>
+            <option value="max">More than 5,000</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>What should the bot handle? *</label>
+          <div class="check-grid" id="c-needs">
+            <label class="check-item"><input type="checkbox" value="Answering common questions" onchange="updateEstimate()"> Answering common questions</label>
+            <label class="check-item"><input type="checkbox" value="Capturing leads" onchange="updateEstimate()"> Capturing leads</label>
+            <label class="check-item"><input type="checkbox" value="Sending brochures and documents" onchange="updateEstimate()"> Sending brochures &amp; documents</label>
+            <label class="check-item"><input type="checkbox" value="Guiding people to register" onchange="updateEstimate()"> Guiding people to register</label>
+            <label class="check-item"><input type="checkbox" value="Taking bookings or appointments" data-weight="2" onchange="updateEstimate()"> Bookings or appointments</label>
+            <label class="check-item"><input type="checkbox" value="Replying in Marathi or Hindi" data-weight="2" onchange="updateEstimate()"> Marathi or Hindi replies</label>
+            <label class="check-item"><input type="checkbox" value="Following up with people who drop off" data-weight="2" onchange="updateEstimate()"> Follow-ups for drop-offs</label>
+            <label class="check-item"><input type="checkbox" value="Separate flows for different programmes" data-weight="2" onchange="updateEstimate()"> Separate flows per programme</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>How would you prefer to pay?</label>
+          <select id="c-billing">
+            <option value="Not sure yet">Not sure yet — suggest what fits</option>
+            <option value="Monthly">Monthly</option>
+            <option value="6-month plan">6-month plan</option>
+            <option value="Annual plan">Annual plan</option>
+            <option value="Per conversation">Per conversation</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Anything else we should know?</label>
+          <textarea id="c-notes" placeholder="Programmes you run, how enquiries reach you today, anything specific you want handled"></textarea>
+        </div>
+
+        <div class="estimate-box">
+          <div class="estimate-label">Indicative starting point</div>
+          <div class="estimate-num" id="estimate-num">Fill in the details above</div>
+          <p class="estimate-note" id="estimate-note">This is a rough range, not a quote. We'll confirm the real number after a short conversation about what you actually need. Setup is waived on 6-month and annual plans.</p>
+        </div>
+      </div>
+
       <div id="form-error" style="display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#C00;"></div>
 
-      <button class="form-submit" id="pay-btn" onclick="startPayment()">
+      <button class="form-submit" id="pay-btn" onclick="handleSubmit()">
         <span id="pay-btn-text">Pay & Activate Bot →</span>
       </button>
 
-      <p style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:-0.5rem;">
+      <p id="pay-note" style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:-0.5rem;">
         🔒 Secured by Razorpay &nbsp;|&nbsp; Instant confirmation on WhatsApp
       </p>
       <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-top:0.5rem;">
@@ -516,10 +602,22 @@ const PLAN_LABELS = {
   pro:     "Pro — ₹8,999/month",
 };
 
+// ── CUSTOM PRICING KNOBS — edit these as you learn your real numbers ─────────
+const CUSTOM_BASE      = 5000;   // starting monthly figure
+const VOLUME_ADDER     = { low: 0, mid: 2000, high: 5000, max: 9000 };
+const FEATURE_ADDER    = 800;    // per standard feature ticked
+const HEAVY_MULTIPLIER = 2;      // features marked data-weight="2" count double
+const RANGE_SPREAD     = 0.35;   // upper end of the quoted range
+const WA_NUMBER        = "917484849508";
+
 let selectedPlan = "";
+let customMode = false;
 
 // Called when user clicks a plan button
 function selectPlan(plan, btn) {
+  if (plan === "custom") return selectCustom();
+  customMode = false;
+  applyMode();
   selectedPlan = plan;
 
   // Update hidden select
@@ -539,9 +637,131 @@ function selectPlan(plan, btn) {
 
 function clearPlan() {
   selectedPlan = "";
+  customMode = false;
+  applyMode();
   document.getElementById("f-plan").value = "";
   document.getElementById("selected-plan-banner").style.display = "none";
   document.getElementById("plan-select-group").style.display = "flex";
+}
+
+// Switch the form into custom-requirements mode
+function selectCustom() {
+  customMode = true;
+  selectedPlan = "custom";
+  document.getElementById("f-plan").value = "custom";
+
+  const banner = document.getElementById("selected-plan-banner");
+  banner.style.display = "flex";
+  document.getElementById("selected-plan-label").textContent = "Custom — built around your needs";
+  document.getElementById("plan-select-group").style.display = "none";
+
+  applyMode();
+  updateEstimate();
+  document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
+}
+
+// Show/hide the pieces that differ between paid plans and custom
+function applyMode() {
+  document.getElementById("custom-fields").classList.toggle("active", customMode);
+  document.getElementById("coupon-group").style.display = customMode ? "none" : "flex";
+  document.getElementById("pay-btn-text").textContent = customMode ? "Send my requirements →" : "Pay & Activate Bot →";
+  document.getElementById("pay-note").innerHTML = customMode
+    ? "We'll reply on WhatsApp within a day with a plan and a price."
+    : "🔒 Secured by Razorpay &nbsp;|&nbsp; Instant confirmation on WhatsApp";
+}
+
+function getCheckedNeeds() {
+  return Array.from(document.querySelectorAll("#c-needs input:checked"));
+}
+
+// Deterministic indicative range — deliberately shown as a range, never a quote
+function updateEstimate() {
+  const volume = document.getElementById("c-volume").value;
+  const needs  = getCheckedNeeds();
+
+  document.querySelectorAll("#c-needs .check-item").forEach(el => {
+    el.classList.toggle("checked", el.querySelector("input").checked);
+  });
+
+  const numEl  = document.getElementById("estimate-num");
+  const noteEl = document.getElementById("estimate-note");
+
+  if (!volume || needs.length === 0) {
+    numEl.textContent = "Fill in the details above";
+    noteEl.textContent = "Pick your enquiry volume and what the bot should handle to see a rough starting range.";
+    return;
+  }
+
+  let total = CUSTOM_BASE + (VOLUME_ADDER[volume] || 0);
+  needs.forEach(n => {
+    total += FEATURE_ADDER * (n.dataset.weight ? Number(n.dataset.weight) : 1);
+  });
+
+  const low  = Math.round(total / 500) * 500;
+  const high = Math.round((total * (1 + RANGE_SPREAD)) / 500) * 500;
+
+  numEl.textContent = `₹${low.toLocaleString("en-IN")} – ₹${high.toLocaleString("en-IN")}/month`;
+  noteEl.textContent = "This is a rough range, not a quote. We'll confirm the real number after a short conversation about what you actually need. Setup is waived on 6-month and annual plans.";
+}
+
+// Route the single submit button to the right action
+function handleSubmit() {
+  if (customMode) return sendCustomRequest();
+  return startPayment();
+}
+
+function sendCustomRequest() {
+  const name     = document.getElementById("f-name").value.trim();
+  const business = document.getElementById("f-business").value.trim();
+  const email    = document.getElementById("f-email").value.trim();
+  const phone    = document.getElementById("f-phone").value.trim();
+  const sector   = document.getElementById("c-sector").value.trim();
+  const volume   = document.getElementById("c-volume");
+  const billing  = document.getElementById("c-billing").value;
+  const notes    = document.getElementById("c-notes").value.trim();
+  const needs    = getCheckedNeeds().map(n => n.value);
+
+  if (!name)     return showError("Please enter your name.");
+  if (!business) return showError("Please enter your business name.");
+  if (!email || !email.includes("@")) return showError("Please enter a valid email address.");
+  if (!phone || phone.length < 10)    return showError("Please enter a valid 10-digit WhatsApp number.");
+  if (!sector)          return showError("Please tell us what your organisation does.");
+  if (!volume.value)    return showError("Please select your rough monthly enquiry volume.");
+  if (needs.length === 0) return showError("Please pick at least one thing the bot should handle.");
+
+  const lines = [
+    "Custom requirement from the NeverMiss site",
+    "",
+    `Name: ${name}`,
+    `Organisation: ${business}`,
+    `Sector: ${sector}`,
+    `Email: ${email}`,
+    `WhatsApp: ${phone}`,
+    `Monthly enquiries: ${volume.options[volume.selectedIndex].text}`,
+    `Needs: ${needs.join(", ")}`,
+    `Billing preference: ${billing}`,
+  ];
+  if (notes) lines.push(`Notes: ${notes}`);
+  lines.push("", `Indicative range shown: ${document.getElementById("estimate-num").textContent}`);
+
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+
+  document.querySelector(".form").innerHTML = `
+    <div style="text-align:center;padding:2rem 1rem;">
+      <div style="font-size:3.5rem;margin-bottom:1rem;">📩</div>
+      <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">
+        Thanks, ${name} — we've got your details
+      </h3>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;">
+        A WhatsApp window should have opened with your requirements.<br>
+        Send it across and we'll come back within a day with a plan and a price for <strong>${business}</strong>.
+      </p>
+      <a href="https://wa.me/${WA_NUMBER}" target="_blank" rel="noopener"
+         style="display:inline-block;background:var(--blue);color:white;padding:0.8rem 1.8rem;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.9rem;">
+        Open WhatsApp
+      </a>
+    </div>
+  `;
 }
 
 function showError(msg) {
