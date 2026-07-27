@@ -488,7 +488,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       </div>
       <div class="form-group" id="plan-select-group">
         <label>Select Plan *</label>
-        <select id="f-plan">
+        <select id="f-plan" onchange="selectPlan(this.value, null)">
           <option value="">Choose a plan</option>
           <option value="starter">Starter — ₹3,999/month</option>
           <option value="growth">Growth — ₹5,999/month</option>
@@ -615,6 +615,7 @@ let customMode = false;
 
 // Called when user clicks a plan button
 function selectPlan(plan, btn) {
+  if (!plan) { clearPlan(); return; }
   if (plan === "custom") return selectCustom();
   customMode = false;
   applyMode();
@@ -744,21 +745,20 @@ function sendCustomRequest() {
   if (notes) lines.push(`Notes: ${notes}`);
   lines.push("", `Indicative range shown: ${document.getElementById("estimate-num").textContent}`);
 
-  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+  const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
 
   document.querySelector(".form").innerHTML = `
     <div style="text-align:center;padding:2rem 1rem;">
-      <div style="font-size:3.5rem;margin-bottom:1rem;">📩</div>
+      <div style="font-size:3.5rem;margin-bottom:1rem;">✅</div>
       <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">
-        Thanks, ${name} — we've got your details
+        Thanks, ${name} — we've got your requirements
       </h3>
-      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;">
-        A WhatsApp window should have opened with your requirements.<br>
-        Send it across and we'll come back within a day with a plan and a price for <strong>${business}</strong>.
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.75rem;">
+        We'll go through what <strong>${business}</strong> needs and come back with a plan and a price within a day.
       </p>
-      <a href="https://wa.me/${WA_NUMBER}" target="_blank" rel="noopener"
-         style="display:inline-block;background:var(--blue);color:white;padding:0.8rem 1.8rem;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.9rem;">
-        Open WhatsApp
+      <a href="${waLink}" target="_blank" rel="noopener"
+         style="display:inline-block;background:transparent;color:var(--blue);padding:0.7rem 1.6rem;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.85rem;border:1.5px solid var(--gray2);">
+        Prefer to talk now? Message us on WhatsApp
       </a>
     </div>
   `;
