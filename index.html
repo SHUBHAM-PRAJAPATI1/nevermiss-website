@@ -732,20 +732,6 @@ async function sendCustomRequest() {
   if (needs.length === 0) return showError("Please pick at least one thing the bot should handle.");
 
   const volumeLabel = volume.options[volume.selectedIndex].text;
-
-  // Built once, used only as a fallback if the API call fails below --
-  // so a submission is never silently lost even if the backend or
-  // network has an issue at that exact moment.
-  const waLines = [
-    "Custom requirement from the NeverMiss site",
-    "", `Name: ${name}`, `Organisation: ${business}`, `Sector: ${sector}`,
-    `Email: ${email}`, `WhatsApp: ${phone}`, `Monthly enquiries: ${volumeLabel}`,
-    `Needs: ${needs.join(", ")}`, `Billing preference: ${billing}`,
-  ];
-  if (notes) waLines.push(`Notes: ${notes}`);
-  waLines.push("", `Indicative range shown: ${estimate}`);
-  const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waLines.join("\n"))}`;
-
   setLoading(true);
 
   try {
@@ -761,43 +747,49 @@ async function sendCustomRequest() {
     setLoading(false);
 
     if (!result.success) {
-      showError(result.error || "Something went wrong saving your request.");
-      showCustomConfirmation(name, business, waLink, true);
+      showCustomFailure(result.error || "Something went wrong saving your request.");
       return;
     }
 
-    showCustomConfirmation(name, business, waLink, false);
+    showCustomSuccess(name, business);
 
   } catch (err) {
     console.error(err);
     setLoading(false);
-    showError("Couldn't reach our server. Opening WhatsApp instead so your request still goes through.");
-    showCustomConfirmation(name, business, waLink, true);
+    showCustomFailure("Couldn't reach our server. If you're using Brave or an ad blocker, try turning off shields for this site and submit again.");
   }
 }
 
-function showCustomConfirmation(name, business, waLink, isFallback) {
-  const message = isFallback
-    ? `We couldn't save this automatically, but tap below and we'll get it directly on WhatsApp.`
-    : `We'll go through what <strong>${business}</strong> needs and come back with a plan and a price within a day.`;
-  const buttonLabel = isFallback ? "Send on WhatsApp →" : "Prefer to talk now? Message us on WhatsApp";
-  const buttonStyle = isFallback
-    ? "background:var(--blue);color:white;padding:0.8rem 1.8rem;border:none;"
-    : "background:transparent;color:var(--blue);padding:0.7rem 1.6rem;border:1.5px solid var(--gray2);";
-
+function showCustomSuccess(name, business) {
   document.querySelector(".form").innerHTML = `
     <div style="text-align:center;padding:2rem 1rem;">
       <div style="font-size:3.5rem;margin-bottom:1rem;">✅</div>
       <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">
         Thanks, ${name} — we've got your requirements
       </h3>
-      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.75rem;">
-        ${message}
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;">
+        We'll go through what <strong>${business}</strong> needs and come back with a plan and a price within a day.
       </p>
-      <a href="${waLink}" target="_blank" rel="noopener"
-         style="display:inline-block;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.85rem;${buttonStyle}">
-        ${buttonLabel}
-      </a>
+    </div>
+  `;
+}
+
+function showCustomFailure(reason) {
+  document.querySelector(".form").innerHTML = `
+    <div style="text-align:center;padding:2rem 1rem;">
+      <div style="font-size:3.5rem;margin-bottom:1rem;">⚠️</div>
+      <h3 style="font-family:'Clash Display',sans-serif;font-size:1.4rem;color:var(--black);margin-bottom:0.75rem;">
+        We couldn't submit that
+      </h3>
+      <p style="color:var(--muted);font-size:0.9rem;line-height:1.7;margin-bottom:1.75rem;">
+        ${reason} Nothing was lost — your details are still filled in below.
+      </p>
+      <button onclick="location.reload()" style="background:var(--blue);color:white;padding:0.8rem 1.8rem;border:none;border-radius:100px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;">
+        Try again
+      </button>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:1.2rem;">
+        Still not working? Email us at <a href="mailto:support@nevermiss.co.in" style="color:var(--blue);">support@nevermiss.co.in</a>
+      </p>
     </div>
   `;
 }
