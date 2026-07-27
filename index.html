@@ -711,7 +711,7 @@ function handleSubmit() {
   return startPayment();
 }
 
-function sendCustomRequest() {
+async function sendCustomRequest() {
   const name     = document.getElementById("f-name").value.trim();
   const business = document.getElementById("f-business").value.trim();
   const email    = document.getElementById("f-email").value.trim();
@@ -721,6 +721,7 @@ function sendCustomRequest() {
   const billing  = document.getElementById("c-billing").value;
   const notes    = document.getElementById("c-notes").value.trim();
   const needs    = getCheckedNeeds().map(n => n.value);
+  const estimate = document.getElementById("estimate-num").textContent;
 
   if (!name)     return showError("Please enter your name.");
   if (!business) return showError("Please enter your business name.");
@@ -730,22 +731,59 @@ function sendCustomRequest() {
   if (!volume.value)    return showError("Please select your rough monthly enquiry volume.");
   if (needs.length === 0) return showError("Please pick at least one thing the bot should handle.");
 
-  const lines = [
-    "Custom requirement from the NeverMiss site",
-    "",
-    `Name: ${name}`,
-    `Organisation: ${business}`,
-    `Sector: ${sector}`,
-    `Email: ${email}`,
-    `WhatsApp: ${phone}`,
-    `Monthly enquiries: ${volume.options[volume.selectedIndex].text}`,
-    `Needs: ${needs.join(", ")}`,
-    `Billing preference: ${billing}`,
-  ];
-  if (notes) lines.push(`Notes: ${notes}`);
-  lines.push("", `Indicative range shown: ${document.getElementById("estimate-num").textContent}`);
+  const volumeLabel = volume.options[volume.selectedIndex].text;
 
-  const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+  // Built once, used only as a fallback if the API call fails below --
+  // so a submission is never silently lost even if the backend or
+  // network has an issue at that exact moment.
+  const waLines = [
+    "Custom requirement from the NeverMiss site",
+    "", `Name: ${name}`, `Organisation: ${business}`, `Sector: ${sector}`,
+    `Email: ${email}`, `WhatsApp: ${phone}`, `Monthly enquiries: ${volumeLabel}`,
+    `Needs: ${needs.join(", ")}`, `Billing preference: ${billing}`,
+  ];
+  if (notes) waLines.push(`Notes: ${notes}`);
+  waLines.push("", `Indicative range shown: ${estimate}`);
+  const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waLines.join("\n"))}`;
+
+  setLoading(true);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/custom-request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name, business, email, phone, sector,
+        volume: volumeLabel, needs, billing, notes, estimate,
+      }),
+    });
+    const result = await res.json();
+    setLoading(false);
+
+    if (!result.success) {
+      showError(result.error || "Something went wrong saving your request.");
+      showCustomConfirmation(name, business, waLink, true);
+      return;
+    }
+
+    showCustomConfirmation(name, business, waLink, false);
+
+  } catch (err) {
+    console.error(err);
+    setLoading(false);
+    showError("Couldn't reach our server. Opening WhatsApp instead so your request still goes through.");
+    showCustomConfirmation(name, business, waLink, true);
+  }
+}
+
+function showCustomConfirmation(name, business, waLink, isFallback) {
+  const message = isFallback
+    ? `We couldn't save this automatically, but tap below and we'll get it directly on WhatsApp.`
+    : `We'll go through what <strong>${business}</strong> needs and come back with a plan and a price within a day.`;
+  const buttonLabel = isFallback ? "Send on WhatsApp →" : "Prefer to talk now? Message us on WhatsApp";
+  const buttonStyle = isFallback
+    ? "background:var(--blue);color:white;padding:0.8rem 1.8rem;border:none;"
+    : "background:transparent;color:var(--blue);padding:0.7rem 1.6rem;border:1.5px solid var(--gray2);";
 
   document.querySelector(".form").innerHTML = `
     <div style="text-align:center;padding:2rem 1rem;">
@@ -754,11 +792,11 @@ function sendCustomRequest() {
         Thanks, ${name} — we've got your requirements
       </h3>
       <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.75rem;">
-        We'll go through what <strong>${business}</strong> needs and come back with a plan and a price within a day.
+        ${message}
       </p>
       <a href="${waLink}" target="_blank" rel="noopener"
-         style="display:inline-block;background:transparent;color:var(--blue);padding:0.7rem 1.6rem;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.85rem;border:1.5px solid var(--gray2);">
-        Prefer to talk now? Message us on WhatsApp
+         style="display:inline-block;border-radius:100px;text-decoration:none;font-weight:600;font-size:0.85rem;${buttonStyle}">
+        ${buttonLabel}
       </a>
     </div>
   `;
@@ -775,7 +813,9 @@ function setLoading(loading) {
   const btn  = document.getElementById("pay-btn");
   const text = document.getElementById("pay-btn-text");
   btn.disabled = loading;
-  text.textContent = loading ? "Creating order…" : "Pay & Activate Bot →";
+  text.textContent = loading
+    ? (customMode ? "Sending…" : "Creating order…")
+    : (customMode ? "Send my requirements →" : "Pay & Activate Bot →");
   btn.style.opacity = loading ? "0.7" : "1";
 }
 
