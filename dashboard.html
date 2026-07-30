@@ -251,7 +251,11 @@
   <a class="nav-item" onclick="showPage('leads', this)" href="javascript:void(0)"><span class="nav-icon">◎</span> Leads</a>
   <a class="nav-item" onclick="showPage('conversations', this)" href="javascript:void(0)"><span class="nav-icon">◻</span> Conversations</a>
   <a class="nav-item" onclick="showPage('quickreplies', this)" href="javascript:void(0)"><span class="nav-icon">◇</span> Quick replies</a>
-  <a class="nav-item" onclick="showPage('profile', this)" href="javascript:void(0)"><span class="nav-icon">🏫</span> Institute Profile</a>
+  <!-- CHANGED: given an id so applyClientType() can hide it for client
+       types that have no courses/results/facilities rows -- otherwise a
+       skilling organisation sees four empty tabs and reads the product
+       as broken rather than as not applicable to them. -->
+  <a class="nav-item" id="nav-profile" onclick="showPage('profile', this)" href="javascript:void(0)"><span class="nav-icon">🏫</span> Institute Profile</a>
   <a class="nav-item" onclick="showPage('connect', this)" href="javascript:void(0)"><span class="nav-icon">📱</span> Connect WhatsApp</a>
   <a class="nav-item" onclick="showPage('billing', this)" href="javascript:void(0)"><span class="nav-icon">💳</span> Plan & Billing</a>
   <div class="sidebar-bottom">
@@ -344,6 +348,15 @@
       <div class="leads-column">
         <div class="leads-column-head">💺 Seat Bookings <span class="leads-count" id="count-booking">0</span></div>
         <div class="leads-column-body" id="col-booking"><div class="loading"><span class="spinner"></span></div></div>
+      </div>
+      <!-- NEW: shown only for client_type === 'skilling'. Without this
+           column their leads save to Supabase and count in the stats but
+           appear nowhere on screen, because renderLeadsBoard() silently
+           drops any lead_type it has no column for -- which looks like a
+           broken product on day one. -->
+      <div class="leads-column" id="col-wrap-skilling_enquiry" style="display:none;">
+        <div class="leads-column-head">🎯 Enquiries <span class="leads-count" id="count-skilling_enquiry">0</span></div>
+        <div class="leads-column-body" id="col-skilling_enquiry"><div class="loading"><span class="spinner"></span></div></div>
       </div>
     </div>
   </div>
@@ -590,6 +603,11 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 let allLeads       = [];
 let currentUser    = null;
 let currentClientId = null;
+// NEW: which kind of client this is -- 'coaching' (the default for every
+// existing client) or 'skilling'. Returned by /get-client and used by
+// applyClientType() to shape the dashboard so nobody is shown tabs and
+// columns that don't apply to how they actually work.
+let currentClientType = 'coaching';
 
 // NEW: billing/renewal state, populated by checkExistingConnection().
 let currentPlan          = null;
@@ -628,6 +646,18 @@ var PLAN_PRICING = {
     monthly:     { amount: 899900,  display: '₹8,999/month' },
     half_yearly: { amount: 4899900, display: '₹48,999/6 months', fullDisplay: '₹53,994' },
     yearly:      { amount: 8999000, display: '₹89,990/year',     fullDisplay: '₹1,07,988' }
+  },
+  // NEW: custom-tier clients are priced per agreement, not from this
+  // table. The entry exists so PLAN_PRICING[currentPlan] stops falling
+  // through to Starter -- which was showing a bespoke client their plan
+  // as "Starter Plan" on the Overview page. Self-serve renewal is
+  // disabled for these clients entirely (see renderPlanPage), so no real
+  // amount is needed here.
+  custom: {
+    label: 'Custom',
+    monthly:     { amount: 0, display: 'As agreed' },
+    half_yearly: { amount: 0, display: 'As agreed' },
+    yearly:      { amount: 0, display: 'As agreed' }
   }
 };
 
@@ -661,6 +691,12 @@ var PLAN_FEATURES = {
     'Unlimited conversations',
     'Re-engagement reminders',
     'AI Voice Calling (coming soon)'
+  ],
+  custom: [
+    'Built around your requirements',
+    'Custom conversation flows',
+    'Multi-language support',
+    'Volume and pricing as agreed'
   ]
 };
 
@@ -702,6 +738,44 @@ function showPlanExpiredModal() {
   document.getElementById('plan-modal-overlay').classList.add('active');
 }
 
+// NEW: shapes the dashboard to the kind of client who just logged in.
+// Runs once, right after /get-client resolves, so there is no flash of
+// irrelevant UI. Coaching clients are completely unaffected -- every
+// branch here is additive and only fires for non-coaching types.
+function applyClientType() {
+  var isSkilling = currentClientType === 'skilling';
+
+  // Institute Profile is courses / batches / results / facilities --
+  // none of which a skilling organisation has rows for. Left visible it
+  // reads as a broken product rather than an inapplicable tab.
+  var navProfile = document.getElementById('nav-profile');
+  if (navProfile) navProfile.style.display = isSkilling ? 'none' : 'flex';
+
+  // Swap the leads board: coaching keeps its four admission columns,
+  // skilling gets the single enquiry column its bot actually produces.
+  var coachingCols = ['callback', 'registration', 'demo', 'booking'];
+  coachingCols.forEach(function(type) {
+    var body = document.getElementById('col-' + type);
+    if (body && body.parentElement) {
+      body.parentElement.style.display = isSkilling ? 'none' : 'block';
+    }
+  });
+  var skillingWrap = document.getElementById('col-wrap-skilling_enquiry');
+  if (skillingWrap) skillingWrap.style.display = isSkilling ? 'block' : 'none';
+
+  // One column inside a four-column grid renders as a narrow strip, so
+  // give the board a sensible width when only the enquiry column shows.
+  var board = document.getElementById('leads-board');
+  if (board) board.style.gridTemplateColumns = isSkilling ? 'minmax(0, 480px)' : '';
+
+  // Custom-tier clients can't self-serve a plan change, so the Overview
+  // button should read as informational rather than transactional.
+  if (isSkilling) {
+    var billingBtn = document.getElementById('billing-renew-btn');
+    if (billingBtn) billingBtn.textContent = 'View Plan';
+  }
+}
+
 async function checkExistingConnection() {
   try {
     var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
@@ -727,6 +801,10 @@ async function checkExistingConnection() {
         currentPlan = data.client.plan || 'starter';
         currentPlanExpiresAt = data.client.plan_expires_at || null;
         currentBusinessName = data.client.business_name || '';
+        // NEW: read the client type and reshape the dashboard for it
+        // before any of the data loads below run.
+        currentClientType = data.client.client_type || 'coaching';
+        applyClientType();
         showConnectedState(data.client.business_name, data.client.phone_number_id);
 
         // NEW: /get-client doesn't return contact_phone (it's not needed
@@ -817,6 +895,36 @@ function renderPlanPage() {
     statusEl.textContent = (isExpired ? 'Expired on ' : 'Active — valid until ') + dateStr + '. Currently on the ' + currentPricing.label + ' plan.';
   } else {
     statusEl.textContent = 'Billing info unavailable.';
+  }
+
+  // NEW: a custom-tier client must not be able to click a standard plan
+  // card and pay for it. Before this guard, a client on a bespoke
+  // agreement could select Starter, hit Continue, pay ₹3,999 and
+  // silently downgrade themselves onto a 1,000-message cap with their
+  // features stripped -- one click, no confirmation, no way back
+  // without support. Show a single non-clickable summary card and point
+  // them at a conversation instead of a checkout button.
+  if (currentPlan === 'custom') {
+    document.getElementById('billing-cycle-toggle').innerHTML = '';
+    document.getElementById('plan-cards-grid').innerHTML =
+      '<div class="plan-card selected" style="grid-column: 1 / -1; cursor: default;">' +
+        '<div class="plan-card-current-badge">Current plan</div>' +
+        '<h3>Custom</h3>' +
+        '<div class="plan-card-price">As agreed <span>with our team</span></div>' +
+        '<ul>' + PLAN_FEATURES.custom.map(function(f) { return '<li>' + f + '</li>'; }).join('') + '</ul>' +
+      '</div>';
+    var ctaRow = document.querySelector('.plan-page-cta-row');
+    if (ctaRow) {
+      ctaRow.innerHTML =
+        '<p style="font-size:14px;color:var(--text-muted);">' +
+          'Your plan is set up specifically for your organisation. ' +
+          'To change anything, message us and we\'ll sort it out directly.' +
+        '</p>' +
+        '<p style="font-size:13px;color:var(--text-muted);margin-top:10px;">' +
+          '<a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20discuss%20my%20NeverMiss%20plan" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:500;">Message us on WhatsApp</a>' +
+        '</p>';
+    }
+    return;
   }
 
   if (!selectedRenewalPlan) selectedRenewalPlan = currentPlan || 'starter';
@@ -1092,9 +1200,19 @@ function showConnectedState(businessName, phoneId) {
 
 async function updateSetupProgress() {
   var whatsappConnected = !!currentClientId;
+  var isSkilling = currentClientType === 'skilling';
   var hasCourses = false;
 
-  if (currentClientId) {
+  // NEW: skilling clients have programmes defined in the bot's own
+  // content file, not rows in the `courses` table -- so this step can
+  // never be completed by them. Left as-is it pins setup at 75% forever
+  // and the progress card never hides: a permanent nag about a task
+  // that doesn't exist for them.
+  if (isSkilling) {
+    hasCourses = true;
+    var courseStep = document.getElementById('step-courses');
+    if (courseStep) courseStep.style.display = 'none';
+  } else if (currentClientId) {
     var result = await db.from('courses').select('id', { count: 'exact', head: true }).eq('client_id', currentClientId);
     hasCourses = (result.count || 0) > 0;
   }
@@ -1311,17 +1429,22 @@ function leadsTable(leads) {
   return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
+// CHANGED: skilling_enquiry added. Without it, renderLeadsBoard() below
+// silently drops every Skilling India lead -- they save to Supabase and
+// count in the "Total leads" stat, but appear on no column at all.
 var LEAD_COLUMNS = {
-  callback:     'col-callback',
-  registration: 'col-registration',
-  demo:         'col-demo',
-  booking:      'col-booking'
+  callback:         'col-callback',
+  registration:     'col-registration',
+  demo:             'col-demo',
+  booking:          'col-booking',
+  skilling_enquiry: 'col-skilling_enquiry'
 };
 
 async function loadAllLeads() {
   if (!currentClientId) {
     Object.values(LEAD_COLUMNS).forEach(function(id) {
-      document.getElementById(id).innerHTML = '<div class="empty" style="padding:1.5rem;">Connect WhatsApp first.</div>';
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = '<div class="empty" style="padding:1.5rem;">Connect WhatsApp first.</div>';
     });
     return;
   }
@@ -1341,7 +1464,7 @@ function filterLeads() {
 }
 
 function renderLeadsBoard(leads) {
-  var grouped = { callback: [], registration: [], demo: [], booking: [] };
+  var grouped = { callback: [], registration: [], demo: [], booking: [], skilling_enquiry: [] };
   leads.forEach(function(l) {
     var type = (l.lead_type || '').toLowerCase();
     if (grouped[type]) grouped[type].push(l);
@@ -1354,6 +1477,7 @@ function renderLeadsBoard(leads) {
     var pendingCount = items.filter(function(l) { return !l.is_done; }).length;
     var bodyEl = document.getElementById(LEAD_COLUMNS[type]);
     var countEl = document.getElementById('count-' + type);
+    if (!bodyEl || !countEl) return;
     countEl.textContent = pendingCount;
     bodyEl.innerHTML = items.length ? items.map(leadCard).join('') : '<div class="empty" style="padding:1rem; font-size:12px;">None yet.</div>';
   });
@@ -1408,7 +1532,7 @@ function updateBellBadge() {
 }
 
 function showLeadToast(lead) {
-  var titles = { callback: '📞 New Callback Request', registration: '📋 New Registration', demo: '🎓 New Demo Booking', booking: '💺 New Seat Booking' };
+  var titles = { callback: '📞 New Callback Request', registration: '📋 New Registration', demo: '🎓 New Demo Booking', booking: '💺 New Seat Booking', skilling_enquiry: '🎯 New Enquiry' };
   var title = titles[(lead.lead_type || '').toLowerCase()] || '🔔 New Lead';
   var toast = document.createElement('div');
   toast.className = 'toast-notif';
