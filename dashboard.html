@@ -170,10 +170,6 @@
   .request-sent-info h4 { font-size: 15px; font-weight: 500; color: var(--green-dark); margin-bottom: 3px; }
   .request-sent-info p { font-size: 13px; color: var(--green-dark); opacity: 0.8; }
 
-  /* NEW: billing card -- always visible on Overview (not just when
-     expired), shows current plan, price, and renewal date, with a
-     Renew button that opens Razorpay checkout right in the dashboard
-     instead of redirecting out to the marketing site. */
   .billing-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
   .billing-card-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   .billing-info h3 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
@@ -184,10 +180,6 @@
   .billing-renew-btn:hover { background: var(--green-dark); }
   .billing-renew-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
-  /* NEW: full plan comparison cards on the Plan & Billing page. Each
-     card is clickable to select it for the pending renewal/upgrade;
-     .selected marks the currently chosen one (defaults to their
-     current plan). */
   .plan-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 1.25rem; }
   @media (max-width: 900px) { .plan-cards-grid { grid-template-columns: 1fr; } }
   .plan-card { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; position: relative; }
@@ -207,26 +199,16 @@
   .plan-page-cta-btn:hover { background: var(--green-dark); }
   .plan-page-cta-btn:disabled { background: #9ca3af; cursor: not-allowed; }
 
-  /* NEW: billing-cycle toggle buttons above the plan cards */
   .cycle-toggle-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 1.25rem; }
   .cycle-btn { padding: 8px 18px; border: 1px solid var(--border); background: var(--white); border-radius: 20px; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; }
   .cycle-btn:hover { border-color: #a7e6cf; }
   .cycle-btn.active { background: var(--green); border-color: var(--green); color: white; }
 
-  /* NEW: optional coupon/referral code input on the renewal CTA row */
   .coupon-input { display: block; width: 100%; max-width: 320px; margin: 0 auto 12px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; text-align: center; outline: none; }
   .coupon-input:focus { border-color: var(--green); }
 
-  /* NEW: Refer & Earn code display box */
   .referral-code-box { display: inline-block; background: var(--green-light); color: var(--green-dark); font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; padding: 12px 20px; border-radius: 10px; letter-spacing: 0.03em; }
 
-  /* NEW: plan expiry modal -- blocking overlay shown when a client's
-     clients.plan_expires_at has passed. Covers both trial-coupon
-     clients (14 days) and regular paid clients whose monthly plan has
-     lapsed (30 days) -- same field, same modal. Not dismissible on
-     purpose (no close button, no click-outside-to-close) since the
-     whole point is to make renewal unavoidable rather than easy to
-     ignore. */
   .plan-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 2000; align-items: center; justify-content: center; }
   .plan-modal-overlay.active { display: flex; }
   .plan-modal { background: var(--white); border-radius: var(--radius); padding: 2rem; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
@@ -237,6 +219,13 @@
   .plan-modal-btn:hover { background: var(--green-dark); }
   .plan-modal-alt { display: block; margin-top: 0.9rem; font-size: 12px; color: var(--text-muted); text-decoration: none; }
   .plan-modal-alt:hover { color: var(--text); }
+
+  /* Insights bars (Skilling India Overview card) */
+  .insight-bar-row { margin-bottom: 10px; }
+  .insight-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+  .insight-bar-count { color: var(--text-muted); font-family: 'DM Mono', monospace; }
+  .insight-bar-track { height: 6px; background: var(--bg); border-radius: 20px; overflow: hidden; }
+  .insight-bar-fill { height: 100%; background: var(--green); border-radius: 20px; }
 </style>
 </head>
 <body>
@@ -251,10 +240,6 @@
   <a class="nav-item" onclick="showPage('leads', this)" href="javascript:void(0)"><span class="nav-icon">◎</span> Leads</a>
   <a class="nav-item" onclick="showPage('conversations', this)" href="javascript:void(0)"><span class="nav-icon">◻</span> Conversations</a>
   <a class="nav-item" onclick="showPage('quickreplies', this)" href="javascript:void(0)"><span class="nav-icon">◇</span> Quick replies</a>
-  <!-- CHANGED: given an id so applyClientType() can hide it for client
-       types that have no courses/results/facilities rows -- otherwise a
-       skilling organisation sees four empty tabs and reads the product
-       as broken rather than as not applicable to them. -->
   <a class="nav-item" id="nav-profile" onclick="showPage('profile', this)" href="javascript:void(0)"><span class="nav-icon">🏫</span> Institute Profile</a>
   <a class="nav-item" onclick="showPage('connect', this)" href="javascript:void(0)"><span class="nav-icon">📱</span> Connect WhatsApp</a>
   <a class="nav-item" onclick="showPage('billing', this)" href="javascript:void(0)"><span class="nav-icon">💳</span> Plan & Billing</a>
@@ -310,10 +295,6 @@
       </div>
     </div>
 
-    <!-- NEW: compact billing summary -- populated by renderBillingCard(),
-         only once a connected client's plan/plan_expires_at is known.
-         Links to the full Plan & Billing page rather than trying to do
-         plan selection inline here. -->
     <div class="billing-card" id="billing-card">
       <div class="billing-card-inner">
         <div class="billing-info">
@@ -321,6 +302,17 @@
           <p id="billing-status-line">Loading billing info...</p>
         </div>
         <button class="billing-renew-btn" id="billing-renew-btn" onclick="showPage('billing', document.querySelector('.nav-item[onclick*=billing]'))">Manage Plan</button>
+      </div>
+    </div>
+
+    <!-- Skilling-only. The single most useful thing this dashboard can show
+         Mahesh: which languages candidates actually chose and which
+         programme they asked about. Nothing else in the product surfaces
+         contact_prefs, so without this the data is written and never seen. -->
+    <div class="card" id="skilling-insights-card" style="display:none;">
+      <div class="card-head"><h2>Candidate insights</h2></div>
+      <div style="padding:1.25rem;" id="skilling-insights-body">
+        <div class="loading"><span class="spinner"></span>Loading insights...</div>
       </div>
     </div>
 
@@ -349,11 +341,6 @@
         <div class="leads-column-head">💺 Seat Bookings <span class="leads-count" id="count-booking">0</span></div>
         <div class="leads-column-body" id="col-booking"><div class="loading"><span class="spinner"></span></div></div>
       </div>
-      <!-- NEW: shown only for client_type === 'skilling'. Without this
-           column their leads save to Supabase and count in the stats but
-           appear nowhere on screen, because renderLeadsBoard() silently
-           drops any lead_type it has no column for -- which looks like a
-           broken product on day one. -->
       <div class="leads-column" id="col-wrap-skilling_enquiry" style="display:none;">
         <div class="leads-column-head">🎯 Enquiries <span class="leads-count" id="count-skilling_enquiry">0</span></div>
         <div class="leads-column-body" id="col-skilling_enquiry"><div class="loading"><span class="spinner"></span></div></div>
@@ -415,6 +402,31 @@
             <input type="text" id="facility-caption" placeholder="Caption (e.g. Air-conditioned classroom)" />
             <input type="file" id="facility-file" accept="image/*" />
             <button class="add-qr-btn" onclick="uploadMedia('facility_photo', 'facility-file', 'facility-caption')">Upload Photo</button>
+          </div>
+
+          <!-- Skilling-only brochure uploads. Two separate slots because the
+               bot picks the brochure by programme -- sending the Earn &
+               Learn brochure to someone asking about the Rs 1,000 card
+               means they read about a Rs 25,000 two-year commitment and
+               quietly leave. media_type values match SK_MEDIA_CARD /
+               SK_MEDIA_EARN in app.py exactly.
+
+               PDF or image both work: send_skilling_brochure() checks the
+               file extension and sends as document or image accordingly --
+               matters because Skilling India currently has poster images
+               rather than PDFs. -->
+          <div class="media-upload-group skilling-media" style="display:none;">
+            <label>Job Suraksha Card — brochure</label>
+            <input type="text" id="sk-card-caption" placeholder="Caption sent with the file (optional)" />
+            <input type="file" id="sk-card-file" accept="application/pdf,image/*" />
+            <button class="add-qr-btn" onclick="uploadMedia('brochure_card', 'sk-card-file', 'sk-card-caption')">Upload</button>
+          </div>
+
+          <div class="media-upload-group skilling-media" style="display:none;">
+            <label>Earn &amp; Learn — brochure</label>
+            <input type="text" id="sk-earn-caption" placeholder="Caption sent with the file (optional)" />
+            <input type="file" id="sk-earn-file" accept="application/pdf,image/*" />
+            <button class="add-qr-btn" onclick="uploadMedia('brochure_earn', 'sk-earn-file', 'sk-earn-caption')">Upload</button>
           </div>
         </div>
         <div id="media-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
@@ -519,10 +531,6 @@
     </div>
   </div>
 
-  <!-- NEW: full Plan & Billing page -- shows current status plus all
-       three plan tiers side by side with what's included in each, so a
-       client can browse plans any time (not just when locked out).
-       Populated by renderPlanPage(). -->
   <div class="page" id="page-billing">
     <div class="card">
       <div class="card-head"><h2>Current plan</h2></div>
@@ -531,8 +539,6 @@
       </div>
     </div>
 
-    <!-- NEW: billing-cycle toggle, populated by renderPlanPage(). Picking
-         a cycle re-renders every plan card's price at once. -->
     <div class="cycle-toggle-row" id="billing-cycle-toggle">
       <!-- cycle buttons injected by renderPlanPage() -->
     </div>
@@ -541,22 +547,12 @@
       <!-- plan cards injected by renderPlanPage() -->
     </div>
 
-    <!-- NEW: optional coupon/referral code field for renewal -- same
-         input works for a real coupon (like CONTACT20) or someone
-         else's referral code (the field doesn't distinguish, backend
-         handles both the same way this already works on the public
-         checkout). -->
     <div class="plan-page-cta-row">
       <input type="text" id="renewal-coupon-input" class="coupon-input" placeholder="Coupon or referral code (optional)" />
       <button class="plan-page-cta-btn" id="plan-page-cta-btn" onclick="startRenewal()">Continue</button>
       <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Or message us on WhatsApp: <a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20discuss%20my%20NeverMiss%20plan" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:500;">+91 74848 49508</a></p>
     </div>
 
-    <!-- NEW: Refer & Earn -- shows the client's own referral code
-         (fetched/generated by loadReferralCode()) with a ready-to-send
-         WhatsApp share message. Anyone who signs up with this code gets
-         20% off, and this client gets a matching 20% off reward coupon
-         for their next renewal once that signup completes. -->
     <div class="card">
       <div class="card-head"><h2>Refer & Earn</h2></div>
       <div style="padding: 1.25rem;">
@@ -570,13 +566,6 @@
   </div>
 </main>
 
-<!-- NEW: plan expiry modal -- hidden by default, shown via JS in
-     checkExistingConnection() if data.client.plan_expires_at has passed.
-     Covers both trial-coupon clients and regular paid clients whose
-     monthly plan has lapsed. Deliberately has no close/dismiss control
-     EXCEPT via "View Plans & Renew", which opens the full Plan & Billing
-     page underneath -- the modal reappears automatically on next load
-     (via checkExistingConnection()) if they leave without paying. -->
 <div class="plan-modal-overlay" id="plan-modal-overlay">
   <div class="plan-modal">
     <div class="plan-modal-icon">⏳</div>
@@ -603,31 +592,15 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 let allLeads       = [];
 let currentUser    = null;
 let currentClientId = null;
-// NEW: which kind of client this is -- 'coaching' (the default for every
-// existing client) or 'skilling'. Returned by /get-client and used by
-// applyClientType() to shape the dashboard so nobody is shown tabs and
-// columns that don't apply to how they actually work.
 let currentClientType = 'coaching';
 
-// NEW: billing/renewal state, populated by checkExistingConnection().
 let currentPlan          = null;
 let currentPlanExpiresAt = null;
 let currentClientPhone   = null;
 let currentBusinessName  = null;
-// NEW: the plan currently selected on the Plan & Billing page's cards
-// for the NEXT renewal payment -- defaults to currentPlan but can be
-// changed by the client to upgrade/downgrade before paying. Set by
-// renderPlanPage()/selectPlanCard().
 let selectedRenewalPlan  = null;
-// NEW: which billing cycle is currently selected on the Plan & Billing
-// page -- 'monthly', 'half_yearly', or 'yearly'. Defaults to monthly.
 let selectedBillingCycle = 'monthly';
 
-// NEW: must stay in sync with PLAN_PRICING in payment_handler.py's
-// /create-order route (amounts in paise). Used only for display here --
-// the backend is always the source of truth for what actually gets
-// charged, since /create-order recalculates the amount server-side
-// regardless of what the dashboard sends.
 var PLAN_PRICING = {
   starter: {
     label: 'Starter',
@@ -647,12 +620,6 @@ var PLAN_PRICING = {
     half_yearly: { amount: 4899900, display: '₹48,999/6 months', fullDisplay: '₹53,994' },
     yearly:      { amount: 8999000, display: '₹89,990/year',     fullDisplay: '₹1,07,988' }
   },
-  // NEW: custom-tier clients are priced per agreement, not from this
-  // table. The entry exists so PLAN_PRICING[currentPlan] stops falling
-  // through to Starter -- which was showing a bespoke client their plan
-  // as "Starter Plan" on the Overview page. Self-serve renewal is
-  // disabled for these clients entirely (see renderPlanPage), so no real
-  // amount is needed here.
   custom: {
     label: 'Custom',
     monthly:     { amount: 0, display: 'As agreed' },
@@ -667,11 +634,6 @@ var BILLING_CYCLE_LABELS = {
   yearly:      'Yearly (2 months free)'
 };
 
-// NEW: feature lists shown on the Plan & Billing page. Must stay in sync
-// with FEATURES_BY_PLAN in app.py (which actually gates bot behavior)
-// and the locked pricing tiers -- this is display-only, doesn't affect
-// what a client's bot can actually do, that's still controlled
-// server-side regardless of what's shown here.
 var PLAN_FEATURES = {
   starter: [
     'FAQ bot & 24/7 auto-replies',
@@ -705,10 +667,6 @@ async function init() {
   if (!session) { window.location.href = 'login.html'; return; }
   const { data: refreshed, error: refreshError } = await db.auth.refreshSession();
   if (refreshError || !refreshed.session) {
-    // Session token is stale/invalid (e.g. the Auth user no longer exists
-    // server-side). Must explicitly sign out to clear localStorage --
-    // otherwise login.html sees the same stale token and bounces straight
-    // back here, causing the infinite login <-> dashboard loop.
     await db.auth.signOut();
     window.location.href = 'login.html';
     return;
@@ -732,24 +690,53 @@ async function init() {
   }
 }
 
-// NEW: shows the blocking plan-expiry modal. Called from
-// checkExistingConnection() once we know plan_expires_at has passed.
 function showPlanExpiredModal() {
   document.getElementById('plan-modal-overlay').classList.add('active');
 }
 
-// NEW: shapes the dashboard to the kind of client who just logged in.
-// Runs once, right after /get-client resolves, so there is no flash of
+// Shapes the dashboard to the kind of client who just logged in. Runs
+// once, right after /get-client resolves, so there is no flash of
 // irrelevant UI. Coaching clients are completely unaffected -- every
 // branch here is additive and only fires for non-coaching types.
 function applyClientType() {
   var isSkilling = currentClientType === 'skilling';
 
-  // Institute Profile is courses / batches / results / facilities --
-  // none of which a skilling organisation has rows for. Left visible it
-  // reads as a broken product rather than an inapplicable tab.
+  // Institute Profile stays VISIBLE for skilling clients -- it holds the
+  // Media tab, which is where programme brochures are uploaded. Hiding
+  // the whole tab made brochures unreachable for the only client type
+  // that has them. Instead the tab is relabelled and the inapplicable
+  // sub-tabs (Courses/Results/Facilities) are removed.
   var navProfile = document.getElementById('nav-profile');
-  if (navProfile) navProfile.style.display = isSkilling ? 'none' : 'flex';
+  if (navProfile) {
+    navProfile.style.display = 'flex';
+    navProfile.innerHTML = isSkilling
+      ? '<span class="nav-icon">📎</span> Content &amp; Media'
+      : '<span class="nav-icon">🏫</span> Institute Profile';
+  }
+
+  // Courses / Results / Facilities have no rows for a skilling client --
+  // they'd render as three permanently empty tabs, which reads as
+  // broken rather than as not applicable.
+  ['courses', 'results', 'facilities'].forEach(function(tab) {
+    var btn = document.querySelector('.profile-tab[onclick*="' + tab + '"]');
+    if (btn) btn.style.display = isSkilling ? 'none' : 'inline-block';
+  });
+
+  // Show the two programme brochure slots only for skilling.
+  document.querySelectorAll('.skilling-media').forEach(function(el) {
+    el.style.display = isSkilling ? 'block' : 'none';
+  });
+
+  // Hide the coaching-only brochure/topper/facility uploads for skilling
+  // -- get_media() is never called with those types by
+  // handle_skilling_flow(), so anything uploaded there would silently
+  // never be sent.
+  ['brochure-file', 'topper-file', 'facility-file'].forEach(function(id) {
+    var input = document.getElementById(id);
+    if (input && input.closest('.media-upload-group')) {
+      input.closest('.media-upload-group').style.display = isSkilling ? 'none' : 'block';
+    }
+  });
 
   // Swap the leads board: coaching keeps its four admission columns,
   // skilling gets the single enquiry column its bot actually produces.
@@ -763,16 +750,16 @@ function applyClientType() {
   var skillingWrap = document.getElementById('col-wrap-skilling_enquiry');
   if (skillingWrap) skillingWrap.style.display = isSkilling ? 'block' : 'none';
 
-  // One column inside a four-column grid renders as a narrow strip, so
-  // give the board a sensible width when only the enquiry column shows.
   var board = document.getElementById('leads-board');
   if (board) board.style.gridTemplateColumns = isSkilling ? 'minmax(0, 480px)' : '';
 
-  // Custom-tier clients can't self-serve a plan change, so the Overview
-  // button should read as informational rather than transactional.
   if (isSkilling) {
     var billingBtn = document.getElementById('billing-renew-btn');
     if (billingBtn) billingBtn.textContent = 'View Plan';
+
+    var insightsCard = document.getElementById('skilling-insights-card');
+    if (insightsCard) insightsCard.style.display = 'block';
+    loadSkillingInsights();
   }
 }
 
@@ -781,37 +768,21 @@ async function checkExistingConnection() {
     var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
     var data = await res.json();
     if (data.success && data.client) {
-      // NEW: sidebar previously always said "Starter plan" as static
-      // hardcoded text, regardless of the client's actual plan. Now it's
-      // set from the real value returned by the backend.
       if (data.client.plan) {
         var planLabel = data.client.plan.charAt(0).toUpperCase() + data.client.plan.slice(1) + ' plan';
         document.getElementById('user-plan').textContent = planLabel;
       }
       if (data.client.status === 'awaiting_connection') {
-        // Either they submitted a connection request (new manual-connect
-        // flow below) or hit the old Embedded Signup failure path -- both
-        // land here and show the same "we're finishing this" message.
         showRequestSentState();
       } else if (data.client.phone_number_id) {
-        // Only show "connected" if a real phone_number_id exists --
-        // status alone (e.g. from a test-mode payment) doesn't mean
-        // WhatsApp was actually linked.
         currentClientId = data.client.id;
         currentPlan = data.client.plan || 'starter';
         currentPlanExpiresAt = data.client.plan_expires_at || null;
         currentBusinessName = data.client.business_name || '';
-        // NEW: read the client type and reshape the dashboard for it
-        // before any of the data loads below run.
         currentClientType = data.client.client_type || 'coaching';
         applyClientType();
         showConnectedState(data.client.business_name, data.client.phone_number_id);
 
-        // NEW: /get-client doesn't return contact_phone (it's not needed
-        // for the connection-status checks above), but the renewal flow
-        // needs it to prefill Razorpay checkout and pass to /create-order.
-        // Fetched separately via Supabase directly, same pattern as
-        // loadBusinessSettings() below.
         try {
           var phoneResult = await db.from('clients').select('contact_phone').eq('id', currentClientId).single();
           if (phoneResult.data) currentClientPhone = phoneResult.data.contact_phone || '';
@@ -819,10 +790,6 @@ async function checkExistingConnection() {
           console.log('[checkExistingConnection] Could not fetch contact_phone:', phoneErr);
         }
 
-        // NEW: renders the always-visible billing card AND shows the
-        // blocking modal if plan_expires_at has passed -- both driven by
-        // the same plan_expires_at field, covers trial-coupon clients and
-        // regular paid clients whose monthly plan has lapsed alike.
         renderBillingCard();
       }
     }
@@ -831,24 +798,12 @@ async function checkExistingConnection() {
   }
 }
 
-// NEW: populates the always-visible Overview billing summary with the
-// client's current plan and renewal date -- and triggers the blocking
-// modal if plan_expires_at has passed. Called after every
-// checkExistingConnection() (initial load AND after a successful
-// renewal payment, so the summary and modal both refresh immediately).
-// Full plan browsing/selection now happens on the dedicated Plan &
-// Billing page (renderPlanPage()), not inline here.
 function renderBillingCard() {
   var card = document.getElementById('billing-card');
   if (!currentPlan) { card.style.display = 'none'; return; }
 
   selectedRenewalPlan = currentPlan;
 
-  // NEW: the compact Overview summary doesn't track which billing cycle
-  // a client is currently on (only plan_expires_at, which is cycle-
-  // agnostic), so this always shows the monthly reference price -- just
-  // a quick pointer to "Manage Plan" for the real details, not meant to
-  // be a precise billing statement.
   var pricing = PLAN_PRICING[currentPlan] || PLAN_PRICING.starter;
   document.getElementById('billing-plan-name').textContent = pricing.label + ' Plan';
 
@@ -878,13 +833,6 @@ function renderBillingCard() {
   }
 }
 
-// NEW: builds the three plan comparison cards on the Plan & Billing
-// page, marks the client's current plan with a badge, and pre-selects
-// it (selectedRenewalPlan). Clicking any card calls selectPlanCard() to
-// change the selection without immediately charging anything -- payment
-// only happens when they click the single "Continue" button below the
-// cards. Also renders the billing-cycle toggle (Monthly/Half-Yearly/
-// Yearly), which changes the price shown on every card at once.
 function renderPlanPage() {
   var statusEl = document.getElementById('billing-page-status-line');
   if (currentPlanExpiresAt) {
@@ -897,13 +845,6 @@ function renderPlanPage() {
     statusEl.textContent = 'Billing info unavailable.';
   }
 
-  // NEW: a custom-tier client must not be able to click a standard plan
-  // card and pay for it. Before this guard, a client on a bespoke
-  // agreement could select Starter, hit Continue, pay ₹3,999 and
-  // silently downgrade themselves onto a 1,000-message cap with their
-  // features stripped -- one click, no confirmation, no way back
-  // without support. Show a single non-clickable summary card and point
-  // them at a conversation instead of a checkout button.
   if (currentPlan === 'custom') {
     document.getElementById('billing-cycle-toggle').innerHTML = '';
     document.getElementById('plan-cards-grid').innerHTML =
@@ -929,7 +870,6 @@ function renderPlanPage() {
 
   if (!selectedRenewalPlan) selectedRenewalPlan = currentPlan || 'starter';
 
-  // Render the billing-cycle toggle buttons
   var cycleRow = document.getElementById('billing-cycle-toggle');
   var cycleKeys = ['monthly', 'half_yearly', 'yearly'];
   cycleRow.innerHTML = cycleKeys.map(function(cycle) {
@@ -948,9 +888,6 @@ function renderPlanPage() {
     var featureList = features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
     var priceParts = cyclePricing.display.split('/');
 
-    // NEW: for half-yearly/yearly, show the undiscounted full price
-    // struck through above the actual price, plus a "Save X%" badge --
-    // makes the discount visible rather than just showing a flat total.
     var strikeHtml = '';
     if (cyclePricing.fullDisplay) {
       var fullNum = parseInt(cyclePricing.fullDisplay.replace(/[^\d]/g, ''), 10);
@@ -973,16 +910,11 @@ function renderPlanPage() {
   updatePlanPageCta();
 }
 
-// NEW: called when a billing-cycle toggle button is clicked. Re-renders
-// the whole plan page so every card's price updates at once.
 function selectBillingCycle(cycle) {
   selectedBillingCycle = cycle;
   renderPlanPage();
 }
 
-// NEW: called when a plan card is clicked. Updates selectedRenewalPlan
-// and re-renders just the selection state + CTA button, without
-// rebuilding the whole grid from scratch.
 function selectPlanCard(planKey) {
   selectedRenewalPlan = planKey;
   document.querySelectorAll('.plan-card').forEach(function(cardEl, i) {
@@ -992,9 +924,6 @@ function selectPlanCard(planKey) {
   updatePlanPageCta();
 }
 
-// NEW: keeps the bottom "Continue" button's label in sync with whatever
-// plan is currently selected -- e.g. "Continue — ₹5,999/month" -- so
-// it's always clear what they're about to pay before they click it.
 function updatePlanPageCta() {
   var btn = document.getElementById('plan-page-cta-btn');
   if (!btn) return;
@@ -1004,28 +933,13 @@ function updatePlanPageCta() {
   btn.textContent = (isSamePlan ? 'Renew — ' : 'Switch & Pay — ') + cyclePricing.display;
 }
 
-// NEW: called from the expiry modal's "View Plans & Renew" button.
-// Hides the blocking overlay so the client can browse/select a plan on
-// the full Plan & Billing page underneath. If they leave without
-// completing payment, the modal simply reappears on next dashboard
-// load via checkExistingConnection() -- nothing else needs to track
-// that state.
 function openPlansFromModal() {
   document.getElementById('plan-modal-overlay').classList.remove('active');
   showPage('billing', document.querySelector('.nav-item[onclick*=billing]'));
 }
 
-// NEW: holds the built wa.me share URL once loadReferralCode() succeeds.
-// shareReferralCode() reads this on click -- kept as a JS variable
-// rather than an anchor href, since setting href on a button that may
-// get clicked before the fetch resolves was causing a stale "#" link to
-// navigate (looked like the page randomly refreshing).
 var referralShareUrl = null;
 
-// NEW: fetches (or triggers lazy generation of) this client's own
-// referral code, displays it, and builds a ready-to-send WhatsApp share
-// link with a prefilled message that includes the code and a link to
-// the site. Called whenever the Plan & Billing page is opened.
 async function loadReferralCode() {
   var box = document.getElementById('referral-code-box');
   referralShareUrl = null;
@@ -1049,10 +963,6 @@ async function loadReferralCode() {
   }
 }
 
-// NEW: click handler for the Share on WhatsApp button. Only navigates
-// if loadReferralCode() actually succeeded -- otherwise gives clear
-// feedback (retry) instead of silently doing nothing or jumping the
-// page, which is what the old href="#" anchor version did.
 function shareReferralCode() {
   if (referralShareUrl) {
     window.open(referralShareUrl, '_blank');
@@ -1062,13 +972,6 @@ function shareReferralCode() {
   }
 }
 
-// NEW: opens Razorpay checkout directly in the dashboard for renewal --
-// no redirect to the marketing site. Reuses the exact same backend
-// endpoints (/api/create-order, /api/verify-payment) as the public
-// checkout page, so all existing server-side logic (amount calculation,
-// signature verification, plan_expires_at extension, invite/renewal
-// detection) applies identically. Renews whatever plan the client is
-// currently on -- this button doesn't offer upgrading/downgrading.
 async function startRenewal() {
   var planToCharge = selectedRenewalPlan || currentPlan;
   var cycleToCharge = selectedBillingCycle || 'monthly';
@@ -1145,12 +1048,6 @@ async function startRenewal() {
   }
 }
 
-// NEW: confirms the Razorpay payment with the backend, same
-// verify-payment route the public checkout page uses. On success,
-// re-runs checkExistingConnection() so the billing summary, expiry
-// modal, and plan_expires_at all refresh immediately without a page
-// reload, and re-renders the plan page so the "Current plan" badge
-// moves to whichever plan was just paid for.
 async function verifyRenewal(razorpayResponse, chargedPlan) {
   var btn = document.getElementById('plan-page-cta-btn');
   if (btn) btn.textContent = 'Confirming...';
@@ -1203,11 +1100,6 @@ async function updateSetupProgress() {
   var isSkilling = currentClientType === 'skilling';
   var hasCourses = false;
 
-  // NEW: skilling clients have programmes defined in the bot's own
-  // content file, not rows in the `courses` table -- so this step can
-  // never be completed by them. Left as-is it pins setup at 75% forever
-  // and the progress card never hides: a permanent nag about a task
-  // that doesn't exist for them.
   if (isSkilling) {
     hasCourses = true;
     var courseStep = document.getElementById('step-courses');
@@ -1225,7 +1117,7 @@ async function updateSetupProgress() {
     { id: 'step-live',     done: botLive },
   ];
 
-  var doneCount = 1; // account created is always done
+  var doneCount = 1;
   steps.forEach(function(s) {
     var el = document.getElementById(s.id);
     if (s.done) {
@@ -1336,9 +1228,6 @@ async function exchangeToken(accessToken, ownerNumberInput, businessNumberInput)
       await loadOverviewLeads();
       await loadOverviewConvs();
     } else if (data.pending) {
-      // Automated code exchange failed (currently a known Meta platform-side
-      // bug, error_subcode 36008) -- backend has queued this client for
-      // manual completion, same as the manual-request fallback path.
       showRequestSentState();
     } else {
       alert('Connection failed: ' + (data.error || 'Unknown error') + '. You can try again, or use "Let us connect it manually instead" below.');
@@ -1353,10 +1242,6 @@ async function exchangeToken(accessToken, ownerNumberInput, businessNumberInput)
   }
 }
 
-// Manual connection request (fallback if Embedded Signup fails or the
-// client prefers not to use Facebook login). Backend saves the request
-// and notifies the founder directly, who completes it via Graph API
-// Explorer + /admin/manual-connect.
 async function submitConnectionRequest() {
   var businessNumberInput = document.getElementById('business-whatsapp-input').value.trim();
   var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
@@ -1429,9 +1314,6 @@ function leadsTable(leads) {
   return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
-// CHANGED: skilling_enquiry added. Without it, renderLeadsBoard() below
-// silently drops every Skilling India lead -- they save to Supabase and
-// count in the "Total leads" stat, but appear on no column at all.
 var LEAD_COLUMNS = {
   callback:         'col-callback',
   registration:     'col-registration',
@@ -1664,6 +1546,77 @@ async function deleteQR(id) {
   loadQuickReplies();
 }
 
+// Reads aggregate language/programme counts from the backend. Served by
+// /api/skilling-insights rather than queried directly, because
+// contact_prefs is written with the service-role key and the dashboard
+// runs on the anon key under RLS -- a browser-side query would come
+// back empty, or would require opening that table to every
+// authenticated user.
+async function loadSkillingInsights() {
+  var el = document.getElementById('skilling-insights-body');
+  if (!el || !currentClientId) return;
+
+  var LANG_LABELS = { en: 'English', hi: 'हिंदी (Hindi)', mr: 'मराठी (Marathi)' };
+  var PROG_LABELS = { card: 'Job Suraksha Card', earn_learn: 'Earn & Learn' };
+
+  try {
+    var res  = await fetch(BACKEND_URL + '/api/skilling-insights?client_id=' + encodeURIComponent(currentClientId));
+    var data = await res.json();
+    if (!data.success) { el.innerHTML = '<div class="empty">Could not load insights.</div>'; return; }
+
+    if (!data.total) {
+      el.innerHTML = '<div class="empty">No candidate data yet. This fills in as people message your bot.</div>';
+      return;
+    }
+
+    function bars(counts, labels, total) {
+      var keys = Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; });
+      if (!keys.length) return '<div style="font-size:13px;color:var(--text-muted);">Nothing recorded yet.</div>';
+      return keys.map(function(k) {
+        var n   = counts[k];
+        var pct = Math.round((n / total) * 100);
+        return (
+          '<div class="insight-bar-row">' +
+            '<div class="insight-bar-label">' +
+              '<span>' + (labels[k] || k) + '</span>' +
+              '<span class="insight-bar-count">' + n + ' · ' + pct + '%</span>' +
+            '</div>' +
+            '<div class="insight-bar-track"><div class="insight-bar-fill" style="width:' + pct + '%;"></div></div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    // Percentages are of contacts who expressed a preference, not of all
+    // contacts -- someone who only ever said "hi" has no programme, and
+    // counting them in the denominator would understate both figures.
+    var langTotal = Object.values(data.languages).reduce(function(a, b) { return a + b; }, 0) || data.total;
+    var progTotal = Object.values(data.programmes).reduce(function(a, b) { return a + b; }, 0) || data.total;
+
+    el.innerHTML =
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">' +
+        '<div>' +
+          '<div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Language chosen</div>' +
+          bars(data.languages, LANG_LABELS, langTotal) +
+        '</div>' +
+        '<div>' +
+          '<div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Programme asked about</div>' +
+          bars(data.programmes, PROG_LABELS, progTotal) +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);font-size:13px;color:var(--text-muted);">' +
+        '<strong style="color:var(--text);">' + data.total + '</strong> candidates have messaged the bot. ' +
+        '<strong style="color:var(--text);">' + data.registered + '</strong> said they completed registration.' +
+      '</div>' +
+      '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">' +
+        'Registration figures are what candidates told the bot — the bot has no way to verify them against your website.' +
+      '</div>';
+  } catch (err) {
+    console.error('[loadSkillingInsights]', err);
+    el.innerHTML = '<div class="empty">Could not load insights.</div>';
+  }
+}
+
 function showProfileTab(tab, el) {
   document.querySelectorAll('.profile-section').forEach(function(s) { s.classList.remove('active'); });
   document.querySelectorAll('.profile-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -1810,10 +1763,13 @@ async function loadMedia() {
   var el = document.getElementById('media-body');
   if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No media uploaded yet.</div>'; return; }
   el.innerHTML = result.data.map(function(m) {
-    var thumb = m.media_type === 'brochure'
+    var isPdf = (m.media_type === 'brochure' || m.media_type === 'brochure_card' || m.media_type === 'brochure_earn');
+    var thumb = isPdf
       ? '📄'
       : '<img class="media-thumb" src="' + m.file_url + '" />';
-    return '<div class="item-row"><div style="margin-right:10px">' + thumb + '</div><div class="item-main"><div class="item-title">' + (m.caption || m.media_type) + '</div><div class="item-sub">' + m.media_type + '</div></div><div class="item-actions"><button onclick="deleteMedia(\'' + m.id + '\')">Delete</button></div></div>';
+    var typeLabels = { brochure: 'Brochure', brochure_card: 'Job Suraksha Card brochure', brochure_earn: 'Earn & Learn brochure', topper_photo: 'Topper photo', facility_photo: 'Facility photo' };
+    var typeLabel = typeLabels[m.media_type] || m.media_type;
+    return '<div class="item-row"><div style="margin-right:10px">' + thumb + '</div><div class="item-main"><div class="item-title">' + (m.caption || typeLabel) + '</div><div class="item-sub">' + typeLabel + '</div></div><div class="item-actions"><button onclick="deleteMedia(\'' + m.id + '\')">Delete</button></div></div>';
   }).join('');
 }
 
@@ -1907,13 +1863,23 @@ function showPage(page, el) {
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   document.getElementById('page-' + page).classList.add('active');
   if (el) el.classList.add('active');
-  var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', profile: 'Institute Profile', connect: 'Connect WhatsApp', billing: 'Plan & Billing' };
+  var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', profile: (currentClientType === 'skilling' ? 'Content & Media' : 'Institute Profile'), connect: 'Connect WhatsApp', billing: 'Plan & Billing' };
   document.getElementById('page-title').textContent = titles[page];
   document.getElementById('stats-row').style.display = ['overview', 'leads'].includes(page) ? 'grid' : 'none';
   if (page === 'leads') loadAllLeads();
   if (page === 'conversations') loadAllConvs();
   if (page === 'quickreplies') loadQuickReplies();
-  if (page === 'profile') loadCourses();
+  if (page === 'profile') {
+    // Courses is hidden for skilling clients, so opening the Profile page
+    // would otherwise land on an invisible tab with a blank panel. Send
+    // them straight to Media, which is the tab that actually applies.
+    if (currentClientType === 'skilling') {
+      var mediaBtn = document.querySelector('.profile-tab[onclick*="media"]');
+      if (mediaBtn) showProfileTab('media', mediaBtn);
+    } else {
+      loadCourses();
+    }
+  }
   if (page === 'billing') { renderPlanPage(); loadReferralCode(); }
 }
 
