@@ -1156,6 +1156,26 @@ function toggleManualFallback() {
   section.style.display = section.style.display === 'none' ? 'block' : 'none';
 }
 
+// ---------------------------------------------------------------------
+// FIX (Aug 2026): startEmbeddedSignup() was missing the `extras` block
+// that Meta's WhatsApp Embedded Signup requires to run the special
+// WA_EMBEDDED_SIGNUP session (as opposed to a generic Facebook Login).
+// Without it, FB.login() still completes and returns a valid
+// authResponse.code -- so signup LOOKED like it worked -- but Meta never
+// posts the WA_EMBEDDED_SIGNUP "FINISH" message back to this window, so
+// the postMessage listener below never fires and wabaId/phoneNumberId
+// stay null. exchange-token then has no real IDs to work with (the
+// /me/businesses fallback on the backend returns Business Manager
+// businesses, not WABA-specific IDs, so it can't reliably fill the gap
+// either), and the flow fails with "no business number was selected"
+// even though the person completed every step correctly.
+//
+// feature: 'whatsapp_embedded_signup' is what tells Meta this is an
+// Embedded Signup session and to emit the WA_EMBEDDED_SIGNUP postMessage
+// events during the flow. sessionInfoVersion: '3' is the current schema
+// version for those events (matches the window.addEventListener handler
+// below, which reads data.data.waba_id / data.data.phone_number_id).
+// ---------------------------------------------------------------------
 function startEmbeddedSignup() {
   var businessNumberInput = document.getElementById('business-whatsapp-input').value.trim();
   var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
@@ -1176,7 +1196,18 @@ function startEmbeddedSignup() {
     if (response.authResponse && response.authResponse.code) {
       var authCode = response.authResponse.code;
       console.log('[FB.login] got auth code:', authCode.substring(0, 20) + '...');
-      exchangeToken(authCode, ownerNumberInput, businessNumberInput);
+      // NEW: give the WA_EMBEDDED_SIGNUP postMessage listener a brief
+      // window to arrive before we proceed. The FINISH message and the
+      // FB.login() callback are two separate async channels from the
+      // same popup -- there's no guarantee the postMessage lands before
+      // this callback fires. A short delay here is cheap insurance;
+      // wabaId/phoneNumberId are only used as HINTS (see backend
+      // /exchange-token) so a slightly stale read just means the backend
+      // falls through to its own lookup rather than breaking anything.
+      setTimeout(function() {
+        console.log('[FB.login] wabaId/phoneNumberId at exchange time:', wabaId, phoneNumberId);
+        exchangeToken(authCode, ownerNumberInput, businessNumberInput);
+      }, 300);
     } else {
       alert('WhatsApp connection cancelled or failed. You can try again, or use "Let us connect it manually instead" below.');
       btn.disabled = false;
@@ -1187,7 +1218,11 @@ function startEmbeddedSignup() {
     response_type: 'code',
     override_default_response_type: true,
     scope: 'whatsapp_business_management,whatsapp_business_messaging',
-    return_scopes: true
+    return_scopes: true,
+    extras: {
+      feature: 'whatsapp_embedded_signup',
+      sessionInfoVersion: '3'
+    }
   });
 }
 
@@ -1195,6 +1230,7 @@ window.addEventListener('message', function(event) {
   if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
   try {
     var data = JSON.parse(event.data);
+    console.log('[postMessage] received:', data);
     if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
       wabaId        = data.data.waba_id;
       phoneNumberId = data.data.phone_number_id;
