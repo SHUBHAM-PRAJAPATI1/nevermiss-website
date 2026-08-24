@@ -1,1924 +1,1066 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NeverMiss — Dashboard</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico"/>
-<link rel="apple-touch-icon" href="images/logo/app-icon.png"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
-<script>
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId: '1662583918327842',
-      autoLogAppEvents: true,
-      xfbml: true,
-      version: 'v20.0'
-    });
-  };
-</script>
-<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56;
-    --text: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb;
-    --bg: #f9fafb; --white: #ffffff; --radius: 12px; --sidebar: 220px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-  .sidebar { width: var(--sidebar); min-width: var(--sidebar); background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 10; }
-  .logo { display: flex; align-items: center; gap: 10px; padding: 0 1.25rem 1.75rem; }
-  .logo-icon { width: 34px; height: 34px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .logo-text { font-size: 16px; font-weight: 500; }
-  .logo-text span { color: var(--green); }
-  .nav-section { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 1.25rem 0.5rem; margin-top: 0.75rem; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 1.25rem; font-size: 14px; color: var(--text-muted); cursor: pointer; border-left: 2px solid transparent; transition: all 0.12s; text-decoration: none; }
-  .nav-item:hover { background: var(--bg); color: var(--text); }
-  .nav-item.active { color: var(--green); border-left-color: var(--green); background: var(--green-light); font-weight: 500; }
-  .nav-icon { font-size: 17px; width: 20px; text-align: center; }
-  .sidebar-bottom { margin-top: auto; padding: 1rem 1.25rem; border-top: 1px solid var(--border); }
-  .user-chip { display: flex; align-items: center; gap: 10px; }
-  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-light); color: var(--green-dark); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
-  .user-name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .user-plan { font-size: 11px; color: var(--text-muted); }
-  .logout-btn { font-size: 12px; color: var(--text-muted); cursor: pointer; margin-top: 8px; background: none; border: none; font-family: inherit; padding: 0; }
-  .logout-btn:hover { color: var(--text); }
-  .main { margin-left: var(--sidebar); flex: 1; padding: 2rem; max-width: calc(100vw - var(--sidebar)); }
-  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
-  .topbar h1 { font-size: 20px; font-weight: 500; }
-  .badge-live { display: flex; align-items: center; gap: 6px; background: var(--green-light); color: var(--green-dark); font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; }
-  .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.75rem; }
-  .stat { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
-  .stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-  .stat-val { font-size: 26px; font-weight: 500; color: var(--text); font-family: 'DM Mono', monospace; }
-  .stat-sub { font-size: 12px; color: var(--green); margin-top: 4px; }
-  .page { display: none; }
-  .page.active { display: block; }
-  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.25rem; }
-  .card-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
-  .card-head h2 { font-size: 15px; font-weight: 500; }
-  .search-input { padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 200px; }
-  .search-input:focus { border-color: var(--green); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; color: var(--text-muted); font-weight: 400; padding: 10px 1.25rem; border-bottom: 1px solid var(--border); background: var(--bg); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-  td { padding: 12px 1.25rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--bg); }
-  .phone { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-muted); }
-  .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 14px; }
-  .conv-list { padding: 0 1.25rem; }
-  .conv-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
-  .conv-item:last-child { border-bottom: none; }
-  .conv-av { width: 38px; height: 38px; border-radius: 50%; background: var(--green-light); color: var(--green-dark); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
-  .conv-name { font-size: 14px; font-weight: 500; color: var(--text); }
-  .conv-msg { font-size: 13px; color: var(--text-muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
-  .conv-time { font-size: 11px; color: var(--text-muted); margin-left: auto; white-space: nowrap; flex-shrink: 0; padding-top: 3px; }
-  .qr-list { padding: 0 1.25rem; }
-  .qr-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-  .qr-item:last-child { border-bottom: none; }
-  .qr-key { background: var(--green-light); color: var(--green-dark); font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; font-family: 'DM Mono', monospace; flex-shrink: 0; }
-  .qr-text { font-size: 13px; color: var(--text-muted); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .qr-edit { font-size: 13px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: none; font-family: inherit; }
-  .qr-edit:hover { background: var(--bg); color: var(--text); }
-  .add-qr-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; }
-  .add-qr-btn:hover { background: var(--green-dark); }
-  .connect-banner { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
-  .connect-banner-text h3 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-  .connect-banner-text p { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; }
-  .owner-number-field { margin-bottom: 1.25rem; }
-  .owner-number-field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
-  .owner-number-field input { width: 100%; max-width: 320px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; }
-  .owner-number-field input:focus { border-color: var(--green); }
-  .owner-number-field .hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-  .connect-wp-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #25D366; color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
-  .connect-wp-btn:hover { background: #1ebe5a; }
-  .connect-wp-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-  .connected-card { background: var(--green-light); border: 1.5px solid #a7e6cf; border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
-  .connected-card-inner { display: flex; align-items: center; gap: 14px; }
-  .connected-icon { width: 44px; height: 44px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-  .connected-info h4 { font-size: 15px; font-weight: 500; color: var(--green-dark); margin-bottom: 3px; }
-  .connected-info p { font-size: 13px; color: var(--green-dark); opacity: 0.8; }
-  .connected-badge { margin-left: auto; background: var(--green); color: white; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; white-space: nowrap; }
-  .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; margin-right: 8px; vertical-align: middle; }
-  .profile-tab { padding: 8px 16px; border: 1px solid var(--border); background: var(--white); border-radius: 8px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--text-muted); }
-  .profile-tab.active { background: var(--green); color: white; border-color: var(--green); }
-  .profile-section { display: none; }
-  .profile-section.active { display: block; }
-  .item-row { display: flex; align-items: center; gap: 10px; padding: 12px 1.25rem; border-bottom: 1px solid var(--border); }
-  .item-row:last-child { border-bottom: none; }
-  .item-main { flex: 1; }
-  .item-title { font-size: 14px; font-weight: 500; }
-  .item-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .item-actions button { font-size: 12px; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: none; font-family: inherit; cursor: pointer; margin-left: 6px; }
-  .item-actions button:hover { background: var(--bg); }
-  .media-upload-group { margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
-  .media-upload-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-  .media-upload-group input[type="text"] { width: 100%; max-width: 320px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; margin-bottom: 8px; }
-  .media-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-  @media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); transition: transform 0.2s; }
-    .sidebar.open { transform: translateX(0); }
-    .main { margin-left: 0; padding: 1rem; max-width: 100vw; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-  }
-  .bell-wrap { position: relative; cursor: pointer; font-size: 19px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; transition: background 0.12s; }
-  .bell-wrap:hover { background: var(--bg); }
-  .bell-badge { position: absolute; top: -2px; right: -2px; background: #DC2626; color: white; font-size: 10px; font-weight: 600; border-radius: 10px; padding: 1px 5px; min-width: 15px; text-align: center; line-height: 1.4; display: none; }
-  .toast-notif { position: fixed; top: 20px; right: 20px; background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 10px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 1000; max-width: 300px; font-size: 13px; animation: slideIn 0.25s ease; cursor: pointer; }
-  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  .toast-notif .toast-title { font-weight: 500; margin-bottom: 3px; }
-  .toast-notif .toast-body { color: var(--text-muted); }
-  .leads-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: start; }
-  .leads-column { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .leads-column-head { padding: 12px 14px; font-size: 13px; font-weight: 500; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; }
-  .leads-count { background: var(--green-light); color: var(--green-dark); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
-  .leads-column-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 620px; overflow-y: auto; }
-  .lead-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; cursor: pointer; transition: background 0.12s, opacity 0.2s; }
-  .lead-card:hover { background: var(--bg); }
-  .lead-card.unread { border-left: 3px solid var(--green); background: #FAFFFE; }
-  .lead-card.done { opacity: 0.5; background: var(--bg); }
-  .lead-card.done .lead-name { text-decoration: line-through; }
-  .lead-card-top { display: flex; align-items: flex-start; gap: 8px; }
-  .lead-checkbox { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
-  .lead-card-main { flex: 1; min-width: 0; }
-  .lead-card .lead-name { font-weight: 500; margin-bottom: 2px; }
-  .lead-card .lead-phone { font-family: 'DM Mono', monospace; color: var(--text-muted); font-size: 12px; }
-  .lead-card .lead-course { color: var(--text-muted); font-size: 12px; margin-top: 3px; }
-  .lead-card .lead-time { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
-  @media (max-width: 900px) { .leads-board { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 600px) { .leads-board { grid-template-columns: 1fr; } }
-  .setup-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
-  .setup-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
-  .setup-head h3 { font-size: 15px; font-weight: 500; }
-  .setup-pct { font-size: 13px; font-weight: 500; color: var(--green-dark); font-family: 'DM Mono', monospace; }
-  .setup-bar-track { width: 100%; height: 8px; background: var(--bg); border-radius: 20px; overflow: hidden; margin-bottom: 1.1rem; }
-  .setup-bar-fill { height: 100%; background: var(--green); border-radius: 20px; transition: width 0.4s ease; width: 0%; }
-  .setup-steps { display: flex; flex-direction: column; gap: 8px; }
-  .setup-step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
-  .setup-step.done { color: var(--text); }
-  .setup-step-icon { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
-  .setup-step.done .setup-step-icon { background: var(--green); border-color: var(--green); color: white; }
-  .request-sent-card { background: var(--green-light); border: 1.5px solid #a7e6cf; border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
-  .request-sent-card-inner { display: flex; align-items: center; gap: 14px; }
-  .request-sent-icon { width: 44px; height: 44px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-  .request-sent-info h4 { font-size: 15px; font-weight: 500; color: var(--green-dark); margin-bottom: 3px; }
-  .request-sent-info p { font-size: 13px; color: var(--green-dark); opacity: 0.8; }
-
-  .billing-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: none; }
-  .billing-card-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .billing-info h3 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-  .billing-info .billing-price { font-family: 'DM Mono', monospace; color: var(--green-dark); font-weight: 500; }
-  .billing-info p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-  .billing-info p.expired { color: #DC2626; font-weight: 500; }
-  .billing-renew-btn { padding: 9px 20px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
-  .billing-renew-btn:hover { background: var(--green-dark); }
-  .billing-renew-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-
-  .plan-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 1.25rem; }
-  @media (max-width: 900px) { .plan-cards-grid { grid-template-columns: 1fr; } }
-  .plan-card { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; position: relative; }
-  .plan-card:hover { border-color: #a7e6cf; }
-  .plan-card.selected { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
-  .plan-card-current-badge { position: absolute; top: -10px; right: 14px; background: var(--text); color: white; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 10px; }
-  .plan-card h3 { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
-  .plan-card .plan-card-price { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: var(--green-dark); margin-bottom: 1rem; }
-  .plan-card .plan-card-price span { font-size: 12px; font-weight: 400; color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
-  .plan-card-strike { display: flex; align-items: center; gap: 8px; font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text-muted); text-decoration: line-through; margin-bottom: 2px; }
-  .plan-card-save-badge { display: inline-block; background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; text-decoration: none; font-family: 'DM Sans', sans-serif; }
-  .plan-card ul { list-style: none; padding: 0; margin: 0; }
-  .plan-card li { font-size: 13px; color: var(--text); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; }
-  .plan-card li::before { content: "✓"; color: var(--green); font-weight: 600; flex-shrink: 0; }
-  .plan-page-cta-row { text-align: center; padding: 1rem 0; }
-  .plan-page-cta-btn { padding: 12px 32px; background: var(--green); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; }
-  .plan-page-cta-btn:hover { background: var(--green-dark); }
-  .plan-page-cta-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-
-  .cycle-toggle-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 1.25rem; }
-  .cycle-btn { padding: 8px 18px; border: 1px solid var(--border); background: var(--white); border-radius: 20px; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; }
-  .cycle-btn:hover { border-color: #a7e6cf; }
-  .cycle-btn.active { background: var(--green); border-color: var(--green); color: white; }
-
-  .coupon-input { display: block; width: 100%; max-width: 320px; margin: 0 auto 12px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; text-align: center; outline: none; }
-  .coupon-input:focus { border-color: var(--green); }
-
-  .referral-code-box { display: inline-block; background: var(--green-light); color: var(--green-dark); font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; padding: 12px 20px; border-radius: 10px; letter-spacing: 0.03em; }
-
-  .plan-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 2000; align-items: center; justify-content: center; }
-  .plan-modal-overlay.active { display: flex; }
-  .plan-modal { background: var(--white); border-radius: var(--radius); padding: 2rem; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
-  .plan-modal .plan-modal-icon { font-size: 34px; margin-bottom: 0.75rem; }
-  .plan-modal h2 { font-size: 18px; font-weight: 500; margin-bottom: 0.6rem; }
-  .plan-modal p { font-size: 14px; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
-  .plan-modal-btn { padding: 10px 24px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
-  .plan-modal-btn:hover { background: var(--green-dark); }
-  .plan-modal-alt { display: block; margin-top: 0.9rem; font-size: 12px; color: var(--text-muted); text-decoration: none; }
-  .plan-modal-alt:hover { color: var(--text); }
-
-  /* Insights bars (Skilling India Overview card) */
-  .insight-bar-row { margin-bottom: 10px; }
-  .insight-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
-  .insight-bar-count { color: var(--text-muted); font-family: 'DM Mono', monospace; }
-  .insight-bar-track { height: 6px; background: var(--bg); border-radius: 20px; overflow: hidden; }
-  .insight-bar-fill { height: 100%; background: var(--green); border-radius: 20px; }
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--blue:#1B4FFF;--blue-dark:#0A2ECC;--blue-light:#EEF2FF;--black:#080C1A;--white:#FAFBFF;--gray:#F0F2FA;--gray2:#E2E6F3;--text:#0D1226;--muted:#5A6380;--green:#00C853;--orange:#FF4D00;--red:#E11D48;}
+body{font-family:'Instrument Sans',sans-serif;background:var(--gray);color:var(--text);}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:230px;background:var(--black);padding:1.4rem 1rem;display:flex;flex-direction:column;gap:0.3rem;z-index:50;}
+.logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.25rem;color:white;padding:0 0.6rem 1.2rem;text-decoration:none;}
+.logo span{color:#3D6EFF;}
+.menu-label{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:0 0.6rem 0.5rem;}
+.nav-item{display:flex;align-items:center;gap:0.7rem;color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.88rem;font-weight:500;padding:0.65rem 0.7rem;border-radius:10px;cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;font-family:'Instrument Sans',sans-serif;}
+.nav-item:hover{color:white;background:rgba(255,255,255,0.06);}
+.nav-item.active{color:white;background:var(--blue);}
+.nav-item .ic{width:20px;text-align:center;}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:0.4rem;}
+.side-foot a{color:rgba(255,255,255,0.4);font-size:0.78rem;text-decoration:none;padding:0.3rem 0.6rem;}
+.side-foot a:hover{color:white;}
+.topbar{margin-left:230px;background:white;border-bottom:1px solid var(--gray2);padding:0.9rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.tb-left{display:flex;align-items:center;gap:0.8rem;}
+#biz-name{font-family:'Clash Display',sans-serif;font-weight:600;font-size:1.05rem;}
+.pill{border-radius:100px;padding:0.3rem 0.9rem;font-size:0.72rem;font-weight:600;}
+.pill.plan{background:var(--blue-light);color:var(--blue);}
+.pill.ok{background:#E6F9EE;color:#0A7B3E;}
+.pill.warn{background:#FFF3EA;color:#C2410C;}
+.tb-right{display:flex;align-items:center;gap:1rem;}
+.tb-right a{color:var(--muted);font-size:0.8rem;text-decoration:none;}
+.tb-right a:hover{color:var(--blue);}
+.btn-ghost-sm{background:none;border:1.5px solid var(--gray2);border-radius:100px;padding:0.45rem 1.1rem;font-size:0.8rem;font-weight:600;color:var(--muted);cursor:pointer;}
+.main{margin-left:230px;padding:2rem;max-width:1150px;}
+.section{display:none;}
+.section.active{display:block;}
+h1{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:0.3rem;}
+.sec-sub{color:var(--muted);font-size:0.88rem;margin-bottom:1.6rem;}
+.card{background:white;border:1px solid var(--gray2);border-radius:18px;padding:1.6rem;margin-bottom:1.4rem;}
+.card-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:0.6rem;}
+.grid-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.4rem;}
+.stat{background:white;border:1px solid var(--gray2);border-radius:16px;padding:1.2rem;}
+.stat .num{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;}
+.stat .lbl{font-size:0.75rem;color:var(--muted);margin-top:0.2rem;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
+.muted{color:var(--muted);font-size:0.85rem;}
+.meter-label{display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;margin-bottom:0.35rem;}
+.meter-label span:last-child{color:var(--muted);font-weight:500;}
+.bar{height:9px;background:var(--gray);border-radius:100px;overflow:hidden;margin-bottom:1rem;}
+.fill{height:100%;border-radius:100px;background:var(--blue);}
+.fill.mkt{background:var(--orange);}
+.setup-row{display:flex;align-items:center;gap:0.6rem;font-size:0.85rem;padding:0.35rem 0;color:var(--muted);}
+.setup-row.done{color:var(--text);}
+.setup-row .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--gray2);display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:white;}
+.setup-row.done .dot{background:var(--green);border-color:var(--green);}
+table{width:100%;border-collapse:collapse;font-size:0.84rem;}
+th{text-align:left;color:var(--muted);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;padding:0.55rem 0.7rem;border-bottom:1px solid var(--gray2);}
+td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top;}
+.btn{background:var(--blue);color:white;border:none;border-radius:100px;padding:0.7rem 1.6rem;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;}
+.btn:hover{background:var(--blue-dark);}
+.btn.sm{padding:0.45rem 1.1rem;font-size:0.78rem;}
+.btn.outline{background:none;border:1.5px solid var(--gray2);color:var(--text);}
+.btn.outline:hover{border-color:var(--blue);color:var(--blue);}
+.form-row{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.9rem;}
+.form-row label{font-size:0.78rem;font-weight:600;}
+.form-row input,.form-row select,.form-row textarea{padding:0.65rem 0.9rem;border:1.5px solid var(--gray2);border-radius:10px;font-size:0.86rem;font-family:'Instrument Sans',sans-serif;background:var(--gray);outline:none;}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue);background:white;}
+.msg{font-size:0.83rem;font-weight:600;min-height:1.1rem;margin-top:0.5rem;}
+.msg.ok{color:#0A7B3E;}.msg.err{color:var(--red);}
+.tabs{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.2rem;}
+.tab{border:1.5px solid var(--gray2);background:white;border-radius:100px;padding:0.45rem 1.1rem;font-size:0.8rem;font-weight:600;color:var(--muted);cursor:pointer;}
+.tab.active{background:var(--blue);border-color:var(--blue);color:white;}
+.tabpane{display:none;}.tabpane.active{display:block;}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.plan-card{border:1.5px solid var(--gray2);border-radius:16px;padding:1.2rem;font-size:0.8rem;}
+.plan-card h4{font-family:'Clash Display',sans-serif;font-size:0.95rem;margin-bottom:0.3rem;}
+.plan-card .price{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:0.5rem;}
+.plan-card .price span{font-size:0.75rem;font-weight:400;color:var(--muted);}
+.plan-card ul{list-style:none;display:flex;flex-direction:column;gap:0.35rem;color:var(--muted);}
+.plan-card.hot{border-color:var(--blue);background:var(--blue-light);}
+.plan-card .tag{display:inline-block;background:var(--orange);color:white;font-size:0.62rem;font-weight:700;border-radius:100px;padding:0.15rem 0.6rem;margin-bottom:0.4rem;}
+.modal{position:fixed;inset:0;background:rgba(8,12,26,0.55);display:none;align-items:center;justify-content:center;z-index:100;}
+.modal.show{display:flex;}
+.modal-box{background:white;border-radius:20px;padding:2.2rem;max-width:440px;text-align:center;}
+.modal-box h3{font-family:'Clash Display',sans-serif;font-size:1.3rem;margin-bottom:0.6rem;}
+.modal-box p{color:var(--muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.4rem;}
+.optin{display:flex;align-items:flex-start;gap:0.6rem;font-size:0.8rem;background:var(--blue-light);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.9rem;}
+.optin input{margin-top:0.15rem;accent-color:var(--blue);}
+.file-box{border:2px dashed var(--gray2);border-radius:14px;padding:1rem;text-align:center;font-size:0.82rem;color:var(--muted);margin-bottom:0.9rem;}
+@media(max-width:900px){.sidebar{width:64px;}.sidebar .txt,.menu-label,.side-foot{display:none;}.topbar,.main{margin-left:64px;}.grid-stats,.grid-2,.plans-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
-<nav class="sidebar" id="sidebar">
-  <div class="logo">
-    <div class="logo-icon"><img src="images/logo/app-icon.png" alt="NeverMiss logo"></div>
-    <div class="logo-text">Never<span>Miss</span></div>
+<div class="sidebar">
+  <a class="logo" href="#">Never<span>Miss</span></a>
+  <div class="menu-label">Menu</div>
+  <button class="nav-item active" data-sec="overview"><span class="ic">◈</span><span class="txt">Overview</span></button>
+  <button class="nav-item" data-sec="leads"><span class="ic">◎</span><span class="txt">Leads</span></button>
+  <button class="nav-item" data-sec="conversations"><span class="ic">◻</span><span class="txt">Conversations</span></button>
+  <button class="nav-item" data-sec="bulk"><span class="ic">📢</span><span class="txt">Bulk Messaging</span></button>
+  <button class="nav-item" data-sec="quick"><span class="ic">◇</span><span class="txt">Quick replies</span></button>
+  <button class="nav-item" data-sec="profile"><span class="ic">🏫</span><span class="txt">Institute Profile</span></button>
+  <button class="nav-item" data-sec="connect"><span class="ic">📱</span><span class="txt">Connect WhatsApp</span></button>
+  <button class="nav-item" data-sec="billing"><span class="ic">💳</span><span class="txt">Plan & Billing</span></button>
+  <div class="side-foot">
+    <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20help%20with%20NeverMiss" target="_blank">💬 Need help? Chat with us</a>
+    <a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a>
   </div>
-  <div class="nav-section">Menu</div>
-  <a class="nav-item active" onclick="showPage('overview', this)" href="javascript:void(0)"><span class="nav-icon">◈</span> Overview</a>
-  <a class="nav-item" onclick="showPage('leads', this)" href="javascript:void(0)"><span class="nav-icon">◎</span> Leads</a>
-  <a class="nav-item" onclick="showPage('conversations', this)" href="javascript:void(0)"><span class="nav-icon">◻</span> Conversations</a>
-  <a class="nav-item" onclick="showPage('quickreplies', this)" href="javascript:void(0)"><span class="nav-icon">◇</span> Quick replies</a>
-  <a class="nav-item" id="nav-profile" onclick="showPage('profile', this)" href="javascript:void(0)"><span class="nav-icon">🏫</span> Institute Profile</a>
-  <a class="nav-item" onclick="showPage('connect', this)" href="javascript:void(0)"><span class="nav-icon">📱</span> Connect WhatsApp</a>
-  <a class="nav-item" onclick="showPage('billing', this)" href="javascript:void(0)"><span class="nav-icon">💳</span> Plan & Billing</a>
-  <div class="sidebar-bottom">
-    <div class="user-chip">
-      <div class="avatar" id="user-avatar">?</div>
-      <div>
-        <div class="user-name" id="user-name">Loading...</div>
-        <div class="user-plan" id="user-plan">Starter plan</div>
-      </div>
-    </div>
-    <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20help%20with%20NeverMiss" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green-dark);text-decoration:none;margin-top:10px;">
-      💬 Need help? Chat with us
-    </a>
-    <a href="mailto:support@nevermiss.co.in" style="display:block;font-size:11px;color:var(--text-muted);text-decoration:none;margin-top:4px;">
-      support@nevermiss.co.in
-    </a>
-    <button class="logout-btn" onclick="handleLogout()">Sign out</button>
+</div>
+
+<div class="topbar">
+  <div class="tb-left">
+    <span id="biz-name">Loading…</span>
+    <span class="pill plan" id="plan-pill">— plan</span>
+    <span class="pill ok" id="status-pill" style="display:none;"></span>
   </div>
-</nav>
-
-<main class="main">
-  <div class="topbar">
-    <h1 id="page-title">Overview</h1>
-    <div style="display:flex; align-items:center; gap:12px;">
-      <div class="bell-wrap" id="bell-wrap" onclick="showPage('leads', document.querySelector('.nav-item[onclick*=leads]'))" title="New leads">
-        🔔
-        <span class="bell-badge" id="bell-badge">0</span>
-      </div>
-      <div class="badge-live"><div class="dot"></div> Bot live</div>
-    </div>
+  <div class="tb-right">
+    <a href="index.html" target="_blank">🌐 Website</a>
+    <button class="btn-ghost-sm" onclick="signOut()">Sign out</button>
   </div>
+</div>
 
-  <div class="stats" id="stats-row">
-    <div class="stat"><div class="stat-label">Total leads</div><div class="stat-val" id="stat-leads">—</div><div class="stat-sub" id="stat-leads-sub">Loading...</div></div>
-    <div class="stat"><div class="stat-label">Conversations</div><div class="stat-val" id="stat-convs">—</div><div class="stat-sub">All time</div></div>
-    <div class="stat"><div class="stat-label">New today</div><div class="stat-val" id="stat-today">—</div><div class="stat-sub">Since midnight</div></div>
-    <div class="stat"><div class="stat-label">Bot status</div><div class="stat-val" style="font-size:18px;color:var(--green)">Active</div><div class="stat-sub">Meta Cloud API</div></div>
+<div class="main">
+
+<!-- ══════════ OVERVIEW ══════════ -->
+<div class="section active" id="sec-overview">
+  <h1>Overview</h1>
+  <div class="sec-sub">Your bot at a glance.</div>
+  <div class="grid-stats">
+    <div class="stat"><div class="num" id="ov-botlive">—</div><div class="lbl">Bot live</div></div>
+    <div class="stat"><div class="num" id="ov-leads">0</div><div class="lbl">Total leads</div></div>
+    <div class="stat"><div class="num" id="ov-convs">0</div><div class="lbl">Conversations (all time)</div></div>
+    <div class="stat"><div class="num" id="ov-new">0</div><div class="lbl">New today</div></div>
   </div>
-
-  <div class="page active" id="page-overview">
-    <div class="setup-card" id="setup-card">
-      <div class="setup-head">
-        <h3>Setup progress</h3>
-        <span class="setup-pct" id="setup-pct">0%</span>
-      </div>
-      <div class="setup-bar-track"><div class="setup-bar-fill" id="setup-bar-fill"></div></div>
-      <div class="setup-steps">
-        <div class="setup-step done" id="step-account"><span class="setup-step-icon">✓</span> Account created</div>
-        <div class="setup-step" id="step-whatsapp"><span class="setup-step-icon"></span> WhatsApp connected</div>
-        <div class="setup-step" id="step-courses"><span class="setup-step-icon"></span> At least one course added</div>
-        <div class="setup-step" id="step-live"><span class="setup-step-icon"></span> Bot is live</div>
-      </div>
-    </div>
-
-    <div class="billing-card" id="billing-card">
-      <div class="billing-card-inner">
-        <div class="billing-info">
-          <h3 id="billing-plan-name">—</h3>
-          <p id="billing-status-line">Loading billing info...</p>
-        </div>
-        <button class="billing-renew-btn" id="billing-renew-btn" onclick="showPage('billing', document.querySelector('.nav-item[onclick*=billing]'))">Manage Plan</button>
-      </div>
-    </div>
-
-    <!-- Skilling-only. The single most useful thing this dashboard can show
-         Mahesh: which languages candidates actually chose and which
-         programme they asked about. Nothing else in the product surfaces
-         contact_prefs, so without this the data is written and never seen. -->
-    <div class="card" id="skilling-insights-card" style="display:none;">
-      <div class="card-head"><h2>Candidate insights</h2></div>
-      <div style="padding:1.25rem;" id="skilling-insights-body">
-        <div class="loading"><span class="spinner"></span>Loading insights...</div>
-      </div>
-    </div>
-
-    <div class="card"><div class="card-head"><h2>Recent leads</h2></div><div id="overview-leads-body"><div class="loading"><span class="spinner"></span>Loading leads...</div></div></div>
-    <div class="card"><div class="card-head"><h2>Recent conversations</h2></div><div class="conv-list" id="overview-conv-body"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <div class="page" id="page-leads">
-    <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
-      <input class="search-input" id="leads-search" placeholder="Search name or phone..." oninput="filterLeads()" style="width:260px;"/>
-    </div>
-    <div class="leads-board" id="leads-board">
-      <div class="leads-column">
-        <div class="leads-column-head">📞 Callback Requests <span class="leads-count" id="count-callback">0</span></div>
-        <div class="leads-column-body" id="col-callback"><div class="loading"><span class="spinner"></span></div></div>
-      </div>
-      <div class="leads-column">
-        <div class="leads-column-head">📋 Registrations <span class="leads-count" id="count-registration">0</span></div>
-        <div class="leads-column-body" id="col-registration"><div class="loading"><span class="spinner"></span></div></div>
-      </div>
-      <div class="leads-column">
-        <div class="leads-column-head">🎓 Demo Bookings <span class="leads-count" id="count-demo">0</span></div>
-        <div class="leads-column-body" id="col-demo"><div class="loading"><span class="spinner"></span></div></div>
-      </div>
-      <div class="leads-column">
-        <div class="leads-column-head">💺 Seat Bookings <span class="leads-count" id="count-booking">0</span></div>
-        <div class="leads-column-body" id="col-booking"><div class="loading"><span class="spinner"></span></div></div>
-      </div>
-      <div class="leads-column" id="col-wrap-skilling_enquiry" style="display:none;">
-        <div class="leads-column-head">🎯 Enquiries <span class="leads-count" id="count-skilling_enquiry">0</span></div>
-        <div class="leads-column-body" id="col-skilling_enquiry"><div class="loading"><span class="spinner"></span></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page" id="page-conversations">
-    <div class="card"><div class="card-head"><h2>All conversations</h2></div><div class="conv-list" id="conv-body"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <div class="page" id="page-quickreplies">
-    <div class="card"><div class="card-head"><h2>Quick replies</h2><button class="add-qr-btn" onclick="addQuickReply()">+ Add</button></div><div class="qr-list" id="qr-body"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <div class="page" id="page-profile">
+  <div class="grid-2">
     <div class="card">
-      <div class="card-head">
-        <div style="display:flex; gap:8px;">
-          <button class="profile-tab active" onclick="showProfileTab('courses', this)">Courses</button>
-          <button class="profile-tab" onclick="showProfileTab('results', this)">Results</button>
-          <button class="profile-tab" onclick="showProfileTab('facilities', this)">Facilities</button>
-          <button class="profile-tab" onclick="showProfileTab('media', this)">Media</button>
-          <button class="profile-tab" onclick="showProfileTab('settings', this)">Business Info</button>
-        </div>
+      <div class="card-title">Setup progress</div>
+      <div style="margin-bottom:0.8rem;"><div class="bar" style="margin-bottom:0.4rem;"><div class="fill" id="setup-bar" style="width:0%"></div></div><span class="muted" id="setup-pct">0%</span></div>
+      <div class="setup-row" id="sp-1"><span class="dot">✓</span> Account created</div>
+      <div class="setup-row" id="sp-2"><span class="dot">✓</span> WhatsApp connected</div>
+      <div class="setup-row" id="sp-3"><span class="dot">✓</span> At least one course added</div>
+      <div class="setup-row" id="sp-4"><span class="dot">✓</span> Bot is live</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Billing <button class="btn sm outline" onclick="showSection('billing')">Manage Plan</button></div>
+      <div id="billing-line" class="muted">Loading billing info…</div>
+      <div style="margin-top:1rem;" id="ov-bulk-meters"></div>
+    </div>
+  </div>
+  <div class="card" id="insights-card" style="display:none;">
+    <div class="card-title">Candidate insights</div>
+    <div id="insights-box" class="muted">Loading insights…</div>
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Recent leads</div><div id="ov-recent-leads" class="muted">Loading leads…</div></div>
+    <div class="card"><div class="card-title">Recent conversations</div><div id="ov-recent-convs" class="muted">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ══════════ BULK MESSAGING ══════════ -->
+<div class="section" id="sec-bulk">
+  <h1>📢 Bulk Messaging</h1>
+  <div class="sec-sub">Send utility & marketing broadcasts to your opted-in contacts. Your plan includes a monthly allowance.</div>
+  <div class="card">
+    <div class="card-title">Your bulk account</div>
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.2rem;">
+      <span class="pill plan" id="bulk-plan">—</span>
+      <span class="pill ok" id="bulk-status">—</span>
+      <span class="pill warn" id="bulk-renewal">—</span>
+    </div>
+    <div class="meter-label"><span>🔧 Utility messages (reminders, confirmations)</span><span id="util-text">0 / 0</span></div>
+    <div class="bar"><div class="fill" id="util-bar" style="width:0%"></div></div>
+    <div class="meter-label"><span>📣 Marketing messages (announcements, promos)</span><span id="mkt-text">0 / 0</span></div>
+    <div class="bar"><div class="fill mkt" id="mkt-bar" style="width:0%"></div></div>
+    <div class="muted">Need more? <a href="https://nevermiss.co.in/#bulk" target="_blank" style="color:var(--blue);font-weight:600;">Add Bulk Messaging Plus (+1,500 utility / +300 marketing for ₹999/mo) →</a></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Upload contacts (CSV)</div>
+    <div class="file-box">
+      CSV with columns <strong>phone,name</strong> — numbers like 919876543210<br>
+      <input type="file" id="csv-file" accept=".csv" style="margin-top:0.5rem;">
+    </div>
+    <label class="optin"><input type="checkbox" id="optin"> I confirm every contact has <strong>opted in</strong> to receive WhatsApp messages from my business. (Required — protects your number.)</label>
+    <button class="btn" onclick="uploadBulkCSV()">Upload contacts</button>
+    <div class="msg" id="upload-msg"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Your contacts <span class="muted" id="contact-count"></span></div>
+    <div id="contacts-body" class="muted">Loading…</div>
+  </div>
+</div>
+<!-- ══════════ LEADS ══════════ -->
+<div class="section" id="sec-leads">
+  <h1>Leads</h1>
+  <div class="sec-sub">Every enquiry your bot captured.</div>
+  <div class="grid-stats" style="grid-template-columns:repeat(5,1fr);">
+    <div class="stat"><div class="num" id="lc-callback">0</div><div class="lbl">📞 Callback Requests</div></div>
+    <div class="stat"><div class="num" id="lc-reg">0</div><div class="lbl">📋 Registrations</div></div>
+    <div class="stat"><div class="num" id="lc-demo">0</div><div class="lbl">🎓 Demo Bookings</div></div>
+    <div class="stat"><div class="num" id="lc-booking">0</div><div class="lbl">💺 Seat Bookings</div></div>
+    <div class="stat"><div class="num" id="lc-enq">0</div><div class="lbl">🎯 Enquiries</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">All leads</div>
+    <div id="leads-body" class="muted">Loading…</div>
+  </div>
+</div>
+
+<!-- ══════════ CONVERSATIONS ══════════ -->
+<div class="section" id="sec-conversations">
+  <h1>Conversations</h1>
+  <div class="sec-sub">Full chat history between your customers and the bot.</div>
+  <div class="card"><div id="conv-body" class="muted">Loading…</div></div>
+</div>
+
+<!-- ══════════ QUICK REPLIES ══════════ -->
+<div class="section" id="sec-quick">
+  <h1>Quick replies</h1>
+  <div class="sec-sub">Custom keyword → reply pairs. Checked after the built-in flows, so they can never override registration/booking/demo.</div>
+  <div class="card">
+    <div class="card-title">Add a quick reply</div>
+    <div class="form-row"><label>Keyword (e.g. fees)</label><input id="q-keyword" placeholder="fees"></div>
+    <div class="form-row"><label>Reply text</label><textarea id="q-reply" placeholder="Our fees are…"></textarea></div>
+    <button class="btn" onclick="addQuickReply()">+ Add</button>
+    <div class="msg" id="quick-msg"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Your quick replies</div>
+    <div id="quick-list" class="muted">Loading…</div>
+  </div>
+</div>
+
+<!-- ══════════ INSTITUTE PROFILE ══════════ -->
+<div class="section" id="sec-profile">
+  <h1>Institute Profile</h1>
+  <div class="sec-sub">Everything the bot knows about your institute.</div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('courses', this)">Courses</button>
+    <button class="tab" onclick="showTab('results', this)">Results</button>
+    <button class="tab" onclick="showTab('facilities', this)">Facilities</button>
+    <button class="tab" onclick="showTab('media', this)">Media</button>
+    <button class="tab" onclick="showTab('info', this)">Business Info</button>
+  </div>
+
+  <div class="tabpane active" id="pane-courses">
+    <div class="card">
+      <div class="card-title">Courses & batches</div>
+      <div class="form-row"><label>Course name</label><input id="c-name" placeholder="e.g. JEE 2027 Batch"></div>
+      <div class="grid-2">
+        <div class="form-row"><label>Fees (₹/year)</label><input id="c-fees" type="number" placeholder="50000"></div>
+        <div class="form-row"><label>Seats available</label><input id="c-seats" type="number" placeholder="40"></div>
       </div>
-
-      <div class="profile-section active" id="profile-courses">
-        <div class="card-head"><h2>Courses</h2><button class="add-qr-btn" onclick="openCourseForm()">+ Add Course</button></div>
-        <div id="courses-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+      <div class="form-row"><label>Batch label</label><input id="c-batch" placeholder="e.g. Morning 7–9 AM"></div>
+      <div class="grid-2">
+        <div class="form-row"><label>Start time</label><input id="c-start" placeholder="7:00 AM"></div>
+        <div class="form-row"><label>End time</label><input id="c-end" placeholder="9:00 AM"></div>
       </div>
-
-      <div class="profile-section" id="profile-results">
-        <div class="card-head"><h2>Results / Selections</h2><button class="add-qr-btn" onclick="openResultForm()">+ Add Result</button></div>
-        <div id="results-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
-      </div>
-
-      <div class="profile-section" id="profile-facilities">
-        <div class="card-head"><h2>Facilities</h2><button class="add-qr-btn" onclick="openFacilityForm()">+ Add Facility</button></div>
-        <div id="facilities-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
-      </div>
-
-      <div class="profile-section" id="profile-media">
-        <div class="card-head"><h2>Media (Brochure & Photos)</h2></div>
-        <div style="padding: 1.25rem;">
-          <div class="media-upload-group">
-            <label>Brochure (PDF)</label>
-            <input type="file" id="brochure-file" accept="application/pdf" />
-            <button class="add-qr-btn" onclick="uploadMedia('brochure', 'brochure-file')">Upload Brochure</button>
-          </div>
-          <div class="media-upload-group">
-            <label>Topper Photo</label>
-            <input type="text" id="topper-caption" placeholder="Caption (e.g. Rahul Sharma - AIR 342)" />
-            <input type="file" id="topper-file" accept="image/*" />
-            <button class="add-qr-btn" onclick="uploadMedia('topper_photo', 'topper-file', 'topper-caption')">Upload Photo</button>
-          </div>
-          <div class="media-upload-group">
-            <label>Facility Photo</label>
-            <input type="text" id="facility-caption" placeholder="Caption (e.g. Air-conditioned classroom)" />
-            <input type="file" id="facility-file" accept="image/*" />
-            <button class="add-qr-btn" onclick="uploadMedia('facility_photo', 'facility-file', 'facility-caption')">Upload Photo</button>
-          </div>
-
-          <!-- Skilling-only brochure uploads. Two separate slots because the
-               bot picks the brochure by programme -- sending the Earn &
-               Learn brochure to someone asking about the Rs 1,000 card
-               means they read about a Rs 25,000 two-year commitment and
-               quietly leave. media_type values match SK_MEDIA_CARD /
-               SK_MEDIA_EARN in app.py exactly.
-
-               PDF or image both work: send_skilling_brochure() checks the
-               file extension and sends as document or image accordingly --
-               matters because Skilling India currently has poster images
-               rather than PDFs. -->
-          <div class="media-upload-group skilling-media" style="display:none;">
-            <label>Job Suraksha Card — brochure</label>
-            <input type="text" id="sk-card-caption" placeholder="Caption sent with the file (optional)" />
-            <input type="file" id="sk-card-file" accept="application/pdf,image/*" />
-            <button class="add-qr-btn" onclick="uploadMedia('brochure_card', 'sk-card-file', 'sk-card-caption')">Upload</button>
-          </div>
-
-          <div class="media-upload-group skilling-media" style="display:none;">
-            <label>Earn &amp; Learn — brochure</label>
-            <input type="text" id="sk-earn-caption" placeholder="Caption sent with the file (optional)" />
-            <input type="file" id="sk-earn-file" accept="application/pdf,image/*" />
-            <button class="add-qr-btn" onclick="uploadMedia('brochure_earn', 'sk-earn-file', 'sk-earn-caption')">Upload</button>
-          </div>
-        </div>
-        <div id="media-body"><div class="loading"><span class="spinner"></span>Loading...</div></div>
-      </div>
-
-      <div class="profile-section" id="profile-settings">
-        <div class="card-head"><h2>Business Info</h2></div>
-        <div style="padding: 1.25rem;">
-          <div class="owner-number-field">
-            <label for="settings-business-name">Coaching / Business name</label>
-            <input type="text" id="settings-business-name" placeholder="e.g. Excel Coaching Institute" />
-          </div>
-          <div class="owner-number-field">
-            <label for="settings-location">Location</label>
-            <input type="text" id="settings-location" placeholder="e.g. Pune, Maharashtra" />
-          </div>
-          <div class="owner-number-field">
-            <label for="settings-contact-phone">Contact phone (shown to students)</label>
-            <input type="tel" id="settings-contact-phone" placeholder="e.g. 9876543210" />
-          </div>
-          <div class="owner-number-field">
-            <label for="settings-timings">Institute timings</label>
-            <input type="text" id="settings-timings" placeholder="e.g. Monday to Saturday, 8am - 8pm" />
-          </div>
-          <button class="add-qr-btn" onclick="saveBusinessSettings()">Save changes</button>
-        </div>
-      </div>
+      <label class="optin"><input type="checkbox" id="c-demo" checked> Demo class available for this course</label>
+      <button class="btn" onclick="addCourse()">+ Add Course</button>
+      <div class="msg" id="course-msg"></div>
+      <div id="courses-list" class="muted" style="margin-top:1rem;">Loading…</div>
     </div>
   </div>
 
-  <div class="page" id="page-connect">
-
-    <div class="connected-card" id="connected-card">
-      <div class="connected-card-inner">
-        <div class="connected-icon">✅</div>
-        <div class="connected-info">
-          <h4 id="connected-business-name">Your Business</h4>
-          <p id="connected-phone-id">Phone Number ID: —</p>
-        </div>
-        <div class="connected-badge">🟢 Bot Active</div>
-      </div>
-    </div>
-
-    <div class="request-sent-card" id="request-sent-card">
-      <div class="request-sent-card-inner">
-        <div class="request-sent-icon">📩</div>
-        <div class="request-sent-info">
-          <h4>Request received!</h4>
-          <p id="request-sent-detail">We've got your number and will have your bot live shortly. We'll notify you the moment it's ready.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="connect-banner" id="connect-banner">
-      <div class="connect-banner-text">
-        <h3>📱 Connect your WhatsApp Business number</h3>
-        <p>Link your WhatsApp Business account to activate the NeverMiss bot for your number.</p>
-      </div>
-
-      <div class="owner-number-field">
-        <label for="business-whatsapp-input">WhatsApp Business number you want to connect</label>
-        <input type="tel" id="business-whatsapp-input" placeholder="e.g. 9876543210" />
-        <div class="hint">This is the number your customers will message and your bot will reply from.</div>
-      </div>
-
-      <div class="owner-number-field">
-        <label for="owner-whatsapp-input">Your WhatsApp number (for lead notifications)</label>
-        <input type="tel" id="owner-whatsapp-input" placeholder="e.g. 9876543210" />
-        <div class="hint">New leads, bookings, and demo requests from your customers will be sent to this number.</div>
-      </div>
-
-      <button class="connect-wp-btn" id="connect-btn" onclick="startEmbeddedSignup()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Connect WhatsApp
-      </button>
-
-      <div style="margin-top: 10px;">
-        <a href="javascript:void(0)" onclick="toggleManualFallback()" style="font-size: 12px; color: var(--text-muted); text-decoration: underline;">
-          Having trouble? Let us connect it manually instead
-        </a>
-      </div>
-
-      <div id="manual-fallback-section" style="display:none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 0.75rem;">No Facebook login needed — just confirm the numbers above and we'll connect it on our end.</p>
-        <button class="connect-wp-btn" id="manual-connect-btn" onclick="submitConnectionRequest()" style="background: var(--green);">
-          Request Manual Connection
-        </button>
-      </div>
-    </div>
-
+  <div class="tabpane" id="pane-results">
     <div class="card">
-      <div class="card-head"><h2>How it works</h2></div>
-      <div style="padding: 1.25rem; font-size: 14px; color: var(--text-muted); line-height: 2;">
-        <div>1️⃣ &nbsp;Enter your WhatsApp number above (this is where you'll get customer leads)</div>
-        <div>2️⃣ &nbsp;Click <strong>Request Connection</strong></div>
-        <div>3️⃣ &nbsp;Our team connects your number on our end — no Facebook login needed from you</div>
-        <div>4️⃣ &nbsp;Your bot usually goes live within a few hours, but can occasionally take up to 24. We'll notify you the moment it's ready.</div>
+      <div class="card-title">Results / Selections</div>
+      <div class="form-row"><label>Achievement</label><input id="r-ach" placeholder="e.g. AIR 45 in JEE Advanced"></div>
+      <div class="grid-2">
+        <div class="form-row"><label>Student name</label><input id="r-name"></div>
+        <div class="form-row"><label>Year</label><input id="r-year" placeholder="2026"></div>
       </div>
-      <div style="padding: 0 1.25rem 1.25rem; font-size: 13px; color: var(--text-muted);">
-        Stuck or have questions? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20help%20connecting%20WhatsApp" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:500;">Message us on WhatsApp</a> or email <a href="mailto:support@nevermiss.co.in" style="color:var(--green-dark);font-weight:500;">support@nevermiss.co.in</a>.
-      </div>
+      <button class="btn" onclick="addResult()">+ Add Result</button>
+      <div class="msg" id="result-msg"></div>
+      <div id="results-list" class="muted" style="margin-top:1rem;">Loading…</div>
     </div>
   </div>
 
-  <div class="page" id="page-billing">
+  <div class="tabpane" id="pane-facilities">
     <div class="card">
-      <div class="card-head"><h2>Current plan</h2></div>
-      <div style="padding: 1.25rem;">
-        <p id="billing-page-status-line" style="font-size: 14px; color: var(--text-muted);">Loading...</p>
-      </div>
-    </div>
-
-    <div class="cycle-toggle-row" id="billing-cycle-toggle">
-      <!-- cycle buttons injected by renderPlanPage() -->
-    </div>
-
-    <div class="plan-cards-grid" id="plan-cards-grid">
-      <!-- plan cards injected by renderPlanPage() -->
-    </div>
-
-    <div class="plan-page-cta-row">
-      <input type="text" id="renewal-coupon-input" class="coupon-input" placeholder="Coupon or referral code (optional)" />
-      <button class="plan-page-cta-btn" id="plan-page-cta-btn" onclick="startRenewal()">Continue</button>
-      <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Or message us on WhatsApp: <a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20discuss%20my%20NeverMiss%20plan" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:500;">+91 74848 49508</a></p>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Refer & Earn</h2></div>
-      <div style="padding: 1.25rem;">
-        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 1rem;">
-          Share your code with other institutes. They get 20% off their first payment, and you get 20% off your next renewal once they sign up.
-        </p>
-        <div class="referral-code-box" id="referral-code-box">Loading your code...</div>
-        <button class="add-qr-btn" id="referral-share-btn" onclick="shareReferralCode()" style="display:inline-flex; margin-top: 12px;">Share on WhatsApp</button>
-      </div>
+      <div class="card-title">Facilities</div>
+      <div class="form-row"><label>Facility name</label><input id="f-name2" placeholder="e.g. AC Classrooms"></div>
+      <div class="form-row"><label>Description</label><input id="f-desc" placeholder="Optional"></div>
+      <button class="btn" onclick="addFacility()">+ Add Facility</button>
+      <div class="msg" id="facility-msg"></div>
+      <div id="facilities-list" class="muted" style="margin-top:1rem;">Loading…</div>
     </div>
   </div>
-</main>
 
-<div class="plan-modal-overlay" id="plan-modal-overlay">
-  <div class="plan-modal">
-    <div class="plan-modal-icon">⏳</div>
-    <h2>Your plan has expired</h2>
+  <div class="tabpane" id="pane-media">
+    <div class="card">
+      <div class="card-title">Media (Brochure & Photos)</div>
+      <div class="grid-2">
+        <div class="form-row"><label>Brochure (PDF)</label><input type="file" id="m-brochure" accept=".pdf"></div>
+        <div class="form-row"><label>Topper Photo</label><input type="file" id="m-topper" accept="image/*"></div>
+        <div class="form-row"><label>Facility Photo</label><input type="file" id="m-facility" accept="image/*"></div>
+        <div class="form-row"><label>Job Suraksha Card brochure</label><input type="file" id="m-card" accept=".pdf,image/*"></div>
+        <div class="form-row"><label>Earn & Learn brochure</label><input type="file" id="m-earn" accept=".pdf,image/*"></div>
+      </div>
+      <button class="btn" onclick="uploadMedia()">Upload</button>
+      <div class="msg" id="media-msg"></div>
+      <div id="media-list" class="muted" style="margin-top:1rem;">Loading…</div>
+    </div>
+  </div>
+
+  <div class="tabpane" id="pane-info">
+    <div class="card">
+      <div class="card-title">Business Info</div>
+      <div class="form-row"><label>Coaching / Business name</label><input id="bi-name"></div>
+      <div class="form-row"><label>Location</label><input id="bi-loc"></div>
+      <div class="form-row"><label>Contact phone (shown to students)</label><input id="bi-phone"></div>
+      <div class="form-row"><label>Institute timings</label><input id="bi-timings" placeholder="Monday to Saturday, 8 AM – 8 PM"></div>
+      <button class="btn" onclick="saveBizInfo()">Save changes ✅</button>
+      <div class="msg" id="info-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CONNECT WHATSAPP (AUTOMATED EMBEDDED SIGNUP) ══════════ -->
+<div class="section" id="sec-connect">
+  <h1>Connect WhatsApp</h1>
+  <div class="sec-sub">Link your WhatsApp Business number — the bot goes live automatically.</div>
+  <div class="card">
+    <div class="card-title">Your Business</div>
+    <div class="muted" style="margin-bottom:0.8rem;">Phone Number ID: <strong id="conn-pnid">—</strong></div>
+    <div id="conn-status"></div>
+
+    <div class="form-row">
+      <label>Your WhatsApp number (for lead notifications)</label>
+      <input id="cw-owner" placeholder="e.g. 9876543210">
+      <span class="muted" style="font-size:0.72rem;">New leads, bookings and demo requests from your customers will be sent to this number.</span>
+    </div>
+
+    <!-- PRIMARY: fully automated Embedded Signup -->
+    <div id="conn-auto">
+      <p class="muted" style="margin-bottom:0.9rem;">🤖 <strong>Automatic (recommended):</strong> log in with Facebook, follow Meta's guided setup, and your bot goes live instantly — no manual work from you or us.</p>
+      <button class="btn" onclick="startEmbeddedSignup()">📱 Connect WhatsApp (Automatic)</button>
+      <div style="margin-top:0.9rem;">
+        <a href="javascript:void(0)" onclick="toggleManual()" style="color:var(--blue);font-weight:600;font-size:0.82rem;">Having trouble? Let us connect it manually instead</a>
+      </div>
+    </div>
+
+    <!-- FALLBACK: hidden unless the client clicks the link -->
+    <div id="conn-manual" style="display:none;margin-top:1rem;border-top:1px solid var(--gray2);padding-top:1rem;">
+      <p class="muted" style="margin-bottom:0.9rem;">🛠 <strong>Manual fallback:</strong> submit your business number and we'll connect it on our end (a few hours, up to 24). No Facebook login needed.</p>
+      <div class="form-row">
+        <label>WhatsApp Business number you want to connect</label>
+        <input id="cw-business" placeholder="e.g. 9876543210">
+      </div>
+      <button class="btn outline" onclick="requestConnection()">Request Manual Connection</button>
+    </div>
+
+    <div class="msg" id="conn-msg"></div>
+  </div>
+</div>
+
+<!-- ══════════ PLAN & BILLING (WITH BULK ALLOWANCES) ══════════ -->
+<div class="section" id="sec-billing">
+  <h1>Plan & Billing</h1>
+  <div class="sec-sub">Your subscription, bulk messaging allowance and referral rewards.</div>
+
+  <div class="card">
+    <div class="card-title">Current plan <a class="btn sm" style="text-decoration:none;" href="https://nevermiss.co.in/#pricing" target="_blank">Renew / Upgrade</a></div>
+    <div id="bill-current" class="muted">Loading…</div>
+    <div style="margin-top:1.2rem;">
+      <div class="meter-label"><span>🔧 Utility bulk messages (included)</span><span id="b-util-text">0 / 0</span></div>
+      <div class="bar"><div class="fill" id="b-util-bar" style="width:0%"></div></div>
+      <div class="meter-label"><span>📣 Marketing bulk messages (included)</span><span id="b-mkt-text">0 / 0</span></div>
+      <div class="bar"><div class="fill mkt" id="b-mkt-bar" style="width:0%"></div></div>
+      <div class="muted">Need more? <a href="https://nevermiss.co.in/#bulk" target="_blank" style="color:var(--blue);font-weight:600;">Add Bulk Messaging Plus (+1,500 utility / +300 marketing for ₹999/mo) →</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Refer & Earn</div>
+    <div class="muted" style="margin-bottom:0.8rem;">Share your code — they get 20% off their first payment, you get 20% off your next renewal once they sign up.</div>
+    <div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
+      <span class="pill plan" id="ref-code" style="font-size:0.95rem;padding:0.6rem 1.4rem;">Loading…</span>
+      <button class="btn sm outline" onclick="shareReferral()">Share on WhatsApp</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">All plans</div>
+    <div class="plans-grid">
+      <div class="plan-card"><h4>Starter</h4><div class="price">₹3,999<span>/mo</span></div><ul><li>AI FAQ bot + lead capture</li><li>1,000 conversations/mo</li><li>300 utility + 20 marketing bulk msgs</li><li>Email support</li></ul></div>
+      <div class="plan-card hot"><span class="tag">MOST POPULAR</span><h4>Growth</h4><div class="price">₹5,999<span>/mo</span></div><ul><li>Everything in Starter</li><li>2,000 conversations/mo</li><li>Registration, booking, demo, reminders</li><li>750 utility + 50 marketing bulk msgs</li></ul></div>
+      <div class="plan-card"><h4>Pro</h4><div class="price">₹8,999<span>/mo</span></div><ul><li>Everything in Growth</li><li>Unlimited conversations</li><li>1,500 utility + 100 marketing bulk msgs</li><li>Priority support</li></ul></div>
+      <div class="plan-card"><h4>Message Basic</h4><div class="price">₹799<span>/mo</span></div><ul><li>Bulk messaging only</li><li>1,500 utility / 80 marketing</li><li>Template setup help</li></ul></div>
+      <div class="plan-card"><h4>Message Growth</h4><div class="price">₹1,499<span>/mo</span></div><ul><li>Bulk messaging only</li><li>3,500 utility / 200 marketing</li><li>Template setup help</li></ul></div>
+      <div class="plan-card"><h4>Message Pro</h4><div class="price">₹2,499<span>/mo</span></div><ul><li>Bulk messaging only</li><li>7,000 utility / 400 marketing</li><li>Template setup help</li></ul></div>
+    </div>
+    <div class="muted" style="margin-top:1rem;">💡 Bulk Messaging Plus is available on any plan. <a href="https://wa.me/917484849508?text=Hi%2C%20I%20want%20Bulk%20Messaging%20Plus" target="_blank" style="color:var(--blue);font-weight:600;">Add it via WhatsApp →</a></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ══════════ PLAN EXPIRED MODAL ══════════ -->
+<div class="modal" id="expired-modal">
+  <div class="modal-box">
+    <h3>⏳ Your plan has expired</h3>
     <p>Your NeverMiss plan needs renewal. Renew now to keep your bot active and keep receiving leads from your students.</p>
-    <button class="plan-modal-btn" onclick="openPlansFromModal()">View Plans & Renew</button>
-    <a class="plan-modal-alt" href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20renew%20my%20NeverMiss%20plan" target="_blank" rel="noopener">Or message us on WhatsApp</a>
+    <a class="btn" style="text-decoration:none;display:inline-block;" href="https://nevermiss.co.in/#pricing" target="_blank">View Plans & Renew</a>
+    <div class="muted" style="margin-top:0.8rem;"><a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20renew%20my%20NeverMiss%20plan" target="_blank" style="color:var(--blue);">Or message us on WhatsApp</a></div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL     = 'https://uwxthbxxiaujlgxosqjx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w';
-const BACKEND_URL      = 'https://my-saas-bot.onrender.com';
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  }
-});
+// ── CONFIG — fill these values (copy from login.html / Render / Meta) ────────
+const SUPABASE_URL      = "https://uwxthbxxiaujlgxosqjx.supabase.co";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_KEY_HERE";   // same key login.html uses
+const API_BASE          = "PASTE_YOUR_RENDER_URL";      // e.g. https://nevermiss-api.onrender.com
+const FB_APP_ID         = "1662583918327842";            // same as backend META_APP_ID
+const EMBEDDED_SIGNUP_CONFIG_ID = "PASTE_YOUR_CONFIG_ID"; // Meta Business Manager → WhatsApp → Embedded Signup config ID
 
-let allLeads       = [];
-let currentUser    = null;
-let currentClientId = null;
-let currentClientType = 'coaching';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let TOKEN = null, EMAIL = null, CLIENT = null, BULK = null;
 
-let currentPlan          = null;
-let currentPlanExpiresAt = null;
-let currentClientPhone   = null;
-let currentBusinessName  = null;
-let selectedRenewalPlan  = null;
-let selectedBillingCycle = 'monthly';
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function esc(s){ return (s == null ? "" : String(s)).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function fmtDate(iso){ return iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—"; }
+async function authHeaders(){ return { "Authorization": "Bearer " + TOKEN }; }
 
-var PLAN_PRICING = {
-  starter: {
-    label: 'Starter',
-    monthly:     { amount: 399900,  display: '₹3,999/month' },
-    half_yearly: { amount: 2199900, display: '₹21,999/6 months', fullDisplay: '₹23,994' },
-    yearly:      { amount: 3999000, display: '₹39,990/year',     fullDisplay: '₹47,988' }
-  },
-  growth: {
-    label: 'Growth',
-    monthly:     { amount: 599900,  display: '₹5,999/month' },
-    half_yearly: { amount: 3299900, display: '₹32,999/6 months', fullDisplay: '₹35,994' },
-    yearly:      { amount: 5999000, display: '₹59,990/year',     fullDisplay: '₹71,988' }
-  },
-  pro: {
-    label: 'Pro',
-    monthly:     { amount: 899900,  display: '₹8,999/month' },
-    half_yearly: { amount: 4899900, display: '₹48,999/6 months', fullDisplay: '₹53,994' },
-    yearly:      { amount: 8999000, display: '₹89,990/year',     fullDisplay: '₹1,07,988' }
-  },
-  custom: {
-    label: 'Custom',
-    monthly:     { amount: 0, display: 'As agreed' },
-    half_yearly: { amount: 0, display: 'As agreed' },
-    yearly:      { amount: 0, display: 'As agreed' }
-  }
-};
+// ── Navigation ────────────────────────────────────────────────────────────────
+function showSection(id){
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  const sec = document.getElementById("sec-" + id);
+  if (sec) sec.classList.add("active");
+  const nav = document.querySelector('.nav-item[data-sec="' + id + '"]');
+  if (nav) nav.classList.add("active");
+}
+document.querySelectorAll(".nav-item").forEach(n =>
+  n.addEventListener("click", () => showSection(n.dataset.sec)));
 
-var BILLING_CYCLE_LABELS = {
-  monthly:     'Monthly',
-  half_yearly: 'Half-Yearly',
-  yearly:      'Yearly (2 months free)'
-};
-
-var PLAN_FEATURES = {
-  starter: [
-    'FAQ bot & 24/7 auto-replies',
-    'Lead capture',
-    'Callback requests',
-    'Up to 1,000 conversations/month'
-  ],
-  growth: [
-    'Everything in Starter',
-    'Admission / registration',
-    'Seat booking',
-    'Custom quick replies',
-    'Up to 2,000 conversations/month'
-  ],
-  pro: [
-    'Everything in Growth',
-    'Unlimited conversations',
-    'Re-engagement reminders',
-    'AI Voice Calling (coming soon)'
-  ],
-  custom: [
-    'Built around your requirements',
-    'Custom conversation flows',
-    'Multi-language support',
-    'Volume and pricing as agreed'
-  ]
-};
-
-async function init() {
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) { window.location.href = 'login.html'; return; }
-  const { data: refreshed, error: refreshError } = await db.auth.refreshSession();
-  if (refreshError || !refreshed.session) {
-    await db.auth.signOut();
-    window.location.href = 'login.html';
-    return;
-  }
-  currentUser = refreshed.session.user;
-  const email = currentUser.email || '';
-  document.getElementById('user-avatar').textContent = email.slice(0, 2).toUpperCase();
-  document.getElementById('user-name').textContent = email.split('@')[0];
-
-  await checkExistingConnection();
-  await updateSetupProgress();
-
-  if (currentClientId) {
-    await loadStats();
-    await loadOverviewLeads();
-    await loadOverviewConvs();
-    await loadAllLeads();
-    subscribeToLeadsRealtime();
-  } else {
-    console.warn('[init] No client_id resolved -- dashboard data will not load until WhatsApp is connected.');
-  }
+function showTab(name, btn){
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".tabpane").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  const pane = document.getElementById("pane-" + name);
+  if (pane) pane.classList.add("active");
 }
 
-function showPlanExpiredModal() {
-  document.getElementById('plan-modal-overlay').classList.add('active');
+// ── Auth + boot ───────────────────────────────────────────────────────────────
+async function init(){
+  const { data } = await sb.auth.getSession();
+  if (!data.session) { location.href = "login.html"; return; }
+  TOKEN = data.session.access_token;
+  EMAIL = data.session.user.email;
+  loadClient();
 }
 
-// Shapes the dashboard to the kind of client who just logged in. Runs
-// once, right after /get-client resolves, so there is no flash of
-// irrelevant UI. Coaching clients are completely unaffected -- every
-// branch here is additive and only fires for non-coaching types.
-function applyClientType() {
-  var isSkilling = currentClientType === 'skilling';
-
-  // Institute Profile stays VISIBLE for skilling clients -- it holds the
-  // Media tab, which is where programme brochures are uploaded. Hiding
-  // the whole tab made brochures unreachable for the only client type
-  // that has them. Instead the tab is relabelled and the inapplicable
-  // sub-tabs (Courses/Results/Facilities) are removed.
-  var navProfile = document.getElementById('nav-profile');
-  if (navProfile) {
-    navProfile.style.display = 'flex';
-    navProfile.innerHTML = isSkilling
-      ? '<span class="nav-icon">📎</span> Content &amp; Media'
-      : '<span class="nav-icon">🏫</span> Institute Profile';
-  }
-
-  // Courses / Results / Facilities have no rows for a skilling client --
-  // they'd render as three permanently empty tabs, which reads as
-  // broken rather than as not applicable.
-  ['courses', 'results', 'facilities'].forEach(function(tab) {
-    var btn = document.querySelector('.profile-tab[onclick*="' + tab + '"]');
-    if (btn) btn.style.display = isSkilling ? 'none' : 'inline-block';
-  });
-
-  // Show the two programme brochure slots only for skilling.
-  document.querySelectorAll('.skilling-media').forEach(function(el) {
-    el.style.display = isSkilling ? 'block' : 'none';
-  });
-
-  // Hide the coaching-only brochure/topper/facility uploads for skilling
-  // -- get_media() is never called with those types by
-  // handle_skilling_flow(), so anything uploaded there would silently
-  // never be sent.
-  ['brochure-file', 'topper-file', 'facility-file'].forEach(function(id) {
-    var input = document.getElementById(id);
-    if (input && input.closest('.media-upload-group')) {
-      input.closest('.media-upload-group').style.display = isSkilling ? 'none' : 'block';
-    }
-  });
-
-  // Swap the leads board: coaching keeps its four admission columns,
-  // skilling gets the single enquiry column its bot actually produces.
-  var coachingCols = ['callback', 'registration', 'demo', 'booking'];
-  coachingCols.forEach(function(type) {
-    var body = document.getElementById('col-' + type);
-    if (body && body.parentElement) {
-      body.parentElement.style.display = isSkilling ? 'none' : 'block';
-    }
-  });
-  var skillingWrap = document.getElementById('col-wrap-skilling_enquiry');
-  if (skillingWrap) skillingWrap.style.display = isSkilling ? 'block' : 'none';
-
-  var board = document.getElementById('leads-board');
-  if (board) board.style.gridTemplateColumns = isSkilling ? 'minmax(0, 480px)' : '';
-
-  if (isSkilling) {
-    var billingBtn = document.getElementById('billing-renew-btn');
-    if (billingBtn) billingBtn.textContent = 'View Plan';
-
-    var insightsCard = document.getElementById('skilling-insights-card');
-    if (insightsCard) insightsCard.style.display = 'block';
-    loadSkillingInsights();
-  }
+async function signOut(){
+  await sb.auth.signOut();
+  location.href = "login.html";
 }
 
-async function checkExistingConnection() {
+async function loadClient(){
   try {
-    var res  = await fetch(BACKEND_URL + '/get-client?email=' + encodeURIComponent(currentUser.email));
-    var data = await res.json();
-    if (data.success && data.client) {
-      if (data.client.plan) {
-        var planLabel = data.client.plan.charAt(0).toUpperCase() + data.client.plan.slice(1) + ' plan';
-        document.getElementById('user-plan').textContent = planLabel;
-      }
-      if (data.client.status === 'awaiting_connection') {
-        showRequestSentState();
-      } else if (data.client.phone_number_id) {
-        currentClientId = data.client.id;
-        currentPlan = data.client.plan || 'starter';
-        currentPlanExpiresAt = data.client.plan_expires_at || null;
-        currentBusinessName = data.client.business_name || '';
-        currentClientType = data.client.client_type || 'coaching';
-        applyClientType();
-        showConnectedState(data.client.business_name, data.client.phone_number_id);
-
-        try {
-          var phoneResult = await db.from('clients').select('contact_phone').eq('id', currentClientId).single();
-          if (phoneResult.data) currentClientPhone = phoneResult.data.contact_phone || '';
-        } catch(phoneErr) {
-          console.log('[checkExistingConnection] Could not fetch contact_phone:', phoneErr);
-        }
-
-        renderBillingCard();
-      }
-    }
-  } catch(e) {
-    console.log('[checkExistingConnection] No connection found or error:', e);
-  }
-}
-
-function renderBillingCard() {
-  var card = document.getElementById('billing-card');
-  if (!currentPlan) { card.style.display = 'none'; return; }
-
-  selectedRenewalPlan = currentPlan;
-
-  var pricing = PLAN_PRICING[currentPlan] || PLAN_PRICING.starter;
-  document.getElementById('billing-plan-name').textContent = pricing.label + ' Plan';
-
-  var statusLine = document.getElementById('billing-status-line');
-  var isExpired = false;
-
-  if (currentPlanExpiresAt) {
-    var expiresAt = new Date(currentPlanExpiresAt);
-    isExpired = expiresAt < new Date();
-    var dateStr = expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-    if (isExpired) {
-      statusLine.textContent = 'Expired on ' + dateStr + ' — renew to reactivate your bot';
-      statusLine.classList.add('expired');
-    } else {
-      statusLine.textContent = 'Valid until ' + dateStr;
-      statusLine.classList.remove('expired');
-    }
-  } else {
-    statusLine.textContent = 'Billing info unavailable';
-    statusLine.classList.remove('expired');
-  }
-
-  card.style.display = 'block';
-
-  if (isExpired) {
-    showPlanExpiredModal();
-  }
-}
-
-function renderPlanPage() {
-  var statusEl = document.getElementById('billing-page-status-line');
-  if (currentPlanExpiresAt) {
-    var expiresAt = new Date(currentPlanExpiresAt);
-    var isExpired = expiresAt < new Date();
-    var dateStr = expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-    var currentPricing = PLAN_PRICING[currentPlan] || PLAN_PRICING.starter;
-    statusEl.textContent = (isExpired ? 'Expired on ' : 'Active — valid until ') + dateStr + '. Currently on the ' + currentPricing.label + ' plan.';
-  } else {
-    statusEl.textContent = 'Billing info unavailable.';
-  }
-
-  if (currentPlan === 'custom') {
-    document.getElementById('billing-cycle-toggle').innerHTML = '';
-    document.getElementById('plan-cards-grid').innerHTML =
-      '<div class="plan-card selected" style="grid-column: 1 / -1; cursor: default;">' +
-        '<div class="plan-card-current-badge">Current plan</div>' +
-        '<h3>Custom</h3>' +
-        '<div class="plan-card-price">As agreed <span>with our team</span></div>' +
-        '<ul>' + PLAN_FEATURES.custom.map(function(f) { return '<li>' + f + '</li>'; }).join('') + '</ul>' +
-      '</div>';
-    var ctaRow = document.querySelector('.plan-page-cta-row');
-    if (ctaRow) {
-      ctaRow.innerHTML =
-        '<p style="font-size:14px;color:var(--text-muted);">' +
-          'Your plan is set up specifically for your organisation. ' +
-          'To change anything, message us and we\'ll sort it out directly.' +
-        '</p>' +
-        '<p style="font-size:13px;color:var(--text-muted);margin-top:10px;">' +
-          '<a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20discuss%20my%20NeverMiss%20plan" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:500;">Message us on WhatsApp</a>' +
-        '</p>';
-    }
-    return;
-  }
-
-  if (!selectedRenewalPlan) selectedRenewalPlan = currentPlan || 'starter';
-
-  var cycleRow = document.getElementById('billing-cycle-toggle');
-  var cycleKeys = ['monthly', 'half_yearly', 'yearly'];
-  cycleRow.innerHTML = cycleKeys.map(function(cycle) {
-    var isActive = cycle === selectedBillingCycle;
-    return '<button class="cycle-btn' + (isActive ? ' active' : '') + '" onclick="selectBillingCycle(\'' + cycle + '\')">' + BILLING_CYCLE_LABELS[cycle] + '</button>';
-  }).join('');
-
-  var grid = document.getElementById('plan-cards-grid');
-  var planKeys = ['starter', 'growth', 'pro'];
-  grid.innerHTML = planKeys.map(function(key) {
-    var pricing = PLAN_PRICING[key];
-    var cyclePricing = pricing[selectedBillingCycle];
-    var features = PLAN_FEATURES[key];
-    var isCurrent = key === currentPlan;
-    var isSelected = key === selectedRenewalPlan;
-    var featureList = features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
-    var priceParts = cyclePricing.display.split('/');
-
-    var strikeHtml = '';
-    if (cyclePricing.fullDisplay) {
-      var fullNum = parseInt(cyclePricing.fullDisplay.replace(/[^\d]/g, ''), 10);
-      var actualNum = cyclePricing.amount / 100;
-      var savePct = Math.round((1 - actualNum / fullNum) * 100);
-      strikeHtml = '<div class="plan-card-strike">' + cyclePricing.fullDisplay + ' <span class="plan-card-save-badge">Save ' + savePct + '%</span></div>';
-    }
-
-    return (
-      '<div class="plan-card' + (isSelected ? ' selected' : '') + '" onclick="selectPlanCard(\'' + key + '\')">' +
-        (isCurrent ? '<div class="plan-card-current-badge">Current plan</div>' : '') +
-        '<h3>' + pricing.label + '</h3>' +
-        strikeHtml +
-        '<div class="plan-card-price">' + priceParts[0] + ' <span>/' + priceParts[1] + '</span></div>' +
-        '<ul>' + featureList + '</ul>' +
-      '</div>'
-    );
-  }).join('');
-
-  updatePlanPageCta();
-}
-
-function selectBillingCycle(cycle) {
-  selectedBillingCycle = cycle;
-  renderPlanPage();
-}
-
-function selectPlanCard(planKey) {
-  selectedRenewalPlan = planKey;
-  document.querySelectorAll('.plan-card').forEach(function(cardEl, i) {
-    var keys = ['starter', 'growth', 'pro'];
-    cardEl.classList.toggle('selected', keys[i] === planKey);
-  });
-  updatePlanPageCta();
-}
-
-function updatePlanPageCta() {
-  var btn = document.getElementById('plan-page-cta-btn');
-  if (!btn) return;
-  var pricing = PLAN_PRICING[selectedRenewalPlan] || PLAN_PRICING.starter;
-  var cyclePricing = pricing[selectedBillingCycle];
-  var isSamePlan = selectedRenewalPlan === currentPlan;
-  btn.textContent = (isSamePlan ? 'Renew — ' : 'Switch & Pay — ') + cyclePricing.display;
-}
-
-function openPlansFromModal() {
-  document.getElementById('plan-modal-overlay').classList.remove('active');
-  showPage('billing', document.querySelector('.nav-item[onclick*=billing]'));
-}
-
-var referralShareUrl = null;
-
-async function loadReferralCode() {
-  var box = document.getElementById('referral-code-box');
-  referralShareUrl = null;
-  if (!currentUser) return;
-
-  box.textContent = 'Loading your code...';
-
-  try {
-    var res = await fetch(BACKEND_URL + '/api/referral-code?email=' + encodeURIComponent(currentUser.email));
-    var data = await res.json();
-    if (data.success && data.referral_code) {
-      box.textContent = data.referral_code;
-      var shareText = 'Hi! I use NeverMiss for my coaching institute\'s WhatsApp — it auto-replies to student questions and helps capture leads. Use my code ' + data.referral_code + ' to get 20% off your first payment: https://nevermiss.co.in';
-      referralShareUrl = 'https://wa.me/?text=' + encodeURIComponent(shareText);
-    } else {
-      box.textContent = 'Could not load your code';
-    }
-  } catch(err) {
-    console.error('[loadReferralCode] error:', err);
-    box.textContent = 'Could not load your code';
-  }
-}
-
-function shareReferralCode() {
-  if (referralShareUrl) {
-    window.open(referralShareUrl, '_blank');
-  } else {
-    alert('Your referral code is still loading. Please wait a moment and try again.');
-    loadReferralCode();
-  }
-}
-
-async function startRenewal() {
-  var planToCharge = selectedRenewalPlan || currentPlan;
-  var cycleToCharge = selectedBillingCycle || 'monthly';
-  var couponInput = document.getElementById('renewal-coupon-input');
-  var couponCode = couponInput ? couponInput.value.trim() : '';
-
-  if (!planToCharge || !currentClientPhone) {
-    alert('Could not load your billing details. Please refresh the page or contact us on WhatsApp.');
-    return;
-  }
-
-  var btn = document.getElementById('plan-page-cta-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
-
-  function resetButton() {
-    if (btn) { btn.disabled = false; updatePlanPageCta(); }
-  }
-
-  try {
-    var orderRes = await fetch(BACKEND_URL + '/api/create-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        plan:          planToCharge,
-        billing_cycle: cycleToCharge,
-        coupon_code:   couponCode,
-        name:  currentUser.email.split('@')[0],
-        business: currentBusinessName,
-        phone: currentClientPhone,
-        email: currentUser.email
-      })
-    });
-    var orderData = await orderRes.json();
-
-    if (!orderData.id || !orderData.key_id) {
-      alert('Could not start renewal. Please try again, or message us on WhatsApp.');
-      resetButton();
+    const r = await fetch(API_BASE + "/get-client?email=" + encodeURIComponent(EMAIL));
+    const d = await r.json();
+    if (d.success) {
+      CLIENT = d.client;
+      document.getElementById("biz-name").textContent = CLIENT.business_name || EMAIL;
+      document.getElementById("plan-pill").textContent = (CLIENT.plan || "starter") + " plan";
+      const sp = document.getElementById("status-pill");
+      sp.style.display = "inline-block";
+      if (CLIENT.status === "active") { sp.textContent = "🟢 Bot Active"; sp.className = "pill ok"; }
+      else if (CLIENT.status === "awaiting_connection") { sp.textContent = "📩 Request received"; sp.className = "pill warn"; }
+      else { sp.textContent = "⏳ Setup pending"; sp.className = "pill warn"; }
+      checkExpiry();
+      loadOverview(); loadLeads(); loadConversations(); loadQuick();
+      loadProfile(); loadConnect(); loadBilling(); loadBulk();
       return;
     }
+  } catch (e) { console.error(e); }
+  // No coaching client row → bulk-only account
+  CLIENT = null;
+  document.getElementById("biz-name").textContent = EMAIL;
+  document.getElementById("plan-pill").textContent = "Bulk account";
+  showSection("bulk");
+  loadBulk();
+}
 
-    if (orderData.coupon_error) {
-      alert('Coupon note: ' + orderData.coupon_error);
-    }
-
-    var pricing = PLAN_PRICING[planToCharge] || PLAN_PRICING.starter;
-
-    var rzp = new Razorpay({
-      key:      orderData.key_id,
-      amount:   orderData.amount,
-      currency: orderData.currency || 'INR',
-      order_id: orderData.id,
-      name:     'NeverMiss',
-      description: pricing.label + ' Plan — ' + BILLING_CYCLE_LABELS[cycleToCharge],
-      prefill: {
-        name:    currentUser.email.split('@')[0],
-        email:   currentUser.email,
-        contact: currentClientPhone
-      },
-      theme: { color: '#1D9E75' },
-      handler: function(response) {
-        verifyRenewal(response, planToCharge);
-      },
-      modal: {
-        ondismiss: function() {
-          resetButton();
-        }
-      }
-    });
-    rzp.open();
-  } catch(err) {
-    console.error('[startRenewal] error:', err);
-    alert('Network error. Please try again, or message us on WhatsApp.');
-    resetButton();
+function checkExpiry(){
+  if (!CLIENT || !CLIENT.plan_expires_at) return;
+  if (new Date() > new Date(CLIENT.plan_expires_at)) {
+    document.getElementById("expired-modal").classList.add("show");
   }
 }
 
-async function verifyRenewal(razorpayResponse, chargedPlan) {
-  var btn = document.getElementById('plan-page-cta-btn');
-  if (btn) btn.textContent = 'Confirming...';
-
+// ── Bulk account fetch (cached) ───────────────────────────────────────────────
+async function fetchBulk(){
+  if (BULK) return BULK;
   try {
-    var verifyRes = await fetch(BACKEND_URL + '/api/verify-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        razorpay_order_id:   razorpayResponse.razorpay_order_id,
-        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-        razorpay_signature:  razorpayResponse.razorpay_signature,
-        customer: {
-          plan:     chargedPlan,
-          name:     currentUser.email.split('@')[0],
-          business: currentBusinessName,
-          phone:    currentClientPhone,
-          email:    currentUser.email
-        }
-      })
-    });
-    var verifyData = await verifyRes.json();
-
-    if (verifyData.success) {
-      document.getElementById('plan-modal-overlay').classList.remove('active');
-      await checkExistingConnection();
-      renderPlanPage();
-      alert('Payment successful! Your plan has been renewed.');
-    } else {
-      alert('Payment completed but we could not confirm it automatically. Please message us on WhatsApp with your payment ID so we can activate it manually.');
+    const r = await fetch(API_BASE + "/api/bulk/account", { headers: await authHeaders() });
+    if (r.status === 200) {
+      const d = await r.json();
+      if (d.success) BULK = d.account;
     }
-  } catch(err) {
-    console.error('[verifyRenewal] error:', err);
-    alert('Payment completed but confirmation failed. Please message us on WhatsApp with your payment ID so we can activate it manually.');
-  } finally {
-    if (btn) { btn.disabled = false; updatePlanPageCta(); }
-  }
+  } catch (e) { console.error(e); }
+  return BULK;
 }
 
-function showConnectedState(businessName, phoneId) {
-  document.getElementById('connected-business-name').textContent = businessName || 'Your Business';
-  document.getElementById('connected-phone-id').textContent = 'Phone Number ID: ' + (phoneId || '—');
-  document.getElementById('connected-card').style.display = 'block';
-  document.getElementById('connect-banner').style.display = 'none';
-  document.getElementById('request-sent-card').style.display = 'none';
+function meterHTML(uUsed, uQuota, mUsed, mQuota){
+  const up = uQuota ? Math.min(100, (uUsed / uQuota) * 100) : 0;
+  const mp = mQuota ? Math.min(100, (mUsed / mQuota) * 100) : 0;
+  return `
+    <div class="meter-label"><span>🔧 Utility</span><span>${uUsed} / ${uQuota}</span></div>
+    <div class="bar"><div class="fill" style="width:${up}%"></div></div>
+    <div class="meter-label"><span>📣 Marketing</span><span>${mUsed} / ${mQuota}</span></div>
+    <div class="bar"><div class="fill mkt" style="width:${mp}%"></div></div>`;
 }
 
-async function updateSetupProgress() {
-  var whatsappConnected = !!currentClientId;
-  var isSkilling = currentClientType === 'skilling';
-  var hasCourses = false;
+// ── OVERVIEW ──────────────────────────────────────────────────────────────────
+async function loadOverview(){
+  if (!CLIENT) return;
+  const cid = CLIENT.id;
+  const since = new Date(); since.setHours(0,0,0,0);
 
-  if (isSkilling) {
-    hasCourses = true;
-    var courseStep = document.getElementById('step-courses');
-    if (courseStep) courseStep.style.display = 'none';
-  } else if (currentClientId) {
-    var result = await db.from('courses').select('id', { count: 'exact', head: true }).eq('client_id', currentClientId);
-    hasCourses = (result.count || 0) > 0;
-  }
+  const [totalLeads, convsCount, newToday, coursesRes, recentLeads, recentConvs] = await Promise.all([
+    sb.from("leads").select("id", { count: "exact", head: true }).eq("client_id", cid),
+    sb.from("conversations").select("id", { count: "exact", head: true }).eq("client_id", cid),
+    sb.from("leads").select("id", { count: "exact", head: true }).eq("client_id", cid).gte("created_at", since.toISOString()),
+    sb.from("courses").select("id").eq("client_id", cid),
+    sb.from("leads").select("name,course,lead_type,created_at").eq("client_id", cid).order("created_at", { ascending: false }).limit(5),
+    sb.from("conversations").select("phone_number,role,content").eq("client_id", cid).order("created_at", { ascending: false }).limit(6)
+  ]);
 
-  var botLive = whatsappConnected && hasCourses;
+  document.getElementById("ov-leads").textContent = totalLeads.count || 0;
+  document.getElementById("ov-convs").textContent = convsCount.count || 0;
+  document.getElementById("ov-new").textContent = newToday.count || 0;
+  document.getElementById("ov-botlive").textContent = CLIENT.status === "active" ? "🟢" : "⏳";
 
-  var steps = [
-    { id: 'step-whatsapp', done: whatsappConnected },
-    { id: 'step-courses',  done: hasCourses },
-    { id: 'step-live',     done: botLive },
-  ];
-
-  var doneCount = 1;
-  steps.forEach(function(s) {
-    var el = document.getElementById(s.id);
-    if (s.done) {
-      el.classList.add('done');
-      el.querySelector('.setup-step-icon').textContent = '✓';
-      doneCount++;
-    } else {
-      el.classList.remove('done');
-      el.querySelector('.setup-step-icon').textContent = '';
-    }
+  // Setup progress
+  let done = 1;
+  if (CLIENT.status === "active" || CLIENT.status === "awaiting_connection") done++;
+  if (coursesRes.data && coursesRes.data.length) done++;
+  if (CLIENT.status === "active") done++;
+  document.getElementById("setup-bar").style.width = (done / 4 * 100) + "%";
+  document.getElementById("setup-pct").textContent = (done / 4 * 100) + "%";
+  ["sp-1","sp-2","sp-3","sp-4"].forEach((id, i) => {
+    if (i < done) document.getElementById(id).classList.add("done");
   });
 
-  var pct = Math.round((doneCount / 4) * 100);
-  document.getElementById('setup-pct').textContent = pct + '%';
-  document.getElementById('setup-bar-fill').style.width = pct + '%';
-
-  var card = document.getElementById('setup-card');
-  card.style.display = botLive ? 'none' : 'block';
-}
-
-function showRequestSentState() {
-  document.getElementById('connect-banner').style.display = 'none';
-  document.getElementById('request-sent-card').style.display = 'block';
-}
-
-async function handleLogout() {
-  await db.auth.signOut();
-  window.location.href = 'login.html';
-}
-
-let wabaId = null;
-let phoneNumberId = null;
-
-function toggleManualFallback() {
-  var section = document.getElementById('manual-fallback-section');
-  section.style.display = section.style.display === 'none' ? 'block' : 'none';
-}
-
-// ---------------------------------------------------------------------
-// FIX (Aug 2026): startEmbeddedSignup() was missing the `extras` block
-// that Meta's WhatsApp Embedded Signup requires to run the special
-// WA_EMBEDDED_SIGNUP session (as opposed to a generic Facebook Login).
-// Without it, FB.login() still completes and returns a valid
-// authResponse.code -- so signup LOOKED like it worked -- but Meta never
-// posts the WA_EMBEDDED_SIGNUP "FINISH" message back to this window, so
-// the postMessage listener below never fires and wabaId/phoneNumberId
-// stay null. exchange-token then has no real IDs to work with (the
-// /me/businesses fallback on the backend returns Business Manager
-// businesses, not WABA-specific IDs, so it can't reliably fill the gap
-// either), and the flow fails with "no business number was selected"
-// even though the person completed every step correctly.
-//
-// feature: 'whatsapp_embedded_signup' is what tells Meta this is an
-// Embedded Signup session and to emit the WA_EMBEDDED_SIGNUP postMessage
-// events during the flow. sessionInfoVersion: '3' is the current schema
-// version for those events (matches the window.addEventListener handler
-// below, which reads data.data.waba_id / data.data.phone_number_id).
-// ---------------------------------------------------------------------
-function startEmbeddedSignup() {
-  var businessNumberInput = document.getElementById('business-whatsapp-input').value.trim();
-  var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
-  if (!businessNumberInput || businessNumberInput.length < 10) {
-    alert('Please enter the WhatsApp Business number you want to connect -- this is the number your bot will run on.');
-    return;
-  }
-  if (!ownerNumberInput || ownerNumberInput.length < 10) {
-    alert('Please enter your WhatsApp number first -- this is where your customer leads will be sent.');
-    return;
+  // Billing line + bulk meters
+  const bulk = await fetchBulk();
+  const expTxt = CLIENT.plan_expires_at ? " · paid through " + fmtDate(CLIENT.plan_expires_at) : "";
+  document.getElementById("billing-line").innerHTML =
+    "<strong>" + esc((CLIENT.plan || "starter").toUpperCase()) + "</strong> plan" + esc(expTxt);
+  if (bulk) {
+    document.getElementById("ov-bulk-meters").innerHTML =
+      '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.5rem;">📢 Bulk allowance this month</div>' +
+      meterHTML(bulk.utility_used || 0, bulk.utility_quota || 0, bulk.marketing_used || 0, bulk.marketing_quota || 0);
   }
 
-  var btn = document.getElementById('connect-btn');
-  btn.disabled = true;
-  btn.textContent = 'Opening Meta...';
-  FB.login(function(response) {
-    console.log('[FB.login] full response:', JSON.stringify(response));
-    if (response.authResponse && response.authResponse.code) {
-      var authCode = response.authResponse.code;
-      console.log('[FB.login] got auth code:', authCode.substring(0, 20) + '...');
-      // NEW: give the WA_EMBEDDED_SIGNUP postMessage listener a brief
-      // window to arrive before we proceed. The FINISH message and the
-      // FB.login() callback are two separate async channels from the
-      // same popup -- there's no guarantee the postMessage lands before
-      // this callback fires. A short delay here is cheap insurance;
-      // wabaId/phoneNumberId are only used as HINTS (see backend
-      // /exchange-token) so a slightly stale read just means the backend
-      // falls through to its own lookup rather than breaking anything.
-      setTimeout(function() {
-        console.log('[FB.login] wabaId/phoneNumberId at exchange time:', wabaId, phoneNumberId);
-        exchangeToken(authCode, ownerNumberInput, businessNumberInput);
-      }, 300);
+  // Recent leads
+  if (recentLeads.data && recentLeads.data.length) {
+    document.getElementById("ov-recent-leads").innerHTML = recentLeads.data.map(l =>
+      `<div style="display:flex;justify-content:space-between;gap:0.6rem;padding:0.45rem 0;border-bottom:1px solid var(--gray);font-size:0.82rem;">
+        <span><strong>${esc(l.name)}</strong> · ${esc(l.course || l.lead_type)}</span>
+        <span class="muted">${fmtDate(l.created_at)}</span>
+      </div>`).join("");
+  } else {
+    document.getElementById("ov-recent-leads").innerHTML = '<div class="muted">No leads yet.</div>';
+  }
+
+  // Recent conversations
+  if (recentConvs.data && recentConvs.data.length) {
+    document.getElementById("ov-recent-convs").innerHTML = recentConvs.data.map(m =>
+      `<div style="padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.8rem;">
+        <span class="muted">+${esc(m.phone_number)} ${m.role === "assistant" ? "🤖" : "👤"}</span> ${esc(String(m.content).slice(0, 70))}
+      </div>`).join("");
+  } else {
+    document.getElementById("ov-recent-convs").innerHTML = '<div class="muted">No conversations yet.</div>';
+  }
+
+  // Skilling insights
+  if (CLIENT.client_type === "skilling") {
+    document.getElementById("insights-card").style.display = "block";
+    try {
+      const ir = await fetch(API_BASE + "/api/skilling-insights?client_id=" + cid);
+      const idata = await ir.json();
+      if (idata.success) {
+        const langs = Object.entries(idata.languages).map(([k, v]) => k + ": " + v).join(" · ") || "—";
+        const progs = Object.entries(idata.programmes).map(([k, v]) => k + ": " + v).join(" · ") || "—";
+        document.getElementById("insights-box").innerHTML =
+          `👥 Total contacts: <strong>${idata.total}</strong><br>🌐 Languages: ${esc(langs)}<br>📚 Programmes: ${esc(progs)}<br>✅ Registered: <strong>${idata.registered}</strong>`;
+      }
+    } catch (e) { console.error(e); }
+  }
+}
+
+// ── LEADS ─────────────────────────────────────────────────────────────────────
+async function loadLeads(){
+  if (!CLIENT) { document.getElementById("leads-body").innerHTML = '<div class="muted">Available once your bot is connected.</div>'; return; }
+  const { data, error } = await sb.from("leads")
+    .select("id,name,course,phone,whatsapp_number,lead_type,created_at")
+    .eq("client_id", CLIENT.id)
+    .order("created_at", { ascending: false })
+    .limit(300);
+  if (error || !data) { document.getElementById("leads-body").innerHTML = '<div class="muted">Could not load leads.</div>'; return; }
+
+  const counts = { callback: 0, registration: 0, demo: 0, booking: 0, enq: 0 };
+  data.forEach(l => {
+    if (l.lead_type === "callback") counts.callback++;
+    else if (l.lead_type === "registration") counts.registration++;
+    else if (l.lead_type === "demo") counts.demo++;
+    else if (l.lead_type === "booking") counts.booking++;
+    else counts.enq++;
+  });
+  document.getElementById("lc-callback").textContent = counts.callback;
+  document.getElementById("lc-reg").textContent = counts.registration;
+  document.getElementById("lc-demo").textContent = counts.demo;
+  document.getElementById("lc-booking").textContent = counts.booking;
+  document.getElementById("lc-enq").textContent = counts.enq;
+
+  if (!data.length) { document.getElementById("leads-body").innerHTML = '<div class="muted">No leads yet — they appear here the moment your bot captures one.</div>'; return; }
+
+  document.getElementById("leads-body").innerHTML =
+    `<table><tr><th>Name</th><th>Type / Course</th><th>Phone</th><th>Date</th></tr>` +
+    data.map(l => `<tr>
+      <td><strong>${esc(l.name)}</strong></td>
+      <td>${esc(l.lead_type)}${l.course && l.course !== l.lead_type ? " · " + esc(l.course) : ""}</td>
+      <td>+${esc(l.phone || l.whatsapp_number)}</td>
+      <td class="muted">${fmtDate(l.created_at)}</td>
+    </tr>`).join("") + `</table>`;
+}
+
+// ── CONVERSATIONS ─────────────────────────────────────────────────────────────
+async function loadConversations(){
+  if (!CLIENT) { document.getElementById("conv-body").innerHTML = '<div class="muted">Available once your bot is connected.</div>'; return; }
+  const { data, error } = await sb.from("conversations")
+    .select("phone_number,role,content,created_at")
+    .eq("client_id", CLIENT.id)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error || !data || !data.length) { document.getElementById("conv-body").innerHTML = '<div class="muted">No conversations yet.</div>'; return; }
+
+  const threads = {};
+  data.forEach(m => { (threads[m.phone_number] = threads[m.phone_number] || []).push(m); });
+
+  let html = "";
+  Object.keys(threads).slice(0, 30).forEach(ph => {
+    const msgs = threads[ph].slice().reverse();
+    html += `<div style="border:1px solid var(--gray2);border-radius:14px;padding:1rem;margin-bottom:1rem;">
+      <div style="font-weight:600;font-size:0.85rem;margin-bottom:0.6rem;">📱 +${esc(ph)}</div>`;
+    msgs.forEach(m => {
+      const bot = m.role === "assistant";
+      html += `<div style="margin:0.3rem 0;padding:0.5rem 0.8rem;border-radius:10px;font-size:0.8rem;max-width:85%;white-space:pre-wrap;${bot ? "background:var(--blue-light);margin-left:auto;" : "background:var(--gray);"}">${esc(m.content)}</div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById("conv-body").innerHTML = html;
+}
+// ── BULK MESSAGING ────────────────────────────────────────────────────────────
+async function loadBulk(){
+  const bulk = await fetchBulk();
+  if (!bulk) {
+    document.getElementById("bulk-plan").textContent = "No bulk account yet";
+    document.getElementById("bulk-status").textContent = "—";
+    document.getElementById("bulk-renewal").textContent = "";
+    document.getElementById("contacts-body").innerHTML =
+      '<div class="muted">No bulk messaging account yet. Pick a plan on the website and it activates automatically after payment.</div>';
+    return;
+  }
+  const names = {
+    basic: "Message Basic", growth: "Message Growth", pro: "Message Pro",
+    starter: "Starter (included allowance)", message_basic: "Message Basic",
+    message_growth: "Message Growth", message_pro: "Message Pro", plus_only: "Bulk Plus"
+  };
+  document.getElementById("bulk-plan").textContent = "📦 " + (names[bulk.plan] || bulk.plan);
+  document.getElementById("bulk-status").textContent = bulk.status === "active" ? "🟢 Active" : (bulk.status || "—");
+  const renew = bulk.renewal_date ? new Date(bulk.renewal_date) : null;
+  document.getElementById("bulk-renewal").textContent = renew
+    ? "🔄 Renews " + renew.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "";
+
+  const uq = bulk.utility_quota || 0, uu = bulk.utility_used || 0;
+  const mq = bulk.marketing_quota || 0, mu = bulk.marketing_used || 0;
+  document.getElementById("util-text").textContent = uu + " / " + uq + " used";
+  document.getElementById("mkt-text").textContent = mu + " / " + mq + " used";
+  document.getElementById("util-bar").style.width = (uq ? Math.min(100, (uu / uq) * 100) : 0) + "%";
+  document.getElementById("mkt-bar").style.width = (mq ? Math.min(100, (mu / mq) * 100) : 0) + "%";
+  loadContacts();
+}
+
+async function uploadBulkCSV(){
+  const fileInput = document.getElementById("csv-file");
+  const optIn = document.getElementById("optin");
+  const msg = document.getElementById("upload-msg");
+  msg.className = "msg";
+
+  if (!fileInput.files.length) { msg.className = "msg err"; msg.textContent = "Please choose a CSV file first."; return; }
+  if (!optIn.checked) { msg.className = "msg err"; msg.textContent = "You must confirm these contacts opted in before uploading."; return; }
+
+  const fd = new FormData();
+  fd.append("file", fileInput.files[0]);
+  fd.append("opted_in_confirmed", "true");
+
+  msg.textContent = "Uploading…";
+  try {
+    const r = await fetch(API_BASE + "/api/bulk/contacts/upload", { method: "POST", headers: await authHeaders(), body: fd });
+    const d = await r.json();
+    if (d.success) {
+      msg.className = "msg ok";
+      msg.textContent = "✅ Uploaded " + d.uploaded + " contacts (" + d.skipped_invalid + " invalid skipped).";
+      fileInput.value = "";
+      loadContacts();
     } else {
-      alert('WhatsApp connection cancelled or failed. You can try again, or use "Let us connect it manually instead" below.');
-      btn.disabled = false;
-      btn.textContent = 'Connect WhatsApp';
+      msg.className = "msg err";
+      msg.textContent = "❌ " + (d.error || "Upload failed.");
+    }
+  } catch (e) {
+    console.error(e);
+    msg.className = "msg err";
+    msg.textContent = "❌ Connection error. Try again.";
+  }
+}
+
+async function loadContacts(){
+  const body = document.getElementById("contacts-body");
+  try {
+    const r = await fetch(API_BASE + "/api/bulk/contacts", { headers: await authHeaders() });
+    const d = await r.json();
+    if (!d.contacts || !d.contacts.length) {
+      body.innerHTML = '<div class="muted">No contacts yet — upload your first CSV above.</div>';
+      document.getElementById("contact-count").textContent = "";
+      return;
+    }
+    document.getElementById("contact-count").textContent = "(" + d.contacts.length + ")";
+    const rows = d.contacts.slice(0, 100).map(c =>
+      "<tr><td>+" + esc(c.phone) + "</td><td>" + esc(c.name || "—") + "</td><td>" + esc(c.source || "csv") + "</td><td class='muted'>" + fmtDate(c.created_at) + "</td></tr>"
+    ).join("");
+    body.innerHTML = "<table><tr><th>Phone</th><th>Name</th><th>Source</th><th>Added</th></tr>" + rows + "</table>";
+  } catch (e) {
+    body.innerHTML = '<div class="muted">Could not load contacts.</div>';
+  }
+}
+
+// ── QUICK REPLIES ─────────────────────────────────────────────────────────────
+async function loadQuick(){
+  if (!CLIENT) { document.getElementById("quick-list").innerHTML = '<div class="muted">Available once your bot is connected.</div>'; return; }
+  const { data, error } = await sb.from("quick_replies").select("*").eq("client_id", CLIENT.id).eq("active", true).order("created_at", { ascending: false });
+  if (error || !data || !data.length) { document.getElementById("quick-list").innerHTML = '<div class="muted">No quick replies yet — add your first one above.</div>'; return; }
+  document.getElementById("quick-list").innerHTML =
+    "<table><tr><th>Keyword</th><th>Reply</th></tr>" +
+    data.map(q => "<tr><td><strong>#" + esc(q.keyword) + "</strong></td><td>" + esc(q.reply_text) + "</td></tr>").join("") +
+    "</table>";
+}
+
+async function addQuickReply(){
+  const msg = document.getElementById("quick-msg");
+  const keyword = document.getElementById("q-keyword").value.trim().toLowerCase();
+  const reply = document.getElementById("q-reply").value.trim();
+  if (!CLIENT) { msg.className = "msg err"; msg.textContent = "Connect your bot first."; return; }
+  if (!keyword || !reply) { msg.className = "msg err"; msg.textContent = "Both keyword and reply are required."; return; }
+  const { error } = await sb.from("quick_replies").insert({ client_id: CLIENT.id, keyword, reply_text: reply, active: true });
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  msg.className = "msg ok"; msg.textContent = "✅ Quick reply added.";
+  document.getElementById("q-keyword").value = "";
+  document.getElementById("q-reply").value = "";
+  loadQuick();
+}
+
+// ── INSTITUTE PROFILE ─────────────────────────────────────────────────────────
+async function loadProfile(){
+  if (!CLIENT) return;
+  const { data } = await sb.from("clients").select("*").eq("id", CLIENT.id).single();
+  if (data) {
+    document.getElementById("bi-name").value = data.business_name || "";
+    document.getElementById("bi-loc").value = data.location || "";
+    document.getElementById("bi-phone").value = data.contact_phone || "";
+    document.getElementById("bi-timings").value = data.institute_timings || "";
+  }
+  loadCourses(); loadResults(); loadFacilities(); loadMediaList();
+}
+
+async function loadCourses(){
+  const { data } = await sb.from("courses").select("*, course_batches(*)").eq("client_id", CLIENT.id).eq("active", true).order("display_order", { ascending: true });
+  const el = document.getElementById("courses-list");
+  if (!data || !data.length) { el.innerHTML = '<div class="muted">No courses yet.</div>'; return; }
+  el.innerHTML = data.map(c =>
+    "<div style='border:1px solid var(--gray2);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.84rem;'>" +
+    "<strong>" + esc(c.course_name) + "</strong> · ₹" + esc(c.fees) + "/yr · " + esc(c.seats_available) + " seats" + (c.demo_available ? " · 🎓 demo" : "") +
+    ((c.course_batches && c.course_batches.length) ? "<br><span class='muted'>" + c.course_batches.map(b => esc(b.batch_label) + " (" + esc(b.start_time) + "–" + esc(b.end_time) + ")").join(" · ") + "</span>" : "") +
+    "</div>").join("");
+}
+
+async function addCourse(){
+  const msg = document.getElementById("course-msg");
+  const name = document.getElementById("c-name").value.trim();
+  if (!name) { msg.className = "msg err"; msg.textContent = "Course name is required."; return; }
+  const { data, error } = await sb.from("courses").insert({
+    client_id: CLIENT.id, course_name: name,
+    fees: parseInt(document.getElementById("c-fees").value) || 0,
+    seats_available: parseInt(document.getElementById("c-seats").value) || 0,
+    demo_available: document.getElementById("c-demo").checked,
+    active: true, display_order: 0
+  }).select().single();
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  const batch = document.getElementById("c-batch").value.trim();
+  if (batch && data) {
+    await sb.from("course_batches").insert({
+      course_id: data.id, batch_label: batch,
+      start_time: document.getElementById("c-start").value.trim() || "—",
+      end_time: document.getElementById("c-end").value.trim() || "—"
+    });
+  }
+  msg.className = "msg ok"; msg.textContent = "✅ Course added — the bot can now answer about it.";
+  ["c-name","c-fees","c-seats","c-batch","c-start","c-end"].forEach(id => document.getElementById(id).value = "");
+  loadCourses();
+}
+
+async function loadResults(){
+  const { data } = await sb.from("institute_results").select("*").eq("client_id", CLIENT.id).eq("active", true);
+  const el = document.getElementById("results-list");
+  if (!data || !data.length) { el.innerHTML = '<div class="muted">No results yet.</div>'; return; }
+  el.innerHTML = data.map(r => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;'>🏆 " + esc(r.achievement) + (r.student_name ? " — " + esc(r.student_name) : "") + (r.year ? " (" + esc(r.year) + ")" : "") + "</div>").join("");
+}
+
+async function addResult(){
+  const msg = document.getElementById("result-msg");
+  const ach = document.getElementById("r-ach").value.trim();
+  if (!ach) { msg.className = "msg err"; msg.textContent = "Achievement is required."; return; }
+  const { error } = await sb.from("institute_results").insert({
+    client_id: CLIENT.id, achievement: ach,
+    student_name: document.getElementById("r-name").value.trim() || null,
+    year: document.getElementById("r-year").value.trim() || null,
+    active: true
+  });
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  msg.className = "msg ok"; msg.textContent = "✅ Result added.";
+  ["r-ach","r-name","r-year"].forEach(id => document.getElementById(id).value = "");
+  loadResults();
+}
+
+async function loadFacilities(){
+  const { data } = await sb.from("institute_facilities").select("*").eq("client_id", CLIENT.id).eq("active", true);
+  const el = document.getElementById("facilities-list");
+  if (!data || !data.length) { el.innerHTML = '<div class="muted">No facilities yet.</div>'; return; }
+  el.innerHTML = data.map(f => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;'>🏫 " + esc(f.facility_name) + (f.description ? " — " + esc(f.description) : "") + "</div>").join("");
+}
+
+async function addFacility(){
+  const msg = document.getElementById("facility-msg");
+  const name = document.getElementById("f-name2").value.trim();
+  if (!name) { msg.className = "msg err"; msg.textContent = "Facility name is required."; return; }
+  const { error } = await sb.from("institute_facilities").insert({
+    client_id: CLIENT.id, facility_name: name,
+    description: document.getElementById("f-desc").value.trim() || null,
+    active: true
+  });
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  msg.className = "msg ok"; msg.textContent = "✅ Facility added.";
+  ["f-name2","f-desc"].forEach(id => document.getElementById(id).value = "");
+  loadFacilities();
+}
+
+async function loadMediaList(){
+  const { data } = await sb.from("institute_media").select("*").eq("client_id", CLIENT.id).eq("active", true);
+  const el = document.getElementById("media-list");
+  if (!data || !data.length) { el.innerHTML = '<div class="muted">No media uploaded yet.</div>'; return; }
+  el.innerHTML = data.map(m => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;'>📎 " + esc(m.media_type) + " — <a href='" + esc(m.file_url) + "' target='_blank' style='color:var(--blue);'>open</a></div>").join("");
+}
+
+async function uploadMedia(){
+  const msg = document.getElementById("media-msg");
+  msg.className = "msg"; msg.textContent = "";
+  // NOTE: bucket name must match the one created in your Supabase Storage
+  const BUCKET = "institute-media";
+  const map = [
+    ["m-brochure", "brochure"], ["m-topper", "topper_photo"], ["m-facility", "facility_photo"],
+    ["m-card", "brochure_card"], ["m-earn", "brochure_earn"]
+  ];
+  let done = 0;
+  for (const [inputId, mediaType] of map) {
+    const input = document.getElementById(inputId);
+    if (!input.files.length) continue;
+    const file = input.files[0];
+    const ext = file.name.split(".").pop();
+    const path = CLIENT.id + "/" + mediaType + "_" + Date.now() + "." + ext;
+    const up = await sb.storage.from(BUCKET).upload(path, file);
+    if (up.error) { msg.className = "msg err"; msg.textContent = "❌ Upload failed (" + mediaType + "): " + up.error.message; continue; }
+    const pub = sb.storage.from(BUCKET).getPublicUrl(path);
+    await sb.from("institute_media").insert({
+      client_id: CLIENT.id, media_type: mediaType,
+      file_url: pub.data.publicUrl, caption: "", active: true, display_order: 0
+    });
+    done++;
+  }
+  if (done) { msg.className = "msg ok"; msg.textContent = "✅ " + done + " file(s) uploaded."; loadMediaList(); }
+  else if (!msg.textContent) { msg.className = "msg err"; msg.textContent = "Choose at least one file first."; }
+}
+
+async function saveBizInfo(){
+  const msg = document.getElementById("info-msg");
+  const { error } = await sb.from("clients").update({
+    business_name: document.getElementById("bi-name").value.trim(),
+    location: document.getElementById("bi-loc").value.trim(),
+    contact_phone: document.getElementById("bi-phone").value.trim(),
+    institute_timings: document.getElementById("bi-timings").value.trim()
+  }).eq("id", CLIENT.id);
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  msg.className = "msg ok"; msg.textContent = "✅ Saved — the bot will use this info from now on.";
+}
+
+// ── CONNECT WHATSAPP (EMBEDDED SIGNUP + MANUAL FALLBACK) ─────────────────────
+function loadConnect(){
+  if (!CLIENT) return;
+  document.getElementById("conn-pnid").textContent = CLIENT.phone_number_id || "—";
+  const st = CLIENT.status;
+  const statusEl = document.getElementById("conn-status");
+  if (st === "active") {
+    statusEl.innerHTML = '<span class="pill ok">🟢 Bot Active</span>';
+    document.getElementById("conn-auto").style.display = "none";
+    document.getElementById("conn-manual").style.display = "none";
+  } else if (st === "awaiting_connection") {
+    statusEl.innerHTML = '<span class="pill warn">📩 Request received — we\'re connecting your number (up to 24h).</span>';
+    document.getElementById("conn-auto").style.display = "none";
+    document.getElementById("conn-manual").style.display = "none";
+  } else {
+    statusEl.innerHTML = '<div class="muted" style="margin-bottom:0.8rem;">⏳ Setup pending — connect your number below.</div>';
+    document.getElementById("conn-auto").style.display = "block";
+  }
+}
+
+function loadFbSdk(){
+  return new Promise((resolve) => {
+    if (window.FB) { resolve(); return; }
+    window.fbAsyncInit = function () {
+      FB.init({ appId: FB_APP_ID, cookie: true, xfbml: false, version: "v20.0" });
+      resolve();
+    };
+    (function (d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, "script", "facebook-jssdk"));
+  });
+}
+
+function toggleManual(){
+  document.getElementById("conn-auto").style.display = "none";
+  document.getElementById("conn-manual").style.display = "block";
+}
+
+async function startEmbeddedSignup(){
+  const msg = document.getElementById("conn-msg");
+  msg.className = "msg";
+  const owner = document.getElementById("cw-owner").value.trim();
+  if (!owner || owner.length < 10) { msg.className = "msg err"; msg.textContent = "Enter your notification number first."; return; }
+
+  msg.textContent = "Opening Meta setup…";
+  await loadFbSdk();
+
+  FB.login(function (response) {
+    if (response.authResponse && response.authResponse.code) {
+      msg.textContent = "Connecting your number on our end…";
+      fetch(API_BASE + "/exchange-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_token: response.authResponse.code,
+          user_email: EMAIL,
+          owner_whatsapp_number: owner
+        })
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          msg.className = "msg ok";
+          msg.textContent = "✅ Connected & registered! Your bot is live now.";
+          loadClient();
+        } else if (d.pending) {
+          msg.className = "msg ok";
+          msg.textContent = "📩 " + (d.error || "We're finishing your connection on our end — up to 24h.");
+          loadClient();
+        } else {
+          msg.className = "msg err";
+          msg.textContent = "❌ " + (d.error || "Connection didn't complete. Try again or use the manual option.");
+        }
+      })
+      .catch(() => { msg.className = "msg err"; msg.textContent = "❌ Connection error. Try again or use the manual option."; });
+    } else {
+      msg.className = "msg err";
+      msg.textContent = "Facebook login was cancelled or blocked. Try again, or use the manual option below.";
     }
   }, {
-    config_id: '1027397859743156',
-    response_type: 'code',
-    override_default_response_type: true,
-    scope: 'whatsapp_business_management,whatsapp_business_messaging',
-    return_scopes: true,
-    extras: {
-      feature: 'whatsapp_embedded_signup',
-      sessionInfoVersion: '3'
-    }
+    config_id: EMBEDDED_SIGNUP_CONFIG_ID,
+    response_type: "code",
+    override_scopes: "business_management,whatsapp_business_messaging,whatsapp_business_management"
   });
 }
 
-window.addEventListener('message', function(event) {
-  if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
+async function requestConnection(){
+  const msg = document.getElementById("conn-msg");
+  const biz = document.getElementById("cw-business").value.trim();
+  const own = document.getElementById("cw-owner").value.trim();
+  if (!biz || biz.length < 10) { msg.className = "msg err"; msg.textContent = "Enter a valid WhatsApp Business number."; return; }
+  if (!own || own.length < 10) { msg.className = "msg err"; msg.textContent = "Enter a valid notification number."; return; }
+  msg.textContent = "Sending…";
   try {
-    var data = JSON.parse(event.data);
-    console.log('[postMessage] received:', data);
-    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
-      wabaId        = data.data.waba_id;
-      phoneNumberId = data.data.phone_number_id;
-      console.log('[SIGNUP] WABA ID:', wabaId, 'Phone ID:', phoneNumberId);
-    }
-  } catch(e) {}
-});
-
-async function exchangeToken(accessToken, ownerNumberInput, businessNumberInput) {
-  var btn = document.getElementById('connect-btn');
-  btn.textContent = 'Connecting...';
-  try {
-    var res = await fetch(BACKEND_URL + '/exchange-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        access_token:         accessToken,
-        user_email:           currentUser.email,
-        waba_id:              wabaId,
-        phone_number_id:      phoneNumberId,
-        owner_whatsapp_number: ownerNumberInput,
-        business_whatsapp_number: businessNumberInput
-      })
+    const r = await fetch(API_BASE + "/request-connection", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_email: EMAIL, business_whatsapp_number: biz, owner_whatsapp_number: own })
     });
-    var data = await res.json();
-    console.log('[exchangeToken] response:', data);
-    if (data.success) {
-      showConnectedState(data.business_name, data.phone_number_id);
-      await checkExistingConnection();
-      await loadStats();
-      await loadOverviewLeads();
-      await loadOverviewConvs();
-    } else if (data.pending) {
-      showRequestSentState();
+    const d = await r.json();
+    if (d.success) {
+      msg.className = "msg ok";
+      msg.textContent = "✅ Request received! We'll connect your number and notify you the moment it's live.";
+      document.getElementById("conn-auto").style.display = "none";
+      document.getElementById("conn-manual").style.display = "none";
+      document.getElementById("conn-status").innerHTML = '<span class="pill warn">📩 Request received</span>';
     } else {
-      alert('Connection failed: ' + (data.error || 'Unknown error') + '. You can try again, or use "Let us connect it manually instead" below.');
-      btn.disabled = false;
-      btn.textContent = 'Connect WhatsApp';
+      msg.className = "msg err"; msg.textContent = "❌ " + (d.error || "Failed. Try again.");
     }
-  } catch(err) {
-    console.error('[exchangeToken] network error:', err);
-    alert('Network error. Please try again, or use "Let us connect it manually instead" below.');
-    btn.disabled = false;
-    btn.textContent = 'Connect WhatsApp';
+  } catch (e) {
+    msg.className = "msg err"; msg.textContent = "❌ Connection error. Try again.";
   }
 }
 
-async function submitConnectionRequest() {
-  var businessNumberInput = document.getElementById('business-whatsapp-input').value.trim();
-  var ownerNumberInput = document.getElementById('owner-whatsapp-input').value.trim();
-  if (!businessNumberInput || businessNumberInput.length < 10) {
-    alert('Please enter the WhatsApp Business number you want to connect -- this is the number your bot will run on.');
-    return;
-  }
-  if (!ownerNumberInput || ownerNumberInput.length < 10) {
-    alert('Please enter your WhatsApp number first -- this is where your customer leads will be sent.');
-    return;
-  }
-
-  var btn = document.getElementById('manual-connect-btn');
-  btn.disabled = true;
-  btn.textContent = 'Sending request...';
-
-  try {
-    var res = await fetch(BACKEND_URL + '/request-connection', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_email:               currentUser.email,
-        owner_whatsapp_number:    ownerNumberInput,
-        business_whatsapp_number: businessNumberInput
-      })
-    });
-    var data = await res.json();
-    if (data.success) {
-      showRequestSentState();
-    } else {
-      alert('Could not send request: ' + (data.error || 'Unknown error'));
-      btn.disabled = false;
-      btn.textContent = 'Request Manual Connection';
-    }
-  } catch(err) {
-    console.error('[submitConnectionRequest] network error:', err);
-    alert('Network error. Please try again.');
-    btn.disabled = false;
-    btn.textContent = 'Request Manual Connection';
-  }
-}
-
-async function loadStats() {
-  if (!currentClientId) return;
-  var today = new Date().toISOString().split('T')[0];
-  var results = await Promise.all([
-    db.from('leads').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId),
-    db.from('conversations').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId),
-    db.from('leads').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId).gte('created_at', today)
-  ]);
-  document.getElementById('stat-leads').textContent = results[0].count ?? 0;
-  document.getElementById('stat-convs').textContent = results[1].count ?? 0;
-  document.getElementById('stat-today').textContent = results[2].count ?? 0;
-  document.getElementById('stat-leads-sub').textContent = 'Total captured';
-}
-
-async function loadOverviewLeads() {
-  if (!currentClientId) return;
-  var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }).limit(5);
-  var el = document.getElementById('overview-leads-body');
-  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No leads yet.</div>'; return; }
-  el.innerHTML = leadsTable(result.data);
-}
-
-function leadsTable(leads) {
-  var rows = leads.map(function(l) {
-    var date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
-    return '<tr><td>' + (l.name || '—') + '</td><td class="phone">' + (l.whatsapp_number || l.phone || '—') + '</td><td>' + (l.lead_type || 'WhatsApp') + '</td><td style="color:var(--text-muted);font-size:12px">' + date + '</td></tr>';
-  }).join('');
-  return '<table><thead><tr><th>Name</th><th>Phone</th><th>Source</th><th>Date</th></tr></thead><tbody>' + rows + '</tbody></table>';
-}
-
-var LEAD_COLUMNS = {
-  callback:         'col-callback',
-  registration:     'col-registration',
-  demo:             'col-demo',
-  booking:          'col-booking',
-  skilling_enquiry: 'col-skilling_enquiry'
-};
-
-async function loadAllLeads() {
-  if (!currentClientId) {
-    Object.values(LEAD_COLUMNS).forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) el.innerHTML = '<div class="empty" style="padding:1.5rem;">Connect WhatsApp first.</div>';
-    });
-    return;
-  }
-  var result = await db.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false });
-  if (result.error) { console.error('[loadAllLeads]', result.error); return; }
-  allLeads = result.data || [];
-  renderLeadsBoard(allLeads);
-  updateBellBadge();
-}
-
-function filterLeads() {
-  var q = document.getElementById('leads-search').value.toLowerCase();
-  var filtered = allLeads.filter(function(l) {
-    return (l.name || '').toLowerCase().includes(q) || (l.whatsapp_number || l.phone || '').includes(q);
-  });
-  renderLeadsBoard(filtered);
-}
-
-function renderLeadsBoard(leads) {
-  var grouped = { callback: [], registration: [], demo: [], booking: [], skilling_enquiry: [] };
-  leads.forEach(function(l) {
-    var type = (l.lead_type || '').toLowerCase();
-    if (grouped[type]) grouped[type].push(l);
-  });
-
-  Object.keys(LEAD_COLUMNS).forEach(function(type) {
-    var items = grouped[type].slice().sort(function(a, b) {
-      return (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1);
-    });
-    var pendingCount = items.filter(function(l) { return !l.is_done; }).length;
-    var bodyEl = document.getElementById(LEAD_COLUMNS[type]);
-    var countEl = document.getElementById('count-' + type);
-    if (!bodyEl || !countEl) return;
-    countEl.textContent = pendingCount;
-    bodyEl.innerHTML = items.length ? items.map(leadCard).join('') : '<div class="empty" style="padding:1rem; font-size:12px;">None yet.</div>';
-  });
-}
-
-function leadCard(l) {
-  var date = l.created_at ? new Date(l.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
-  var unreadClass = l.is_read ? '' : ' unread';
-  var doneClass = l.is_done ? ' done' : '';
-  var checkedAttr = l.is_done ? 'checked' : '';
-  var courseLine = l.course ? '<div class="lead-course">' + l.course + '</div>' : '';
-  return (
-    '<div class="lead-card' + unreadClass + doneClass + '" id="lead-card-' + l.id + '" onclick="markLeadRead(\'' + l.id + '\', this)">' +
-      '<div class="lead-card-top">' +
-        '<input type="checkbox" class="lead-checkbox" ' + checkedAttr + ' onclick="event.stopPropagation(); toggleLeadDone(\'' + l.id + '\', this)" />' +
-        '<div class="lead-card-main">' +
-          '<div class="lead-name">' + (l.name || 'Unknown') + '</div>' +
-          '<div class="lead-phone">' + (l.whatsapp_number || l.phone || '—') + '</div>' +
-          courseLine +
-          '<div class="lead-time">' + date + '</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>'
-  );
-}
-
-async function toggleLeadDone(leadId, checkboxEl) {
-  var isDone = checkboxEl.checked;
-  var lead = allLeads.find(function(l) { return l.id === leadId; });
-  if (lead) lead.is_done = isDone;
-  renderLeadsBoard(allLeads);
-  await db.from('leads').update({ is_done: isDone }).eq('id', leadId);
-}
-
-async function markLeadRead(leadId, cardEl) {
-  cardEl.classList.remove('unread');
-  var lead = allLeads.find(function(l) { return l.id === leadId; });
-  if (lead) lead.is_read = true;
-  updateBellBadge();
-  await db.from('leads').update({ is_read: true }).eq('id', leadId);
-}
-
-function updateBellBadge() {
-  var unreadCount = allLeads.filter(function(l) { return !l.is_read; }).length;
-  var badge = document.getElementById('bell-badge');
-  if (unreadCount > 0) {
-    badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-    badge.style.display = 'block';
+// ── PLAN & BILLING ────────────────────────────────────────────────────────────
+async function loadBilling(){
+  if (CLIENT) {
+    const exp = CLIENT.plan_expires_at ? fmtDate(CLIENT.plan_expires_at) : "—";
+    document.getElementById("bill-current").innerHTML =
+      "<strong>" + esc((CLIENT.plan || "starter").toUpperCase()) + "</strong> plan · paid through " + exp;
   } else {
-    badge.style.display = 'none';
+    document.getElementById("bill-current").innerHTML = "<strong>Bulk-only account</strong> — no coaching bot subscription.";
+  }
+  const bulk = await fetchBulk();
+  if (bulk) {
+    const uq = bulk.utility_quota || 0, uu = bulk.utility_used || 0;
+    const mq = bulk.marketing_quota || 0, mu = bulk.marketing_used || 0;
+    document.getElementById("b-util-text").textContent = uu + " / " + uq;
+    document.getElementById("b-mkt-text").textContent = mu + " / " + mq;
+    document.getElementById("b-util-bar").style.width = (uq ? Math.min(100, (uu / uq) * 100) : 0) + "%";
+    document.getElementById("b-mkt-bar").style.width = (mq ? Math.min(100, (mu / mq) * 100) : 0) + "%";
+  }
+  if (CLIENT) {
+    try {
+      const r = await fetch(API_BASE + "/api/referral-code?email=" + encodeURIComponent(EMAIL));
+      const d = await r.json();
+      document.getElementById("ref-code").textContent = d.success ? d.referral_code : "—";
+    } catch (e) { document.getElementById("ref-code").textContent = "—"; }
+  } else {
+    document.getElementById("ref-code").textContent = "—";
   }
 }
 
-function showLeadToast(lead) {
-  var titles = { callback: '📞 New Callback Request', registration: '📋 New Registration', demo: '🎓 New Demo Booking', booking: '💺 New Seat Booking', skilling_enquiry: '🎯 New Enquiry' };
-  var title = titles[(lead.lead_type || '').toLowerCase()] || '🔔 New Lead';
-  var toast = document.createElement('div');
-  toast.className = 'toast-notif';
-  toast.innerHTML = '<div class="toast-title">' + title + '</div><div class="toast-body">' + (lead.name || 'Someone') + ' — ' + (lead.whatsapp_number || lead.phone || '') + '</div>';
-  toast.onclick = function() {
-    toast.remove();
-    showPage('leads', document.querySelector('.nav-item[onclick*=leads]'));
-  };
-  document.body.appendChild(toast);
-  setTimeout(function() { toast.remove(); }, 6000);
+function shareReferral(){
+  const code = document.getElementById("ref-code").textContent;
+  const text = "I'm using NeverMiss — an AI WhatsApp bot that replies to every enquiry 24/7 and captures leads automatically for my institute.\n\nUse my code " + code + " at signup and get 20% off your first payment:\nhttps://nevermiss.co.in";
+  window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 }
 
-var leadsRealtimeChannel = null;
-
-function subscribeToLeadsRealtime() {
-  if (!currentClientId || leadsRealtimeChannel) return;
-  leadsRealtimeChannel = db
-    .channel('leads-realtime-' + currentClientId)
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'leads',
-      filter: 'client_id=eq.' + currentClientId
-    }, function(payload) {
-      var newLead = payload.new;
-      allLeads.unshift(newLead);
-      updateBellBadge();
-      showLeadToast(newLead);
-      if (document.getElementById('page-leads').classList.contains('active')) {
-        renderLeadsBoard(allLeads);
-      }
-    })
-    .subscribe();
-}
-
-async function loadOverviewConvs() {
-  if (!currentClientId) return;
-  var result = await db.from('conversations').select('*').eq('client_id', currentClientId).order('id', { ascending: false }).limit(20);
-  var seen = {};
-  var grouped = (result.data || []).filter(function(c) {
-    if (seen[c.phone_number]) return false;
-    seen[c.phone_number] = true;
-    return true;
-  }).slice(0, 5);
-  renderConvs(grouped, 'overview-conv-body');
-}
-
-async function loadAllConvs() {
-  if (!currentClientId) { document.getElementById('conv-body').innerHTML = '<div class="empty">Connect WhatsApp first to see conversations.</div>'; return; }
-  var result = await db.from('conversations').select('*').eq('client_id', currentClientId).order('id', { ascending: false });
-  var seen = {};
-  var grouped = (result.data || []).filter(function(c) {
-    if (seen[c.phone_number]) return false;
-    seen[c.phone_number] = true;
-    return true;
-  });
-  renderConvs(grouped, 'conv-body');
-}
-
-function renderConvs(data, elId) {
-  var el = document.getElementById(elId);
-  if (!data || !data.length) { el.innerHTML = '<div class="empty">No conversations yet.</div>'; return; }
-  el.innerHTML = data.map(function(c) {
-    var name = (c.phone_number || 'Unknown').replace('whatsapp:', '');
-    var initials = name.replace('+91', '').slice(0, 2);
-    var msg = c.content || 'No message';
-    var time = c.id ? '#' + c.id : '';
-    return '<div class="conv-item"><div class="conv-av">' + initials + '</div><div style="flex:1;min-width:0"><div class="conv-name">' + name + '</div><div class="conv-msg">' + msg + '</div></div><div class="conv-time">' + time + '</div></div>';
-  }).join('');
-}
-
-async function loadQuickReplies() {
-  var el = document.getElementById('qr-body');
-  if (!currentClientId) { el.innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
-  var result = await db.from('quick_replies').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false });
-  if (result.error || !result.data || !result.data.length) {
-    el.innerHTML = '<div class="empty">No quick replies yet. Click "+ Add" to create one.</div>';
-    return;
-  }
-  el.innerHTML = result.data.map(function(q) {
-    return (
-      '<div class="qr-item">' +
-        '<span class="qr-key">#' + q.keyword + '</span>' +
-        '<span class="qr-text">' + q.reply_text + '</span>' +
-        '<button class="qr-edit" onclick="editQR(\'' + q.id + '\', \'' + q.keyword.replace(/'/g, "\\'") + '\', \'' + q.reply_text.replace(/'/g, "\\'") + '\')">Edit</button>' +
-        '<button class="qr-edit" onclick="deleteQR(\'' + q.id + '\')">Delete</button>' +
-      '</div>'
-    );
-  }).join('');
-}
-
-async function addQuickReply() {
-  if (!currentClientId) { alert('Connect WhatsApp first.'); return; }
-  var keyword = prompt('Enter keyword (e.g. hours) -- students can trigger this by typing it with or without a # in front:');
-  if (!keyword) return;
-  keyword = keyword.trim().replace(/^#/, '').toLowerCase();
-  var reply = prompt('Enter reply text:');
-  if (!reply) return;
-
-  var result = await db.from('quick_replies').insert({
-    client_id: currentClientId,
-    keyword: keyword,
-    reply_text: reply
-  });
-
-  if (result.error) { alert('Failed to save: ' + result.error.message); return; }
-  loadQuickReplies();
-}
-
-async function editQR(id, currentKeyword, currentReply) {
-  var newKeyword = prompt('Edit keyword:', currentKeyword);
-  if (!newKeyword) return;
-  newKeyword = newKeyword.trim().replace(/^#/, '').toLowerCase();
-  var newReply = prompt('Edit reply text:', currentReply);
-  if (!newReply) return;
-
-  var result = await db.from('quick_replies').update({
-    keyword: newKeyword,
-    reply_text: newReply
-  }).eq('id', id);
-
-  if (result.error) { alert('Failed to update: ' + result.error.message); return; }
-  loadQuickReplies();
-}
-
-async function deleteQR(id) {
-  if (!confirm('Delete this quick reply?')) return;
-  await db.from('quick_replies').delete().eq('id', id);
-  loadQuickReplies();
-}
-
-// Reads aggregate language/programme counts from the backend. Served by
-// /api/skilling-insights rather than queried directly, because
-// contact_prefs is written with the service-role key and the dashboard
-// runs on the anon key under RLS -- a browser-side query would come
-// back empty, or would require opening that table to every
-// authenticated user.
-async function loadSkillingInsights() {
-  var el = document.getElementById('skilling-insights-body');
-  if (!el || !currentClientId) return;
-
-  var LANG_LABELS = { en: 'English', hi: 'हिंदी (Hindi)', mr: 'मराठी (Marathi)' };
-  var PROG_LABELS = { card: 'Job Suraksha Card', earn_learn: 'Earn & Learn' };
-
-  try {
-    var res  = await fetch(BACKEND_URL + '/api/skilling-insights?client_id=' + encodeURIComponent(currentClientId));
-    var data = await res.json();
-    if (!data.success) { el.innerHTML = '<div class="empty">Could not load insights.</div>'; return; }
-
-    if (!data.total) {
-      el.innerHTML = '<div class="empty">No candidate data yet. This fills in as people message your bot.</div>';
-      return;
-    }
-
-    function bars(counts, labels, total) {
-      var keys = Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; });
-      if (!keys.length) return '<div style="font-size:13px;color:var(--text-muted);">Nothing recorded yet.</div>';
-      return keys.map(function(k) {
-        var n   = counts[k];
-        var pct = Math.round((n / total) * 100);
-        return (
-          '<div class="insight-bar-row">' +
-            '<div class="insight-bar-label">' +
-              '<span>' + (labels[k] || k) + '</span>' +
-              '<span class="insight-bar-count">' + n + ' · ' + pct + '%</span>' +
-            '</div>' +
-            '<div class="insight-bar-track"><div class="insight-bar-fill" style="width:' + pct + '%;"></div></div>' +
-          '</div>'
-        );
-      }).join('');
-    }
-
-    // Percentages are of contacts who expressed a preference, not of all
-    // contacts -- someone who only ever said "hi" has no programme, and
-    // counting them in the denominator would understate both figures.
-    var langTotal = Object.values(data.languages).reduce(function(a, b) { return a + b; }, 0) || data.total;
-    var progTotal = Object.values(data.programmes).reduce(function(a, b) { return a + b; }, 0) || data.total;
-
-    el.innerHTML =
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">' +
-        '<div>' +
-          '<div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Language chosen</div>' +
-          bars(data.languages, LANG_LABELS, langTotal) +
-        '</div>' +
-        '<div>' +
-          '<div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Programme asked about</div>' +
-          bars(data.programmes, PROG_LABELS, progTotal) +
-        '</div>' +
-      '</div>' +
-      '<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border);font-size:13px;color:var(--text-muted);">' +
-        '<strong style="color:var(--text);">' + data.total + '</strong> candidates have messaged the bot. ' +
-        '<strong style="color:var(--text);">' + data.registered + '</strong> said they completed registration.' +
-      '</div>' +
-      '<div style="margin-top:8px;font-size:12px;color:var(--text-muted);">' +
-        'Registration figures are what candidates told the bot — the bot has no way to verify them against your website.' +
-      '</div>';
-  } catch (err) {
-    console.error('[loadSkillingInsights]', err);
-    el.innerHTML = '<div class="empty">Could not load insights.</div>';
-  }
-}
-
-function showProfileTab(tab, el) {
-  document.querySelectorAll('.profile-section').forEach(function(s) { s.classList.remove('active'); });
-  document.querySelectorAll('.profile-tab').forEach(function(t) { t.classList.remove('active'); });
-  document.getElementById('profile-' + tab).classList.add('active');
-  el.classList.add('active');
-  if (tab === 'courses') loadCourses();
-  if (tab === 'results') loadResults();
-  if (tab === 'facilities') loadFacilities();
-  if (tab === 'media') loadMedia();
-  if (tab === 'settings') loadBusinessSettings();
-}
-
-async function loadCourses() {
-  if (!currentClientId) { document.getElementById('courses-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
-  var result = await db.from('courses').select('*, course_batches(*)').eq('client_id', currentClientId).order('display_order');
-  var el = document.getElementById('courses-body');
-  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No courses added yet.</div>'; return; }
-  el.innerHTML = result.data.map(function(c) {
-    var batchText = (c.course_batches || []).map(function(b) { return b.batch_label + ': ' + b.start_time + '-' + b.end_time; }).join(', ') || 'No batches';
-    return '<div class="item-row"><div class="item-main"><div class="item-title">' + c.course_name + ' — Rs ' + c.fees + '</div><div class="item-sub">' + batchText + ' | Seats: ' + c.seats_available + '</div></div><div class="item-actions"><button onclick="deleteCourse(\'' + c.id + '\')">Delete</button></div></div>';
-  }).join('');
-}
-
-function openCourseForm() {
-  var name = prompt('Course name (e.g. JEE Engineering):');
-  if (!name) return;
-  var fees = prompt('Fees (numbers only):');
-  if (!fees) return;
-  var seats = prompt('Seats available:') || '0';
-  var batchLabel = prompt('Batch label (e.g. Batch 1):') || 'Batch 1';
-  var startTime = prompt('Start time (e.g. 7:00 AM):') || '';
-  var endTime = prompt('End time (e.g. 9:00 AM):') || '';
-
-  saveCourse(name, fees, seats, batchLabel, startTime, endTime);
-}
-
-async function saveCourse(name, fees, seats, batchLabel, startTime, endTime) {
-  var result = await db.from('courses').insert({
-    client_id: currentClientId,
-    course_name: name,
-    fees: parseFloat(fees),
-    seats_available: parseInt(seats),
-    demo_available: true
-  }).select();
-
-  if (result.error || !result.data || !result.data.length) {
-    alert('Failed to save course: ' + (result.error ? result.error.message : 'Unknown error'));
-    return;
-  }
-
-  var courseId = result.data[0].id;
-  if (startTime && endTime) {
-    await db.from('course_batches').insert({
-      course_id: courseId,
-      batch_label: batchLabel,
-      start_time: startTime,
-      end_time: endTime
-    });
-  }
-  loadCourses();
-  updateSetupProgress();
-}
-
-async function deleteCourse(id) {
-  if (!confirm('Delete this course? This also removes its batches.')) return;
-  await db.from('courses').delete().eq('id', id);
-  loadCourses();
-}
-
-async function loadResults() {
-  if (!currentClientId) { document.getElementById('results-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
-  var result = await db.from('institute_results').select('*').eq('client_id', currentClientId).order('display_order');
-  var el = document.getElementById('results-body');
-  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No results added yet.</div>'; return; }
-  el.innerHTML = result.data.map(function(r) {
-    var sub = [r.student_name, r.course_name, r.year].filter(Boolean).join(' | ');
-    return '<div class="item-row"><div class="item-main"><div class="item-title">' + r.achievement + '</div><div class="item-sub">' + sub + '</div></div><div class="item-actions"><button onclick="deleteResult(\'' + r.id + '\')">Delete</button></div></div>';
-  }).join('');
-}
-
-function openResultForm() {
-  var achievement = prompt('Achievement (e.g. AIR 342 in JEE Mains 2026):');
-  if (!achievement) return;
-  var studentName = prompt('Student name (optional):') || null;
-  var courseName = prompt('Course (optional):') || null;
-  var year = prompt('Year (optional):') || null;
-  saveResult(achievement, studentName, courseName, year);
-}
-
-async function saveResult(achievement, studentName, courseName, year) {
-  var result = await db.from('institute_results').insert({
-    client_id: currentClientId,
-    achievement: achievement,
-    student_name: studentName,
-    course_name: courseName,
-    year: year
-  });
-  if (result.error) { alert('Failed to save: ' + result.error.message); return; }
-  loadResults();
-}
-
-async function deleteResult(id) {
-  if (!confirm('Delete this result?')) return;
-  await db.from('institute_results').delete().eq('id', id);
-  loadResults();
-}
-
-async function loadFacilities() {
-  if (!currentClientId) { document.getElementById('facilities-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
-  var result = await db.from('institute_facilities').select('*').eq('client_id', currentClientId).order('display_order');
-  var el = document.getElementById('facilities-body');
-  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No facilities added yet.</div>'; return; }
-  el.innerHTML = result.data.map(function(f) {
-    return '<div class="item-row"><div class="item-main"><div class="item-title">' + f.facility_name + '</div><div class="item-sub">' + (f.description || '') + '</div></div><div class="item-actions"><button onclick="deleteFacility(\'' + f.id + '\')">Delete</button></div></div>';
-  }).join('');
-}
-
-function openFacilityForm() {
-  var name = prompt('Facility name (e.g. Air-conditioned classrooms):');
-  if (!name) return;
-  var description = prompt('Description (optional):') || null;
-  saveFacility(name, description);
-}
-
-async function saveFacility(name, description) {
-  var result = await db.from('institute_facilities').insert({
-    client_id: currentClientId,
-    facility_name: name,
-    description: description
-  });
-  if (result.error) { alert('Failed to save: ' + result.error.message); return; }
-  loadFacilities();
-}
-
-async function deleteFacility(id) {
-  if (!confirm('Delete this facility?')) return;
-  await db.from('institute_facilities').delete().eq('id', id);
-  loadFacilities();
-}
-
-async function loadMedia() {
-  if (!currentClientId) { document.getElementById('media-body').innerHTML = '<div class="empty">Connect WhatsApp first.</div>'; return; }
-  var result = await db.from('institute_media').select('*').eq('client_id', currentClientId).order('display_order');
-  var el = document.getElementById('media-body');
-  if (result.error || !result.data || !result.data.length) { el.innerHTML = '<div class="empty">No media uploaded yet.</div>'; return; }
-  el.innerHTML = result.data.map(function(m) {
-    var isPdf = (m.media_type === 'brochure' || m.media_type === 'brochure_card' || m.media_type === 'brochure_earn');
-    var thumb = isPdf
-      ? '📄'
-      : '<img class="media-thumb" src="' + m.file_url + '" />';
-    var typeLabels = { brochure: 'Brochure', brochure_card: 'Job Suraksha Card brochure', brochure_earn: 'Earn & Learn brochure', topper_photo: 'Topper photo', facility_photo: 'Facility photo' };
-    var typeLabel = typeLabels[m.media_type] || m.media_type;
-    return '<div class="item-row"><div style="margin-right:10px">' + thumb + '</div><div class="item-main"><div class="item-title">' + (m.caption || typeLabel) + '</div><div class="item-sub">' + typeLabel + '</div></div><div class="item-actions"><button onclick="deleteMedia(\'' + m.id + '\')">Delete</button></div></div>';
-  }).join('');
-}
-
-async function uploadMedia(mediaType, fileInputId, captionInputId) {
-  if (!currentClientId) { alert('Connect WhatsApp first.'); return; }
-  var fileInput = document.getElementById(fileInputId);
-  var file = fileInput.files[0];
-  if (!file) { alert('Please choose a file first.'); return; }
-
-  var caption = captionInputId ? document.getElementById(captionInputId).value.trim() : '';
-  var filePath = currentClientId + '/' + Date.now() + '_' + file.name;
-
-  var uploadResult = await db.storage.from('institute-media').upload(filePath, file);
-  if (uploadResult.error) {
-    alert('Upload failed: ' + uploadResult.error.message);
-    return;
-  }
-
-  var publicUrlResult = db.storage.from('institute-media').getPublicUrl(filePath);
-  var fileUrl = publicUrlResult.data.publicUrl;
-
-  var insertResult = await db.from('institute_media').insert({
-    client_id: currentClientId,
-    media_type: mediaType,
-    file_url: fileUrl,
-    caption: caption || null
-  });
-
-  if (insertResult.error) {
-    alert('Saved file but failed to record it: ' + insertResult.error.message);
-    return;
-  }
-
-  fileInput.value = '';
-  if (captionInputId) document.getElementById(captionInputId).value = '';
-  loadMedia();
-}
-
-async function deleteMedia(id) {
-  if (!confirm('Delete this media?')) return;
-  await db.from('institute_media').delete().eq('id', id);
-  loadMedia();
-}
-
-async function loadBusinessSettings() {
-  if (!currentClientId) return;
-  var result = await db.from('clients')
-    .select('business_name, location, contact_phone, institute_timings')
-    .eq('id', currentClientId)
-    .single();
-
-  if (result.error) {
-    alert('Failed to load business info: ' + result.error.message);
-    return;
-  }
-
-  var c = result.data;
-  document.getElementById('settings-business-name').value = c.business_name || '';
-  document.getElementById('settings-location').value = c.location || '';
-  document.getElementById('settings-contact-phone').value = c.contact_phone || '';
-  document.getElementById('settings-timings').value = c.institute_timings || '';
-}
-
-async function saveBusinessSettings() {
-  if (!currentClientId) { alert('Connect WhatsApp first.'); return; }
-
-  var businessName = document.getElementById('settings-business-name').value.trim();
-  var location = document.getElementById('settings-location').value.trim();
-  var contactPhone = document.getElementById('settings-contact-phone').value.trim();
-  var timings = document.getElementById('settings-timings').value.trim();
-
-  if (!businessName) { alert('Business name cannot be empty.'); return; }
-
-  var result = await db.from('clients').update({
-    business_name: businessName,
-    location: location,
-    contact_phone: contactPhone,
-    institute_timings: timings
-  }).eq('id', currentClientId);
-
-  if (result.error) {
-    alert('Failed to save: ' + result.error.message);
-    return;
-  }
-
-  alert('Business info updated! This will reflect in your bot immediately.');
-}
-
-function showPage(page, el) {
-  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  document.getElementById('page-' + page).classList.add('active');
-  if (el) el.classList.add('active');
-  var titles = { overview: 'Overview', leads: 'Leads', conversations: 'Conversations', quickreplies: 'Quick replies', profile: (currentClientType === 'skilling' ? 'Content & Media' : 'Institute Profile'), connect: 'Connect WhatsApp', billing: 'Plan & Billing' };
-  document.getElementById('page-title').textContent = titles[page];
-  document.getElementById('stats-row').style.display = ['overview', 'leads'].includes(page) ? 'grid' : 'none';
-  if (page === 'leads') loadAllLeads();
-  if (page === 'conversations') loadAllConvs();
-  if (page === 'quickreplies') loadQuickReplies();
-  if (page === 'profile') {
-    // Courses is hidden for skilling clients, so opening the Profile page
-    // would otherwise land on an invisible tab with a blank panel. Send
-    // them straight to Media, which is the tab that actually applies.
-    if (currentClientType === 'skilling') {
-      var mediaBtn = document.querySelector('.profile-tab[onclick*="media"]');
-      if (mediaBtn) showProfileTab('media', mediaBtn);
-    } else {
-      loadCourses();
-    }
-  }
-  if (page === 'billing') { renderPlanPage(); loadReferralCode(); }
-}
-
+// ── BOOT ─────────────────────────────────────────────────────────────────────
 init();
 </script>
 </body>
