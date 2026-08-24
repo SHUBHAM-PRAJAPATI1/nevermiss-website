@@ -444,6 +444,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <p class="addon-desc">1,500 extra utility messages + 300 extra marketing messages every month — perfect for admission season pushes and larger batches.</p>
       </div>
       <div class="addon-price">₹999<span>+ GST, billed monthly</span></div>
+      <button class="custom-btn" onclick="selectPlan('bulk_plus')">Add Plus →</button>
     </div>
 
     <div class="sub-title fade-in">Just want bulk messaging? Standalone plans</div>
@@ -457,7 +458,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
           <li>80 marketing messages/mo</li>
           <li>Template setup & approval help</li>
         </ul>
-        <a class="plan-btn outline" style="text-decoration:none;" href="https://wa.me/917484849508?text=Hi!%20I%27m%20interested%20in%20the%20Message%20Basic%20bulk%20messaging%20plan." target="_blank">Get Started</a>
+        <button class="plan-btn outline" onclick="selectPlan('message_basic')">Get Started</button>
       </div>
       <div class="plan popular fade-in">
         <div class="plan-badge">Best Value</div>
@@ -469,7 +470,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
           <li>200 marketing messages/mo</li>
           <li>Template setup & approval help</li>
         </ul>
-        <a class="plan-btn solid" style="text-decoration:none;" href="https://wa.me/917484849508?text=Hi!%20I%27m%20interested%20in%20the%20Message%20Growth%20bulk%20messaging%20plan." target="_blank">Get Started</a>
+        <button class="plan-btn solid" onclick="selectPlan('message_growth')">Get Started</button>
       </div>
       <div class="plan fade-in">
         <div class="plan-name">Message Pro</div>
@@ -480,7 +481,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
           <li>400 marketing messages/mo</li>
           <li>Template setup & approval help</li>
         </ul>
-        <a class="plan-btn outline" style="text-decoration:none;" href="https://wa.me/917484849508?text=Hi!%20I%27m%20interested%20in%20the%20Message%20Pro%20bulk%20messaging%20plan." target="_blank">Get Started</a>
+        <button class="plan-btn outline" onclick="selectPlan('message_pro')">Get Started</button>
       </div>
     </div>
     <p class="bulk-note fade-in">All standalone plans priced +GST. Upgrade anytime to a full NeverMiss plan with AI bot & leads dashboard.</p>
@@ -539,7 +540,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
     <div class="contact-header fade-in">
       <div class="section-label">Get Started</div>
       <h2 class="section-title">Activate your bot now</h2>
-      <p class="section-sub" style="margin:0 auto;text-align:center;">Fill in your details, pay securely via Razorpay, and your bot is live in minutes.</p>
+      <p class="section-sub" style="margin:0 auto;text-align:center;">Fill in your details, pay securely via Razorpay, and we'll set up your bot within 24 hours.</p>
     </div>
     <div class="form fade-in">
       <div id="selected-plan-banner" style="display:none;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:12px;padding:0.9rem 1.2rem;align-items:center;justify-content:space-between;">
@@ -571,12 +572,15 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
           <option value="starter">Starter — ₹3,999/month</option>
           <option value="growth">Growth — ₹5,999/month</option>
           <option value="pro">Pro — ₹8,999/month</option>
+          <option value="message_basic">Message Basic — ₹799/month</option>
+          <option value="message_growth">Message Growth — ₹1,499/month</option>
+          <option value="message_pro">Message Pro — ₹2,499/month</option>
+          <option value="bulk_plus">Bulk Messaging Plus — ₹999/month (add-on)</option>
           <option value="custom">Custom — built around your needs</option>
         </select>
       </div>
       <div class="form-group" id="coupon-group"><label>Coupon Code <span style="color:var(--muted);font-weight:400;">(optional)</span></label><input id="f-coupon" type="text" placeholder="e.g. TRIAL100 or a referral code"></div>
 
-      <!-- Custom-track questions -->
       <div id="custom-fields" style="display:none;flex-direction:column;gap:1.2rem;">
         <div class="form-group"><label>What does your organisation do? *</label><textarea id="f-sector" placeholder="e.g. Skilling centre placing candidates in hospitality jobs across Maharashtra"></textarea></div>
         <div class="form-group"><label>Roughly how many WhatsApp enquiries a month? *</label>
@@ -648,6 +652,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 // ── CONFIGURATION ─────────────────────────────────────────────────────────────
+const RAZORPAY_KEY_ID = "rzp_test_SjErbLHbSiuTAU"; // fallback only; backend sends the live key_id
 const API_BASE = "";  // same origin; if separate server use full URL e.g. "https://api.nevermiss.co.in"
 
 const PLAN_LABELS = {
@@ -655,6 +660,10 @@ const PLAN_LABELS = {
   growth:  "Growth — ₹5,999/month",
   pro:     "Pro — ₹8,999/month",
   custom:  "Custom — built around your needs",
+  message_basic:  "Message Basic — ₹799/month",
+  message_growth: "Message Growth — ₹1,499/month",
+  message_pro:    "Message Pro — ₹2,499/month",
+  bulk_plus:      "Bulk Messaging Plus — ₹999/month",
 };
 
 let selectedPlan = "";
@@ -702,8 +711,8 @@ function setLoading(loading) {
   const btn  = document.getElementById("pay-btn");
   const text = document.getElementById("pay-btn-text");
   btn.disabled = loading;
-  if (!isCustomMode()) text.textContent = loading ? "Creating order…" : "Pay & Activate Bot →";
-  else text.textContent = loading ? "Submitting…" : "Submit Requirement →";
+  if (isCustomMode()) text.textContent = loading ? "Submitting…" : "Submit Requirement →";
+  else text.textContent = loading ? "Creating order…" : "Pay & Activate Bot →";
   btn.style.opacity = loading ? "0.7" : "1";
 }
 
@@ -748,8 +757,10 @@ async function startPayment() {
     if (!order.id) { showError("Could not create order. Please try again."); setLoading(false); return; }
 
     setLoading(false);
+    const isBulkPlan = plan.startsWith("message_") || plan === "bulk_plus";
+
     const options = {
-      key: order.key_id || "rzp_test_SjErbLHbSiuTAU",
+      key: order.key_id || RAZORPAY_KEY_ID,
       amount: order.amount,
       currency: "INR",
       name: "NeverMiss",
@@ -769,6 +780,7 @@ async function startPayment() {
           }),
         });
         const result = await verifyRes.json();
+
         if (result.success) {
           document.querySelector(".form").innerHTML = `
             <div style="text-align:center;padding:2rem 1rem;">
@@ -776,8 +788,9 @@ async function startPayment() {
               <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">You're in, ${name}!</h3>
               <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;">
                 Your <strong>${PLAN_LABELS[plan]}</strong> is now active.<br>
-                Check WhatsApp — we've sent you a confirmation.<br>
-                Check your email (${email}) for your dashboard login invite.
+                ${isBulkPlan
+                  ? "Check your email (" + email + ") for your dashboard login invite — log in to upload your contacts and start sending."
+                  : "Check WhatsApp — we've sent you a confirmation. Check your email (" + email + ") for your dashboard login invite."}
               </p>
               <div style="background:var(--blue-light);border-radius:12px;padding:1rem;font-size:0.82rem;color:var(--blue);font-weight:600;">Payment ID: ${response.razorpay_payment_id}</div>
             </div>`;
