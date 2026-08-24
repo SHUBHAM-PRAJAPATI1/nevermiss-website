@@ -970,6 +970,8 @@ async function startEmbeddedSignup(){
   await loadFbSdk();
 
   FB.login(function (response) {
+    console.log("FB.login response:", JSON.stringify(response));
+    console.log("Using config_id:", EMBEDDED_SIGNUP_CONFIG_ID);
     if (response.authResponse && response.authResponse.code) {
       msg.textContent = "Connecting your number on our end…";
       fetch(API_BASE + "/exchange-token", {
@@ -998,8 +1000,7 @@ async function startEmbeddedSignup(){
       })
       .catch(() => { msg.className = "msg err"; msg.textContent = "❌ Connection error. Try again or use the manual option."; });
     } else {
-      msg.className = "msg err";
-      msg.textContent = "Facebook login was cancelled or blocked. Try again, or use the manual option below.";
+      msg.textContent = "❌ Meta says: " + JSON.stringify(response).slice(0, 250);
     }
   }, {
     config_id: EMBEDDED_SIGNUP_CONFIG_ID,
