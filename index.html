@@ -4,23 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NeverMiss — AI WhatsApp Bot for Every Business</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="apple-touch-icon" href="images/logo/app-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --blue:#1B4FFF;--blue-dark:#0A2ECC;--blue-light:#EEF2FF;--blue-mid:#3D6EFF;
-  --black:#080C1A;--white:#FAFBFF;--gray:#F0F2FA;--gray2:#E2E6F3;
-  --text:#0D1226;--muted:#5A6380;--accent:#FF4D00;--green:#00C853;
-}
+:root{--blue:#1B4FFF;--blue-dark:#0A2ECC;--blue-light:#EEF2FF;--blue-mid:#3D6EFF;--black:#080C1A;--white:#FAFBFF;--gray:#F0F2FA;--gray2:#E2E6F3;--text:#0D1226;--muted:#5A6380;--accent:#FF4D00;--green:#00C853;}
 html{scroll-behavior:smooth;}
 body{font-family:'Instrument Sans',sans-serif;background:var(--white);color:var(--text);overflow-x:hidden;}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.1rem 3rem;display:flex;align-items:center;justify-content:space-between;background:rgba(250,251,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--gray2);}
 .logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.5rem;color:var(--black);display:flex;align-items:center;gap:0.5rem;text-decoration:none;}
-.logo-icon{width:32px;height:32px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.logo-icon img{width:100%;height:100%;object-fit:cover;display:block;}
-.nav-links{display:flex;align-items:center;gap:2.5rem;}
+.logo-icon{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-icon svg{width:18px;height:18px;fill:white;}
+.nav-links{display:flex;align-items:center;gap:2rem;}
 .nav-links a{text-decoration:none;color:var(--muted);font-size:0.9rem;font-weight:500;transition:color 0.2s;}
 .nav-links a:hover{color:var(--blue);}
 .nav-cta{background:var(--blue)!important;color:white!important;padding:0.6rem 1.5rem;border-radius:100px;font-size:0.88rem!important;}
@@ -131,35 +125,56 @@ h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px rgba(255,255
 .plan-btn.outline:hover{border-color:var(--blue);color:var(--blue);}
 .plan-btn.solid{background:white;color:var(--blue);}
 .plan-btn.solid:hover{background:var(--blue-light);}
-.custom-strip{max-width:1000px;margin:2.5rem auto 0;background:var(--black);border-radius:24px;padding:2.2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;position:relative;overflow:hidden;}
-.custom-strip::after{content:'';position:absolute;top:-130px;right:-70px;width:360px;height:300px;background:radial-gradient(ellipse,rgba(27,79,255,0.35) 0%,transparent 70%);pointer-events:none;}
-.custom-strip-text{position:relative;z-index:1;max-width:560px;}
-.custom-strip-eyebrow{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7B9FFF;margin-bottom:0.5rem;}
-.custom-strip h3{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:600;color:white;margin-bottom:0.5rem;}
-.custom-strip p{font-size:0.9rem;color:rgba(255,255,255,0.5);line-height:1.65;}
-.custom-strip .btn-primary{position:relative;z-index:1;flex-shrink:0;border:none;cursor:pointer;font-family:'Instrument Sans',sans-serif;}
-.custom-fields{display:none;flex-direction:column;gap:1.2rem;}
-.custom-fields.active{display:flex;}
-.check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;}
-.check-item{display:flex;align-items:center;gap:0.55rem;padding:0.65rem 0.8rem;border:1.5px solid var(--gray2);border-radius:10px;background:var(--gray);font-size:0.82rem;color:var(--text);cursor:pointer;transition:all 0.2s;}
-.check-item:hover{border-color:var(--blue);}
-.check-item.checked{border-color:var(--blue);background:var(--blue-light);}
-.check-item input{accent-color:var(--blue);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
-.estimate-box{background:var(--blue-light);border:1.5px solid var(--blue);border-radius:14px;padding:1.1rem 1.3rem;}
-.estimate-label{font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--blue);margin-bottom:0.35rem;}
-.estimate-num{font-family:'Clash Display',sans-serif;font-size:1.55rem;font-weight:700;color:var(--black);line-height:1.2;}
-.estimate-note{font-size:0.76rem;color:var(--muted);margin-top:0.45rem;line-height:1.55;}
-.benefits{background:var(--blue-light);padding:6rem 3rem;}
-.benefits-inner{max-width:1100px;margin:0 auto;}
-.benefits-header{text-align:center;max-width:600px;margin:0 auto 3.5rem;}
-.benefits-header .section-label{margin-left:auto;margin-right:auto;}
-.benefits-header .section-sub{margin:0 auto;}
-.benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
-.benefit-card{background:white;border:1px solid var(--gray2);border-radius:18px;padding:1.75rem 1.5rem;transition:all 0.3s;}
-.benefit-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:0 12px 30px rgba(27,79,255,0.1);}
-.benefit-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:1.1rem;}
-.benefit-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;color:var(--black);margin-bottom:0.5rem;}
-.benefit-desc{font-size:0.85rem;color:var(--muted);line-height:1.6;}
+.custom-card{max-width:1000px;margin:2.5rem auto 0;background:var(--black);border-radius:24px;padding:2.2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;}
+.custom-card .kicker{font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7B9FFF;margin-bottom:0.5rem;}
+.custom-card h3{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:white;margin-bottom:0.6rem;}
+.custom-card p{color:rgba(255,255,255,0.55);font-size:0.9rem;line-height:1.7;max-width:640px;}
+.custom-btn{background:var(--blue);color:white;border:none;padding:0.85rem 1.6rem;border-radius:100px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all 0.2s;}
+.custom-btn:hover{background:var(--blue-mid);}
+.why{background:var(--white);padding:6rem 3rem;}
+.why-header{text-align:center;margin-bottom:4rem;}
+.why-header .section-sub{margin:0 auto;}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+.why-card{background:var(--gray);border:1px solid var(--gray2);border-radius:20px;padding:1.8rem;transition:all 0.3s;}
+.why-card:hover{border-color:var(--blue);transform:translateY(-4px);}
+.why-icon{font-size:1.6rem;margin-bottom:0.8rem;}
+.why-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;color:var(--black);margin-bottom:0.5rem;}
+.why-desc{font-size:0.85rem;color:var(--muted);line-height:1.65;}
+.bulk{background:var(--gray);padding:6rem 3rem;}
+.bulk-inner{max-width:1100px;margin:0 auto;}
+.bulk-header{text-align:center;margin-bottom:3.5rem;}
+.bulk-header .section-sub{margin:0 auto;}
+.sub-title{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:var(--black);margin:0 0 1.2rem;display:flex;align-items:center;gap:0.6rem;}
+.sub-title::before{content:'';width:4px;height:18px;background:var(--blue);border-radius:2px;}
+.msg-types{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:3rem;}
+.msg-type{border-radius:16px;padding:1.6rem 1.8rem;border:1.5px solid;}
+.msg-type.utility{background:#E9F9F6;border-color:#14B8A6;}
+.msg-type.marketing{background:#FFF3EA;border-color:#FB923C;}
+.msg-type-title{font-size:0.8rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.6rem;}
+.msg-type.utility .msg-type-title{color:#0F766E;}
+.msg-type.marketing .msg-type-title{color:#C2410C;}
+.msg-type p{font-size:0.88rem;line-height:1.65;color:var(--muted);}
+.table-wrap{background:white;border:1px solid var(--gray2);border-radius:16px;overflow:hidden;margin-bottom:3rem;}
+.quota-table{width:100%;border-collapse:collapse;}
+.quota-table th{background:var(--black);color:white;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:0.9rem 1.4rem;}
+.quota-table td{padding:0.9rem 1.4rem;font-size:0.88rem;color:var(--text);border-top:1px solid var(--gray2);}
+.quota-table td strong{color:var(--blue);}
+.addon{background:#E9F9F6;border:2px solid #14B8A6;border-radius:20px;padding:1.8rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;margin-bottom:3rem;}
+.addon-title{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:#0F766E;margin-bottom:0.4rem;}
+.addon-desc{font-size:0.9rem;color:var(--muted);line-height:1.6;max-width:560px;}
+.addon-price{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--black);text-align:right;}
+.addon-price span{display:block;font-family:'Instrument Sans',sans-serif;font-size:0.75rem;font-weight:400;color:var(--muted);}
+.standalone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1.2rem;}
+.bulk-note{font-size:0.8rem;color:var(--muted);text-align:center;}
+.compliance{background:white;border-left:4px solid var(--blue);border-radius:12px;padding:1.2rem 1.5rem;font-size:0.82rem;color:var(--muted);line-height:1.7;margin-top:2rem;}
+.testimonial{background:var(--blue-light);padding:6rem 3rem;}
+.testimonial-inner{max-width:700px;margin:0 auto;text-align:center;}
+.quote-mark{font-size:5rem;color:var(--blue);line-height:0.5;display:block;margin-bottom:1.5rem;font-family:'Clash Display',sans-serif;}
+.quote{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:600;color:var(--black);line-height:1.4;margin-bottom:1.5rem;}
+.testimonial-author{display:flex;align-items:center;justify-content:center;gap:0.75rem;}
+.author-avatar{width:44px;height:44px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;}
+.author-name{font-weight:600;font-size:0.9rem;color:var(--black);}
+.author-role{font-size:0.78rem;color:var(--muted);}
 .cta-section{background:var(--black);padding:6rem 3rem;text-align:center;}
 .cta-inner{max-width:600px;margin:0 auto;}
 .cta-inner h2{font-family:'Clash Display',sans-serif;font-size:3rem;font-weight:700;color:white;line-height:1.15;margin-bottom:1rem;}
@@ -167,42 +182,40 @@ h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px rgba(255,255
 .cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
 footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.05);}
 .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-.footer-logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.2rem;color:white;display:flex;align-items:center;gap:0.5rem;}
-.footer-logo img{width:26px;height:26px;border-radius:6px;display:block;}
+.footer-logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.2rem;color:white;}
 .footer-links{display:flex;gap:2rem;flex-wrap:wrap;}
 .footer-links a{color:rgba(255,255,255,0.3);font-size:0.82rem;text-decoration:none;transition:color 0.2s;}
 .footer-links a:hover{color:white;}
 .footer-copy{color:rgba(255,255,255,0.2);font-size:0.78rem;}
 .contact-section{background:var(--gray);padding:6rem 3rem;}
-.contact-inner{max-width:600px;margin:0 auto;}
+.contact-inner{max-width:640px;margin:0 auto;}
 .contact-header{text-align:center;margin-bottom:3rem;}
 .form{background:white;border:1px solid var(--gray2);border-radius:24px;padding:2.5rem;display:flex;flex-direction:column;gap:1.2rem;}
 .form-group{display:flex;flex-direction:column;gap:0.4rem;}
 .form-group label{font-size:0.82rem;font-weight:600;color:var(--text);}
 .form-group input,.form-group select,.form-group textarea{padding:0.75rem 1rem;border:1.5px solid var(--gray2);border-radius:10px;font-family:'Instrument Sans',sans-serif;font-size:0.9rem;color:var(--text);background:var(--gray);transition:border-color 0.2s;outline:none;}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue);background:white;}
-.form-group textarea{resize:vertical;min-height:100px;}
+.form-group textarea{resize:vertical;min-height:90px;}
+.check-group{display:flex;flex-wrap:wrap;gap:0.6rem;}
+.check-pill{display:flex;align-items:center;gap:0.5rem;background:var(--gray);border:1.5px solid var(--gray2);border-radius:100px;padding:0.5rem 1rem;font-size:0.8rem;cursor:pointer;color:var(--text);}
+.check-pill input{accent-color:var(--blue);}
+.estimate-box{background:var(--blue-light);border:1.5px solid var(--blue);border-radius:12px;padding:1rem 1.2rem;font-size:0.85rem;color:var(--text);}
+.estimate-box .est-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--blue);margin-bottom:0.3rem;}
 .form-submit{background:var(--blue);color:white;padding:0.9rem;border:none;border-radius:100px;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all 0.2s;font-family:'Instrument Sans',sans-serif;}
 .form-submit:hover{background:var(--blue-dark);transform:translateY(-1px);}
 .fade-in{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease;}
 .fade-in.visible{opacity:1;transform:translateY(0);}
-.mobile-login{display:none;}
 @media(max-width:768px){
   nav{padding:1rem 1.2rem;}.nav-links{display:none;}
-  .mobile-login{display:inline-block;text-decoration:none;color:var(--blue);font-size:0.85rem;font-weight:600;}
   .hero{padding:6rem 1.5rem 3rem;}.hero-inner{grid-template-columns:1fr;gap:3rem;}
   h1{font-size:2.4rem;}.phone-wrap{order:-1;}
-  .features-grid,.plans,.who-grid,.steps,.benefits-grid{grid-template-columns:1fr;}
+  .features-grid,.plans,.who-grid,.steps,.msg-types,.standalone-grid,.why-grid{grid-template-columns:1fr;}
   .plan.popular{transform:none;}
-  .section,.how,.who,.pricing,.contact-section,.cta-section,.benefits{padding:4rem 1.5rem;}
+  .section,.how,.who,.pricing,.contact-section,.cta-section,.testimonial,.bulk,.why{padding:4rem 1.5rem;}
   .section-title{font-size:2rem;}.cta-inner h2{font-size:2rem;}
-  .footer-inner{flex-direction:column;text-align:center;}
-  .custom-strip{padding:1.8rem 1.5rem;flex-direction:column;align-items:flex-start;}
-  .custom-strip .btn-primary{width:100%;justify-content:center;}
-  .check-grid{grid-template-columns:1fr;}
-}
-@media(max-width:900px) and (min-width:769px){
-  .benefits-grid{grid-template-columns:repeat(2,1fr);}
+  .addon{flex-direction:column;align-items:flex-start;}
+  .addon-price{text-align:left;}
+  .custom-card{flex-direction:column;align-items:flex-start;}
 }
 </style>
 </head>
@@ -210,18 +223,18 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
 
 <nav>
   <a href="#" class="logo">
-    <div class="logo-icon"><img src="images/logo/app-icon.png" alt="NeverMiss logo"></div>
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg></div>
     NeverMiss
   </a>
   <div class="nav-links">
     <a href="#features">Features</a>
     <a href="#how">How It Works</a>
     <a href="#pricing">Pricing</a>
-    <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">💬 Support</a>
+    <a href="#bulk">Bulk Messaging</a>
+    <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank">💬 Support</a>
     <a href="login.html">Login</a>
     <a href="#contact" class="nav-cta">Get Started</a>
   </div>
-  <a href="login.html" class="mobile-login">Login</a>
 </nav>
 
 <section class="hero">
@@ -291,6 +304,9 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       <div class="feature-card fade-in"><div class="feature-icon">📋</div><div class="feature-title">Registration Flow</div><p class="feature-desc">Step-by-step guided registration — collects all details and sends your Google Form link automatically.</p></div>
       <div class="feature-card fade-in"><div class="feature-icon">🧠</div><div class="feature-title">AI-Powered Brain</div><p class="feature-desc">Powered by advanced AI that understands Hindi + English. Handles complex queries naturally like a human counselor.</p></div>
       <div class="feature-card fade-in"><div class="feature-icon">📊</div><div class="feature-title">Lead Dashboard</div><p class="feature-desc">All your leads in one place. See every enquiry, conversation history, and follow up with one click.</p></div>
+      <div class="feature-card fade-in"><div class="feature-icon">📢</div><div class="feature-title">Bulk Broadcasts</div><p class="feature-desc">Send admission drives, batch updates, and fee reminders to thousands of opted-in students at once — safely within WhatsApp limits.</p></div>
+      <div class="feature-card fade-in"><div class="feature-icon">⏰</div><div class="feature-title">Automated Reminders</div><p class="feature-desc">Never lose a warm lead. Automatically nudges students who went quiet right before the 24-hour WhatsApp window closes.</p></div>
+      <div class="feature-card fade-in"><div class="feature-icon">🌐</div><div class="feature-title">Multi-Language</div><p class="feature-desc">Automatically detects and replies in English, Hindi, or Marathi. Connect with parents and students in their comfort zone.</p></div>
     </div>
   </div>
 </section>
@@ -343,9 +359,10 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Lead capture & storage</li>
         <li>Callback requests</li>
         <li>1,000 conversations/month</li>
+        <li>300 utility + 20 marketing bulk msgs/mo</li>
         <li>Email support</li>
       </ul>
-      <button class="plan-btn outline" onclick="selectPlan('starter', this)">Get Started</button>
+      <button class="plan-btn outline" onclick="selectPlan('starter')">Get Started</button>
     </div>
     <div class="plan popular fade-in">
       <div class="plan-badge">Most Popular</div>
@@ -360,9 +377,10 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Seat booking</li>
         <li>Custom quick replies</li>
         <li>Automated re-engagement reminders</li>
+        <li>750 utility + 50 marketing bulk msgs/mo</li>
         <li>Priority support</li>
       </ul>
-      <button class="plan-btn solid" onclick="selectPlan('growth', this)">Get Started</button>
+      <button class="plan-btn solid" onclick="selectPlan('growth')">Get Started</button>
     </div>
     <div class="plan fade-in">
       <div class="plan-name">Pro</div>
@@ -371,60 +389,135 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       <ul class="plan-features">
         <li>Everything in Growth</li>
         <li>Unlimited conversations</li>
+        <li>1,500 utility + 100 marketing bulk msgs/mo</li>
         <li>AI Voice Calling — coming soon</li>
         <li>Priority support</li>
       </ul>
-      <button class="plan-btn outline" onclick="selectPlan('pro', this)">Get Started</button>
+      <button class="plan-btn outline" onclick="selectPlan('pro')">Get Started</button>
     </div>
   </div>
-
-  <div class="custom-strip fade-in">
-    <div class="custom-strip-text">
-      <div class="custom-strip-eyebrow">Something else?</div>
+  <div class="custom-card fade-in">
+    <div>
+      <div class="kicker">Something else?</div>
       <h3>Custom build for your sector</h3>
       <p>Skilling centres, training institutes, clinics, agencies — if the three plans above don't fit how you work, tell us what you need and we'll build and price it around that. Monthly, per conversation, or whatever suits you.</p>
     </div>
-    <button class="btn-primary" onclick="selectCustom()">Tell us what you need →</button>
+    <button class="custom-btn" onclick="selectPlan('custom')">Tell us what you need →</button>
+  </div>
+  <p class="bulk-note fade-in" style="margin-top:2rem;">One extra admission recovered per month easily covers the entire subscription cost.</p>
+</section>
+
+<section class="bulk" id="bulk">
+  <div class="bulk-inner">
+    <div class="bulk-header fade-in">
+      <div class="section-label">Bulk Messaging</div>
+      <h2 class="section-title">Reach every student — safely</h2>
+      <p class="section-sub">Send reminders, fee nudges and admission announcements to your opted-in contact list. Bulk messages are included in every plan.</p>
+    </div>
+
+    <div class="sub-title fade-in">Two kinds of messages</div>
+    <div class="msg-types">
+      <div class="msg-type utility fade-in">
+        <div class="msg-type-title">Utility Messages</div>
+        <p>Batch reminders, fee-due nudges, registration confirmations — everyday updates for students already engaging with your institute. Generously included every month.</p>
+      </div>
+      <div class="msg-type marketing fade-in">
+        <div class="msg-type-title">Marketing Messages</div>
+        <p>Admission-open announcements, promotional pushes, new batch launches — messages aimed at bringing in new enquiries and enrolments.</p>
+      </div>
+    </div>
+
+    <div class="sub-title fade-in">Included free with every plan</div>
+    <div class="table-wrap fade-in">
+      <table class="quota-table">
+        <tr><th>Plan</th><th>Utility Messages</th><th>Marketing Messages</th></tr>
+        <tr><td>Starter</td><td><strong>300 / month</strong></td><td><strong>20 / month</strong></td></tr>
+        <tr><td>Growth</td><td><strong>750 / month</strong></td><td><strong>50 / month</strong></td></tr>
+        <tr><td>Pro</td><td><strong>1,500 / month</strong></td><td><strong>100 / month</strong></td></tr>
+      </table>
+    </div>
+
+    <div class="sub-title fade-in">Need more reach?</div>
+    <div class="addon fade-in">
+      <div>
+        <div class="addon-title">Bulk Messaging Plus</div>
+        <p class="addon-desc">1,500 extra utility messages + 300 extra marketing messages every month — perfect for admission season pushes and larger batches.</p>
+      </div>
+      <div class="addon-price">₹999<span>+ GST, billed monthly</span></div>
+    </div>
+
+    <div class="sub-title fade-in">Just want bulk messaging? Standalone plans</div>
+    <div class="plans standalone-grid">
+      <div class="plan fade-in">
+        <div class="plan-name">Message Basic</div>
+        <div class="plan-price">₹799<span>/mo</span></div>
+        <p class="plan-desc">No AI bot or dashboard — messaging only</p>
+        <ul class="plan-features">
+          <li>1,500 utility messages/mo</li>
+          <li>80 marketing messages/mo</li>
+          <li>Template setup & approval help</li>
+        </ul>
+        <a class="plan-btn outline" style="text-decoration:none;" href="https://wa.me/917484849508?text=Hi!%20I%27m%20interested%20in%20the%20Message%20Basic%20bulk%20messaging%20plan." target="_blank">Get Started</a>
+      </div>
+      <div class="plan popular fade-in">
+        <div class="plan-badge">Best Value</div>
+        <div class="plan-name">Message Growth</div>
+        <div class="plan-price">₹1,499<span>/mo</span></div>
+        <p class="plan-desc">No AI bot or dashboard — messaging only</p>
+        <ul class="plan-features">
+          <li>3,500 utility messages/mo</li>
+          <li>200 marketing messages/mo</li>
+          <li>Template setup & approval help</li>
+        </ul>
+        <a class="plan-btn solid" style="text-decoration:none;" href="https://wa.me/917484849508?text=Hi!%20I%27m%20interested%20in%20the%20Message%20Growth%20bulk%20messaging%20plan." target="_blank">Get Started</a>
+      </div>
+      <div class="plan fade-in">
+        <div class="plan-name">Message Pro</div>
+        <div class="plan-price">₹2,499<span>/mo</span></div>
+        <p class="plan-desc">No AI bot or dashboard — messaging only</p>
+        <ul class="plan-features">
+          <li>7,000 utility messages/mo</li>
+          <li>400 marketing messages/mo</li>
+          <li>Template setup & approval help</li>
+        </ul>
+        <a class="plan-btn outline" style="text-decoration:none;" href="https://wa.me/917484849508?text=Hi!%20I%27m%20interested%20in%20the%20Message%20Pro%20bulk%20messaging%20plan." target="_blank">Get Started</a>
+      </div>
+    </div>
+    <p class="bulk-note fade-in">All standalone plans priced +GST. Upgrade anytime to a full NeverMiss plan with AI bot & leads dashboard.</p>
+
+    <div class="compliance fade-in">
+      Messages sent outside these limits, or larger one-time campaigns, can be added on request. All bulk messages go only to contacts who have <strong>opted in</strong> — this keeps your WhatsApp number in good standing with Meta and protects long-term deliverability.
+    </div>
   </div>
 </section>
 
-<section class="benefits">
-  <div class="benefits-inner">
-    <div class="benefits-header fade-in">
+<section class="why">
+  <div class="section-inner">
+    <div class="why-header fade-in">
       <div class="section-label">Why Institutes Choose Us</div>
       <h2 class="section-title">Why coaching institutes choose NeverMiss</h2>
       <p class="section-sub">Every enquiry answered, every lead captured — without adding to your front desk's workload.</p>
     </div>
-    <div class="benefits-grid">
-      <div class="benefit-card fade-in">
-        <div class="benefit-icon">📈</div>
-        <div class="benefit-title">More admissions</div>
-        <p class="benefit-desc">Every WhatsApp enquiry gets an instant reply, even after hours — so you don't lose students to institutes that respond faster.</p>
-      </div>
-      <div class="benefit-card fade-in">
-        <div class="benefit-icon">🎯</div>
-        <div class="benefit-title">Never miss a lead</div>
-        <p class="benefit-desc">Every conversation, callback request, and registration is captured and organized — nothing falls through the cracks.</p>
-      </div>
-      <div class="benefit-card fade-in">
-        <div class="benefit-icon">🕐</div>
-        <div class="benefit-title">24/7 availability</div>
-        <p class="benefit-desc">Your bot never sleeps. Students get answers at midnight, on weekends, or whenever they're browsing — not just office hours.</p>
-      </div>
-      <div class="benefit-card fade-in">
-        <div class="benefit-icon">⚡</div>
-        <div class="benefit-title">Instant answers, zero wait</div>
-        <p class="benefit-desc">Questions about timings, fees, courses, and facilities get answered immediately — no student ever waits for a callback.</p>
-      </div>
-      <div class="benefit-card fade-in">
-        <div class="benefit-icon">✅</div>
-        <div class="benefit-title">Effortless handling</div>
-        <p class="benefit-desc">Registrations, demo bookings, and seat bookings happen right inside the chat — no manual back-and-forth needed.</p>
-      </div>
-      <div class="benefit-card fade-in">
-        <div class="benefit-icon">🔔</div>
-        <div class="benefit-title">Stay on top of every enquiry</div>
-        <p class="benefit-desc">Get notified the moment a new lead comes in, right on your own WhatsApp — so nothing sits unattended.</p>
+    <div class="why-grid">
+      <div class="why-card fade-in"><div class="why-icon">📈</div><div class="why-title">More admissions</div><p class="why-desc">Every WhatsApp enquiry gets an instant reply, even after hours — so you don't lose students to institutes that respond faster.</p></div>
+      <div class="why-card fade-in"><div class="why-icon">🎯</div><div class="why-title">Never miss a lead</div><p class="why-desc">Every conversation, callback request, and registration is captured and organized — nothing falls through the cracks.</p></div>
+      <div class="why-card fade-in"><div class="why-icon">🕐</div><div class="why-title">24/7 availability</div><p class="why-desc">Your bot never sleeps. Students get answers at midnight, on weekends, or whenever they're browsing — not just office hours.</p></div>
+      <div class="why-card fade-in"><div class="why-icon">⚡</div><div class="why-title">Instant answers, zero wait</div><p class="why-desc">Questions about timings, fees, courses, and facilities get answered immediately — no student ever waits for a callback.</p></div>
+      <div class="why-card fade-in"><div class="why-icon">✅</div><div class="why-title">Effortless handling</div><p class="why-desc">Registrations, demo bookings, and seat bookings happen right inside the chat — no manual back-and-forth needed.</p></div>
+      <div class="why-card fade-in"><div class="why-icon">🔔</div><div class="why-title">Stay on top of every enquiry</div><p class="why-desc">Get notified the moment a new lead comes in, right on your own WhatsApp — so nothing sits unattended.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="testimonial">
+  <div class="testimonial-inner fade-in">
+    <span class="quote-mark">"</span>
+    <p class="quote">Before NeverMiss, we missed 40% of WhatsApp enquiries after hours. Now every student gets an instant reply and our admissions have gone up significantly.</p>
+    <div class="testimonial-author">
+      <div class="author-avatar">RS</div>
+      <div>
+        <div class="author-name">Rajesh Sir</div>
+        <div class="author-role">Director, Shubh Coaching Institute, Pune</div>
       </div>
     </div>
   </div>
@@ -446,11 +539,10 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
     <div class="contact-header fade-in">
       <div class="section-label">Get Started</div>
       <h2 class="section-title">Activate your bot now</h2>
-      <p class="section-sub" style="margin:0 auto;text-align:center;">Fill in your details, pay securely via Razorpay, and we'll set up your bot within 24 hours.</p>
+      <p class="section-sub" style="margin:0 auto;text-align:center;">Fill in your details, pay securely via Razorpay, and your bot is live in minutes.</p>
     </div>
     <div class="form fade-in">
-      <!-- Selected plan display -->
-      <div id="selected-plan-banner" style="display:none;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:12px;padding:0.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;">
+      <div id="selected-plan-banner" style="display:none;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:12px;padding:0.9rem 1.2rem;align-items:center;justify-content:space-between;">
         <div>
           <div style="font-size:0.75rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Selected Plan</div>
           <div id="selected-plan-label" style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--black);"></div>
@@ -458,25 +550,12 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <button onclick="clearPlan()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.8rem;">Change</button>
       </div>
 
-      <div class="form-group">
-        <label>Your Name *</label>
-        <input id="f-name" type="text" placeholder="e.g. Rajesh Kumar" required>
-      </div>
-      <div class="form-group">
-        <label>Business Name *</label>
-        <input id="f-business" type="text" placeholder="e.g. Shubh Coaching Institute" required>
-      </div>
-      <div class="form-group">
-        <label>Email Address *</label>
-        <input id="f-email" type="email" placeholder="e.g. you@example.com" required>
-      </div>
-      <div class="form-group">
-        <label>WhatsApp Number *</label>
-        <input id="f-phone" type="tel" placeholder="e.g. 9876543210" required>
-      </div>
-      <div class="form-group">
-        <label>Business Type</label>
-        <select id="f-type" onchange="if(this.value==='Custom / Not listed') selectCustom();">
+      <div class="form-group"><label>Your Name *</label><input id="f-name" type="text" placeholder="e.g. Rajesh Kumar"></div>
+      <div class="form-group"><label>Business Name *</label><input id="f-business" type="text" placeholder="e.g. Shubh Coaching Institute"></div>
+      <div class="form-group"><label>Email Address *</label><input id="f-email" type="email" placeholder="e.g. rajesh@coaching.com"></div>
+      <div class="form-group"><label>WhatsApp Number *</label><input id="f-phone" type="tel" placeholder="e.g. 9876543210"></div>
+      <div class="form-group"><label>Business Type</label>
+        <select id="f-type" onchange="syncCustomMode()">
           <option value="">Select your business type</option>
           <option>Coaching Institute</option>
           <option>Hospital / Clinic</option>
@@ -486,9 +565,8 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
           <option>Custom / Not listed</option>
         </select>
       </div>
-      <div class="form-group" id="plan-select-group">
-        <label>Select Plan *</label>
-        <select id="f-plan" onchange="selectPlan(this.value, null)">
+      <div class="form-group" id="plan-select-group"><label>Select Plan *</label>
+        <select id="f-plan" onchange="syncCustomMode()">
           <option value="">Choose a plan</option>
           <option value="starter">Starter — ₹3,999/month</option>
           <option value="growth">Growth — ₹5,999/month</option>
@@ -496,91 +574,71 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
           <option value="custom">Custom — built around your needs</option>
         </select>
       </div>
+      <div class="form-group" id="coupon-group"><label>Coupon Code <span style="color:var(--muted);font-weight:400;">(optional)</span></label><input id="f-coupon" type="text" placeholder="e.g. TRIAL100 or a referral code"></div>
 
-      <div class="form-group" id="coupon-group">
-        <label>Coupon Code <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
-        <input id="f-coupon" type="text" placeholder="Enter code if you have one" style="text-transform:uppercase;">
-      </div>
-
-      <!-- Custom requirements — shown only when the custom track is selected -->
-      <div class="custom-fields" id="custom-fields">
-        <div class="form-group">
-          <label>What does your organisation do? *</label>
-          <input id="c-sector" type="text" placeholder="e.g. Skilling centre, diagnostic lab, travel agency" oninput="updateEstimate()">
-        </div>
-
-        <div class="form-group">
-          <label>Roughly how many WhatsApp enquiries a month? *</label>
-          <select id="c-volume" onchange="updateEstimate()">
+      <!-- Custom-track questions -->
+      <div id="custom-fields" style="display:none;flex-direction:column;gap:1.2rem;">
+        <div class="form-group"><label>What does your organisation do? *</label><textarea id="f-sector" placeholder="e.g. Skilling centre placing candidates in hospitality jobs across Maharashtra"></textarea></div>
+        <div class="form-group"><label>Roughly how many WhatsApp enquiries a month? *</label>
+          <select id="f-volume" onchange="updateEstimate()">
             <option value="">Select a range</option>
-            <option value="low">Under 500</option>
-            <option value="mid">500 – 2,000</option>
-            <option value="high">2,000 – 5,000</option>
-            <option value="max">More than 5,000</option>
+            <option value="v1">Under 500</option>
+            <option value="v2">500 – 2,000</option>
+            <option value="v3">2,000 – 5,000</option>
+            <option value="v4">More than 5,000</option>
           </select>
         </div>
-
-        <div class="form-group">
-          <label>What should the bot handle? *</label>
-          <div class="check-grid" id="c-needs">
-            <label class="check-item"><input type="checkbox" value="Answering common questions" onchange="updateEstimate()"> Answering common questions</label>
-            <label class="check-item"><input type="checkbox" value="Capturing leads" onchange="updateEstimate()"> Capturing leads</label>
-            <label class="check-item"><input type="checkbox" value="Sending brochures and documents" onchange="updateEstimate()"> Sending brochures &amp; documents</label>
-            <label class="check-item"><input type="checkbox" value="Guiding people to register" onchange="updateEstimate()"> Guiding people to register</label>
-            <label class="check-item"><input type="checkbox" value="Taking bookings or appointments" data-weight="2" onchange="updateEstimate()"> Bookings or appointments</label>
-            <label class="check-item"><input type="checkbox" value="Replying in Marathi or Hindi" data-weight="2" onchange="updateEstimate()"> Marathi or Hindi replies</label>
-            <label class="check-item"><input type="checkbox" value="Following up with people who drop off" data-weight="2" onchange="updateEstimate()"> Follow-ups for drop-offs</label>
-            <label class="check-item"><input type="checkbox" value="Separate flows for different programmes" data-weight="2" onchange="updateEstimate()"> Separate flows per programme</label>
+        <div class="form-group"><label>What should the bot handle? *</label>
+          <div class="check-group">
+            <label class="check-pill"><input type="checkbox" value="Answering common questions"> Answering common questions</label>
+            <label class="check-pill"><input type="checkbox" value="Capturing leads"> Capturing leads</label>
+            <label class="check-pill"><input type="checkbox" value="Sending brochures & documents"> Sending brochures & documents</label>
+            <label class="check-pill"><input type="checkbox" value="Guiding people to register"> Guiding people to register</label>
+            <label class="check-pill"><input type="checkbox" value="Bookings or appointments"> Bookings or appointments</label>
+            <label class="check-pill"><input type="checkbox" value="Marathi or Hindi replies"> Marathi or Hindi replies</label>
+            <label class="check-pill"><input type="checkbox" value="Follow-ups for drop-offs"> Follow-ups for drop-offs</label>
+            <label class="check-pill"><input type="checkbox" value="Separate flows per programme"> Separate flows per programme</label>
           </div>
         </div>
-
-        <div class="form-group">
-          <label>How would you prefer to pay?</label>
-          <select id="c-billing">
-            <option value="Not sure yet">Not sure yet — suggest what fits</option>
-            <option value="Monthly">Monthly</option>
-            <option value="6-month plan">6-month plan</option>
-            <option value="Annual plan">Annual plan</option>
-            <option value="Per conversation">Per conversation</option>
+        <div class="form-group"><label>How would you prefer to pay?</label>
+          <select id="f-billing">
+            <option value="">Not sure yet — suggest what fits</option>
+            <option>Monthly</option>
+            <option>6-month plan</option>
+            <option>Annual plan</option>
+            <option>Per conversation</option>
           </select>
         </div>
-
-        <div class="form-group">
-          <label>Anything else we should know?</label>
-          <textarea id="c-notes" placeholder="Programmes you run, how enquiries reach you today, anything specific you want handled"></textarea>
-        </div>
-
+        <div class="form-group"><label>Anything else we should know?</label><textarea id="f-notes" placeholder="Optional"></textarea></div>
         <div class="estimate-box">
-          <div class="estimate-label">Indicative starting point</div>
-          <div class="estimate-num" id="estimate-num">Fill in the details above</div>
-          <p class="estimate-note" id="estimate-note">This is a rough range, not a quote. We'll confirm the real number after a short conversation about what you actually need. Setup is waived on 6-month and annual plans.</p>
+          <div class="est-label">Indicative starting point</div>
+          <div id="estimate-value">Fill in the details above</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:0.4rem;">This is a rough range, not a quote. We'll confirm the real number after a short conversation about what you actually need. Setup is waived on 6-month and annual plans.</div>
         </div>
       </div>
 
       <div id="form-error" style="display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#C00;"></div>
 
-      <button class="form-submit" id="pay-btn" onclick="handleSubmit()">
+      <button class="form-submit" id="pay-btn" onclick="startPayment()">
         <span id="pay-btn-text">Pay & Activate Bot →</span>
       </button>
 
-      <p id="pay-note" style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:-0.5rem;">
+      <p style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:-0.5rem;">
         🔒 Secured by Razorpay &nbsp;|&nbsp; Instant confirmation on WhatsApp
       </p>
-      <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-top:0.5rem;">
-        Questions before you pay? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20before%20signing%20up" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a>
-      </p>
+      <p style="text-align:center;font-size:0.78rem;color:var(--muted);">Questions before you pay? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20before%20signing%20up" target="_blank" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a></p>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="footer-inner">
-    <div class="footer-logo"><img src="images/logo/app-icon.png" alt="NeverMiss">NeverMiss</div>
+    <div class="footer-logo">NeverMiss</div>
     <div class="footer-links">
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
       <a href="#contact">Contact</a>
-      <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">💬 WhatsApp Support</a>
+      <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank">💬 WhatsApp Support</a>
       <a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a>
     </div>
     <div class="footer-copy">© 2026 NeverMiss. All rights reserved.</div>
@@ -589,248 +647,96 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-// ── CONFIGURATION — replace with your real keys ──────────────────────────────
-// NOTE: Razorpay key is no longer hardcoded here. It comes back from the
-// backend's /api/create-order response (order.key_id), which automatically
-// reflects whichever mode (test/live) PAYMENT_MODE is set to in Render --
-// so this file never needs manual updates when switching modes.
-const API_BASE = "https://my-saas-bot.onrender.com";  // your Render backend
+// ── CONFIGURATION ─────────────────────────────────────────────────────────────
+const API_BASE = "";  // same origin; if separate server use full URL e.g. "https://api.nevermiss.co.in"
 
 const PLAN_LABELS = {
   starter: "Starter — ₹3,999/month",
   growth:  "Growth — ₹5,999/month",
   pro:     "Pro — ₹8,999/month",
+  custom:  "Custom — built around your needs",
 };
 
-// ── CUSTOM PRICING KNOBS — edit these as you learn your real numbers ─────────
-const CUSTOM_BASE      = 5000;   // starting monthly figure
-const VOLUME_ADDER     = { low: 0, mid: 2000, high: 5000, max: 9000 };
-const FEATURE_ADDER    = 800;    // per standard feature ticked
-const HEAVY_MULTIPLIER = 2;      // features marked data-weight="2" count double
-const RANGE_SPREAD     = 0.35;   // upper end of the quoted range
-const WA_NUMBER        = "917484849508";
-
 let selectedPlan = "";
-let customMode = false;
 
-// Called when user clicks a plan button
-function selectPlan(plan, btn) {
-  if (!plan) { clearPlan(); return; }
-  if (plan === "custom") return selectCustom();
-  customMode = false;
-  applyMode();
+function selectPlan(plan) {
   selectedPlan = plan;
-
-  // Update hidden select
   document.getElementById("f-plan").value = plan;
-
-  // Show banner
   const banner = document.getElementById("selected-plan-banner");
   banner.style.display = "flex";
   document.getElementById("selected-plan-label").textContent = PLAN_LABELS[plan];
-
-  // Hide plan dropdown (already selected)
   document.getElementById("plan-select-group").style.display = "none";
-
-  // Scroll to form
+  syncCustomMode();
   document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
 }
 
 function clearPlan() {
   selectedPlan = "";
-  customMode = false;
-  applyMode();
   document.getElementById("f-plan").value = "";
   document.getElementById("selected-plan-banner").style.display = "none";
   document.getElementById("plan-select-group").style.display = "flex";
+  syncCustomMode();
 }
 
-// Switch the form into custom-requirements mode
-function selectCustom() {
-  customMode = true;
-  selectedPlan = "custom";
-  document.getElementById("f-plan").value = "custom";
-
-  const banner = document.getElementById("selected-plan-banner");
-  banner.style.display = "flex";
-  document.getElementById("selected-plan-label").textContent = "Custom — built around your needs";
-  document.getElementById("plan-select-group").style.display = "none";
-
-  applyMode();
-  updateEstimate();
-  document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
+function isCustomMode() {
+  const plan  = document.getElementById("f-plan").value || selectedPlan;
+  const btype = document.getElementById("f-type").value;
+  return plan === "custom" || btype === "Custom / Not listed";
 }
 
-// Show/hide the pieces that differ between paid plans and custom
-function applyMode() {
-  document.getElementById("custom-fields").classList.toggle("active", customMode);
-  document.getElementById("coupon-group").style.display = customMode ? "none" : "flex";
-  document.getElementById("pay-btn-text").textContent = customMode ? "Send my requirements →" : "Pay & Activate Bot →";
-  document.getElementById("pay-note").innerHTML = customMode
-    ? "We'll reply on WhatsApp within a day with a plan and a price."
-    : "🔒 Secured by Razorpay &nbsp;|&nbsp; Instant confirmation on WhatsApp";
-}
-
-function getCheckedNeeds() {
-  return Array.from(document.querySelectorAll("#c-needs input:checked"));
-}
-
-// Deterministic indicative range — deliberately shown as a range, never a quote
-function updateEstimate() {
-  const volume = document.getElementById("c-volume").value;
-  const needs  = getCheckedNeeds();
-
-  document.querySelectorAll("#c-needs .check-item").forEach(el => {
-    el.classList.toggle("checked", el.querySelector("input").checked);
-  });
-
-  const numEl  = document.getElementById("estimate-num");
-  const noteEl = document.getElementById("estimate-note");
-
-  if (!volume || needs.length === 0) {
-    numEl.textContent = "Fill in the details above";
-    noteEl.textContent = "Pick your enquiry volume and what the bot should handle to see a rough starting range.";
-    return;
-  }
-
-  let total = CUSTOM_BASE + (VOLUME_ADDER[volume] || 0);
-  needs.forEach(n => {
-    total += FEATURE_ADDER * (n.dataset.weight ? Number(n.dataset.weight) : 1);
-  });
-
-  const low  = Math.round(total / 500) * 500;
-  const high = Math.round((total * (1 + RANGE_SPREAD)) / 500) * 500;
-
-  numEl.textContent = `₹${low.toLocaleString("en-IN")} – ₹${high.toLocaleString("en-IN")}/month`;
-  noteEl.textContent = "This is a rough range, not a quote. We'll confirm the real number after a short conversation about what you actually need. Setup is waived on 6-month and annual plans.";
-}
-
-// Route the single submit button to the right action
-function handleSubmit() {
-  if (customMode) return sendCustomRequest();
-  return startPayment();
-}
-
-async function sendCustomRequest() {
-  const name     = document.getElementById("f-name").value.trim();
-  const business = document.getElementById("f-business").value.trim();
-  const email    = document.getElementById("f-email").value.trim();
-  const phone    = document.getElementById("f-phone").value.trim();
-  const sector   = document.getElementById("c-sector").value.trim();
-  const volume   = document.getElementById("c-volume");
-  const billing  = document.getElementById("c-billing").value;
-  const notes    = document.getElementById("c-notes").value.trim();
-  const needs    = getCheckedNeeds().map(n => n.value);
-  const estimate = document.getElementById("estimate-num").textContent;
-
-  if (!name)     return showError("Please enter your name.");
-  if (!business) return showError("Please enter your business name.");
-  if (!email || !email.includes("@")) return showError("Please enter a valid email address.");
-  if (!phone || phone.length < 10)    return showError("Please enter a valid 10-digit WhatsApp number.");
-  if (!sector)          return showError("Please tell us what your organisation does.");
-  if (!volume.value)    return showError("Please select your rough monthly enquiry volume.");
-  if (needs.length === 0) return showError("Please pick at least one thing the bot should handle.");
-
-  const volumeLabel = volume.options[volume.selectedIndex].text;
-  setLoading(true);
-
-  try {
-    const res = await fetch(`${API_BASE}/api/custom-request`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name, business, email, phone, sector,
-        volume: volumeLabel, needs, billing, notes, estimate,
-      }),
-    });
-    const result = await res.json();
-    setLoading(false);
-
-    if (!result.success) {
-      showCustomFailure(result.error || "Something went wrong saving your request.");
-      return;
-    }
-
-    showCustomSuccess(name, business);
-
-  } catch (err) {
-    console.error(err);
-    setLoading(false);
-    showCustomFailure("Couldn't reach our server. If you're using Brave or an ad blocker, try turning off shields for this site and submit again.");
-  }
-}
-
-function showCustomSuccess(name, business) {
-  document.querySelector(".form").innerHTML = `
-    <div style="text-align:center;padding:2rem 1rem;">
-      <div style="font-size:3.5rem;margin-bottom:1rem;">✅</div>
-      <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">
-        Thanks, ${name} — we've got your requirements
-      </h3>
-      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;">
-        We'll go through what <strong>${business}</strong> needs and come back with a plan and a price within a day.
-      </p>
-    </div>
-  `;
-}
-
-function showCustomFailure(reason) {
-  document.querySelector(".form").innerHTML = `
-    <div style="text-align:center;padding:2rem 1rem;">
-      <div style="font-size:3.5rem;margin-bottom:1rem;">⚠️</div>
-      <h3 style="font-family:'Clash Display',sans-serif;font-size:1.4rem;color:var(--black);margin-bottom:0.75rem;">
-        We couldn't submit that
-      </h3>
-      <p style="color:var(--muted);font-size:0.9rem;line-height:1.7;margin-bottom:1.75rem;">
-        ${reason} Nothing was lost — your details are still filled in below.
-      </p>
-      <button onclick="location.reload()" style="background:var(--blue);color:white;padding:0.8rem 1.8rem;border:none;border-radius:100px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;">
-        Try again
-      </button>
-      <p style="font-size:0.78rem;color:var(--muted);margin-top:1.2rem;">
-        Still not working? Email us at <a href="mailto:support@nevermiss.co.in" style="color:var(--blue);">support@nevermiss.co.in</a>
-      </p>
-    </div>
-  `;
+function syncCustomMode() {
+  const custom = isCustomMode();
+  document.getElementById("custom-fields").style.display = custom ? "flex" : "none";
+  document.getElementById("coupon-group").style.display  = custom ? "none" : "flex";
+  document.getElementById("pay-btn-text").textContent = custom ? "Submit Requirement →" : "Pay & Activate Bot →";
 }
 
 function showError(msg) {
   const el = document.getElementById("form-error");
   el.textContent = msg;
   el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 5000);
+  setTimeout(() => el.style.display = "none", 6000);
 }
 
 function setLoading(loading) {
   const btn  = document.getElementById("pay-btn");
   const text = document.getElementById("pay-btn-text");
   btn.disabled = loading;
-  text.textContent = loading
-    ? (customMode ? "Sending…" : "Creating order…")
-    : (customMode ? "Send my requirements →" : "Pay & Activate Bot →");
+  if (!isCustomMode()) text.textContent = loading ? "Creating order…" : "Pay & Activate Bot →";
+  else text.textContent = loading ? "Submitting…" : "Submit Requirement →";
   btn.style.opacity = loading ? "0.7" : "1";
 }
 
-async function startPayment() {
-  const name     = document.getElementById("f-name").value.trim();
-  const business = document.getElementById("f-business").value.trim();
-  const email    = document.getElementById("f-email").value.trim();
-  const phone    = document.getElementById("f-phone").value.trim();
-  const bizType  = document.getElementById("f-type").value;
-  const plan     = document.getElementById("f-plan").value || selectedPlan;
-  const coupon   = document.getElementById("f-coupon").value.trim();
+function updateEstimate() {
+  const volume = document.getElementById("f-volume").value;
+  const needs  = document.querySelectorAll(".check-pill input:checked").length;
+  const base   = { v1: 3999, v2: 5999, v3: 8999, v4: 12999 }[volume] || 0;
+  const el = document.getElementById("estimate-value");
+  if (!base) { el.textContent = "Fill in the details above"; return; }
+  const high = Math.round((base + needs * 500) / 100) * 100;
+  el.textContent = `₹${base.toLocaleString("en-IN")} – ₹${high.toLocaleString("en-IN")} /month (indicative)`;
+}
+document.querySelectorAll(".check-pill input").forEach(c => c.addEventListener("change", updateEstimate));
 
-  // Validation
-  if (!name)    return showError("Please enter your name.");
+async function startPayment() {
+  const name    = document.getElementById("f-name").value.trim();
+  const business= document.getElementById("f-business").value.trim();
+  const email   = document.getElementById("f-email").value.trim();
+  const phone   = document.getElementById("f-phone").value.trim();
+  const bizType = document.getElementById("f-type").value;
+  const plan    = document.getElementById("f-plan").value || selectedPlan;
+
+  if (!name)     return showError("Please enter your name.");
   if (!business) return showError("Please enter your business name.");
   if (!email || !email.includes("@")) return showError("Please enter a valid email address.");
   if (!phone || phone.length < 10) return showError("Please enter a valid 10-digit WhatsApp number.");
-  if (!plan)    return showError("Please select a plan.");
+  if (!plan)     return showError("Please select a plan.");
+
+  if (isCustomMode()) return submitCustomRequest({ name, business, email, phone, bizType });
 
   setLoading(true);
-
   try {
-    // 1. Create Razorpay order on server
+    const coupon = document.getElementById("f-coupon").value.trim();
     const orderRes = await fetch(`${API_BASE}/api/create-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -838,37 +744,20 @@ async function startPayment() {
     });
     const order = await orderRes.json();
 
-    if (!order.id) {
-      showError("Could not create order. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    // NEW: if a coupon was entered but wasn't valid, tell the customer --
-    // checkout still proceeds at full price rather than blocking them.
-    if (coupon && !order.coupon_applied) {
-      showError(order.coupon_error || "Coupon code could not be applied. Proceeding at full price.");
-    }
+    if (order.coupon_error) { showError("Coupon: " + order.coupon_error + " — remove or fix the code to continue."); setLoading(false); return; }
+    if (!order.id) { showError("Could not create order. Please try again."); setLoading(false); return; }
 
     setLoading(false);
-
-    // 2. Open Razorpay checkout
     const options = {
-      key: order.key_id,
+      key: order.key_id || "rzp_test_SjErbLHbSiuTAU",
       amount: order.amount,
       currency: "INR",
       name: "NeverMiss",
       description: `${PLAN_LABELS[plan]} Subscription`,
-      image: "https://nevermiss.co.in/images/logo/app-icon.png",
       order_id: order.id,
-      prefill: {
-        name:    name,
-        email:   email,
-        contact: phone,
-      },
+      prefill: { name, contact: phone, email },
       theme: { color: "#1B4FFF" },
       handler: async function (response) {
-        // 3. Verify on server + trigger notifications
         const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -880,47 +769,71 @@ async function startPayment() {
           }),
         });
         const result = await verifyRes.json();
-
         if (result.success) {
-          // Show success state
           document.querySelector(".form").innerHTML = `
             <div style="text-align:center;padding:2rem 1rem;">
               <div style="font-size:3.5rem;margin-bottom:1rem;">🎉</div>
-              <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">
-                You're in, ${name}!
-              </h3>
+              <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">You're in, ${name}!</h3>
               <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;">
                 Your <strong>${PLAN_LABELS[plan]}</strong> is now active.<br>
                 Check WhatsApp — we've sent you a confirmation.<br>
-                Your bot will be live within <strong>24 hours</strong>.
+                Check your email (${email}) for your dashboard login invite.
               </p>
-              <div style="background:var(--blue-light);border-radius:12px;padding:1rem;font-size:0.82rem;color:var(--blue);font-weight:600;">
-                Payment ID: ${response.razorpay_payment_id}
-              </div>
-            </div>
-          `;
+              <div style="background:var(--blue-light);border-radius:12px;padding:1rem;font-size:0.82rem;color:var(--blue);font-weight:600;">Payment ID: ${response.razorpay_payment_id}</div>
+            </div>`;
         } else {
           showError("Payment received but verification failed. Please WhatsApp us with your payment ID: " + response.razorpay_payment_id);
         }
       },
-      modal: {
-        ondismiss: function () {
-          setLoading(false);
-        }
-      }
+      modal: { ondismiss: function () { setLoading(false); } }
     };
-
     const rzp = new Razorpay(options);
-    rzp.on("payment.failed", function (response) {
-      showError("Payment failed: " + response.error.description);
-    });
+    rzp.on("payment.failed", function (resp) { showError("Payment failed: " + resp.error.description); });
     rzp.open();
-
   } catch (err) {
     console.error(err);
     showError("Something went wrong. Please try again or WhatsApp us.");
     setLoading(false);
   }
+}
+
+async function submitCustomRequest({ name, business, email, phone, bizType }) {
+  const sector  = document.getElementById("f-sector").value.trim();
+  const volume  = document.getElementById("f-volume").value;
+  const billing = document.getElementById("f-billing").value;
+  const notes   = document.getElementById("f-notes").value.trim();
+  const needs   = [...document.querySelectorAll(".check-pill input:checked")].map(c => c.value);
+  const estimate= document.getElementById("estimate-value").textContent;
+
+  if (!sector)  return showError("Please tell us what your organisation does.");
+  if (!volume)  return showError("Please select your monthly enquiry volume.");
+  if (!needs.length) return showError("Please select at least one thing the bot should handle.");
+
+  setLoading(true);
+  try {
+    const res = await fetch(`${API_BASE}/api/custom-request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, business, email, phone, sector, volume, needs, billing, notes, estimate }),
+    });
+    const result = await res.json();
+    if (result.success) {
+      document.querySelector(".form").innerHTML = `
+        <div style="text-align:center;padding:2rem 1rem;">
+          <div style="font-size:3.5rem;margin-bottom:1rem;">📨</div>
+          <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;color:var(--black);margin-bottom:0.75rem;">Requirement received, ${name}!</h3>
+          <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;">Our team will study your requirement and get back to you within 24 hours with a tailored plan and quote.</p>
+        </div>`;
+    } else {
+      window.open("https://wa.me/917484849508?text=" + encodeURIComponent(`Hi, I'm ${name} from ${business}. We need a custom WhatsApp bot setup. Email: ${email}, Phone: ${phone}`), "_blank");
+      showError("Could not save your request — we've opened WhatsApp so you can send it directly.");
+    }
+  } catch (err) {
+    console.error(err);
+    window.open("https://wa.me/917484849508?text=" + encodeURIComponent(`Hi, I'm ${name} from ${business}. We need a custom WhatsApp bot setup.`), "_blank");
+    showError("Something went wrong — we've opened WhatsApp so you can send it directly.");
+  }
+  setLoading(false);
 }
 
 // ── Scroll animations ─────────────────────────────────────────────────────────
