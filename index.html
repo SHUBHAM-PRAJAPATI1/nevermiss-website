@@ -484,6 +484,30 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <button class="plan-btn outline" onclick="selectPlan('message_pro')">Get Started</button>
       </div>
     </div>
+      <div class="plan popular fade-in">
+        <div class="plan-badge">Best Value</div>
+        <div class="plan-name">Message Growth</div>
+        <div class="plan-price">₹1,499<span>/mo</span></div>
+        <p class="plan-desc">No AI bot or dashboard — messaging only</p>
+        <ul class="plan-features">
+          <li>3,500 utility messages/mo</li>
+          <li>200 marketing messages/mo</li>
+          <li>Template setup & approval help</li>
+        </ul>
+        <button class="plan-btn solid" onclick="selectPlan('message_growth')">Get Started</button>
+      </div>
+      <div class="plan fade-in">
+        <div class="plan-name">Message Pro</div>
+        <div class="plan-price">₹2,499<span>/mo</span></div>
+        <p class="plan-desc">No AI bot or dashboard — messaging only</p>
+        <ul class="plan-features">
+          <li>7,000 utility messages/mo</li>
+          <li>400 marketing messages/mo</li>
+          <li>Template setup & approval help</li>
+        </ul>
+        <button class="plan-btn outline" onclick="selectPlan('message_pro')">Get Started</button>
+      </div>
+    </div>
     <p class="bulk-note fade-in">All standalone plans priced +GST. Upgrade anytime to a full NeverMiss plan with AI bot & leads dashboard.</p>
 
     <div class="compliance fade-in">
@@ -653,7 +677,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
 <script>
 // ── CONFIGURATION ─────────────────────────────────────────────────────────────
 const RAZORPAY_KEY_ID = "rzp_test_SjErbLHbSiuTAU"; // fallback only; backend sends the live key_id
-const API_BASE = "";  // same origin; if separate server use full URL e.g. "https://api.nevermiss.co.in"
+const API_BASE = "https://my-saas-bot.onrender.com";  // same origin; if separate server use full URL e.g. "https://api.nevermiss.co.in"
 
 const PLAN_LABELS = {
   starter: "Starter — ₹3,999/month",
