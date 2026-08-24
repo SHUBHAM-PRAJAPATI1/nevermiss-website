@@ -918,17 +918,24 @@ function loadConnect(){
   const st = CLIENT.status;
   const statusEl = document.getElementById("conn-status");
   if (st === "active") {
-    statusEl.innerHTML = '<span class="pill ok">🟢 Bot Active</span>';
-    document.getElementById("conn-auto").style.display = "none";
-    document.getElementById("conn-manual").style.display = "none";
+    statusEl.innerHTML = '<span class="pill ok">🟢 Bot Active</span> ' +
+      '<a href="javascript:void(0)" onclick="reopenConnect()" style="color:var(--blue);font-weight:600;font-size:0.82rem;margin-left:0.8rem;">🔄 Change / reconnect number</a>';
   } else if (st === "awaiting_connection") {
-    statusEl.innerHTML = '<span class="pill warn">📩 Request received — we\'re connecting your number (up to 24h).</span>';
+    statusEl.innerHTML = '<span class="pill warn">📩 Request received — we\'re connecting your number (up to 24h).</span> ' +
+      '<a href="javascript:void(0)" onclick="reopenConnect()" style="color:var(--blue);font-weight:600;font-size:0.82rem;margin-left:0.8rem;">Change number</a>';
     document.getElementById("conn-auto").style.display = "none";
     document.getElementById("conn-manual").style.display = "none";
   } else {
     statusEl.innerHTML = '<div class="muted" style="margin-bottom:0.8rem;">⏳ Setup pending — connect your number below.</div>';
     document.getElementById("conn-auto").style.display = "block";
   }
+}
+
+function reopenConnect(){
+  document.getElementById("conn-auto").style.display = "block";
+  document.getElementById("conn-manual").style.display = "none";
+  document.getElementById("conn-msg").className = "msg";
+  document.getElementById("conn-msg").textContent = "Run the setup again with your new number — it replaces the old one automatically.";
 }
 
 function loadFbSdk(){
