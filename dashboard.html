@@ -116,6 +116,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
     <span class="pill ok" id="status-pill" style="display:none;"></span>
   </div>
   <div class="tb-right">
+    <span class="muted" id="user-email" style="font-size:0.78rem;"></span>
     <a href="index.html" target="_blank">🌐 Website</a>
     <button class="btn-ghost-sm" onclick="signOut()">Sign out</button>
   </div>
@@ -450,6 +451,7 @@ async function init(){
   if (!data.session) { location.href = "login.html"; return; }
   TOKEN = data.session.access_token;
   EMAIL = data.session.user.email;
+  document.getElementById("user-email").textContent = "👤 " + EMAIL;
   loadClient();
 }
 
@@ -959,7 +961,6 @@ function toggleManual(){
   document.getElementById("conn-auto").style.display = "none";
   document.getElementById("conn-manual").style.display = "block";
 }
-
 async function startEmbeddedSignup(){
   const msg = document.getElementById("conn-msg");
   msg.className = "msg";
@@ -968,10 +969,10 @@ async function startEmbeddedSignup(){
 
   msg.textContent = "Opening Meta setup…";
   await loadFbSdk();
+  console.log("Using config_id:", EMBEDDED_SIGNUP_CONFIG_ID);
 
   FB.login(function (response) {
     console.log("FB.login response:", JSON.stringify(response));
-    console.log("Using config_id:", EMBEDDED_SIGNUP_CONFIG_ID);
     if (response.authResponse && response.authResponse.code) {
       msg.textContent = "Connecting your number on our end…";
       fetch(API_BASE + "/exchange-token", {
@@ -1000,6 +1001,7 @@ async function startEmbeddedSignup(){
       })
       .catch(() => { msg.className = "msg err"; msg.textContent = "❌ Connection error. Try again or use the manual option."; });
     } else {
+      msg.className = "msg err";
       msg.textContent = "❌ Meta says: " + JSON.stringify(response).slice(0, 250);
     }
   }, {
@@ -1007,6 +1009,7 @@ async function startEmbeddedSignup(){
     response_type: "code"
   });
 }
+
 
 async function requestConnection(){
   const msg = document.getElementById("conn-msg");
