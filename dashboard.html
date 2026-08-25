@@ -944,7 +944,7 @@ function loadFbSdk(){
   return new Promise((resolve) => {
     if (window.FB) { resolve(); return; }
     window.fbAsyncInit = function () {
-      FB.init({ appId: FB_APP_ID, cookie: true, xfbml: false, version: "v23.0" });
+      FB.init({ appId: FB_APP_ID, cookie: true, xfbml: false, version: "v20.0" });
       resolve();
     };
     (function (d, s, id) {
