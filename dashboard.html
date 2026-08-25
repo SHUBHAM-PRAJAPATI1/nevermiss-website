@@ -973,13 +973,15 @@ async function startEmbeddedSignup(){
 
   FB.login(function (response) {
     console.log("FB.login response:", JSON.stringify(response));
-    if (response.authResponse && response.authResponse.code) {
+    const fbCode = response.authResponse && response.authResponse.code;
+    const fbToken = response.authResponse && response.authResponse.accessToken;
+    if (fbCode || fbToken) {
       msg.textContent = "Connecting your number on our end…";
       fetch(API_BASE + "/exchange-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          access_token: response.authResponse.code,
+          access_token: fbCode || fbToken,
           user_email: EMAIL,
           owner_whatsapp_number: owner
         })
