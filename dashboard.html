@@ -940,77 +940,61 @@ function reopenConnect(){
   document.getElementById("conn-msg").textContent = "Run the setup again with your new number — it replaces the old one automatically.";
 }
 
-function loadFbSdk(){
-  return new Promise((resolve) => {
-    if (window.FB) { resolve(); return; }
-    window.fbAsyncInit = function () {
-      FB.init({ appId: FB_APP_ID, cookie: true, xfbml: false, version: "v20.0" });
-      resolve();
-    };
-    (function (d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, "script", "facebook-jssdk"));
-  });
-}
-
 function toggleManual(){
   document.getElementById("conn-auto").style.display = "none";
   document.getElementById("conn-manual").style.display = "block";
 }
+
+// ── EMBEDDED SIGNUP — direct OAuth URL (no SDK, no popup) ────────────────────
+const REDIRECT_URI = "https://nevermiss.co.in/dashboard.html";
+
 async function startEmbeddedSignup(){
   const msg = document.getElementById("conn-msg");
   msg.className = "msg";
   const owner = document.getElementById("cw-owner").value.trim();
   if (!owner || owner.length < 10) { msg.className = "msg err"; msg.textContent = "Enter your notification number first."; return; }
-
+  sessionStorage.setItem("nm_owner", owner);
   msg.textContent = "Opening Meta setup…";
-  await loadFbSdk();
-  console.log("Using config_id:", EMBEDDED_SIGNUP_CONFIG_ID);
-
-  FB.login(function (response) {
-    console.log("FB.login response:", JSON.stringify(response));
-    const fbCode = response.authResponse && response.authResponse.code;
-    const fbToken = response.authResponse && response.authResponse.accessToken;
-    if (fbCode || fbToken) {
-      msg.textContent = "Connecting your number on our end…";
-      fetch(API_BASE + "/exchange-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          access_token: fbCode || fbToken,
-          user_email: EMAIL,
-          owner_whatsapp_number: owner
-        })
-      })
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) {
-          msg.className = "msg ok";
-          msg.textContent = "✅ Connected & registered! Your bot is live now.";
-          loadClient();
-        } else if (d.pending) {
-          msg.className = "msg ok";
-          msg.textContent = "📩 " + (d.error || "We're finishing your connection on our end — up to 24h.");
-          loadClient();
-        } else {
-          msg.className = "msg err";
-          msg.textContent = "❌ " + (d.error || "Connection didn't complete. Try again or use the manual option.");
-        }
-      })
-      .catch(() => { msg.className = "msg err"; msg.textContent = "❌ Connection error. Try again or use the manual option."; });
-    } else {
-      msg.className = "msg err";
-      msg.textContent = "❌ Meta says: " + JSON.stringify(response).slice(0, 250);
-    }
-  }, {
+  const state = Math.random().toString(36).slice(2);
+  sessionStorage.setItem("fb_state", state);
+  const q = new URLSearchParams({
+    client_id: FB_APP_ID,
+    redirect_uri: REDIRECT_URI,
     config_id: EMBEDDED_SIGNUP_CONFIG_ID,
-    response_type: "code"
+    response_type: "code",
+    state: state
   });
+  window.location.href = "https://www.facebook.com/v20.0/dialog/oauth?" + q.toString();
 }
+
+// Runs ON PAGE LOAD: if Meta sent us back with ?code=…, exchange it.
+(async function () {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+  if (!code) return;
+  history.replaceState(null, "", "dashboard.html");
+  showSection("connect");
+  const msg = document.getElementById("conn-msg");
+  if (msg) { msg.className = "msg ok"; msg.textContent = "Connecting your number on our end…"; }
+  const { data } = await sb.auth.getSession();
+  const email = (data.session && data.session.user.email) || EMAIL;
+  const owner = sessionStorage.getItem("nm_owner") || "";
+  try {
+    const r = await fetch(API_BASE + "/exchange-token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ access_token: code, user_email: email, owner_whatsapp_number: owner })
+    });
+    const d = await r.json();
+    if (d.success) { msg.className = "msg ok"; msg.textContent = "✅ Connected & registered! Your bot is live now."; }
+    else if (d.pending) { msg.className = "msg ok"; msg.textContent = "📩 " + (d.error || "We're finishing your connection on our end — up to 24h."); }
+    else { msg.className = "msg err"; msg.textContent = "❌ " + (d.error || "Connection didn't complete."); }
+    if (typeof loadClient === "function") loadClient();
+  } catch (e) {
+    if (msg) { msg.className = "msg err"; msg.textContent = "❌ Connection error. Try again."; }
+  }
+})();
+
 
 
 async function requestConnection(){
