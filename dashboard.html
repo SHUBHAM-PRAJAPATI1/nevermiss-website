@@ -946,6 +946,8 @@ function toggleManual(){
 }
 
 // ── EMBEDDED SIGNUP — direct OAuth URL (no SDK, no popup) ────────────────────
+window.fbAsyncInit = function () { if (window.FB) FB.init({ appId: FB_APP_ID, cookie: true, version: "v20.0" }); };
+(function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = "https://connect.facebook.net/en_US/sdk.js"; js.async = true; fjs.parentNode.insertBefore(js, fjs); }(document, "script", "facebook-jssdk"));
 const REDIRECT_URI = "https://nevermiss.co.in/dashboard.html";
 
 async function startEmbeddedSignup(){
@@ -964,7 +966,15 @@ async function startEmbeddedSignup(){
     response_type: "code",
     state: state
   });
-  window.location.href = "https://www.facebook.com/v20.0/dialog/oauth?" + q.toString();
+  FB.login(function (res) {
+      try {
+        if (res && res.authResponse) {
+          if (res.authResponse.signedRequest) sessionStorage.setItem("nm_signed_request", res.authResponse.signedRequest);
+          if (res.authResponse.accessToken) sessionStorage.setItem("nm_token", res.authResponse.accessToken);
+        }
+      } catch (e) {}
+      window.location.href = REDIRECT_URI + "?fbdone=1";
+  }, { config_id: EMBEDDED_SIGNUP_CONFIG_ID });
 }
 
 // Runs ON PAGE LOAD: if Meta sent us back with ?code=…, exchange it.
