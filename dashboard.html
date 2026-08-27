@@ -980,7 +980,7 @@ async function startEmbeddedSignup(){
 // Runs ON PAGE LOAD: if Meta sent us back with ?code=…, exchange it.
 (async function () {
   const params = new URLSearchParams(location.search);
-  const code = params.get("code");
+  const code = (params.get("code") || sessionStorage.getItem('nm_token') || '');
   if (!code) return;
   history.replaceState(null, "", "dashboard.html");
   showSection("connect");
