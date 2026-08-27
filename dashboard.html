@@ -967,13 +967,16 @@ async function startEmbeddedSignup(){
     state: state
   });
   FB.login(function (res) {
+    console.log("FBLOGIN RESPONSE", JSON.stringify(res));
       try {
         if (res && res.authResponse) {
           if (res.authResponse.signedRequest) sessionStorage.setItem("nm_signed_request", res.authResponse.signedRequest);
           if (res.authResponse.accessToken) sessionStorage.setItem("nm_token", res.authResponse.accessToken);
+        if (res.authResponse.code) sessionStorage.setItem("nm_code", res.authResponse.code);
         }
       } catch (e) {}
-      window.location.href = REDIRECT_URI + "?fbdone=1";
+      if (res && res.code) sessionStorage.setItem("nm_code", res.code);
+    window.location.href = REDIRECT_URI + "?fbdone=1";
   }, {
     config_id: EMBEDDED_SIGNUP_CONFIG_ID,
     response_type: "code",
@@ -988,7 +991,7 @@ async function startEmbeddedSignup(){
 // Runs ON PAGE LOAD: if Meta sent us back with ?code=…, exchange it.
 (async function () {
   const params = new URLSearchParams(location.search);
-  const code = (params.get("code") || sessionStorage.getItem('nm_token') || '');
+  const code = (params.get("code") || sessionStorage.getItem('nm_code') || sessionStorage.getItem('nm_token') || '');
   if (!code) return;
   history.replaceState(null, "", "dashboard.html");
   showSection("connect");
