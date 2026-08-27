@@ -983,7 +983,7 @@ async function startEmbeddedSignup(){
     const r = await fetch(API_BASE + "/exchange-token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ access_token: code, user_email: email, owner_whatsapp_number: owner })
+      body: JSON.stringify({ access_token: code, user_email: email, owner_whatsapp_number: owner, signed_request: sessionStorage.getItem('nm_signed_request') || '' })
     });
     const d = await r.json();
     if (d.success) { msg.className = "msg ok"; msg.textContent = "✅ Connected & registered! Your bot is live now."; }
