@@ -966,26 +966,7 @@ async function startEmbeddedSignup(){
     response_type: "code",
     state: state
   });
-  FB.login(function (res) {
-    console.log("FBLOGIN RESPONSE", JSON.stringify(res));
-      try {
-        if (res && res.authResponse) {
-          if (res.authResponse.signedRequest) sessionStorage.setItem("nm_signed_request", res.authResponse.signedRequest);
-          if (res.authResponse.accessToken) sessionStorage.setItem("nm_token", res.authResponse.accessToken);
-        if (res.authResponse.code) sessionStorage.setItem("nm_code", res.authResponse.code);
-        }
-      } catch (e) {}
-      if (res && res.code) sessionStorage.setItem("nm_code", res.code);
-    window.location.href = REDIRECT_URI + "?fbdone=1";
-  }, {
-    config_id: EMBEDDED_SIGNUP_CONFIG_ID,
-    response_type: "code",
-    override_default_response_type: true,
-    extras: {
-        feature: "whatsapp_embedded_signup",
-        sessionInfoVersion: 2
-    }
-});
+  window.location.href = "https://www.facebook.com/v20.0/dialog/oauth?" + q.toString();
 }
 
 // Runs ON PAGE LOAD: if Meta sent us back with ?code=…, exchange it.
