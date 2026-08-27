@@ -974,7 +974,15 @@ async function startEmbeddedSignup(){
         }
       } catch (e) {}
       window.location.href = REDIRECT_URI + "?fbdone=1";
-  }, { config_id: EMBEDDED_SIGNUP_CONFIG_ID });
+  }, {
+    config_id: EMBEDDED_SIGNUP_CONFIG_ID,
+    response_type: "code",
+    override_default_response_type: true,
+    extras: {
+        feature: "whatsapp_embedded_signup",
+        sessionInfoVersion: 2
+    }
+});
 }
 
 // Runs ON PAGE LOAD: if Meta sent us back with ?code=…, exchange it.
