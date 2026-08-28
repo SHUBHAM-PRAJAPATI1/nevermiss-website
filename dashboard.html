@@ -759,9 +759,17 @@ async function loadQuick(){
   const { data, error } = await sb.from("quick_replies").select("*").eq("client_id", CLIENT.id).eq("active", true).order("created_at", { ascending: false });
   if (error || !data || !data.length) { document.getElementById("quick-list").innerHTML = '<div class="muted">No quick replies yet — add your first one above.</div>'; return; }
   document.getElementById("quick-list").innerHTML =
-    "<table><tr><th>Keyword</th><th>Reply</th></tr>" +
-    data.map(q => "<tr><td><strong>#" + esc(q.keyword) + "</strong></td><td>" + esc(q.reply_text) + "</td></tr>").join("") +
+    "<table><tr><th>Keyword</th><th>Reply</th><th></th></tr>" +
+    data.map(q => "<tr><td><strong>#" + esc(q.keyword) + "</strong></td><td>" + esc(q.reply_text) + "</td><td>" +
+      "<button onclick=\"deleteQuickReply('" + q.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></td></tr>").join("") +
     "</table>";
+}
+
+async function deleteQuickReply(id){
+  if (!confirm("Delete this quick reply?")) return;
+  const { error } = await sb.from("quick_replies").update({ active: false }).eq("id", id);
+  if (error) { alert("❌ " + error.message); return; }
+  loadQuick();
 }
 
 async function addQuickReply(){
@@ -841,7 +849,15 @@ async function loadResults(){
   const { data } = await sb.from("institute_results").select("*").eq("client_id", CLIENT.id).eq("active", true);
   const el = document.getElementById("results-list");
   if (!data || !data.length) { el.innerHTML = '<div class="muted">No results yet.</div>'; return; }
-  el.innerHTML = data.map(r => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;'>🏆 " + esc(r.achievement) + (r.student_name ? " — " + esc(r.student_name) : "") + (r.year ? " (" + esc(r.year) + ")" : "") + "</div>").join("");
+  el.innerHTML = data.map(r => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;display:flex;justify-content:space-between;align-items:center;'><span>🏆 " + esc(r.achievement) + (r.student_name ? " — " + esc(r.student_name) : "") + (r.year ? " (" + esc(r.year) + ")" : "") + "</span>" +
+    "<button onclick=\"deleteResult('" + r.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
+}
+
+async function deleteResult(id){
+  if (!confirm("Delete this result?")) return;
+  const { error } = await sb.from("institute_results").update({ active: false }).eq("id", id);
+  if (error) { alert("❌ " + error.message); return; }
+  loadResults();
 }
 
 async function addResult(){
@@ -864,7 +880,15 @@ async function loadFacilities(){
   const { data } = await sb.from("institute_facilities").select("*").eq("client_id", CLIENT.id).eq("active", true);
   const el = document.getElementById("facilities-list");
   if (!data || !data.length) { el.innerHTML = '<div class="muted">No facilities yet.</div>'; return; }
-  el.innerHTML = data.map(f => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;'>🏫 " + esc(f.facility_name) + (f.description ? " — " + esc(f.description) : "") + "</div>").join("");
+  el.innerHTML = data.map(f => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;display:flex;justify-content:space-between;align-items:center;'><span>🏫 " + esc(f.facility_name) + (f.description ? " — " + esc(f.description) : "") + "</span>" +
+    "<button onclick=\"deleteFacility('" + f.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
+}
+
+async function deleteFacility(id){
+  if (!confirm("Delete this facility?")) return;
+  const { error } = await sb.from("institute_facilities").update({ active: false }).eq("id", id);
+  if (error) { alert("❌ " + error.message); return; }
+  loadFacilities();
 }
 
 async function addFacility(){
@@ -886,7 +910,15 @@ async function loadMediaList(){
   const { data } = await sb.from("institute_media").select("*").eq("client_id", CLIENT.id).eq("active", true);
   const el = document.getElementById("media-list");
   if (!data || !data.length) { el.innerHTML = '<div class="muted">No media uploaded yet.</div>'; return; }
-  el.innerHTML = data.map(m => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;'>📎 " + esc(m.media_type) + " — <a href='" + esc(m.file_url) + "' target='_blank' style='color:var(--blue);'>open</a></div>").join("");
+  el.innerHTML = data.map(m => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;display:flex;justify-content:space-between;align-items:center;'><span>📎 " + esc(m.media_type) + " — <a href='" + esc(m.file_url) + "' target='_blank' style='color:var(--blue);'>open</a></span>" +
+    "<button onclick=\"deleteMedia('" + m.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
+}
+
+async function deleteMedia(id){
+  if (!confirm("Delete this file? It will stop being sent by the bot.")) return;
+  const { error } = await sb.from("institute_media").update({ active: false }).eq("id", id);
+  if (error) { alert("❌ " + error.message); return; }
+  loadMediaList();
 }
 
 async function uploadMedia(){
