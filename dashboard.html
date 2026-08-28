@@ -61,6 +61,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 .btn.sm{padding:0.45rem 1.1rem;font-size:0.78rem;}
 .btn.outline{background:none;border:1.5px solid var(--gray2);color:var(--text);}
 .btn.outline:hover{border-color:var(--blue);color:var(--blue);}
+.cycle-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
 .form-row{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.9rem;}
 .form-row label{font-size:0.78rem;font-weight:600;}
 .form-row input,.form-row select,.form-row textarea{padding:0.65rem 0.9rem;border:1.5px solid var(--gray2);border-radius:10px;font-size:0.86rem;font-family:'Instrument Sans',sans-serif;background:var(--gray);outline:none;}
@@ -386,14 +387,13 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 
   <div class="card">
     <div class="card-title">All plans</div>
-    <div class="plans-grid">
-      <div class="plan-card"><h4>Starter</h4><div class="price">₹3,999<span>/mo</span></div><ul><li>AI FAQ bot + lead capture</li><li>1,000 conversations/mo</li><li>300 utility + 20 marketing bulk msgs</li><li>Email support</li></ul></div>
-      <div class="plan-card hot"><span class="tag">MOST POPULAR</span><h4>Growth</h4><div class="price">₹5,999<span>/mo</span></div><ul><li>Everything in Starter</li><li>2,000 conversations/mo</li><li>Registration, booking, demo, reminders</li><li>750 utility + 50 marketing bulk msgs</li></ul></div>
-      <div class="plan-card"><h4>Pro</h4><div class="price">₹8,999<span>/mo</span></div><ul><li>Everything in Growth</li><li>Unlimited conversations</li><li>1,500 utility + 100 marketing bulk msgs</li><li>Priority support</li></ul></div>
-      <div class="plan-card"><h4>Message Basic</h4><div class="price">₹799<span>/mo</span></div><ul><li>Bulk messaging only</li><li>1,500 utility / 80 marketing</li><li>Template setup help</li></ul></div>
-      <div class="plan-card"><h4>Message Growth</h4><div class="price">₹1,499<span>/mo</span></div><ul><li>Bulk messaging only</li><li>3,500 utility / 200 marketing</li><li>Template setup help</li></ul></div>
-      <div class="plan-card"><h4>Message Pro</h4><div class="price">₹2,499<span>/mo</span></div><ul><li>Bulk messaging only</li><li>7,000 utility / 400 marketing</li><li>Template setup help</li></ul></div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+      <button class="btn sm outline cycle-btn" data-cycle="monthly" onclick="setBillingCycle('monthly')">Monthly</button>
+      <button class="btn sm outline cycle-btn" data-cycle="half_yearly" onclick="setBillingCycle('half_yearly')">6 months <span style="opacity:0.75;">(save ~8%)</span></button>
+      <button class="btn sm outline cycle-btn" data-cycle="yearly" onclick="setBillingCycle('yearly')">12 months <span style="opacity:0.75;">(save ~17%)</span></button>
     </div>
+    <div id="plans-grid" class="plans-grid">Loading…</div>
+    <div class="msg" id="plan-msg"></div>
     <div class="muted" style="margin-top:1rem;">💡 Bulk Messaging Plus is available on any plan. <a href="https://wa.me/917484849508?text=Hi%2C%20I%20want%20Bulk%20Messaging%20Plus" target="_blank" style="color:var(--blue);font-weight:600;">Add it via WhatsApp →</a></div>
   </div>
 </div>
@@ -411,6 +411,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 // ── CONFIG — fill these values (copy from login.html / Render / Meta) ────────
 const SUPABASE_URL      = "https://uwxthbxxiaujlgxosqjx.supabase.co";
@@ -563,6 +564,7 @@ async function loadClient(){
   });
   showSection("bulk");
   loadBulk();
+  loadBilling();  // bulk-only accounts can still buy/renew bulk plans and Plus
 }
 
 function checkExpiry(){
@@ -1149,6 +1151,155 @@ async function requestConnection(){
 }
 
 // ── PLAN & BILLING ────────────────────────────────────────────────────────────
+// ── PLAN PURCHASE / SWITCH (mirrors index.html's checkout + payment_handler.py exactly) ──
+// Prices in rupees, matching PLAN_PRICING / BULK_PLAN_PRICING in payment_handler.py
+// (kept in sync deliberately -- these are DISPLAY prices only, the backend always
+// recomputes the real charge server-side at order-creation time).
+const PLAN_PRICING_RS = {
+  starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
+  growth:  { monthly: 5999, half_yearly: 32999, yearly: 59990 },
+  pro:     { monthly: 8999, half_yearly: 48999, yearly: 89990 },
+};
+const BULK_PLAN_PRICING_RS = {
+  message_basic:  { monthly: 799 },
+  message_growth: { monthly: 1499 },
+  message_pro:    { monthly: 2499 },
+};
+const PLAN_FEATURE_LIST = {
+  starter:         ["AI FAQ bot + lead capture", "1,000 conversations/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
+  growth:          ["Everything in Starter", "2,000 conversations/mo", "Registration, booking, demo, reminders", "750 utility + 50 marketing bulk msgs"],
+  pro:             ["Everything in Growth", "Unlimited conversations", "1,500 utility + 100 marketing bulk msgs", "Priority support"],
+  message_basic:   ["Bulk messaging only", "1,500 utility / 80 marketing", "Template setup help"],
+  message_growth:  ["Bulk messaging only", "3,500 utility / 200 marketing", "Template setup help"],
+  message_pro:     ["Bulk messaging only", "7,000 utility / 400 marketing", "Template setup help"],
+};
+const CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
+let currentBillingCycle = "monthly";
+
+function setBillingCycle(cycle){
+  currentBillingCycle = cycle;
+  document.querySelectorAll(".cycle-btn").forEach(b => b.classList.toggle("active", b.dataset.cycle === cycle));
+  renderPlansGrid();
+}
+
+function renderPlansGrid(){
+  const el = document.getElementById("plans-grid");
+  if (!el) return;
+  const currentPlan = CLIENT ? (CLIENT.plan || "starter") : null;
+  const mainPlans = ["starter","growth","pro"];
+  const bulkPlans = ["message_basic","message_growth","message_pro"];
+
+  function cardHtml(key, label, isBulk){
+    const pricing = isBulk ? BULK_PLAN_PRICING_RS[key] : PLAN_PRICING_RS[key];
+    const cycle = isBulk ? "monthly" : currentBillingCycle;   // bulk plans are monthly-only
+    const price = pricing[cycle] || pricing.monthly;
+    const feats = (PLAN_FEATURE_LIST[key] || []).map(f => "<li>" + esc(f) + "</li>").join("");
+    const isCurrent = !isBulk && currentPlan === key;
+    const hot = key === "growth" ? ' hot' : '';
+    const tag = key === "growth" ? '<span class="tag">MOST POPULAR</span>' : '';
+    const btn = isCurrent
+      ? '<button class="btn sm" disabled style="width:100%;margin-top:0.8rem;opacity:0.6;">✓ Current plan</button>'
+      : '<button class="btn sm" style="width:100%;margin-top:0.8rem;" onclick="choosePlan(\'' + key + '\')">' +
+        (isBulk ? "Add-on" : (currentPlan ? "Switch to this plan" : "Choose this plan")) + '</button>';
+    return '<div class="plan-card' + hot + '">' + tag +
+      '<h4>' + esc(label) + '</h4>' +
+      '<div class="price">₹' + price.toLocaleString("en-IN") + '<span>' + CYCLE_LABEL[cycle] + '</span></div>' +
+      '<ul>' + feats + '</ul>' + btn + '</div>';
+  }
+
+  let html = mainPlans.map(k => cardHtml(k, k.charAt(0).toUpperCase() + k.slice(1), false)).join("");
+  html += bulkPlans.map(k => cardHtml(k, k === "message_basic" ? "Message Basic" : k === "message_growth" ? "Message Growth" : "Message Pro", true)).join("");
+  el.innerHTML = html;
+  document.querySelectorAll(".cycle-btn").forEach(b => b.classList.toggle("active", b.dataset.cycle === currentBillingCycle));
+}
+
+async function choosePlan(plan){
+  const msg = document.getElementById("plan-msg");
+  msg.className = "msg"; msg.textContent = "";
+  const isBulk = plan.startsWith("message_");
+
+  // Bulk plans are matched server-side by user_email (bulk_clients table) and
+  // don't touch the clients/coaching-bot row at all -- so a bulk-only account
+  // (no CLIENT) can still buy one. Main plans (starter/growth/pro) DO require
+  // an existing coaching client, and save_or_update_client() there matches by
+  // contact_phone, not email -- if it's missing, a switch would create a
+  // SECOND client row instead of updating this one, so we require it here.
+  let contactPhone = "";
+  let businessName = "";
+  if (!isBulk) {
+    if (!CLIENT) {
+      msg.className = "msg err";
+      msg.textContent = "Adding a full coaching-bot plan needs a quick setup on our side first -- message us on WhatsApp and we'll get it going.";
+      return;
+    }
+    const { data: freshClient } = await sb.from("clients").select("contact_phone,business_name").eq("id", CLIENT.id).single();
+    contactPhone = freshClient && freshClient.contact_phone;
+    if (!contactPhone) {
+      msg.className = "msg err";
+      msg.textContent = "Please add your contact number in Institute Profile → Business Info first, then come back to choose a plan.";
+      return;
+    }
+    businessName = freshClient.business_name || CLIENT.business_name || "";
+  } else {
+    businessName = (CLIENT && CLIENT.business_name) || EMAIL.split("@")[0];
+    contactPhone = (CLIENT && CLIENT.contact_phone) || "";
+  }
+
+  const billingCycle = isBulk ? "monthly" : currentBillingCycle;
+
+  msg.textContent = "Preparing checkout…";
+  try {
+    const orderRes = await fetch(API_BASE + "/api/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan, billing_cycle: billingCycle, name: businessName, business: businessName, phone: contactPhone, email: EMAIL })
+    });
+    const order = await orderRes.json();
+    if (order.coupon_error) { msg.className = "msg err"; msg.textContent = "Coupon: " + order.coupon_error; return; }
+    if (!order.id) { msg.className = "msg err"; msg.textContent = "Could not start checkout. Please try again."; return; }
+    msg.textContent = "";
+
+    const options = {
+      key: order.key_id,
+      amount: order.amount,
+      currency: "INR",
+      name: "NeverMiss",
+      description: (PLAN_FEATURE_LIST[plan] ? plan : plan) + " subscription",
+      order_id: order.id,
+      prefill: { name: businessName, contact: contactPhone, email: EMAIL },
+      theme: { color: "#1B4FFF" },
+      handler: async function (response){
+        msg.className = "msg ok"; msg.textContent = "Confirming payment…";
+        const verifyRes = await fetch(API_BASE + "/api/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            customer: { name: businessName, business: businessName, phone: contactPhone, email: EMAIL, plan }
+          })
+        });
+        const result = await verifyRes.json();
+        if (result.success) {
+          msg.className = "msg ok";
+          msg.textContent = "✅ Payment confirmed — your plan is updated.";
+          loadClient();  // refresh plan pill, gating, and this grid
+        } else {
+          msg.className = "msg err";
+          msg.textContent = "Payment received but confirming it failed. Please WhatsApp us with payment ID: " + response.razorpay_payment_id;
+        }
+      },
+      modal: { ondismiss: function(){ msg.textContent = ""; } }
+    };
+    const rzp = new Razorpay(options);
+    rzp.on("payment.failed", function(resp){ msg.className = "msg err"; msg.textContent = "Payment failed: " + resp.error.description; });
+    rzp.open();
+  } catch (e) {
+    msg.className = "msg err"; msg.textContent = "Something went wrong. Please try again or WhatsApp us.";
+  }
+}
+
 async function loadBilling(){
   if (CLIENT) {
     const exp = CLIENT.plan_expires_at ? fmtDate(CLIENT.plan_expires_at) : "—";
@@ -1157,6 +1308,7 @@ async function loadBilling(){
   } else {
     document.getElementById("bill-current").innerHTML = "<strong>Bulk-only account</strong> — no coaching bot subscription.";
   }
+  renderPlansGrid();
   const bulk = await fetchBulk();
   if (bulk) {
     const uq = bulk.utility_quota || 0, uu = bulk.utility_used || 0;
