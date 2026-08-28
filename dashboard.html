@@ -417,7 +417,14 @@ const API_BASE          = "https://my-saas-bot.onrender.com";      // e.g. https
 const FB_APP_ID         = "1662583918327842";            // same as backend META_APP_ID
 const EMBEDDED_SIGNUP_CONFIG_ID = "1027397859743156"; // Meta Business Manager → WhatsApp → Embedded Signup config ID
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { detectSessionInUrl: false }  // this page also receives Meta's own
+                                        // "?code=" param from Embedded Signup --
+                                        // without this, Supabase tries to treat
+                                        // it as its own login callback and fails,
+                                        // which was signing people out right after
+                                        // finishing the Meta flow.
+});
 let TOKEN = null, EMAIL = null, CLIENT = null, BULK = null;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
