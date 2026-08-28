@@ -296,8 +296,10 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
         <div class="form-row"><label>Brochure (PDF)</label><input type="file" id="m-brochure" accept=".pdf"></div>
         <div class="form-row"><label>Topper Photo</label><input type="file" id="m-topper" accept="image/*"></div>
         <div class="form-row"><label>Facility Photo</label><input type="file" id="m-facility" accept="image/*"></div>
-        <div class="form-row"><label>Job Suraksha Card brochure</label><input type="file" id="m-card" accept=".pdf,image/*"></div>
-        <div class="form-row"><label>Earn & Learn brochure</label><input type="file" id="m-earn" accept=".pdf,image/*"></div>
+        <div id="skilling-media-fields" style="display:none;">
+          <div class="form-row"><label>Job Suraksha Card brochure</label><input type="file" id="m-card" accept=".pdf,image/*"></div>
+          <div class="form-row"><label>Earn & Learn brochure</label><input type="file" id="m-earn" accept=".pdf,image/*"></div>
+        </div>
       </div>
       <button class="btn" onclick="uploadMedia()">Upload</button>
       <div class="msg" id="media-msg"></div>
@@ -796,6 +798,11 @@ async function loadProfile(){
     document.getElementById("bi-phone").value = data.contact_phone || "";
     document.getElementById("bi-timings").value = data.institute_timings || "";
   }
+  // Job Suraksha Card / Earn & Learn brochure fields only apply to Skilling
+  // India clients -- hide them for regular coaching-institute clients so
+  // the Media tab doesn't show fields that don't apply to their business.
+  const skillingFields = document.getElementById("skilling-media-fields");
+  if (skillingFields) skillingFields.style.display = (CLIENT.client_type === "skilling") ? "contents" : "none";
   loadCourses(); loadResults(); loadFacilities(); loadMediaList();
 }
 
