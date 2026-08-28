@@ -461,21 +461,37 @@ function lockNotice(what, unlockedOn){
     '</div>';
 }
 
-// Disables every input/button inside a container and drops a lock notice above
-// it, so the fields are visible (client can see what they'd get) but inert.
-function applyLock(containerId, what, unlockedOn){
+// Reconciles a container's locked state with `locked` on EVERY call -- both
+// directions. This runs again after every loadClient() (including right
+// after a successful plan purchase), so a client who just upgraded needs
+// the lock actually REMOVED, not just skipped a second application of it.
+// An earlier version only ever locked and remembered having done so, which
+// left fields stuck disabled even after upgrading until a full page reload.
+function applyLock(containerId, locked, what, unlockedOn){
   const el = document.getElementById(containerId);
-  if (!el || el.dataset.locked === "1") return;
-  el.dataset.locked = "1";
-  el.querySelectorAll("input, textarea, select, button").forEach(n => { n.disabled = true; });
-  el.style.opacity = "0.55";
-  el.style.pointerEvents = "none";
-  const notice = document.createElement("div");
-  notice.style.marginBottom = "1rem";
-  notice.style.opacity = "1";
-  notice.style.pointerEvents = "auto";
-  notice.innerHTML = lockNotice(what, unlockedOn);
-  el.parentNode.insertBefore(notice, el);
+  if (!el) return;
+  const prev = el.previousElementSibling;
+  const hasNotice = prev && prev.classList && prev.classList.contains("plan-lock-notice");
+
+  if (locked) {
+    el.querySelectorAll("input, textarea, select, button").forEach(n => { n.disabled = true; });
+    el.style.opacity = "0.55";
+    el.style.pointerEvents = "none";
+    if (!hasNotice) {
+      const notice = document.createElement("div");
+      notice.className = "plan-lock-notice";
+      notice.style.marginBottom = "1rem";
+      notice.innerHTML = lockNotice(what, unlockedOn);
+      el.parentNode.insertBefore(notice, el);
+    } else {
+      prev.innerHTML = lockNotice(what, unlockedOn);  // keep plan name in the notice current
+    }
+  } else {
+    el.querySelectorAll("input, textarea, select, button").forEach(n => { n.disabled = false; });
+    el.style.opacity = "";
+    el.style.pointerEvents = "";
+    if (hasNotice) prev.remove();
+  }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -524,14 +540,10 @@ async function signOut(){
 // enforcement; this is the honest front-end mirror of it.
 function applyPlanGating(){
   if (!CLIENT) return;
-  if (!planHasFeature("quick_replies")) {
-    applyLock("quick-add-card", "Custom quick replies", "Growth and Pro");
-  }
+  applyLock("quick-add-card", !planHasFeature("quick_replies"), "Custom quick replies", "Growth and Pro");
   // The Media tab covers brochure PDF + topper/facility PHOTOS, all Growth+.
   // Text-only results and facilities stay available on every plan.
-  if (!planHasFeature("brochure") && !planHasFeature("toppers")) {
-    applyLock("media-card", "Brochure &amp; photo uploads", "Growth and Pro");
-  }
+  applyLock("media-card", !(planHasFeature("brochure") || planHasFeature("toppers")), "Brochure &amp; photo uploads", "Growth and Pro");
 }
 
 async function loadClient(){
