@@ -986,12 +986,13 @@ async function startEmbeddedSignup(){
   if (msg) { msg.className = "msg ok"; msg.textContent = "Connecting your number on our end…"; }
   const { data } = await sb.auth.getSession();
   const email = (data.session && data.session.user.email) || EMAIL;
+  const authUserId = (data.session && data.session.user.id) || "";
   const owner = sessionStorage.getItem("nm_owner") || "";
   try {
     const r = await fetch(API_BASE + "/exchange-token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ access_token: code, user_email: email, owner_whatsapp_number: owner, signed_request: sessionStorage.getItem('nm_signed_request') || '' })
+      body: JSON.stringify({ access_token: code, user_email: email, auth_user_id: authUserId, owner_whatsapp_number: owner, signed_request: sessionStorage.getItem('nm_signed_request') || '' })
     });
     const d = await r.json();
     if (d.success) { msg.className = "msg ok"; msg.textContent = "✅ Connected & registered! Your bot is live now."; }
@@ -1011,10 +1012,12 @@ async function requestConnection(){
   if (!own || own.length < 10) { msg.className = "msg err"; msg.textContent = "Enter a valid notification number."; return; }
   msg.textContent = "Sending…";
   try {
+    const { data: sessData } = await sb.auth.getSession();
+    const authUserId = (sessData.session && sessData.session.user.id) || "";
     const r = await fetch(API_BASE + "/request-connection", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_email: EMAIL, business_whatsapp_number: biz, owner_whatsapp_number: own })
+      body: JSON.stringify({ user_email: EMAIL, auth_user_id: authUserId, business_whatsapp_number: biz, owner_whatsapp_number: own })
     });
     const d = await r.json();
     if (d.success) {
