@@ -318,6 +318,16 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       <button class="btn" onclick="saveBizInfo()">Save changes ✅</button>
       <div class="msg" id="info-msg"></div>
     </div>
+    <div class="card">
+      <div class="card-title">Seat booking terms</div>
+      <div class="muted" style="margin-bottom:0.8rem;">Applies to every seat booked through the bot. Leave the deposit blank if you don't want to collect one — the bot will just say a team member will confirm within 24 hours instead. The deposit itself is paid to you directly (in person, UPI, etc.) — the bot only communicates the terms, it doesn't collect payment.</div>
+      <div class="grid-2">
+        <div class="form-row"><label>Booking deposit (Rs, optional)</label><input id="bi-deposit" type="number" min="0" placeholder="e.g. 1000"></div>
+        <div class="form-row"><label>Hold seat for how many days</label><input id="bi-hold-days" type="number" min="1" placeholder="e.g. 30"></div>
+      </div>
+      <button class="btn" onclick="saveBookingTerms()">Save booking terms ✅</button>
+      <div class="msg" id="booking-terms-msg"></div>
+    </div>
   </div>
 </div>
 
@@ -692,7 +702,7 @@ async function loadOverview(){
 async function loadLeads(){
   if (!CLIENT) { document.getElementById("leads-body").innerHTML = '<div class="muted">Available once your bot is connected.</div>'; return; }
   const { data, error } = await sb.from("leads")
-    .select("id,name,course,phone,whatsapp_number,lead_type,created_at")
+    .select("id,name,course,phone,whatsapp_number,lead_type,status,created_at")
     .eq("client_id", CLIENT.id)
     .order("created_at", { ascending: false })
     .limit(300);
@@ -714,14 +724,46 @@ async function loadLeads(){
 
   if (!data.length) { document.getElementById("leads-body").innerHTML = '<div class="muted">No leads yet — they appear here the moment your bot captures one.</div>'; return; }
 
+  const bookingStatusBadge = (status) => {
+    if (status === "confirmed") return '<span class="pill ok" style="font-size:0.7rem;">✅ Confirmed</span>';
+    if (status === "released") return '<span class="pill" style="font-size:0.7rem;background:var(--gray);color:var(--muted);">Released</span>';
+    return '<span class="pill warn" style="font-size:0.7rem;">⏳ Holding</span>';
+  };
+
   document.getElementById("leads-body").innerHTML =
-    `<table><tr><th>Name</th><th>Type / Course</th><th>Phone</th><th>Date</th></tr>` +
-    data.map(l => `<tr>
+    `<table><tr><th>Name</th><th>Type / Course</th><th>Phone</th><th>Date</th><th></th></tr>` +
+    data.map(l => {
+      const isActiveBooking = l.lead_type === "booking";
+      const actionCell = isActiveBooking
+        ? bookingStatusBadge(l.status) + (l.status === "active" ? (
+            ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;" onclick="updateLeadStatus(${l.id},'confirmed')">Confirm</button>` +
+            ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;color:#dc2626;" onclick="updateLeadStatus(${l.id},'released')">Release seat</button>`
+          ) : "")
+        : "";
+      return `<tr>
       <td><strong>${esc(l.name)}</strong></td>
       <td>${esc(l.lead_type)}${l.course && l.course !== l.lead_type ? " · " + esc(l.course) : ""}</td>
       <td>+${esc(l.phone || l.whatsapp_number)}</td>
       <td class="muted">${fmtDate(l.created_at)}</td>
-    </tr>`).join("") + `</table>`;
+      <td>${actionCell}</td>
+    </tr>`;
+    }).join("") + `</table>`;
+}
+
+async function updateLeadStatus(leadId, status){
+  if (status === "released" && !confirm("Release this seat back into availability?")) return;
+  try {
+    const r = await fetch(API_BASE + "/api/leads/" + leadId + "/status", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({ status })
+    });
+    const d = await r.json();
+    if (!d.success) { alert("❌ " + (d.error || "Could not update this lead.")); return; }
+    loadLeads();
+  } catch (e) {
+    alert("❌ Something went wrong. Please try again.");
+  }
 }
 
 // ── CONVERSATIONS ─────────────────────────────────────────────────────────────
@@ -876,6 +918,8 @@ async function loadProfile(){
     document.getElementById("bi-loc").value = data.location || "";
     document.getElementById("bi-phone").value = data.contact_phone || "";
     document.getElementById("bi-timings").value = data.institute_timings || "";
+    document.getElementById("bi-deposit").value = data.booking_deposit_amount || "";
+    document.getElementById("bi-hold-days").value = data.booking_hold_days || "";
   }
   // Job Suraksha Card / Earn & Learn brochure fields only apply to Skilling
   // India clients -- hide them for regular coaching-institute clients so
@@ -892,11 +936,37 @@ async function loadCourses(){
   el.innerHTML = data.map(c =>
     "<div style='border:1px solid var(--gray2);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.84rem;display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;'>" +
     "<div>" +
-    "<strong>" + esc(c.course_name) + "</strong> · ₹" + esc(c.fees) + "/yr · " + esc(c.seats_available) + " seats" + (c.demo_available ? " · 🎓 demo" : "") +
+    "<strong>" + esc(c.course_name) + "</strong> · ₹" + esc(c.fees) + "/yr" + (c.demo_available ? " · 🎓 demo" : "") +
+    "<br><span class='muted'>Seats: </span>" +
+    "<button onclick=\"adjustSeats('" + c.id + "',-1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One less (e.g. an offline booking)'>−</button> " +
+    "<strong onclick=\"setSeatsDirectly('" + c.id + "'," + esc(c.seats_available) + ")\" style='cursor:pointer;text-decoration:underline dotted;' title='Click to set an exact number'>" + esc(c.seats_available) + "</strong> " +
+    "<button onclick=\"adjustSeats('" + c.id + "',1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One more (e.g. a cancellation)'>+</button>" +
     ((c.course_batches && c.course_batches.length) ? "<br><span class='muted'>" + c.course_batches.map(b => esc(b.batch_label) + " (" + esc(b.start_time) + "–" + esc(b.end_time) + ")").join(" · ") + "</span>" : "") +
     "</div>" +
     "<button onclick=\"deleteCourse('" + c.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;white-space:nowrap;' title='Delete course'>🗑️ Delete</button>" +
     "</div>").join("");
+}
+
+// Manual seat adjustment -- independent of the bot's own booking flow, for
+// walk-ins, phone bookings, cancellations, or any offline change that
+// needs reflecting here so the bot's seat-booking flow stays accurate.
+async function adjustSeats(courseId, delta){
+  const { data } = await sb.from("courses").select("seats_available").eq("id", courseId).single();
+  const current = (data && data.seats_available) || 0;
+  const next = Math.max(0, current + delta);
+  const { error } = await sb.from("courses").update({ seats_available: next }).eq("id", courseId);
+  if (error) { alert("❌ " + error.message); return; }
+  loadCourses();
+}
+
+async function setSeatsDirectly(courseId, current){
+  const input = prompt("Set exact seat count:", current);
+  if (input === null) return;
+  const next = parseInt(input, 10);
+  if (isNaN(next) || next < 0) { alert("Please enter a valid number (0 or more)."); return; }
+  const { error } = await sb.from("courses").update({ seats_available: next }).eq("id", courseId);
+  if (error) { alert("❌ " + error.message); return; }
+  loadCourses();
 }
 
 async function deleteCourse(courseId){
@@ -1046,6 +1116,18 @@ async function saveBizInfo(){
   }).eq("id", CLIENT.id);
   if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
   msg.className = "msg ok"; msg.textContent = "✅ Saved — the bot will use this info from now on.";
+}
+
+async function saveBookingTerms(){
+  const msg = document.getElementById("booking-terms-msg");
+  const depositRaw = document.getElementById("bi-deposit").value.trim();
+  const holdRaw = document.getElementById("bi-hold-days").value.trim();
+  const { error } = await sb.from("clients").update({
+    booking_deposit_amount: depositRaw ? parseInt(depositRaw) : null,
+    booking_hold_days: holdRaw ? parseInt(holdRaw) : null
+  }).eq("id", CLIENT.id);
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  msg.className = "msg ok"; msg.textContent = "✅ Saved — applies to seats booked from now on.";
 }
 
 // ── CONNECT WHATSAPP (EMBEDDED SIGNUP + MANUAL FALLBACK) ─────────────────────
