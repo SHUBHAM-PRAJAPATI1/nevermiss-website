@@ -796,10 +796,20 @@ async function loadCourses(){
   const el = document.getElementById("courses-list");
   if (!data || !data.length) { el.innerHTML = '<div class="muted">No courses yet.</div>'; return; }
   el.innerHTML = data.map(c =>
-    "<div style='border:1px solid var(--gray2);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.84rem;'>" +
+    "<div style='border:1px solid var(--gray2);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.84rem;display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;'>" +
+    "<div>" +
     "<strong>" + esc(c.course_name) + "</strong> · ₹" + esc(c.fees) + "/yr · " + esc(c.seats_available) + " seats" + (c.demo_available ? " · 🎓 demo" : "") +
     ((c.course_batches && c.course_batches.length) ? "<br><span class='muted'>" + c.course_batches.map(b => esc(b.batch_label) + " (" + esc(b.start_time) + "–" + esc(b.end_time) + ")").join(" · ") + "</span>" : "") +
+    "</div>" +
+    "<button onclick=\"deleteCourse('" + c.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;white-space:nowrap;' title='Delete course'>🗑️ Delete</button>" +
     "</div>").join("");
+}
+
+async function deleteCourse(courseId){
+  if (!confirm("Delete this course? The bot will stop mentioning it.")) return;
+  const { error } = await sb.from("courses").update({ active: false }).eq("id", courseId);
+  if (error) { alert("❌ " + error.message); return; }
+  loadCourses();
 }
 
 async function addCourse(){
