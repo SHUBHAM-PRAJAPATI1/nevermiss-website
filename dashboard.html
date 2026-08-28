@@ -219,7 +219,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 <div class="section" id="sec-quick">
   <h1>Quick replies</h1>
   <div class="sec-sub">Custom keyword → reply pairs. Checked after the built-in flows, so they can never override registration/booking/demo.</div>
-  <div class="card">
+  <div class="card" id="quick-add-card">
     <div class="card-title">Add a quick reply</div>
     <div class="form-row"><label>Keyword (e.g. fees)</label><input id="q-keyword" placeholder="fees"></div>
     <div class="form-row"><label>Reply text</label><textarea id="q-reply" placeholder="Our fees are…"></textarea></div>
@@ -290,7 +290,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
   </div>
 
   <div class="tabpane" id="pane-media">
-    <div class="card">
+    <div class="card" id="media-card">
       <div class="card-title">Media (Brochure & Photos)</div>
       <div class="grid-2">
         <div class="form-row"><label>Brochure (PDF)</label><input type="file" id="m-brochure" accept=".pdf"></div>
@@ -429,6 +429,54 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 });
 let TOKEN = null, EMAIL = null, CLIENT = null, BULK = null;
 
+// ── PLAN GATING ───────────────────────────────────────────────────────────────
+// Mirrors FEATURES_BY_PLAN in app.py. Kept in sync deliberately: the backend
+// is what actually enforces this (the bot refuses gated features regardless),
+// but if the dashboard lets a Starter client fill in quick replies or upload a
+// brochure, they reasonably expect it to work and it silently never does.
+// Showing the lock up front sets the expectation honestly -- and is the
+// natural place to mention what upgrading would unlock.
+const PLAN_FEATURES = {
+  basic:   [],
+  starter: [],
+  growth:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
+  pro:     ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
+  custom:  ["quick_replies","brochure"]
+};
+
+const PLAN_LABEL = { basic:"Starter", starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom" };
+
+function planHasFeature(feature){
+  const plan = (CLIENT && CLIENT.plan) || "starter";
+  return (PLAN_FEATURES[plan] || []).indexOf(feature) !== -1;
+}
+
+// Returns the HTML for an inline "locked on your plan" notice.
+function lockNotice(what, unlockedOn){
+  return '<div style="background:#FFF7ED;border:1.5px solid #FB923C;border-radius:12px;padding:1rem 1.2rem;font-size:0.86rem;color:#7C2D12;line-height:1.6;">' +
+    '<strong>🔒 ' + what + ' isn\'t included on your ' + (PLAN_LABEL[(CLIENT && CLIENT.plan) || "starter"] || "current") + ' plan.</strong><br>' +
+    'Available on <strong>' + unlockedOn + '</strong>. Upgrading also raises your monthly conversation limit.<br>' +
+    '<button class="btn" style="margin-top:0.7rem;" onclick="showSection(\'billing\')">See plans &amp; upgrade</button>' +
+    '</div>';
+}
+
+// Disables every input/button inside a container and drops a lock notice above
+// it, so the fields are visible (client can see what they'd get) but inert.
+function applyLock(containerId, what, unlockedOn){
+  const el = document.getElementById(containerId);
+  if (!el || el.dataset.locked === "1") return;
+  el.dataset.locked = "1";
+  el.querySelectorAll("input, textarea, select, button").forEach(n => { n.disabled = true; });
+  el.style.opacity = "0.55";
+  el.style.pointerEvents = "none";
+  const notice = document.createElement("div");
+  notice.style.marginBottom = "1rem";
+  notice.style.opacity = "1";
+  notice.style.pointerEvents = "auto";
+  notice.innerHTML = lockNotice(what, unlockedOn);
+  el.parentNode.insertBefore(notice, el);
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function esc(s){ return (s == null ? "" : String(s)).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function fmtDate(iso){ return iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—"; }
@@ -469,6 +517,22 @@ async function signOut(){
   location.href = "login.html";
 }
 
+// Locks the parts of the dashboard this client's plan doesn't include, so
+// they don't set up something that silently never runs -- and can see what
+// upgrading would unlock. The backend gating in app.py is the real
+// enforcement; this is the honest front-end mirror of it.
+function applyPlanGating(){
+  if (!CLIENT) return;
+  if (!planHasFeature("quick_replies")) {
+    applyLock("quick-add-card", "Custom quick replies", "Growth and Pro");
+  }
+  // The Media tab covers brochure PDF + topper/facility PHOTOS, all Growth+.
+  // Text-only results and facilities stay available on every plan.
+  if (!planHasFeature("brochure") && !planHasFeature("toppers")) {
+    applyLock("media-card", "Brochure &amp; photo uploads", "Growth and Pro");
+  }
+}
+
 async function loadClient(){
   try {
     const r = await fetch(API_BASE + "/get-client?email=" + encodeURIComponent(EMAIL));
@@ -483,6 +547,7 @@ async function loadClient(){
       else if (CLIENT.status === "awaiting_connection") { sp.textContent = "📩 Request received"; sp.className = "pill warn"; }
       else { sp.textContent = "⏳ Setup pending"; sp.className = "pill warn"; }
       checkExpiry();
+      applyPlanGating();
       loadOverview(); loadLeads(); loadConversations(); loadQuick();
       loadProfile(); loadConnect(); loadBilling(); loadBulk();
       return;
