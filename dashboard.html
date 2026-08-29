@@ -730,17 +730,35 @@ async function loadLeads(){
     return '<span class="pill warn" style="font-size:0.7rem;">⏳ Holding</span>';
   };
 
+  // A lead counts as "handled" once it's done/confirmed/released -- anything
+  // else (new, active, or no status at all yet) still needs attention.
+  // Handled leads sink to the bottom but keep their relative recency order
+  // within each group, rather than getting fully re-sorted by status alone.
+  const isHandled = (status) => status === "done" || status === "confirmed" || status === "released";
+  const sorted = data.slice().sort((a, b) => {
+    const ah = isHandled(a.status), bh = isHandled(b.status);
+    if (ah !== bh) return ah ? 1 : -1;   // unhandled first, handled last
+    return 0;                             // keep existing created_at DESC order within each group
+  });
+
   document.getElementById("leads-body").innerHTML =
-    `<table><tr><th>Name</th><th>Type / Course</th><th>Phone</th><th>Date</th><th></th></tr>` +
-    data.map(l => {
-      const isActiveBooking = l.lead_type === "booking";
-      const actionCell = isActiveBooking
+    `<table><tr><th></th><th>Name</th><th>Type / Course</th><th>Phone</th><th>Date</th><th></th></tr>` +
+    sorted.map(l => {
+      const handled = isHandled(l.status);
+      const isBooking = l.lead_type === "booking";
+
+      const tickCell = isBooking ? "" :
+        `<input type="checkbox" ${handled ? "checked" : ""} onchange="updateLeadStatus(${l.id}, this.checked ? 'done' : 'new')" title="Mark as handled" style="width:16px;height:16px;cursor:pointer;">`;
+
+      const actionCell = isBooking
         ? bookingStatusBadge(l.status) + (l.status === "active" ? (
             ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;" onclick="updateLeadStatus(${l.id},'confirmed')">Confirm</button>` +
             ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;color:#dc2626;" onclick="updateLeadStatus(${l.id},'released')">Release seat</button>`
           ) : "")
-        : "";
-      return `<tr>
+        : (handled ? '<span class="muted" style="font-size:0.75rem;">✓ Handled</span>' : "");
+
+      return `<tr style="${handled ? 'opacity:0.55;' : ''}">
+      <td>${tickCell}</td>
       <td><strong>${esc(l.name)}</strong></td>
       <td>${esc(l.lead_type)}${l.course && l.course !== l.lead_type ? " · " + esc(l.course) : ""}</td>
       <td>+${esc(l.phone || l.whatsapp_number)}</td>
