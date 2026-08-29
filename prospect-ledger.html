@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Prospect Ledger</title>
+<style>
+  :root {
+    --ink: #1B2420;
+    --paper: #EDEEE6;
+    --paper-raised: #F6F6F1;
+    --line: #CBCABB;
+    --brass: #9C7A2E;
+    --sage: #4C6B54;
+    --rust: #8B3A2B;
+    --steel: #3E5F73;
+    --mute: #726F60;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(27,36,32,0.035) 28px);
+    color: var(--ink);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  }
+  .mono { font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 28px 20px 80px; }
+  h1 { font-size: 30px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  header .top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  header .count { font-size: 12px; color: var(--mute); letter-spacing: 0.04em; }
+  .rule-thick { height: 2px; background: var(--ink); margin: 10px 0 4px; }
+  .rule-thin { height: 1px; background: var(--line); }
+  .status-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+  .status-chip {
+    cursor: pointer; border-radius: 4px; padding: 6px 10px; font-size: 11.5px;
+    display: flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--line); color: var(--mute);
+  }
+  .status-chip.active { background: var(--paper-raised); }
+  .dot { width: 7px; height: 7px; border-radius: 2px; display: inline-block; }
+  .toolbar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1 1 220px; }
+  .search-wrap svg { position: absolute; left: 10px; top: 11px; }
+  input[type=text], input[type=search], select, textarea {
+    font-family: inherit; font-size: 14px; color: var(--ink); background: var(--paper-raised);
+    border: 1px solid var(--line); border-radius: 4px; padding: 9px 12px; outline: none;
+  }
+  #search { width: 100%; padding-left: 32px; box-sizing: border-box; }
+  select.tierfilter { font-family: ui-monospace, monospace; font-size: 12.5px; padding: 9px 10px; }
+  button { cursor: pointer; font-family: inherit; }
+  .btn-add {
+    display: flex; align-items: center; gap: 6px; padding: 9px 14px;
+    border: 1.5px solid var(--ink); border-radius: 4px; background: var(--paper-raised); color: var(--ink);
+    font-family: ui-monospace, monospace; font-size: 12.5px; font-weight: 700; letter-spacing: 0.03em;
+  }
+  .btn-add.active { background: var(--ink); color: var(--paper); }
+  .form-card { border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper-raised); padding: 18px; margin-bottom: 22px; display: none; }
+  .form-card.open { display: block; }
+  .form-label { font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--mute); margin-bottom: 4px; letter-spacing: 0.04em; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .full { grid-column: 1 / -1; }
+  .form-grid input, .form-grid select { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 13.5px; }
+  .btn-save { padding: 9px 16px; border: none; border-radius: 4px; background: var(--sage); color: var(--paper); font-family: ui-monospace, monospace; font-size: 12.5px; font-weight: 700; }
+  .btn-save:disabled { background: var(--line); cursor: not-allowed; }
+  .empty { text-align: center; padding: 56px 20px; border: 1px dashed var(--line); border-radius: 6px; color: var(--mute); font-size: 15px; }
+  .empty button { margin-top: 12px; padding: 8px 14px; border: 1.5px solid var(--ink); border-radius: 4px; background: transparent; font-family: ui-monospace, monospace; font-size: 12px; }
+  .card { border: 1px solid var(--line); border-radius: 6px; background: var(--paper-raised); overflow: hidden; margin-bottom: 10px; }
+  .card-head { display: flex; align-items: center; gap: 12px; padding: 13px 14px; cursor: pointer; }
+  .card-head .name { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card-head .area { font-size: 12.5px; color: var(--mute); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+  .card-body { border-top: 1px solid var(--line); padding: 14px 16px 16px; display: none; flex-direction: column; gap: 14px; }
+  .card-body.open { display: flex; }
+  .stamp {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 3px;
+    font-family: ui-monospace, monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; transform: rotate(-1deg); white-space: nowrap; border-width: 1.5px; border-style: solid;
+  }
+  .status-btn { padding: 5px 9px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 11px; border-width: 1px; border-style: solid; background: transparent; }
+  .checklist-item { display: flex; align-items: center; gap: 9px; font-size: 13.5px; cursor: pointer; }
+  .checkbox { width: 17px; height: 17px; border-radius: 3px; flex-shrink: 0; border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; }
+  .checkbox.done { background: var(--sage); border-color: var(--sage); }
+  .link-row { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+  .link-row a { color: var(--steel); display: flex; align-items: center; gap: 5px; text-decoration: none; }
+  textarea#notes-tpl { width: 100%; box-sizing: border-box; resize: vertical; }
+  .del-btn { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border: 1px solid var(--rust); border-radius: 4px; background: transparent; color: var(--rust); font-family: ui-monospace, monospace; font-size: 11.5px; }
+  .save-warning { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border: 1px solid var(--rust); border-radius: 4px; color: var(--rust); font-size: 12.5px; margin-bottom: 16px; display: none; }
+  .save-warning.show { display: flex; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <h1>Prospect Ledger</h1>
+      <span class="count mono" id="entry-count">0 entries on file</span>
+    </div>
+    <div class="rule-thick"></div>
+    <div class="rule-thin"></div>
+  </header>
+
+  <div class="status-strip" id="status-strip"></div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search name or area…">
+    </div>
+    <select class="tierfilter" id="tier-filter">
+      <option value="all">All tiers</option>
+      <option value="A">Tier A</option>
+      <option value="B">Tier B</option>
+      <option value="C">Tier C</option>
+    </select>
+    <button class="btn-add" id="add-toggle">+ Add institute</button>
+  </div>
+
+  <div class="form-card" id="form-card">
+    <div class="form-label" style="text-transform:uppercase;margin-bottom:12px;">New entry</div>
+    <div class="form-grid">
+      <div class="full">
+        <div class="form-label">Institute name *</div>
+        <input type="text" id="f-name" placeholder="e.g. AIMSS Academy">
+      </div>
+      <div>
+        <div class="form-label">Area</div>
+        <input type="text" id="f-area" placeholder="e.g. Kothrud">
+      </div>
+      <div>
+        <div class="form-label">Tier</div>
+        <select id="f-tier">
+          <option value="A">Tier A — Start with these</option>
+          <option value="B">Tier B — Good fit</option>
+          <option value="C">Tier C — Worth a look</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">Phone / WhatsApp</div>
+        <input type="text" id="f-phone" placeholder="+91…">
+      </div>
+      <div>
+        <div class="form-label">Link (Maps / website)</div>
+        <input type="text" id="f-link" placeholder="https://…">
+      </div>
+      <div class="full">
+        <div class="form-label">Why it fits</div>
+        <input type="text" id="f-fit" placeholder="e.g. Independent, JEE+NEET+CET, 300+ reviews">
+      </div>
+      <div class="full">
+        <div class="form-label">Red flag (optional)</div>
+        <input type="text" id="f-flag" placeholder="e.g. Large franchise — may have own IT/marketing">
+      </div>
+    </div>
+    <button class="btn-save" id="save-entry" disabled>Save entry</button>
+  </div>
+
+  <div class="save-warning" id="save-warning">Couldn't save your last change. Storage may be full or blocked.</div>
+
+  <div id="list"></div>
+</div>
+
+<script>
+const STATUS = {
+  not_started: { label: "Not started", color: "#726F60" },
+  contacted:   { label: "Contacted",    color: "#9C7A2E" },
+  interested:  { label: "Interested",   color: "#3E5F73" },
+  demo:        { label: "Pitched",      color: "#3E5F73" },
+  converted:   { label: "Converted",    color: "#4C6B54" },
+  rejected:    { label: "Not interested", color: "#8B3A2B" },
+};
+const STATUS_ORDER = ["not_started","contacted","interested","demo","converted","rejected"];
+const DEFAULT_CHECKLIST = [
+  "Phone / WhatsApp number found",
+  "Opening message sent",
+  "Got a reply",
+  "Call or conversation done",
+  "Pitched NeverMiss",
+  "Follow-up scheduled",
+];
+const STORAGE_KEY = "nevermiss_prospect_ledger_v1";
+
+let items = [];
+let filterStatus = "all";
+let filterTier = "all";
+let query = "";
+let expandedId = null;
+
+function uid(){ return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+function load(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    items = raw ? JSON.parse(raw) : [];
+  } catch(e) {
+    items = [];
+    console.error("Failed to load ledger:", e);
+  }
+}
+
+function save(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    document.getElementById("save-warning").classList.remove("show");
+    return true;
+  } catch(e) {
+    document.getElementById("save-warning").classList.add("show");
+    console.error("Failed to save ledger:", e);
+    return false;
+  }
+}
+
+function esc(s){
+  const d = document.createElement("div");
+  d.textContent = s == null ? "" : String(s);
+  return d.innerHTML;
+}
+
+function renderStatusStrip(){
+  const counts = { total: items.length };
+  STATUS_ORDER.forEach(k => counts[k] = 0);
+  items.forEach(it => counts[it.status] = (counts[it.status]||0) + 1);
+  document.getElementById("entry-count").textContent = counts.total + (counts.total === 1 ? " entry on file" : " entries on file");
+
+  const strip = document.getElementById("status-strip");
+  strip.innerHTML = STATUS_ORDER.map(k => {
+    const active = filterStatus === k;
+    const c = STATUS[k];
+    return `<button class="status-chip${active?' active':''}" data-status="${k}"
+      style="border-color:${active?c.color:'var(--line)'};color:${active?c.color:'var(--mute)'}">
+      <span class="dot" style="background:${c.color}"></span>${c.label}
+      <span style="opacity:.65">· ${counts[k]}</span></button>`;
+  }).join("");
+
+  strip.querySelectorAll(".status-chip").forEach(btn => {
+    btn.onclick = () => {
+      const k = btn.dataset.status;
+      filterStatus = (filterStatus === k) ? "all" : k;
+      renderAll();
+    };
+  });
+}
+
+function getFiltered(){
+  return items.filter(it => {
+    if (filterStatus !== "all" && it.status !== filterStatus) return false;
+    if (filterTier !== "all" && it.tier !== filterTier) return false;
+    if (query) {
+      const q = query.toLowerCase();
+      if (!it.name.toLowerCase().includes(q) && !it.area.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function stampHtml(text, color, filled){
+  return `<span class="stamp" style="border-color:${color};color:${filled?'#F6F6F1':color};background:${filled?color:'transparent'}">${esc(text)}</span>`;
+}
+
+function renderList(){
+  const list = document.getElementById("list");
+  const filtered = getFiltered();
+
+  if (filtered.length === 0) {
+    const hasAny = items.length > 0;
+    list.innerHTML = `<div class="empty">
+      ${hasAny ? "Nothing matches this filter." : "No entries yet. This ledger is yours alone — start adding institutes as you find them."}
+      ${!hasAny ? '<div><button id="empty-add">+ Add your first institute</button></div>' : ''}
+    </div>`;
+    if (!hasAny) {
+      document.getElementById("empty-add").onclick = () => openForm();
+    }
+    return;
+  }
+
+  list.innerHTML = filtered.map(it => {
+    const doneCount = it.checklist.filter(c => c.done).length;
+    const total = it.checklist.length;
+    const expanded = expandedId === it.id;
+    const st = STATUS[it.status];
+
+    return `<div class="card">
+      <div class="card-head" data-id="${it.id}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2">${expanded ? '<path d="M6 9l6 6 6-6"/>' : '<path d="M9 18l6-6-6-6"/>'}</svg>
+        ${stampHtml("Tier " + it.tier, "#9C7A2E", it.tier === "A")}
+        <div style="flex:1;min-width:0;">
+          <div class="name">${esc(it.name)} ${it.redFlag ? `<span title="${esc(it.redFlag)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B3A2B" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></span>` : ''}</div>
+          ${it.area ? `<div class="area"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ${esc(it.area)}</div>` : ''}
+        </div>
+        <div class="mono" style="font-size:11px;color:var(--mute);white-space:nowrap;">${doneCount}/${total}</div>
+        ${stampHtml(st.label, st.color, false)}
+      </div>
+      <div class="card-body ${expanded ? 'open' : ''}" data-body="${it.id}">
+        ${it.fitReason ? `<div style="font-size:13.5px;"><span class="mono" style="color:var(--mute);font-size:10.5px;letter-spacing:.04em;">WHY IT FITS &nbsp;</span>${esc(it.fitReason)}</div>` : ''}
+        ${it.redFlag ? `<div style="font-size:13.5px;color:var(--rust);display:flex;gap:6px;">${esc(it.redFlag)}</div>` : ''}
+        <div class="link-row">
+          ${it.phone ? `<a href="tel:${esc(it.phone)}">${esc(it.phone)}</a>` : ''}
+          ${it.link ? `<a href="${esc(it.link)}" target="_blank" rel="noreferrer">Open link ↗</a>` : ''}
+        </div>
+        <div>
+          <div class="form-label">STATUS</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${STATUS_ORDER.map(k => {
+              const active = it.status === k;
+              const c = STATUS[k];
+              return `<button class="status-btn" data-id="${it.id}" data-newstatus="${k}"
+                style="border-color:${c.color};background:${active?c.color:'transparent'};color:${active?'#F6F6F1':c.color}">${c.label}</button>`;
+            }).join("")}
+          </div>
+        </div>
+        <div>
+          <div class="form-label">OUTREACH CHECKLIST</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            ${it.checklist.map((c, idx) => `
+              <label class="checklist-item">
+                <span class="checkbox ${c.done?'done':''}" data-id="${it.id}" data-idx="${idx}">
+                  ${c.done ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F6F6F1" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>' : ''}
+                </span>
+                <span style="text-decoration:${c.done?'line-through':'none'};color:${c.done?'var(--mute)':'var(--ink)'}">${esc(c.label)}</span>
+              </label>`).join("")}
+          </div>
+        </div>
+        <div>
+          <div class="form-label">NOTES</div>
+          <textarea data-notes="${it.id}" rows="2" placeholder="Call notes, who you spoke to, next steps…">${esc(it.notes)}</textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="del-btn" data-del="${it.id}">Remove entry</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  // wire events
+  list.querySelectorAll(".card-head").forEach(el => {
+    el.onclick = () => { expandedId = (expandedId === el.dataset.id) ? null : el.dataset.id; renderList(); };
+  });
+  list.querySelectorAll(".status-btn").forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      const it = items.find(x => x.id === el.dataset.id);
+      it.status = el.dataset.newstatus;
+      save(); renderStatusStrip(); renderList();
+    };
+  });
+  list.querySelectorAll(".checkbox").forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      const it = items.find(x => x.id === el.dataset.id);
+      const idx = parseInt(el.dataset.idx, 10);
+      it.checklist[idx].done = !it.checklist[idx].done;
+      save(); renderList();
+    };
+  });
+  list.querySelectorAll("[data-notes]").forEach(el => {
+    el.onclick = (e) => e.stopPropagation();
+    el.onchange = () => {
+      const it = items.find(x => x.id === el.dataset.notes);
+      it.notes = el.value;
+      save();
+    };
+  });
+  list.querySelectorAll("[data-del]").forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      items = items.filter(x => x.id !== el.dataset.del);
+      if (expandedId === el.dataset.del) expandedId = null;
+      save(); renderAll();
+    };
+  });
+}
+
+function renderAll(){
+  renderStatusStrip();
+  renderList();
+}
+
+function openForm(){
+  document.getElementById("form-card").classList.add("open");
+  document.getElementById("add-toggle").classList.add("active");
+  document.getElementById("add-toggle").textContent = "× Cancel";
+  document.getElementById("f-name").focus();
+}
+function closeForm(){
+  document.getElementById("form-card").classList.remove("open");
+  document.getElementById("add-toggle").classList.remove("active");
+  document.getElementById("add-toggle").textContent = "+ Add institute";
+  ["f-name","f-area","f-phone","f-link","f-fit","f-flag"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("f-tier").value = "A";
+  document.getElementById("save-entry").disabled = true;
+}
+
+document.getElementById("add-toggle").onclick = () => {
+  const open = document.getElementById("form-card").classList.contains("open");
+  open ? closeForm() : openForm();
+};
+
+document.getElementById("f-name").addEventListener("input", (e) => {
+  document.getElementById("save-entry").disabled = !e.target.value.trim();
+});
+document.getElementById("f-name").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.value.trim()) document.getElementById("save-entry").click();
+});
+
+document.getElementById("save-entry").onclick = () => {
+  const name = document.getElementById("f-name").value.trim();
+  if (!name) return;
+  const newItem = {
+    id: uid(),
+    name,
+    area: document.getElementById("f-area").value.trim(),
+    phone: document.getElementById("f-phone").value.trim(),
+    link: document.getElementById("f-link").value.trim(),
+    tier: document.getElementById("f-tier").value,
+    fitReason: document.getElementById("f-fit").value.trim(),
+    redFlag: document.getElementById("f-flag").value.trim(),
+    status: "not_started",
+    checklist: DEFAULT_CHECKLIST.map(label => ({ label, done: false })),
+    notes: "",
+    createdAt: Date.now(),
+  };
+  items.unshift(newItem);
+  save();
+  closeForm();
+  renderAll();
+};
+
+document.getElementById("search").addEventListener("input", (e) => {
+  query = e.target.value;
+  renderList();
+});
+document.getElementById("tier-filter").addEventListener("change", (e) => {
+  filterTier = e.target.value;
+  renderList();
+});
+
+load();
+renderAll();
+</script>
+</body>
+</html>
