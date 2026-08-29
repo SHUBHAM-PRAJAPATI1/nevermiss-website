@@ -272,7 +272,7 @@ function renderList(){
     return;
   }
 
-  list.innerHTML = filtered.map(it => {
+  list.innerHTML = filtered.map((it, idx) => {
     const doneCount = it.checklist.filter(c => c.done).length;
     const total = it.checklist.length;
     const expanded = expandedId === it.id;
@@ -280,6 +280,7 @@ function renderList(){
 
     return `<div class="card">
       <div class="card-head" data-id="${it.id}">
+        <span class="mono" style="color:var(--mute);font-size:12px;min-width:22px;text-align:right;">${idx + 1}.</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2">${expanded ? '<path d="M6 9l6 6 6-6"/>' : '<path d="M9 18l6-6-6-6"/>'}</svg>
         ${stampHtml("Tier " + it.tier, "#9C7A2E", it.tier === "A")}
         <div style="flex:1;min-width:0;">
