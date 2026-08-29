@@ -367,6 +367,60 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 
     <div class="msg" id="conn-msg"></div>
   </div>
+
+  <div class="card" id="wa-profile-card">
+    <div class="card-title">WhatsApp Business Profile</div>
+    <div class="muted" style="margin-bottom:1rem;">This is what customers see when they tap your business name in WhatsApp. A real profile photo matters — a number with no photo looks untrustworthy and people hesitate to reply.</div>
+
+    <div style="display:flex;gap:1.2rem;align-items:flex-start;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <img id="wap-preview" src="" alt="" style="width:90px;height:90px;border-radius:50%;object-fit:cover;background:var(--gray);display:block;border:1px solid var(--gray2);">
+        <div class="muted" style="font-size:0.7rem;margin-top:0.35rem;">Current photo</div>
+      </div>
+      <div style="flex:1;min-width:240px;">
+        <div class="form-row">
+          <label>Profile photo</label>
+          <input type="file" id="wap-photo" accept="image/jpeg,image/jpg,image/png" onchange="previewProfilePhoto()">
+          <span class="muted" style="font-size:0.72rem;">Square image, 640×640 recommended, JPG or PNG, under 5MB. Use a white background — transparent areas turn black on WhatsApp.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-top:0.6rem;">
+      <label>About (short status line, max 139 chars)</label>
+      <input id="wap-about" maxlength="139" placeholder="e.g. JEE & NEET coaching in Pune since 2012">
+    </div>
+    <div class="grid-2">
+      <div class="form-row"><label>Business description (max 256)</label><input id="wap-description" maxlength="256" placeholder="What your institute does"></div>
+      <div class="form-row"><label>Address (max 256)</label><input id="wap-address" maxlength="256" placeholder="Your institute address"></div>
+    </div>
+    <div class="grid-2">
+      <div class="form-row"><label>Contact email</label><input id="wap-email" type="email" placeholder="you@example.com"></div>
+      <div class="form-row"><label>Website</label><input id="wap-website" placeholder="https://..."></div>
+    </div>
+    <div class="form-row">
+      <label>Category</label>
+      <select id="wap-vertical">
+        <option value="">— select —</option>
+        <option value="EDU">Education</option>
+        <option value="PROF_SERVICES">Professional Services</option>
+        <option value="HEALTH">Health</option>
+        <option value="BEAUTY">Beauty</option>
+        <option value="RETAIL">Retail</option>
+        <option value="RESTAURANT">Restaurant</option>
+        <option value="TRAVEL">Travel</option>
+        <option value="EVENT_PLAN">Event Planning</option>
+        <option value="FINANCE">Finance</option>
+        <option value="GOVT">Government</option>
+        <option value="NONPROFIT">Non-profit</option>
+        <option value="OTHER">Other</option>
+      </select>
+      <span class="muted" style="font-size:0.72rem;">Note: Meta doesn't allow clearing the category once it's been set.</span>
+    </div>
+
+    <button class="btn" onclick="saveWhatsAppProfile()">Save WhatsApp profile ✅</button>
+    <div class="msg" id="wap-msg"></div>
+  </div>
 </div>
 
 <!-- ══════════ PLAN & BILLING (WITH BULK ALLOWANCES) ══════════ -->
@@ -1165,6 +1219,72 @@ function loadConnect(){
   } else {
     statusEl.innerHTML = '<div class="muted" style="margin-bottom:0.8rem;">⏳ Setup pending — connect your number below.</div>';
     document.getElementById("conn-auto").style.display = "block";
+  }
+  // The profile card only makes sense once a number is actually connected --
+  // there's no WhatsApp profile to edit before that.
+  const profileCard = document.getElementById("wa-profile-card");
+  if (profileCard) {
+    profileCard.style.display = (st === "active") ? "block" : "none";
+    if (st === "active") loadWhatsAppProfile();
+  }
+}
+
+async function loadWhatsAppProfile(){
+  try {
+    const r = await fetch(API_BASE + "/api/whatsapp-profile", { headers: await authHeaders() });
+    const d = await r.json();
+    if (!d.success || !d.profile) return;
+    const p = d.profile;
+    if (p.profile_picture_url) document.getElementById("wap-preview").src = p.profile_picture_url;
+    document.getElementById("wap-about").value = p.about || "";
+    document.getElementById("wap-description").value = p.description || "";
+    document.getElementById("wap-address").value = p.address || "";
+    document.getElementById("wap-email").value = p.email || "";
+    document.getElementById("wap-website").value = (p.websites && p.websites[0]) || "";
+    if (p.vertical) document.getElementById("wap-vertical").value = p.vertical;
+  } catch (e) { /* non-fatal -- the form still works for saving */ }
+}
+
+function previewProfilePhoto(){
+  const f = document.getElementById("wap-photo").files[0];
+  if (!f) return;
+  document.getElementById("wap-preview").src = URL.createObjectURL(f);
+}
+
+async function saveWhatsAppProfile(){
+  const msg = document.getElementById("wap-msg");
+  msg.className = "msg"; msg.textContent = "Saving…";
+
+  const fd = new FormData();
+  const photo = document.getElementById("wap-photo").files[0];
+  if (photo) {
+    if (photo.size > 5 * 1024 * 1024) {
+      msg.className = "msg err"; msg.textContent = "Photo must be under 5MB.";
+      return;
+    }
+    fd.append("photo", photo);
+  }
+  ["about","description","address","email","website","vertical"].forEach(f => {
+    const v = document.getElementById("wap-" + f).value.trim();
+    if (v) fd.append(f, v);
+  });
+
+  try {
+    // NOTE: no Content-Type header here on purpose -- the browser must set
+    // its own multipart boundary for the file upload to parse correctly.
+    const r = await fetch(API_BASE + "/api/whatsapp-profile", {
+      method: "POST",
+      headers: await authHeaders(),
+      body: fd
+    });
+    const d = await r.json();
+    if (!d.success) { msg.className = "msg err"; msg.textContent = "❌ " + (d.error || "Could not update."); return; }
+    msg.className = "msg ok";
+    msg.textContent = "✅ Saved — it can take a few minutes to show up in WhatsApp.";
+    document.getElementById("wap-photo").value = "";
+    loadWhatsAppProfile();
+  } catch (e) {
+    msg.className = "msg err"; msg.textContent = "❌ Something went wrong. Please try again.";
   }
 }
 
