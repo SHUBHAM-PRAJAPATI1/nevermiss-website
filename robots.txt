@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /login.html
+Disallow: /set-password.html
+
+Sitemap: https://nevermiss.co.in/sitemap.xml
