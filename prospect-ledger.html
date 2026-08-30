@@ -32,6 +32,17 @@
   header .count { font-size: 12px; color: var(--mute); letter-spacing: 0.04em; }
   .rule-thick { height: 2px; background: var(--ink); margin: 10px 0 4px; }
   .rule-thin { height: 1px; background: var(--line); }
+
+  .tab-strip { display: flex; gap: 4px; margin: 18px 0 0; }
+  .tab-btn {
+    padding: 9px 16px; border: 1.5px solid var(--ink); border-bottom: none; border-radius: 4px 4px 0 0;
+    background: var(--paper); color: var(--mute); font-family: ui-monospace, monospace; font-size: 12.5px;
+    font-weight: 700; letter-spacing: 0.03em; cursor: pointer; position: relative; top: 1px;
+  }
+  .tab-btn.active { background: var(--paper-raised); color: var(--ink); }
+  .tab-panel { display: none; border-top: 1.5px solid var(--ink); padding-top: 18px; }
+  .tab-panel.active { display: block; }
+
   .status-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
   .status-chip {
     cursor: pointer; border-radius: 4px; padding: 6px 10px; font-size: 11.5px;
@@ -42,11 +53,11 @@
   .toolbar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
   .search-wrap { position: relative; flex: 1 1 220px; }
   .search-wrap svg { position: absolute; left: 10px; top: 11px; }
-  input[type=text], input[type=search], select, textarea {
+  input[type=text], input[type=search], input[type=date], select, textarea {
     font-family: inherit; font-size: 14px; color: var(--ink); background: var(--paper-raised);
     border: 1px solid var(--line); border-radius: 4px; padding: 9px 12px; outline: none;
   }
-  #search { width: 100%; padding-left: 32px; box-sizing: border-box; }
+  #search, #search-c { width: 100%; padding-left: 32px; box-sizing: border-box; }
   select.tierfilter { font-family: ui-monospace, monospace; font-size: 12.5px; padding: 9px 10px; }
   button { cursor: pointer; font-family: inherit; }
   .btn-add {
@@ -60,7 +71,8 @@
   .form-label { font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--mute); margin-bottom: 4px; letter-spacing: 0.04em; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
   .full { grid-column: 1 / -1; }
-  .form-grid input, .form-grid select { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 13.5px; }
+  .form-grid input, .form-grid select, .form-grid textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 13.5px; }
+  .form-grid textarea { resize: vertical; min-height: 46px; font-family: inherit; }
   .btn-save { padding: 9px 16px; border: none; border-radius: 4px; background: var(--sage); color: var(--paper); font-family: ui-monospace, monospace; font-size: 12.5px; font-weight: 700; }
   .btn-save:disabled { background: var(--line); cursor: not-allowed; }
   .empty { text-align: center; padding: 56px 20px; border: 1px dashed var(--line); border-radius: 6px; color: var(--mute); font-size: 15px; }
@@ -93,73 +105,162 @@
   <header>
     <div class="top">
       <h1>Prospect Ledger</h1>
-      <span class="count mono" id="entry-count">0 entries on file</span>
+      <span class="count mono" id="header-count">0 entries on file</span>
     </div>
     <div class="rule-thick"></div>
     <div class="rule-thin"></div>
+    <div class="tab-strip">
+      <button class="tab-btn active" id="tab-institutes">Institutes</button>
+      <button class="tab-btn" id="tab-connections">Connections</button>
+    </div>
   </header>
 
-  <div class="status-strip" id="status-strip"></div>
+  <!-- ================= INSTITUTES TAB ================= -->
+  <div class="tab-panel active" id="panel-institutes">
+    <div class="status-strip" id="status-strip"></div>
 
-  <div class="toolbar">
-    <div class="search-wrap">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" id="search" placeholder="Search name or area…">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="search" placeholder="Search name or area…">
+      </div>
+      <select class="tierfilter" id="tier-filter">
+        <option value="all">All tiers</option>
+        <option value="A">Tier A</option>
+        <option value="B">Tier B</option>
+        <option value="C">Tier C</option>
+      </select>
+      <button class="btn-add" id="add-toggle">+ Add institute</button>
     </div>
-    <select class="tierfilter" id="tier-filter">
-      <option value="all">All tiers</option>
-      <option value="A">Tier A</option>
-      <option value="B">Tier B</option>
-      <option value="C">Tier C</option>
-    </select>
-    <button class="btn-add" id="add-toggle">+ Add institute</button>
+
+    <div class="form-card" id="form-card">
+      <div class="form-label" style="text-transform:uppercase;margin-bottom:12px;">New entry</div>
+      <div class="form-grid">
+        <div class="full">
+          <div class="form-label">Institute name *</div>
+          <input type="text" id="f-name" placeholder="e.g. AIMSS Academy">
+        </div>
+        <div>
+          <div class="form-label">Area</div>
+          <input type="text" id="f-area" placeholder="e.g. Kothrud">
+        </div>
+        <div>
+          <div class="form-label">Tier</div>
+          <select id="f-tier">
+            <option value="A">Tier A — Start with these</option>
+            <option value="B">Tier B — Good fit</option>
+            <option value="C">Tier C — Worth a look</option>
+          </select>
+        </div>
+        <div>
+          <div class="form-label">Phone / WhatsApp</div>
+          <input type="text" id="f-phone" placeholder="+91…">
+        </div>
+        <div>
+          <div class="form-label">Link (Maps / website)</div>
+          <input type="text" id="f-link" placeholder="https://…">
+        </div>
+        <div class="full">
+          <div class="form-label">Why it fits</div>
+          <input type="text" id="f-fit" placeholder="e.g. Independent, JEE+NEET+CET, 300+ reviews">
+        </div>
+        <div class="full">
+          <div class="form-label">Red flag (optional)</div>
+          <input type="text" id="f-flag" placeholder="e.g. Large franchise — may have own IT/marketing">
+        </div>
+      </div>
+      <button class="btn-save" id="save-entry" disabled>Save entry</button>
+    </div>
+
+    <div class="save-warning" id="save-warning">Couldn't save your last change. Storage may be full or blocked.</div>
+
+    <div id="list"></div>
   </div>
 
-  <div class="form-card" id="form-card">
-    <div class="form-label" style="text-transform:uppercase;margin-bottom:12px;">New entry</div>
-    <div class="form-grid">
-      <div class="full">
-        <div class="form-label">Institute name *</div>
-        <input type="text" id="f-name" placeholder="e.g. AIMSS Academy">
+  <!-- ================= CONNECTIONS TAB ================= -->
+  <div class="tab-panel" id="panel-connections">
+    <div class="status-strip" id="status-strip-c"></div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="search-c" placeholder="Search name, event, or notes…">
       </div>
-      <div>
-        <div class="form-label">Area</div>
-        <input type="text" id="f-area" placeholder="e.g. Kothrud">
-      </div>
-      <div>
-        <div class="form-label">Tier</div>
-        <select id="f-tier">
-          <option value="A">Tier A — Start with these</option>
-          <option value="B">Tier B — Good fit</option>
-          <option value="C">Tier C — Worth a look</option>
-        </select>
-      </div>
-      <div>
-        <div class="form-label">Phone / WhatsApp</div>
-        <input type="text" id="f-phone" placeholder="+91…">
-      </div>
-      <div>
-        <div class="form-label">Link (Maps / website)</div>
-        <input type="text" id="f-link" placeholder="https://…">
-      </div>
-      <div class="full">
-        <div class="form-label">Why it fits</div>
-        <input type="text" id="f-fit" placeholder="e.g. Independent, JEE+NEET+CET, 300+ reviews">
-      </div>
-      <div class="full">
-        <div class="form-label">Red flag (optional)</div>
-        <input type="text" id="f-flag" placeholder="e.g. Large franchise — may have own IT/marketing">
-      </div>
+      <button class="btn-add" id="add-toggle-c">+ Add person</button>
     </div>
-    <button class="btn-save" id="save-entry" disabled>Save entry</button>
+
+    <div class="form-card" id="form-card-c">
+      <div class="form-label" style="text-transform:uppercase;margin-bottom:12px;">New entry</div>
+      <div class="form-grid">
+        <div class="full">
+          <div class="form-label">Name *</div>
+          <input type="text" id="c-name" placeholder="e.g. Rohan Sharma">
+        </div>
+        <div>
+          <div class="form-label">Where met</div>
+          <input type="text" id="c-where" placeholder="e.g. Pune SaaS Meetup — Aug 2026">
+        </div>
+        <div>
+          <div class="form-label">Contact</div>
+          <input type="text" id="c-contact" placeholder="+91… or LinkedIn URL">
+        </div>
+        <div class="full">
+          <div class="form-label">What they do</div>
+          <input type="text" id="c-what" placeholder="e.g. Runs a coaching institute in Kothrud">
+        </div>
+        <div class="full">
+          <div class="form-label">What we talked about</div>
+          <textarea id="c-talked" rows="2" placeholder="e.g. Struggles with lead follow-up, interested in a demo"></textarea>
+        </div>
+        <div>
+          <div class="form-label">Follow up by</div>
+          <input type="date" id="c-followup">
+        </div>
+      </div>
+      <button class="btn-save" id="save-entry-c" disabled>Save entry</button>
+    </div>
+
+    <div class="save-warning" id="save-warning-c">Couldn't save your last change. Storage may be full or blocked.</div>
+
+    <div id="list-c"></div>
   </div>
-
-  <div class="save-warning" id="save-warning">Couldn't save your last change. Storage may be full or blocked.</div>
-
-  <div id="list"></div>
 </div>
 
 <script>
+/* ============================================================
+   SHARED
+============================================================ */
+function uid(prefix){ return prefix + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function esc(s){
+  const d = document.createElement("div");
+  d.textContent = s == null ? "" : String(s);
+  return d.innerHTML;
+}
+function stampHtml(text, color, filled){
+  return `<span class="stamp" style="border-color:${color};color:${filled?'#F6F6F1':color};background:${filled?color:'transparent'}">${esc(text)}</span>`;
+}
+function updateHeaderCount(){
+  const total = institutes.length + connections.length;
+  document.getElementById("header-count").textContent =
+    institutes.length + " institute" + (institutes.length===1?"":"s") + " · " +
+    connections.length + " connection" + (connections.length===1?"":"s");
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+document.getElementById("tab-institutes").onclick = () => switchTab("institutes");
+document.getElementById("tab-connections").onclick = () => switchTab("connections");
+function switchTab(which){
+  document.getElementById("tab-institutes").classList.toggle("active", which === "institutes");
+  document.getElementById("tab-connections").classList.toggle("active", which === "connections");
+  document.getElementById("panel-institutes").classList.toggle("active", which === "institutes");
+  document.getElementById("panel-connections").classList.toggle("active", which === "connections");
+}
+
+/* ============================================================
+   INSTITUTES (unchanged from original ledger)
+============================================================ */
 const STATUS = {
   not_started: { label: "Not started", color: "#726F60" },
   contacted:   { label: "Contacted",    color: "#9C7A2E" },
@@ -179,27 +280,24 @@ const DEFAULT_CHECKLIST = [
 ];
 const STORAGE_KEY = "nevermiss_prospect_ledger_v1";
 
-let items = [];
+let institutes = [];
 let filterStatus = "all";
 let filterTier = "all";
 let query = "";
 let expandedId = null;
 
-function uid(){ return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
-
 function load(){
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    items = raw ? JSON.parse(raw) : [];
+    institutes = raw ? JSON.parse(raw) : [];
   } catch(e) {
-    items = [];
+    institutes = [];
     console.error("Failed to load ledger:", e);
   }
 }
-
 function save(){
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(institutes));
     document.getElementById("save-warning").classList.remove("show");
     return true;
   } catch(e) {
@@ -209,17 +307,10 @@ function save(){
   }
 }
 
-function esc(s){
-  const d = document.createElement("div");
-  d.textContent = s == null ? "" : String(s);
-  return d.innerHTML;
-}
-
 function renderStatusStrip(){
-  const counts = { total: items.length };
+  const counts = { total: institutes.length };
   STATUS_ORDER.forEach(k => counts[k] = 0);
-  items.forEach(it => counts[it.status] = (counts[it.status]||0) + 1);
-  document.getElementById("entry-count").textContent = counts.total + (counts.total === 1 ? " entry on file" : " entries on file");
+  institutes.forEach(it => counts[it.status] = (counts[it.status]||0) + 1);
 
   const strip = document.getElementById("status-strip");
   strip.innerHTML = STATUS_ORDER.map(k => {
@@ -241,7 +332,7 @@ function renderStatusStrip(){
 }
 
 function getFiltered(){
-  return items.filter(it => {
+  return institutes.filter(it => {
     if (filterStatus !== "all" && it.status !== filterStatus) return false;
     if (filterTier !== "all" && it.tier !== filterTier) return false;
     if (query) {
@@ -252,16 +343,12 @@ function getFiltered(){
   });
 }
 
-function stampHtml(text, color, filled){
-  return `<span class="stamp" style="border-color:${color};color:${filled?'#F6F6F1':color};background:${filled?color:'transparent'}">${esc(text)}</span>`;
-}
-
 function renderList(){
   const list = document.getElementById("list");
   const filtered = getFiltered();
 
   if (filtered.length === 0) {
-    const hasAny = items.length > 0;
+    const hasAny = institutes.length > 0;
     list.innerHTML = `<div class="empty">
       ${hasAny ? "Nothing matches this filter." : "No entries yet. This ledger is yours alone — start adding institutes as you find them."}
       ${!hasAny ? '<div><button id="empty-add">+ Add your first institute</button></div>' : ''}
@@ -331,14 +418,13 @@ function renderList(){
     </div>`;
   }).join("");
 
-  // wire events
   list.querySelectorAll(".card-head").forEach(el => {
     el.onclick = () => { expandedId = (expandedId === el.dataset.id) ? null : el.dataset.id; renderList(); };
   });
   list.querySelectorAll(".status-btn").forEach(el => {
     el.onclick = (e) => {
       e.stopPropagation();
-      const it = items.find(x => x.id === el.dataset.id);
+      const it = institutes.find(x => x.id === el.dataset.id);
       it.status = el.dataset.newstatus;
       save(); renderStatusStrip(); renderList();
     };
@@ -346,7 +432,7 @@ function renderList(){
   list.querySelectorAll(".checkbox").forEach(el => {
     el.onclick = (e) => {
       e.stopPropagation();
-      const it = items.find(x => x.id === el.dataset.id);
+      const it = institutes.find(x => x.id === el.dataset.id);
       const idx = parseInt(el.dataset.idx, 10);
       it.checklist[idx].done = !it.checklist[idx].done;
       save(); renderList();
@@ -355,7 +441,7 @@ function renderList(){
   list.querySelectorAll("[data-notes]").forEach(el => {
     el.onclick = (e) => e.stopPropagation();
     el.onchange = () => {
-      const it = items.find(x => x.id === el.dataset.notes);
+      const it = institutes.find(x => x.id === el.dataset.notes);
       it.notes = el.value;
       save();
     };
@@ -363,7 +449,7 @@ function renderList(){
   list.querySelectorAll("[data-del]").forEach(el => {
     el.onclick = (e) => {
       e.stopPropagation();
-      items = items.filter(x => x.id !== el.dataset.del);
+      institutes = institutes.filter(x => x.id !== el.dataset.del);
       if (expandedId === el.dataset.del) expandedId = null;
       save(); renderAll();
     };
@@ -373,6 +459,7 @@ function renderList(){
 function renderAll(){
   renderStatusStrip();
   renderList();
+  updateHeaderCount();
 }
 
 function openForm(){
@@ -406,7 +493,7 @@ document.getElementById("save-entry").onclick = () => {
   const name = document.getElementById("f-name").value.trim();
   if (!name) return;
   const newItem = {
-    id: uid(),
+    id: uid("p"),
     name,
     area: document.getElementById("f-area").value.trim(),
     phone: document.getElementById("f-phone").value.trim(),
@@ -419,7 +506,7 @@ document.getElementById("save-entry").onclick = () => {
     notes: "",
     createdAt: Date.now(),
   };
-  items.unshift(newItem);
+  institutes.unshift(newItem);
   save();
   closeForm();
   renderAll();
@@ -434,8 +521,247 @@ document.getElementById("tier-filter").addEventListener("change", (e) => {
   renderList();
 });
 
+/* ============================================================
+   CONNECTIONS (new tab, same patterns as Institutes)
+============================================================ */
+const C_STATUS = {
+  new:         { label: "New",         color: "#3E5F73" },
+  followed_up: { label: "Followed up", color: "#9C7A2E" },
+  in_touch:    { label: "In touch",    color: "#4C6B54" },
+  dormant:     { label: "Dormant",     color: "#726F60" },
+};
+const C_STATUS_ORDER = ["new","followed_up","in_touch","dormant"];
+const C_STORAGE_KEY = "nevermiss_connections_ledger_v1";
+
+let connections = [];
+let cFilterStatus = "all";
+let cQuery = "";
+let cExpandedId = null;
+
+function loadConnections(){
+  try {
+    const raw = localStorage.getItem(C_STORAGE_KEY);
+    connections = raw ? JSON.parse(raw) : [];
+  } catch(e) {
+    connections = [];
+    console.error("Failed to load connections:", e);
+  }
+}
+function saveConnections(){
+  try {
+    localStorage.setItem(C_STORAGE_KEY, JSON.stringify(connections));
+    document.getElementById("save-warning-c").classList.remove("show");
+    return true;
+  } catch(e) {
+    document.getElementById("save-warning-c").classList.add("show");
+    console.error("Failed to save connections:", e);
+    return false;
+  }
+}
+
+function renderStatusStripC(){
+  const counts = { total: connections.length };
+  C_STATUS_ORDER.forEach(k => counts[k] = 0);
+  connections.forEach(it => counts[it.status] = (counts[it.status]||0) + 1);
+
+  const strip = document.getElementById("status-strip-c");
+  strip.innerHTML = C_STATUS_ORDER.map(k => {
+    const active = cFilterStatus === k;
+    const c = C_STATUS[k];
+    return `<button class="status-chip${active?' active':''}" data-cstatus="${k}"
+      style="border-color:${active?c.color:'var(--line)'};color:${active?c.color:'var(--mute)'}">
+      <span class="dot" style="background:${c.color}"></span>${c.label}
+      <span style="opacity:.65">· ${counts[k]}</span></button>`;
+  }).join("");
+
+  strip.querySelectorAll(".status-chip").forEach(btn => {
+    btn.onclick = () => {
+      const k = btn.dataset.cstatus;
+      cFilterStatus = (cFilterStatus === k) ? "all" : k;
+      renderAllC();
+    };
+  });
+}
+
+function getFilteredC(){
+  return connections.filter(it => {
+    if (cFilterStatus !== "all" && it.status !== cFilterStatus) return false;
+    if (cQuery) {
+      const q = cQuery.toLowerCase();
+      const hay = [it.name, it.where, it.what, it.talked, it.notes].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderListC(){
+  const list = document.getElementById("list-c");
+  const filtered = getFilteredC();
+
+  if (filtered.length === 0) {
+    const hasAny = connections.length > 0;
+    list.innerHTML = `<div class="empty">
+      ${hasAny ? "Nothing matches this filter." : "No entries yet. Log people right after you meet them — an event, a name, and what you talked about."}
+      ${!hasAny ? '<div><button id="empty-add-c">+ Add your first connection</button></div>' : ''}
+    </div>`;
+    if (!hasAny) {
+      document.getElementById("empty-add-c").onclick = () => openFormC();
+    }
+    return;
+  }
+
+  filtered.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+
+  list.innerHTML = filtered.map((it, idx) => {
+    const expanded = cExpandedId === it.id;
+    const st = C_STATUS[it.status];
+
+    return `<div class="card">
+      <div class="card-head" data-cid="${it.id}">
+        <span class="mono" style="color:var(--mute);font-size:12px;min-width:22px;text-align:right;">${idx + 1}.</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2">${expanded ? '<path d="M6 9l6 6 6-6"/>' : '<path d="M9 18l6-6-6-6"/>'}</svg>
+        <div style="flex:1;min-width:0;">
+          <div class="name">${esc(it.name)}</div>
+          ${it.where ? `<div class="area"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#726F60" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ${esc(it.where)}</div>` : ''}
+        </div>
+        ${it.followup ? `<div class="mono" style="font-size:11px;color:var(--mute);white-space:nowrap;">by ${esc(it.followup)}</div>` : ''}
+        ${stampHtml(st.label, st.color, false)}
+      </div>
+      <div class="card-body ${expanded ? 'open' : ''}" data-cbody="${it.id}">
+        ${it.what ? `<div style="font-size:13.5px;"><span class="mono" style="color:var(--mute);font-size:10.5px;letter-spacing:.04em;">WHAT THEY DO &nbsp;</span>${esc(it.what)}</div>` : ''}
+        ${it.talked ? `<div style="font-size:13.5px;"><span class="mono" style="color:var(--mute);font-size:10.5px;letter-spacing:.04em;">TALKED ABOUT &nbsp;</span>${esc(it.talked)}</div>` : ''}
+        <div class="link-row">
+          ${it.contact ? `<span class="mono" style="color:var(--steel);">${esc(it.contact)}</span>` : ''}
+        </div>
+        <div>
+          <div class="form-label">STATUS</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${C_STATUS_ORDER.map(k => {
+              const active = it.status === k;
+              const c = C_STATUS[k];
+              return `<button class="status-btn" data-cid="${it.id}" data-cnewstatus="${k}"
+                style="border-color:${c.color};background:${active?c.color:'transparent'};color:${active?'#F6F6F1':c.color}">${c.label}</button>`;
+            }).join("")}
+          </div>
+        </div>
+        <div>
+          <div class="form-label">FOLLOW UP BY</div>
+          <input type="date" data-cfollowup="${it.id}" value="${esc(it.followup || '')}">
+        </div>
+        <div>
+          <div class="form-label">NOTES</div>
+          <textarea data-cnotes="${it.id}" rows="2" placeholder="Anything else worth remembering…">${esc(it.notes)}</textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="del-btn" data-cdel="${it.id}">Remove entry</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  list.querySelectorAll(".card-head").forEach(el => {
+    el.onclick = () => { cExpandedId = (cExpandedId === el.dataset.cid) ? null : el.dataset.cid; renderListC(); };
+  });
+  list.querySelectorAll(".status-btn").forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      const it = connections.find(x => x.id === el.dataset.cid);
+      it.status = el.dataset.cnewstatus;
+      saveConnections(); renderStatusStripC(); renderListC();
+    };
+  });
+  list.querySelectorAll("[data-cfollowup]").forEach(el => {
+    el.onclick = (e) => e.stopPropagation();
+    el.onchange = () => {
+      const it = connections.find(x => x.id === el.dataset.cfollowup);
+      it.followup = el.value;
+      saveConnections(); renderListC();
+    };
+  });
+  list.querySelectorAll("[data-cnotes]").forEach(el => {
+    el.onclick = (e) => e.stopPropagation();
+    el.onchange = () => {
+      const it = connections.find(x => x.id === el.dataset.cnotes);
+      it.notes = el.value;
+      saveConnections();
+    };
+  });
+  list.querySelectorAll("[data-cdel]").forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      connections = connections.filter(x => x.id !== el.dataset.cdel);
+      if (cExpandedId === el.dataset.cdel) cExpandedId = null;
+      saveConnections(); renderAllC();
+    };
+  });
+}
+
+function renderAllC(){
+  renderStatusStripC();
+  renderListC();
+  updateHeaderCount();
+}
+
+function openFormC(){
+  document.getElementById("form-card-c").classList.add("open");
+  document.getElementById("add-toggle-c").classList.add("active");
+  document.getElementById("add-toggle-c").textContent = "× Cancel";
+  document.getElementById("c-name").focus();
+}
+function closeFormC(){
+  document.getElementById("form-card-c").classList.remove("open");
+  document.getElementById("add-toggle-c").classList.remove("active");
+  document.getElementById("add-toggle-c").textContent = "+ Add person";
+  ["c-name","c-where","c-contact","c-what","c-talked","c-followup"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("save-entry-c").disabled = true;
+}
+
+document.getElementById("add-toggle-c").onclick = () => {
+  const open = document.getElementById("form-card-c").classList.contains("open");
+  open ? closeFormC() : openFormC();
+};
+
+document.getElementById("c-name").addEventListener("input", (e) => {
+  document.getElementById("save-entry-c").disabled = !e.target.value.trim();
+});
+document.getElementById("c-name").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.value.trim()) document.getElementById("save-entry-c").click();
+});
+
+document.getElementById("save-entry-c").onclick = () => {
+  const name = document.getElementById("c-name").value.trim();
+  if (!name) return;
+  const newItem = {
+    id: uid("c"),
+    name,
+    where: document.getElementById("c-where").value.trim(),
+    contact: document.getElementById("c-contact").value.trim(),
+    what: document.getElementById("c-what").value.trim(),
+    talked: document.getElementById("c-talked").value.trim(),
+    followup: document.getElementById("c-followup").value,
+    status: "new",
+    notes: "",
+    createdAt: Date.now(),
+  };
+  connections.unshift(newItem);
+  saveConnections();
+  closeFormC();
+  renderAllC();
+};
+
+document.getElementById("search-c").addEventListener("input", (e) => {
+  cQuery = e.target.value;
+  renderListC();
+});
+
+/* ============================================================
+   INIT
+============================================================ */
 load();
+loadConnections();
 renderAll();
+renderAllC();
 </script>
 </body>
 </html>
