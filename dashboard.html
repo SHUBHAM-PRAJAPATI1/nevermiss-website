@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{--blue:#1B4FFF;--blue-dark:#0A2ECC;--blue-light:#EEF2FF;--black:#080C1A;--white:#FAFBFF;--gray:#F0F2FA;--gray2:#E2E6F3;--text:#0D1226;--muted:#5A6380;--green:#00C853;--orange:#FF4D00;--red:#E11D48;}
+:root{--blue:#1B4FFF;--blue-dark:#0A2ECC;--blue-light:#EEF2FF;--black:#080C1A;--white:#FAFBFF;--gray:#F0F2FA;--gray2:#E2E6F3;--text:#0D1226;--muted:#5A6380;--green:#00C853;--orange:#FF4D00;--red:#E11D48;--teal:#0F766E;--teal-light:#E6F4F1;}
 body{font-family:'Instrument Sans',sans-serif;background:var(--gray);color:var(--text);}
 .sidebar{position:fixed;top:0;left:0;bottom:0;width:230px;background:var(--black);padding:1.4rem 1rem;display:flex;flex-direction:column;gap:0.3rem;z-index:50;}
 .logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.25rem;color:white;padding:0 0.6rem 1.2rem;text-decoration:none;}
@@ -29,6 +29,7 @@ body{font-family:'Instrument Sans',sans-serif;background:var(--gray);color:var(-
 .pill.plan{background:var(--blue-light);color:var(--blue);}
 .pill.ok{background:#E6F9EE;color:#0A7B3E;}
 .pill.warn{background:#FFF3EA;color:#C2410C;}
+.pill.teal{background:var(--teal-light);color:var(--teal);}
 .tb-right{display:flex;align-items:center;gap:1rem;}
 .tb-right a{color:var(--muted);font-size:0.8rem;text-decoration:none;}
 .tb-right a:hover{color:var(--blue);}
@@ -44,6 +45,8 @@ h1{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;margi
 .stat{background:white;border:1px solid var(--gray2);border-radius:16px;padding:1.2rem;}
 .stat .num{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;}
 .stat .lbl{font-size:0.75rem;color:var(--muted);margin-top:0.2rem;}
+.stat.accent{border-color:var(--teal);background:var(--teal-light);}
+.stat.accent .num{color:var(--teal);}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
 .muted{color:var(--muted);font-size:0.85rem;}
 .meter-label{display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;margin-bottom:0.35rem;}
@@ -51,6 +54,7 @@ h1{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;margi
 .bar{height:9px;background:var(--gray);border-radius:100px;overflow:hidden;margin-bottom:1rem;}
 .fill{height:100%;border-radius:100px;background:var(--blue);}
 .fill.mkt{background:var(--orange);}
+.fill.teal{background:var(--teal);}
 .setup-row{display:flex;align-items:center;gap:0.6rem;font-size:0.85rem;padding:0.35rem 0;color:var(--muted);}
 .setup-row.done{color:var(--text);}
 .setup-row .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--gray2);display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:white;}
@@ -63,11 +67,15 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 .btn.sm{padding:0.45rem 1.1rem;font-size:0.78rem;}
 .btn.outline{background:none;border:1.5px solid var(--gray2);color:var(--text);}
 .btn.outline:hover{border-color:var(--blue);color:var(--blue);}
+.btn.teal{background:var(--teal);}
+.btn.teal:hover{background:#0B5D57;}
+.btn:disabled{opacity:0.55;cursor:not-allowed;}
 .cycle-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
 .form-row{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.9rem;}
 .form-row label{font-size:0.78rem;font-weight:600;}
 .form-row input,.form-row select,.form-row textarea{padding:0.65rem 0.9rem;border:1.5px solid var(--gray2);border-radius:10px;font-size:0.86rem;font-family:'Instrument Sans',sans-serif;background:var(--gray);outline:none;}
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue);background:white;}
+.hint{font-size:0.72rem;color:var(--muted);}
 .msg{font-size:0.83rem;font-weight:600;min-height:1.1rem;margin-top:0.5rem;}
 .msg.ok{color:#0A7B3E;}.msg.err{color:var(--red);}
 .tabs{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.2rem;}
@@ -90,6 +98,10 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 .optin{display:flex;align-items:flex-start;gap:0.6rem;font-size:0.8rem;background:var(--blue-light);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.9rem;}
 .optin input{margin-top:0.15rem;accent-color:var(--blue);}
 .file-box{border:2px dashed var(--gray2);border-radius:14px;padding:1rem;text-align:center;font-size:0.82rem;color:var(--muted);margin-bottom:0.9rem;}
+.notice{border-radius:12px;padding:0.9rem 1.1rem;font-size:0.82rem;line-height:1.6;margin-bottom:1rem;}
+.notice.info{background:var(--teal-light);border:1.5px solid var(--teal);color:#0B5D57;}
+.notice.warn{background:#FFF7ED;border:1.5px solid #FB923C;color:#7C2D12;}
+.status-select{padding:0.3rem 0.5rem;border:1.5px solid var(--gray2);border-radius:8px;font-size:0.78rem;font-family:'Instrument Sans',sans-serif;background:white;cursor:pointer;}
 @media(max-width:900px){.sidebar{width:64px;}.sidebar .txt,.menu-label,.side-foot{display:none;}.topbar,.main{margin-left:64px;}.grid-stats,.grid-2,.plans-grid{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -100,12 +112,13 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
   <div class="menu-label">Menu</div>
   <button class="nav-item active" data-sec="overview"><span class="ic">◈</span><span class="txt">Overview</span></button>
   <button class="nav-item" data-sec="leads"><span class="ic">◎</span><span class="txt">Leads</span></button>
+  <button class="nav-item" data-sec="alumni" id="nav-alumni" style="display:none;"><span class="ic">🎓</span><span class="txt">Alumni</span></button>
   <button class="nav-item" data-sec="conversations"><span class="ic">◻</span><span class="txt">Conversations</span></button>
   <button class="nav-item" data-sec="bulk"><span class="ic">📢</span><span class="txt">Bulk Messaging</span></button>
   <button class="nav-item" data-sec="quick"><span class="ic">◇</span><span class="txt">Quick replies</span></button>
-  <button class="nav-item" data-sec="profile"><span class="ic">🏫</span><span class="txt">Institute Profile</span></button>
+  <button class="nav-item" data-sec="profile"><span class="ic">🏫</span><span class="txt" id="nav-profile-txt">Institute Profile</span></button>
   <button class="nav-item" data-sec="connect"><span class="ic">📱</span><span class="txt">Connect WhatsApp</span></button>
-  <button class="nav-item" data-sec="billing"><span class="ic">💳</span><span class="txt">Plan & Billing</span></button>
+  <button class="nav-item" data-sec="billing"><span class="ic">💳</span><span class="txt">Plan &amp; Billing</span></button>
   <div class="side-foot">
     <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20help%20with%20NeverMiss" target="_blank">💬 Need help? Chat with us</a>
     <a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a>
@@ -130,20 +143,36 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 <!-- ══════════ OVERVIEW ══════════ -->
 <div class="section active" id="sec-overview">
   <h1>Overview</h1>
-  <div class="sec-sub">Your bot at a glance.</div>
+  <div class="sec-sub" id="ov-sub">Your bot at a glance.</div>
   <div class="grid-stats">
     <div class="stat"><div class="num" id="ov-botlive">—</div><div class="lbl">Bot live</div></div>
-    <div class="stat"><div class="num" id="ov-leads">0</div><div class="lbl">Total leads</div></div>
+    <div class="stat"><div class="num" id="ov-leads">0</div><div class="lbl" id="ov-leads-lbl">Total leads</div></div>
     <div class="stat"><div class="num" id="ov-convs">0</div><div class="lbl">Conversations (all time)</div></div>
     <div class="stat"><div class="num" id="ov-new">0</div><div class="lbl">New today</div></div>
   </div>
+
+  <!-- Placement / impact summary — NGO clients only. Vandana's own
+       reporting line up to DRF, so it stays plain and screenshot-friendly. -->
+  <div class="card" id="impact-card" style="display:none;">
+    <div class="card-title">Programme impact <button class="btn sm outline" onclick="showSection('alumni')">Manage alumni</button></div>
+    <div class="grid-stats" style="margin-bottom:0.6rem;">
+      <div class="stat"><div class="num" id="im-batches">0</div><div class="lbl">Batches running</div></div>
+      <div class="stat"><div class="num" id="im-trained">0</div><div class="lbl">Candidates trained</div></div>
+      <div class="stat"><div class="num" id="im-placed">0</div><div class="lbl">Placed in jobs</div></div>
+      <div class="stat accent"><div class="num" id="im-rate">—</div><div class="lbl">Placement rate</div></div>
+    </div>
+    <div class="meter-label"><span>Placed out of everyone who finished training</span><span id="im-rate-text">0 of 0</span></div>
+    <div class="bar"><div class="fill teal" id="im-rate-bar" style="width:0%"></div></div>
+    <div class="muted">Counts everyone marked as an alumnus. Update someone's status on the Alumni page as soon as they find work, and this stays accurate.</div>
+  </div>
+
   <div class="grid-2">
     <div class="card">
       <div class="card-title">Setup progress</div>
       <div style="margin-bottom:0.8rem;"><div class="bar" style="margin-bottom:0.4rem;"><div class="fill" id="setup-bar" style="width:0%"></div></div><span class="muted" id="setup-pct">0%</span></div>
       <div class="setup-row" id="sp-1"><span class="dot">✓</span> Account created</div>
       <div class="setup-row" id="sp-2"><span class="dot">✓</span> WhatsApp connected</div>
-      <div class="setup-row" id="sp-3"><span class="dot">✓</span> At least one course added</div>
+      <div class="setup-row" id="sp-3"><span class="dot">✓</span> <span id="sp-3-txt">At least one course added</span></div>
       <div class="setup-row" id="sp-4"><span class="dot">✓</span> Bot is live</div>
     </div>
     <div class="card">
@@ -165,7 +194,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 <!-- ══════════ BULK MESSAGING ══════════ -->
 <div class="section" id="sec-bulk">
   <h1>📢 Bulk Messaging</h1>
-  <div class="sec-sub">Send utility & marketing broadcasts to your opted-in contacts. Your plan includes a monthly allowance.</div>
+  <div class="sec-sub">Send utility &amp; marketing broadcasts to your opted-in contacts. Your plan includes a monthly allowance.</div>
   <div class="card">
     <div class="card-title">Your bulk account</div>
     <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.2rem;">
@@ -194,20 +223,94 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
     <div id="contacts-body" class="muted">Loading…</div>
   </div>
 </div>
+
 <!-- ══════════ LEADS ══════════ -->
 <div class="section" id="sec-leads">
-  <h1>Leads</h1>
-  <div class="sec-sub">Every enquiry your bot captured.</div>
+  <h1 id="leads-h1">Leads</h1>
+  <div class="sec-sub" id="leads-sub">Every enquiry your bot captured.</div>
   <div class="grid-stats" style="grid-template-columns:repeat(5,1fr);">
     <div class="stat"><div class="num" id="lc-callback">0</div><div class="lbl">📞 Callback Requests</div></div>
     <div class="stat"><div class="num" id="lc-reg">0</div><div class="lbl">📋 Registrations</div></div>
-    <div class="stat"><div class="num" id="lc-demo">0</div><div class="lbl">🎓 Demo Bookings</div></div>
-    <div class="stat"><div class="num" id="lc-booking">0</div><div class="lbl">💺 Seat Bookings</div></div>
+    <div class="stat" id="lc-demo-stat"><div class="num" id="lc-demo">0</div><div class="lbl">🎓 Demo Bookings</div></div>
+    <div class="stat"><div class="num" id="lc-booking">0</div><div class="lbl" id="lc-booking-lbl">💺 Seat Bookings</div></div>
     <div class="stat"><div class="num" id="lc-enq">0</div><div class="lbl">🎯 Enquiries</div></div>
   </div>
   <div class="card">
     <div class="card-title">All leads</div>
     <div id="leads-body" class="muted">Loading…</div>
+  </div>
+</div>
+
+<!-- ══════════ ALUMNI (NGO clients only) ══════════ -->
+<div class="section" id="sec-alumni">
+  <h1>Alumni</h1>
+  <div class="sec-sub">Everyone who has finished a batch — and who is still looking for work.</div>
+
+  <div class="grid-stats">
+    <div class="stat"><div class="num" id="al-total">0</div><div class="lbl">Total alumni</div></div>
+    <div class="stat"><div class="num" id="al-searching">0</div><div class="lbl">Still job hunting</div></div>
+    <div class="stat"><div class="num" id="al-placed">0</div><div class="lbl">Placed in jobs</div></div>
+    <div class="stat"><div class="num" id="al-quiet">0</div><div class="lbl">Not responding</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Send a job alert</div>
+    <div id="alert-template-notice"></div>
+    <div class="muted" style="margin-bottom:1rem;">Goes to every alumnus with the status you pick below. Use it for a single opening or for a job fair — whatever you type in the two boxes is what they see.</div>
+    <div class="grid-2">
+      <div class="form-row"><label>Role or event</label><input id="ja-title" placeholder="e.g. Data Entry Operator, or Job Fair on 15 Sept"><span class="hint">This is the first thing they read — keep it short and concrete.</span></div>
+      <div class="form-row"><label>Company or venue</label><input id="ja-company" placeholder="e.g. Infosys BPM, Hinjewadi"></div>
+    </div>
+    <div class="form-row" style="max-width:320px;">
+      <label>Send to</label>
+      <select id="ja-filter">
+        <option value="searching">Alumni still job hunting</option>
+        <option value="not_responded">Alumni not responding</option>
+        <option value="placed">Alumni already placed</option>
+      </select>
+    </div>
+    <button class="btn teal" id="ja-send-btn" onclick="sendJobAlert()">Send job alert</button>
+    <div class="msg" id="ja-msg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Move a finished batch into alumni</div>
+    <div class="muted" style="margin-bottom:1rem;">When a batch finishes, this copies everyone who registered or booked a slot for it into your alumni list, with the status "still job hunting". Nobody gets a message — this only updates your records.</div>
+    <div class="grid-2">
+      <div class="form-row">
+        <label>Which batch finished?</label>
+        <select id="mb-course"><option value="">Loading batches…</option></select>
+      </div>
+      <div class="form-row"><label>Completion date</label><input id="mb-date" type="date"></div>
+    </div>
+    <button class="btn outline" onclick="markBatchCompleted()">Move batch into alumni</button>
+    <div class="msg" id="mb-msg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Add someone manually</div>
+    <div class="grid-2">
+      <div class="form-row"><label>Full name</label><input id="al-name" placeholder="e.g. Priya Sawant"></div>
+      <div class="form-row"><label>WhatsApp number</label><input id="al-phone" placeholder="e.g. 9876543210"><span class="hint">10 digits, or with 91 in front — either works.</span></div>
+    </div>
+    <div class="grid-2">
+      <div class="form-row"><label>Batch they finished</label><input id="al-batch" placeholder="e.g. GROW Youth — July batch"></div>
+      <div class="form-row"><label>Completion date</label><input id="al-date" type="date"></div>
+    </div>
+    <button class="btn" onclick="addAlumnus()">Add to alumni</button>
+    <div class="msg" id="al-msg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your alumni <span class="muted" id="al-count"></span>
+      <select id="al-view-filter" class="status-select" onchange="renderAlumni()">
+        <option value="all">Everyone</option>
+        <option value="searching">Still job hunting</option>
+        <option value="placed">Placed</option>
+        <option value="not_responded">Not responding</option>
+      </select>
+    </div>
+    <div id="alumni-body" class="muted">Loading…</div>
   </div>
 </div>
 
@@ -235,33 +338,38 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
   </div>
 </div>
 
-<!-- ══════════ INSTITUTE PROFILE ══════════ -->
+<!-- ══════════ INSTITUTE / CENTRE PROFILE ══════════ -->
 <div class="section" id="sec-profile">
-  <h1>Institute Profile</h1>
-  <div class="sec-sub">Everything the bot knows about your institute.</div>
+  <h1 id="profile-h1">Institute Profile</h1>
+  <div class="sec-sub" id="profile-sub">Everything the bot knows about your institute.</div>
   <div class="tabs">
-    <button class="tab active" onclick="showTab('courses', this)">Courses</button>
-    <button class="tab" onclick="showTab('results', this)">Results</button>
+    <button class="tab active" onclick="showTab('courses', this)" id="tab-courses">Courses</button>
+    <button class="tab" onclick="showTab('results', this)" id="tab-results">Results</button>
     <button class="tab" onclick="showTab('facilities', this)">Facilities</button>
     <button class="tab" onclick="showTab('media', this)">Media</button>
-    <button class="tab" onclick="showTab('info', this)">Business Info</button>
+    <button class="tab" onclick="showTab('info', this)" id="tab-info">Business Info</button>
   </div>
 
   <div class="tabpane active" id="pane-courses">
     <div class="card">
-      <div class="card-title">Courses & batches</div>
-      <div class="form-row"><label>Course name</label><input id="c-name" placeholder="e.g. JEE 2027 Batch"></div>
+      <div class="card-title" id="courses-card-title">Courses &amp; batches</div>
+      <div class="form-row"><label id="c-name-lbl">Course name</label><input id="c-name" placeholder="e.g. JEE 2027 Batch"></div>
       <div class="grid-2">
-        <div class="form-row"><label>Fees (₹/year)</label><input id="c-fees" type="number" placeholder="50000"></div>
-        <div class="form-row"><label>Seats available</label><input id="c-seats" type="number" placeholder="40"></div>
+        <div class="form-row" id="c-fees-row"><label>Fees (₹/year)</label><input id="c-fees" type="number" placeholder="50000"></div>
+        <div class="form-row"><label id="c-seats-lbl">Seats available</label><input id="c-seats" type="number" placeholder="40"></div>
+      </div>
+      <div class="form-row" id="c-elig-row" style="display:none;">
+        <label>Who can join this batch?</label>
+        <textarea id="c-elig" placeholder="e.g. Age 18–30, passed 10th or above, unemployed"></textarea>
+        <span class="hint">The bot reads this out when someone asks whether they are eligible. Write it exactly as you would say it — it can be different for every batch.</span>
       </div>
       <div class="form-row"><label>Batch label</label><input id="c-batch" placeholder="e.g. Morning 7–9 AM"></div>
       <div class="grid-2">
         <div class="form-row"><label>Start time</label><input id="c-start" placeholder="7:00 AM"></div>
         <div class="form-row"><label>End time</label><input id="c-end" placeholder="9:00 AM"></div>
       </div>
-      <label class="optin"><input type="checkbox" id="c-demo" checked> Demo class available for this course</label>
-      <button class="btn" onclick="addCourse()">+ Add Course</button>
+      <label class="optin" id="c-demo-row"><input type="checkbox" id="c-demo" checked> Demo class available for this course</label>
+      <button class="btn" onclick="addCourse()" id="c-add-btn">+ Add Course</button>
       <div class="msg" id="course-msg"></div>
       <div id="courses-list" class="muted" style="margin-top:1rem;">Loading…</div>
     </div>
@@ -269,10 +377,10 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 
   <div class="tabpane" id="pane-results">
     <div class="card">
-      <div class="card-title">Results / Selections</div>
-      <div class="form-row"><label>Achievement</label><input id="r-ach" placeholder="e.g. AIR 45 in JEE Advanced"></div>
+      <div class="card-title" id="results-card-title">Results / Selections</div>
+      <div class="form-row"><label id="r-ach-lbl">Achievement</label><input id="r-ach" placeholder="e.g. AIR 45 in JEE Advanced"></div>
       <div class="grid-2">
-        <div class="form-row"><label>Student name</label><input id="r-name"></div>
+        <div class="form-row"><label id="r-name-lbl">Student name</label><input id="r-name"></div>
         <div class="form-row"><label>Year</label><input id="r-year" placeholder="2026"></div>
       </div>
       <button class="btn" onclick="addResult()">+ Add Result</button>
@@ -294,14 +402,14 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 
   <div class="tabpane" id="pane-media">
     <div class="card" id="media-card">
-      <div class="card-title">Media (Brochure & Photos)</div>
+      <div class="card-title">Media (Brochure &amp; Photos)</div>
       <div class="grid-2">
         <div class="form-row"><label>Brochure (PDF)</label><input type="file" id="m-brochure" accept=".pdf"></div>
-        <div class="form-row"><label>Topper Photo</label><input type="file" id="m-topper" accept="image/*"></div>
+        <div class="form-row"><label id="m-topper-lbl">Topper Photo</label><input type="file" id="m-topper" accept="image/*"></div>
         <div class="form-row"><label>Facility Photo</label><input type="file" id="m-facility" accept="image/*"></div>
         <div id="skilling-media-fields" style="display:none;">
           <div class="form-row"><label>Job Suraksha Card brochure</label><input type="file" id="m-card" accept=".pdf,image/*"></div>
-          <div class="form-row"><label>Earn & Learn brochure</label><input type="file" id="m-earn" accept=".pdf,image/*"></div>
+          <div class="form-row"><label>Earn &amp; Learn brochure</label><input type="file" id="m-earn" accept=".pdf,image/*"></div>
         </div>
       </div>
       <button class="btn" onclick="uploadMedia()">Upload</button>
@@ -312,15 +420,16 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 
   <div class="tabpane" id="pane-info">
     <div class="card">
-      <div class="card-title">Business Info</div>
-      <div class="form-row"><label>Coaching / Business name</label><input id="bi-name"></div>
+      <div class="card-title" id="info-card-title">Business Info</div>
+      <div class="form-row"><label id="bi-name-lbl">Coaching / Business name</label><input id="bi-name"></div>
       <div class="form-row"><label>Location</label><input id="bi-loc"></div>
-      <div class="form-row"><label>Contact phone (shown to students)</label><input id="bi-phone"></div>
-      <div class="form-row"><label>Institute timings</label><input id="bi-timings" placeholder="Monday to Saturday, 8 AM – 8 PM"></div>
+      <div class="form-row"><label id="bi-phone-lbl">Contact phone (shown to students)</label><input id="bi-phone"></div>
+      <div class="form-row"><label id="bi-timings-lbl">Institute timings</label><input id="bi-timings" placeholder="Monday to Saturday, 8 AM – 8 PM"></div>
+      <div class="form-row"><label>Website</label><input id="bi-website" placeholder="https://drreddysfoundation.org"><span class="hint">The bot shares this when someone asks where to read more or register online.</span></div>
       <button class="btn" onclick="saveBizInfo()">Save changes ✅</button>
       <div class="msg" id="info-msg"></div>
     </div>
-    <div class="card">
+    <div class="card" id="booking-terms-card">
       <div class="card-title">Seat booking terms</div>
       <div class="muted" style="margin-bottom:0.8rem;">Applies to every seat booked through the bot. Leave the deposit blank if you don't want to collect one — the bot will just say a team member will confirm within 24 hours instead. The deposit itself is paid to you directly (in person, UPI, etc.) — the bot only communicates the terms, it doesn't collect payment.</div>
       <div class="grid-2">
@@ -329,6 +438,17 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       </div>
       <button class="btn" onclick="saveBookingTerms()">Save booking terms ✅</button>
       <div class="msg" id="booking-terms-msg"></div>
+    </div>
+    <div class="card" id="ngo-slot-terms-card" style="display:none;">
+      <div class="card-title">Slot booking</div>
+      <div class="notice info">Training is free, so the bot never asks anyone for money. When a candidate books a slot it simply holds their place and tells them your team will confirm within 24 hours.</div>
+      <div class="form-row" style="max-width:320px;">
+        <label>Hold an unconfirmed slot for</label>
+        <input id="bi-hold-days-ngo" type="number" min="1" placeholder="e.g. 7">
+        <span class="hint">After this many days an unconfirmed slot is released so someone else can take it. Leave blank to use 7 days.</span>
+      </div>
+      <button class="btn" onclick="saveSlotTerms()">Save slot settings ✅</button>
+      <div class="msg" id="slot-terms-msg"></div>
     </div>
   </div>
 </div>
@@ -390,7 +510,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 
     <div class="form-row" style="margin-top:0.6rem;">
       <label>About (short status line, max 139 chars)</label>
-      <input id="wap-about" maxlength="139" placeholder="e.g. JEE & NEET coaching in Pune since 2012">
+      <input id="wap-about" maxlength="139" placeholder="e.g. JEE &amp; NEET coaching in Pune since 2012">
     </div>
     <div class="grid-2">
       <div class="form-row"><label>Business description (max 256)</label><input id="wap-description" maxlength="256" placeholder="What your institute does"></div>
@@ -427,7 +547,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 
 <!-- ══════════ PLAN & BILLING (WITH BULK ALLOWANCES) ══════════ -->
 <div class="section" id="sec-billing">
-  <h1>Plan & Billing</h1>
+  <h1>Plan &amp; Billing</h1>
   <div class="sec-sub">Your subscription, bulk messaging allowance and referral rewards.</div>
 
   <div class="card">
@@ -443,7 +563,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
   </div>
 
   <div class="card">
-    <div class="card-title">Refer & Earn</div>
+    <div class="card-title">Refer &amp; Earn</div>
     <div class="muted" style="margin-bottom:0.8rem;">Share your code — they get 20% off their first payment, you get 20% off your next renewal once they sign up.</div>
     <div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
       <span class="pill plan" id="ref-code" style="font-size:0.95rem;padding:0.6rem 1.4rem;">Loading…</span>
@@ -471,7 +591,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
   <div class="modal-box">
     <h3>⏳ Your plan has expired</h3>
     <p>Your NeverMiss plan needs renewal. Renew now to keep your bot active and keep receiving leads from your students.</p>
-    <a class="btn" style="text-decoration:none;display:inline-block;" href="https://nevermiss.co.in/#pricing" target="_blank">View Plans & Renew</a>
+    <a class="btn" style="text-decoration:none;display:inline-block;" href="https://nevermiss.co.in/#pricing" target="_blank">View Plans &amp; Renew</a>
     <div class="muted" style="margin-top:0.8rem;"><a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20renew%20my%20NeverMiss%20plan" target="_blank" style="color:var(--blue);">Or message us on WhatsApp</a></div>
   </div>
 </div>
@@ -495,6 +615,14 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
                                         // finishing the Meta flow.
 });
 let TOKEN = null, EMAIL = null, CLIENT = null, BULK = null;
+let ALUMNI = [];   // cached alumni rows, so the status filter re-renders without refetching
+
+// True for skill-development / NGO clients (currently Dr. Reddy's Foundation's
+// GROW centre). Training is free there, so the whole money-shaped half of this
+// dashboard -- fees, deposits, "toppers" -- is either hidden or relabelled, and
+// an Alumni page appears instead. Everything below reads this ONE flag rather
+// than checking client_type in fifteen places.
+function isNGO(){ return !!(CLIENT && CLIENT.client_type === "ngo"); }
 
 // ── PLAN GATING ───────────────────────────────────────────────────────────────
 // Mirrors FEATURES_BY_PLAN in app.py. Kept in sync deliberately: the backend
@@ -508,7 +636,10 @@ const PLAN_FEATURES = {
   starter: [],
   growth:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   pro:     ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
-  custom:  ["quick_replies","brochure"]
+  // Widened to match app.py: custom pricing sets the RATE, it isn't a reason
+  // to cap what a bespoke client can use. Previously custom clients silently
+  // lost registration/booking/reminders here.
+  custom:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"]
 };
 
 const PLAN_LABEL = { basic:"Starter", starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom" };
@@ -520,7 +651,7 @@ function planHasFeature(feature){
 
 // Returns the HTML for an inline "locked on your plan" notice.
 function lockNotice(what, unlockedOn){
-  return '<div style="background:#FFF7ED;border:1.5px solid #FB923C;border-radius:12px;padding:1rem 1.2rem;font-size:0.86rem;color:#7C2D12;line-height:1.6;">' +
+  return '<div class="notice warn">' +
     '<strong>🔒 ' + what + ' isn\'t included on your ' + (PLAN_LABEL[(CLIENT && CLIENT.plan) || "starter"] || "current") + ' plan.</strong><br>' +
     'Available on <strong>' + unlockedOn + '</strong>. Upgrading also raises your monthly conversation limit.<br>' +
     '<button class="btn" style="margin-top:0.7rem;" onclick="showSection(\'billing\')">See plans &amp; upgrade</button>' +
@@ -563,7 +694,18 @@ function applyLock(containerId, locked, what, unlockedOn){
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function esc(s){ return (s == null ? "" : String(s)).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function fmtDate(iso){ return iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—"; }
+function setText(id, text){ const el = document.getElementById(id); if (el) el.textContent = text; }
+function show(id, visible){ const el = document.getElementById(id); if (el) el.style.display = visible ? "" : "none"; }
 async function authHeaders(){ return { "Authorization": "Bearer " + TOKEN }; }
+
+// Accepts 9876543210 or 919876543210 and always stores the 91-prefixed form,
+// which is what the WhatsApp Cloud API expects as a recipient.
+function normalisePhone(raw){
+  const digits = (raw || "").replace(/\D/g, "");
+  if (digits.length === 10) return "91" + digits;
+  if (digits.length === 12 && digits.startsWith("91")) return digits;
+  return null;
+}
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 function showSection(id){
@@ -600,6 +742,61 @@ async function signOut(){
   location.href = "login.html";
 }
 
+// ── CLIENT-TYPE UI ────────────────────────────────────────────────────────────
+// One place that reshapes the dashboard for a skill-development / NGO centre.
+// Nothing here is a second dashboard -- it's the same page, relabelled around
+// free training instead of paid coaching, with the money-shaped controls
+// removed so they can't be filled in by mistake.
+function applyClientTypeUI(){
+  const ngo = isNGO();
+
+  show("nav-alumni", ngo);
+  show("impact-card", ngo);
+
+  // Batches, not courses. Slots, not seats. No fees anywhere.
+  setText("nav-profile-txt", ngo ? "Centre Profile" : "Institute Profile");
+  setText("profile-h1", ngo ? "Centre Profile" : "Institute Profile");
+  setText("profile-sub", ngo ? "Everything the bot knows about your centre and its batches." : "Everything the bot knows about your institute.");
+  setText("tab-courses", ngo ? "Batches" : "Courses");
+  setText("tab-results", ngo ? "Placements" : "Results");
+  setText("tab-info", ngo ? "Centre Info" : "Business Info");
+  setText("courses-card-title", ngo ? "Training batches" : "Courses & batches");
+  setText("c-name-lbl", ngo ? "Batch name" : "Course name");
+  setText("c-seats-lbl", ngo ? "Slots available" : "Seats available");
+  setText("c-add-btn", ngo ? "+ Add batch" : "+ Add Course");
+  setText("results-card-title", ngo ? "Placement stories" : "Results / Selections");
+  setText("r-ach-lbl", ngo ? "What they achieved" : "Achievement");
+  setText("r-name-lbl", ngo ? "Candidate name" : "Student name");
+  setText("info-card-title", ngo ? "Centre Info" : "Business Info");
+  setText("bi-name-lbl", ngo ? "Centre name" : "Coaching / Business name");
+  setText("bi-phone-lbl", ngo ? "Contact phone (shown to candidates)" : "Contact phone (shown to students)");
+  setText("bi-timings-lbl", ngo ? "Centre timings" : "Institute timings");
+  setText("m-topper-lbl", ngo ? "Placement photo" : "Topper Photo");
+  setText("sp-3-txt", ngo ? "At least one batch added" : "At least one course added");
+
+  if (ngo) {
+    document.getElementById("c-name").placeholder = "e.g. GROW Youth — September batch";
+    document.getElementById("c-seats").placeholder = "30";
+    document.getElementById("r-ach").placeholder = "e.g. Placed as Customer Support Executive";
+    document.getElementById("bi-timings").placeholder = "Monday to Saturday, 10 AM – 5 PM";
+    setText("ov-sub", "Your centre at a glance.");
+    setText("ov-leads-lbl", "Total candidates");
+    setText("leads-h1", "Candidates");
+    setText("leads-sub", "Every enquiry, registration and slot booking your bot captured.");
+    setText("lc-booking-lbl", "🪑 Slot bookings");
+  }
+
+  // Free training: no fees field, no demo-class checkbox, no deposit card.
+  // A per-batch eligibility box appears instead, because eligibility genuinely
+  // differs between batches and the bot has to quote the right one.
+  show("c-fees-row", !ngo);
+  show("c-demo-row", !ngo);
+  show("c-elig-row", ngo);
+  show("lc-demo-stat", !ngo);
+  show("booking-terms-card", !ngo);
+  show("ngo-slot-terms-card", ngo);
+}
+
 // Locks the parts of the dashboard this client's plan doesn't include, so
 // they don't set up something that silently never runs -- and can see what
 // upgrading would unlock. The backend gating in app.py is the real
@@ -626,9 +823,11 @@ async function loadClient(){
       else if (CLIENT.status === "awaiting_connection") { sp.textContent = "📩 Request received"; sp.className = "pill warn"; }
       else { sp.textContent = "⏳ Setup pending"; sp.className = "pill warn"; }
       checkExpiry();
+      applyClientTypeUI();
       applyPlanGating();
       loadOverview(); loadLeads(); loadConversations(); loadQuick();
       loadProfile(); loadConnect(); loadBilling(); loadBulk();
+      if (isNGO()) loadAlumni();
       return;
     }
   } catch (e) { console.error(e); }
@@ -636,7 +835,7 @@ async function loadClient(){
   CLIENT = null;
   document.getElementById("biz-name").textContent = EMAIL;
   document.getElementById("plan-pill").textContent = "Bulk account";
-  ["overview","leads","conversations","quick","profile","connect"].forEach(sec => {
+  ["overview","leads","alumni","conversations","quick","profile","connect"].forEach(sec => {
     const nav = document.querySelector('.nav-item[data-sec="' + sec + '"]');
     if (nav) nav.style.display = "none";
   });
@@ -752,6 +951,28 @@ async function loadOverview(){
       }
     } catch (e) { console.error(e); }
   }
+
+  if (isNGO()) loadImpact(coursesRes.data ? coursesRes.data.length : 0);
+}
+
+// Placement numbers for the centre's own reporting. Deliberately computed
+// from the alumni table only -- "trained" means someone actually marked as
+// having finished, not everyone who ever enquired, so the rate can't be
+// quietly inflated by enquiry volume.
+async function loadImpact(batchCount){
+  const { data, error } = await sb.from("alumni").select("job_status").eq("client_id", CLIENT.id);
+  if (error) { console.error(error); return; }
+  const rows = data || [];
+  const placed = rows.filter(a => a.job_status === "placed").length;
+  const rate = rows.length ? Math.round((placed / rows.length) * 100) : 0;
+
+  setText("im-batches", batchCount);
+  setText("im-trained", rows.length);
+  setText("im-placed", placed);
+  setText("im-rate", rows.length ? rate + "%" : "—");
+  setText("im-rate-text", placed + " of " + rows.length);
+  const bar = document.getElementById("im-rate-bar");
+  if (bar) bar.style.width = rate + "%";
 }
 
 // ── LEADS ─────────────────────────────────────────────────────────────────────
@@ -797,8 +1018,10 @@ async function loadLeads(){
     return 0;                             // keep existing created_at DESC order within each group
   });
 
+  const releaseLabel = isNGO() ? "Release slot" : "Release seat";
+
   document.getElementById("leads-body").innerHTML =
-    `<table><tr><th></th><th>Name</th><th>Type / Course</th><th>Phone</th><th>Date</th><th></th></tr>` +
+    `<table><tr><th></th><th>Name</th><th>Type / ${isNGO() ? "Batch" : "Course"}</th><th>Phone</th><th>Date</th><th></th></tr>` +
     sorted.map(l => {
       const handled = isHandled(l.status);
       const isBooking = l.lead_type === "booking";
@@ -809,7 +1032,7 @@ async function loadLeads(){
       const actionCell = isBooking
         ? bookingStatusBadge(l.status) + (l.status === "active" ? (
             ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;" onclick="updateLeadStatus(${l.id},'confirmed')">Confirm</button>` +
-            ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;color:#dc2626;" onclick="updateLeadStatus(${l.id},'released')">Release seat</button>`
+            ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;color:#dc2626;" onclick="updateLeadStatus(${l.id},'released')">${releaseLabel}</button>`
           ) : "")
         : (handled ? '<span class="muted" style="font-size:0.75rem;">✓ Handled</span>' : "");
 
@@ -825,7 +1048,10 @@ async function loadLeads(){
 }
 
 async function updateLeadStatus(leadId, status){
-  if (status === "released" && !confirm("Release this seat back into availability?")) return;
+  const confirmText = isNGO()
+    ? "Release this slot back into availability?"
+    : "Release this seat back into availability?";
+  if (status === "released" && !confirm(confirmText)) return;
   try {
     const r = await fetch(API_BASE + "/api/leads/" + leadId + "/status", {
       method: "POST",
@@ -837,6 +1063,227 @@ async function updateLeadStatus(leadId, status){
     loadLeads();
   } catch (e) {
     alert("❌ Something went wrong. Please try again.");
+  }
+}
+
+// ── ALUMNI (NGO clients) ──────────────────────────────────────────────────────
+// Alumni CRUD goes straight to Supabase under RLS, exactly like courses and
+// quick replies. Only the two things that need the server-held WhatsApp token
+// -- the job alert and the scheduled check-ins -- go through the backend.
+
+const JOB_STATUS_LABEL = {
+  searching: "Still job hunting",
+  placed: "Placed",
+  not_responded: "Not responding"
+};
+
+async function loadAlumni(){
+  if (!CLIENT) return;
+  const { data, error } = await sb.from("alumni")
+    .select("id,name,phone,batch,completion_date,job_status,last_contacted_at")
+    .eq("client_id", CLIENT.id)
+    .order("created_at", { ascending: false });
+  if (error) {
+    document.getElementById("alumni-body").innerHTML =
+      '<div class="notice warn">Could not load your alumni list. ' + esc(error.message) + '</div>';
+    return;
+  }
+  ALUMNI = data || [];
+
+  const counts = { searching: 0, placed: 0, not_responded: 0 };
+  ALUMNI.forEach(a => { if (counts[a.job_status] !== undefined) counts[a.job_status]++; });
+  setText("al-total", ALUMNI.length);
+  setText("al-searching", counts.searching);
+  setText("al-placed", counts.placed);
+  setText("al-quiet", counts.not_responded);
+  setText("al-count", ALUMNI.length ? "(" + ALUMNI.length + ")" : "");
+
+  renderAlumni();
+  loadBatchOptions();
+  renderTemplateNotice();
+}
+
+function renderAlumni(){
+  const body = document.getElementById("alumni-body");
+  if (!body) return;
+  if (!ALUMNI.length) {
+    body.innerHTML = '<div class="muted">No alumni yet. When a batch finishes, use “Move a finished batch into alumni” above — or add someone by hand.</div>';
+    return;
+  }
+  const filter = document.getElementById("al-view-filter").value;
+  const rows = filter === "all" ? ALUMNI : ALUMNI.filter(a => a.job_status === filter);
+  if (!rows.length) {
+    body.innerHTML = '<div class="muted">Nobody in your alumni list has that status right now.</div>';
+    return;
+  }
+
+  body.innerHTML = "<table><tr><th>Name</th><th>Phone</th><th>Batch</th><th>Finished</th><th>Status</th><th>Last contacted</th><th></th></tr>" +
+    rows.map(a => {
+      const opts = Object.keys(JOB_STATUS_LABEL).map(k =>
+        `<option value="${k}"${a.job_status === k ? " selected" : ""}>${esc(JOB_STATUS_LABEL[k])}</option>`).join("");
+      return `<tr>
+        <td><strong>${esc(a.name)}</strong></td>
+        <td>+${esc(a.phone)}</td>
+        <td>${esc(a.batch || "—")}</td>
+        <td class="muted">${a.completion_date ? fmtDate(a.completion_date) : "—"}</td>
+        <td><select class="status-select" onchange="updateAlumnusStatus('${a.id}', this.value)">${opts}</select></td>
+        <td class="muted">${a.last_contacted_at ? fmtDate(a.last_contacted_at) : "Never"}</td>
+        <td><button onclick="deleteAlumnus('${a.id}')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;" title="Remove from alumni">🗑️</button></td>
+      </tr>`;
+    }).join("") + "</table>";
+}
+
+async function updateAlumnusStatus(id, status){
+  const { error } = await sb.from("alumni").update({ job_status: status }).eq("id", id);
+  if (error) { alert("❌ " + error.message); return; }
+  loadAlumni();
+  loadOverview();   // placement rate on the Overview page moves with this
+}
+
+async function deleteAlumnus(id){
+  if (!confirm("Remove this person from your alumni list? Their lead history stays untouched.")) return;
+  const { error } = await sb.from("alumni").delete().eq("id", id);
+  if (error) { alert("❌ " + error.message); return; }
+  loadAlumni();
+  loadOverview();
+}
+
+async function addAlumnus(){
+  const msg = document.getElementById("al-msg");
+  msg.className = "msg";
+  const name = document.getElementById("al-name").value.trim();
+  const phone = normalisePhone(document.getElementById("al-phone").value);
+  if (!name) { msg.className = "msg err"; msg.textContent = "Add their full name first."; return; }
+  if (!phone) { msg.className = "msg err"; msg.textContent = "That number doesn't look right — enter 10 digits, or 12 starting with 91."; return; }
+
+  const { error } = await sb.from("alumni").insert({
+    client_id: CLIENT.id,
+    name,
+    phone,
+    batch: document.getElementById("al-batch").value.trim() || null,
+    completion_date: document.getElementById("al-date").value || null,
+    job_status: "searching"
+  });
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  msg.className = "msg ok"; msg.textContent = "✅ Added to your alumni list.";
+  ["al-name","al-phone","al-batch","al-date"].forEach(id => document.getElementById(id).value = "");
+  loadAlumni();
+  loadOverview();
+}
+
+// Fills the "which batch finished" dropdown from the centre's own batches.
+async function loadBatchOptions(){
+  const sel = document.getElementById("mb-course");
+  if (!sel) return;
+  const { data } = await sb.from("courses").select("course_name").eq("client_id", CLIENT.id).eq("active", true).order("display_order", { ascending: true });
+  if (!data || !data.length) {
+    sel.innerHTML = '<option value="">No batches added yet</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— pick a batch —</option>' +
+    data.map(c => `<option value="${esc(c.course_name)}">${esc(c.course_name)}</option>`).join("");
+}
+
+// Copies everyone who registered or booked a slot for a batch into the alumni
+// table. Deliberately manual and deliberately additive: nothing is deleted,
+// nobody is messaged, and anyone already in the alumni list is skipped rather
+// than duplicated -- so running it twice on the same batch is harmless.
+async function markBatchCompleted(){
+  const msg = document.getElementById("mb-msg");
+  msg.className = "msg";
+  const course = document.getElementById("mb-course").value;
+  const date = document.getElementById("mb-date").value || null;
+  if (!course) { msg.className = "msg err"; msg.textContent = "Pick which batch finished."; return; }
+  if (!confirm(`Move everyone from “${course}” into your alumni list?\n\nThis only updates your records — nobody gets a message.`)) return;
+
+  msg.textContent = "Working…";
+  const { data: leads, error } = await sb.from("leads")
+    .select("name,phone,whatsapp_number,lead_type")
+    .eq("client_id", CLIENT.id)
+    .eq("course", course)
+    .in("lead_type", ["registration", "booking"]);
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  if (!leads || !leads.length) {
+    msg.className = "msg err";
+    msg.textContent = "Nobody registered or booked a slot for that batch, so there's nobody to move.";
+    return;
+  }
+
+  const existing = new Set(ALUMNI.map(a => a.phone));
+  const seen = new Set();
+  const toInsert = [];
+  leads.forEach(l => {
+    const phone = normalisePhone(l.phone || l.whatsapp_number);
+    if (!phone || existing.has(phone) || seen.has(phone)) return;
+    seen.add(phone);
+    toInsert.push({
+      client_id: CLIENT.id,
+      name: l.name || "Candidate",
+      phone,
+      batch: course,
+      completion_date: date,
+      job_status: "searching"
+    });
+  });
+
+  if (!toInsert.length) {
+    msg.className = "msg ok";
+    msg.textContent = "Everyone from that batch is already in your alumni list.";
+    return;
+  }
+
+  const { error: insErr } = await sb.from("alumni").insert(toInsert);
+  if (insErr) { msg.className = "msg err"; msg.textContent = "❌ " + insErr.message; return; }
+  msg.className = "msg ok";
+  msg.textContent = `✅ Moved ${toInsert.length} ${toInsert.length === 1 ? "person" : "people"} into alumni.`;
+  loadAlumni();
+  loadOverview();
+}
+
+// The job alert goes out as an approved WhatsApp template, because alumni are
+// almost never inside a live 24-hour chat window. Until that template is
+// approved and set on the backend, say so plainly here rather than letting
+// someone write an alert that quietly fails to send.
+function renderTemplateNotice(){
+  const el = document.getElementById("alert-template-notice");
+  if (!el) return;
+  el.innerHTML = '<div class="notice info">Job alerts go out as an approved WhatsApp message template. ' +
+    'If sending fails with a “template not configured” message, the template is still waiting on Meta’s approval — ' +
+    'everything else on this page keeps working in the meantime.</div>';
+}
+
+async function sendJobAlert(){
+  const msg = document.getElementById("ja-msg");
+  const btn = document.getElementById("ja-send-btn");
+  msg.className = "msg";
+  const title = document.getElementById("ja-title").value.trim();
+  const company = document.getElementById("ja-company").value.trim();
+  const filter = document.getElementById("ja-filter").value;
+  if (!title || !company) { msg.className = "msg err"; msg.textContent = "Fill in both the role and the company before sending."; return; }
+
+  const target = ALUMNI.filter(a => a.job_status === filter).length;
+  if (!target) { msg.className = "msg err"; msg.textContent = "No alumni currently have that status, so there's nobody to send to."; return; }
+  if (!confirm(`Send this alert to ${target} ${target === 1 ? "person" : "people"}?\n\n${title} — ${company}`)) return;
+
+  btn.disabled = true;
+  msg.textContent = "Sending…";
+  try {
+    const r = await fetch(API_BASE + "/api/alumni/send-job-alert", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({ job_title: title, company: company, job_status: filter })
+    });
+    const d = await r.json();
+    if (!d.success) { msg.className = "msg err"; msg.textContent = "❌ " + (d.error || "Could not send the alert."); return; }
+    msg.className = "msg ok";
+    msg.textContent = `✅ Sent to ${d.sent} ${d.sent === 1 ? "person" : "people"}` + (d.failed ? ` · ${d.failed} didn't go through` : "") + ".";
+    document.getElementById("ja-title").value = "";
+    document.getElementById("ja-company").value = "";
+    loadAlumni();
+  } catch (e) {
+    msg.className = "msg err"; msg.textContent = "❌ Connection problem. Try again in a moment.";
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -866,6 +1313,7 @@ async function loadConversations(){
   });
   document.getElementById("conv-body").innerHTML = html;
 }
+
 // ── BULK MESSAGING ────────────────────────────────────────────────────────────
 async function loadBulk(){
   const bulk = await fetchBulk();
@@ -983,7 +1431,7 @@ async function addQuickReply(){
   loadQuick();
 }
 
-// ── INSTITUTE PROFILE ─────────────────────────────────────────────────────────
+// ── INSTITUTE / CENTRE PROFILE ────────────────────────────────────────────────
 async function loadProfile(){
   if (!CLIENT) return;
   const { data } = await sb.from("clients").select("*").eq("id", CLIENT.id).single();
@@ -992,8 +1440,10 @@ async function loadProfile(){
     document.getElementById("bi-loc").value = data.location || "";
     document.getElementById("bi-phone").value = data.contact_phone || "";
     document.getElementById("bi-timings").value = data.institute_timings || "";
+    document.getElementById("bi-website").value = data.website_url || "";
     document.getElementById("bi-deposit").value = data.booking_deposit_amount || "";
     document.getElementById("bi-hold-days").value = data.booking_hold_days || "";
+    document.getElementById("bi-hold-days-ngo").value = data.booking_hold_days || "";
   }
   // Job Suraksha Card / Earn & Learn brochure fields only apply to Skilling
   // India clients -- hide them for regular coaching-institute clients so
@@ -1006,19 +1456,45 @@ async function loadProfile(){
 async function loadCourses(){
   const { data } = await sb.from("courses").select("*, course_batches(*)").eq("client_id", CLIENT.id).eq("active", true).order("display_order", { ascending: true });
   const el = document.getElementById("courses-list");
-  if (!data || !data.length) { el.innerHTML = '<div class="muted">No courses yet.</div>'; return; }
-  el.innerHTML = data.map(c =>
-    "<div style='border:1px solid var(--gray2);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.84rem;display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;'>" +
-    "<div>" +
-    "<strong>" + esc(c.course_name) + "</strong> · ₹" + esc(c.fees) + "/yr" + (c.demo_available ? " · 🎓 demo" : "") +
-    "<br><span class='muted'>Seats: </span>" +
-    "<button onclick=\"adjustSeats('" + c.id + "',-1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One less (e.g. an offline booking)'>−</button> " +
-    "<strong onclick=\"setSeatsDirectly('" + c.id + "'," + esc(c.seats_available) + ")\" style='cursor:pointer;text-decoration:underline dotted;' title='Click to set an exact number'>" + esc(c.seats_available) + "</strong> " +
-    "<button onclick=\"adjustSeats('" + c.id + "',1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One more (e.g. a cancellation)'>+</button>" +
-    ((c.course_batches && c.course_batches.length) ? "<br><span class='muted'>" + c.course_batches.map(b => esc(b.batch_label) + " (" + esc(b.start_time) + "–" + esc(b.end_time) + ")").join(" · ") + "</span>" : "") +
-    "</div>" +
-    "<button onclick=\"deleteCourse('" + c.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;white-space:nowrap;' title='Delete course'>🗑️ Delete</button>" +
-    "</div>").join("");
+  const ngo = isNGO();
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="muted">' + (ngo ? "No batches yet. Add your first one above and the bot can start telling candidates about it." : "No courses yet.") + '</div>';
+    return;
+  }
+  el.innerHTML = data.map(c => {
+    const feesPart = ngo ? "<span class='muted'> · free training</span>" : " · ₹" + esc(c.fees) + "/yr" + (c.demo_available ? " · 🎓 demo" : "");
+    const eligPart = (ngo && c.eligibility_criteria)
+      ? "<br><span class='muted'>Who can join: " + esc(c.eligibility_criteria) + "</span>"
+      : (ngo ? "<br><span class='muted' style='color:#C2410C;'>No eligibility set — the bot will say your team will confirm.</span>" : "");
+    return "<div style='border:1px solid var(--gray2);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.84rem;display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;'>" +
+      "<div>" +
+      "<strong>" + esc(c.course_name) + "</strong>" + feesPart +
+      "<br><span class='muted'>" + (ngo ? "Slots: " : "Seats: ") + "</span>" +
+      "<button onclick=\"adjustSeats('" + c.id + "',-1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One less (e.g. an offline booking)'>−</button> " +
+      "<strong onclick=\"setSeatsDirectly('" + c.id + "'," + esc(c.seats_available) + ")\" style='cursor:pointer;text-decoration:underline dotted;' title='Click to set an exact number'>" + esc(c.seats_available) + "</strong> " +
+      "<button onclick=\"adjustSeats('" + c.id + "',1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One more (e.g. a cancellation)'>+</button>" +
+      eligPart +
+      ((c.course_batches && c.course_batches.length) ? "<br><span class='muted'>" + c.course_batches.map(b => esc(b.batch_label) + " (" + esc(b.start_time) + "–" + esc(b.end_time) + ")").join(" · ") + "</span>" : "") +
+      "</div>" +
+      "<div style='display:flex;flex-direction:column;gap:0.3rem;align-items:flex-end;'>" +
+      (ngo ? "<button onclick=\"editEligibility('" + c.id + "')\" style='background:none;border:none;color:var(--teal);cursor:pointer;font-size:0.78rem;white-space:nowrap;font-weight:600;'>Edit eligibility</button>" : "") +
+      "<button onclick=\"deleteCourse('" + c.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;white-space:nowrap;' title='Delete'>🗑️ Delete</button>" +
+      "</div>" +
+      "</div>";
+  }).join("");
+}
+
+// Eligibility changes far more often than the rest of a batch (a new age band,
+// a women-only intake), so it gets its own quick edit rather than making
+// someone delete and re-add the whole batch.
+async function editEligibility(courseId){
+  const { data } = await sb.from("courses").select("eligibility_criteria").eq("id", courseId).single();
+  const current = (data && data.eligibility_criteria) || "";
+  const next = prompt("Who can join this batch?\n\nWrite it the way you'd say it to a candidate — the bot reads this out when someone asks if they're eligible.", current);
+  if (next === null) return;
+  const { error } = await sb.from("courses").update({ eligibility_criteria: next.trim() || null }).eq("id", courseId);
+  if (error) { alert("❌ " + error.message); return; }
+  loadCourses();
 }
 
 // Manual seat adjustment -- independent of the bot's own booking flow, for
@@ -1034,7 +1510,7 @@ async function adjustSeats(courseId, delta){
 }
 
 async function setSeatsDirectly(courseId, current){
-  const input = prompt("Set exact seat count:", current);
+  const input = prompt(isNGO() ? "Set exact slot count:" : "Set exact seat count:", current);
   if (input === null) return;
   const next = parseInt(input, 10);
   if (isNaN(next) || next < 0) { alert("Please enter a valid number (0 or more)."); return; }
@@ -1044,23 +1520,40 @@ async function setSeatsDirectly(courseId, current){
 }
 
 async function deleteCourse(courseId){
-  if (!confirm("Delete this course? The bot will stop mentioning it.")) return;
+  const q = isNGO()
+    ? "Delete this batch? The bot will stop mentioning it."
+    : "Delete this course? The bot will stop mentioning it.";
+  if (!confirm(q)) return;
   const { error } = await sb.from("courses").update({ active: false }).eq("id", courseId);
   if (error) { alert("❌ " + error.message); return; }
   loadCourses();
+  if (isNGO()) loadBatchOptions();
 }
 
 async function addCourse(){
   const msg = document.getElementById("course-msg");
+  const ngo = isNGO();
   const name = document.getElementById("c-name").value.trim();
-  if (!name) { msg.className = "msg err"; msg.textContent = "Course name is required."; return; }
-  const { data, error } = await sb.from("courses").insert({
-    client_id: CLIENT.id, course_name: name,
-    fees: parseInt(document.getElementById("c-fees").value) || 0,
+  if (!name) { msg.className = "msg err"; msg.textContent = ngo ? "Give the batch a name first." : "Course name is required."; return; }
+
+  const payload = {
+    client_id: CLIENT.id,
+    course_name: name,
     seats_available: parseInt(document.getElementById("c-seats").value) || 0,
-    demo_available: document.getElementById("c-demo").checked,
-    active: true, display_order: 0
-  }).select().single();
+    active: true,
+    display_order: 0
+  };
+  if (ngo) {
+    // Free training: fees stay at 0 and there is no demo class to offer.
+    payload.fees = 0;
+    payload.demo_available = false;
+    payload.eligibility_criteria = document.getElementById("c-elig").value.trim() || null;
+  } else {
+    payload.fees = parseInt(document.getElementById("c-fees").value) || 0;
+    payload.demo_available = document.getElementById("c-demo").checked;
+  }
+
+  const { data, error } = await sb.from("courses").insert(payload).select().single();
   if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
   const batch = document.getElementById("c-batch").value.trim();
   if (batch && data) {
@@ -1070,15 +1563,17 @@ async function addCourse(){
       end_time: document.getElementById("c-end").value.trim() || "—"
     });
   }
-  msg.className = "msg ok"; msg.textContent = "✅ Course added — the bot can now answer about it.";
-  ["c-name","c-fees","c-seats","c-batch","c-start","c-end"].forEach(id => document.getElementById(id).value = "");
+  msg.className = "msg ok";
+  msg.textContent = ngo ? "✅ Batch added — the bot can answer about it now." : "✅ Course added — the bot can now answer about it.";
+  ["c-name","c-fees","c-seats","c-batch","c-start","c-end","c-elig"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   loadCourses();
+  if (ngo) loadBatchOptions();
 }
 
 async function loadResults(){
   const { data } = await sb.from("institute_results").select("*").eq("client_id", CLIENT.id).eq("active", true);
   const el = document.getElementById("results-list");
-  if (!data || !data.length) { el.innerHTML = '<div class="muted">No results yet.</div>'; return; }
+  if (!data || !data.length) { el.innerHTML = '<div class="muted">' + (isNGO() ? "No placement stories yet." : "No results yet.") + '</div>'; return; }
   el.innerHTML = data.map(r => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;display:flex;justify-content:space-between;align-items:center;'><span>🏆 " + esc(r.achievement) + (r.student_name ? " — " + esc(r.student_name) : "") + (r.year ? " (" + esc(r.year) + ")" : "") + "</span>" +
     "<button onclick=\"deleteResult('" + r.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
 }
@@ -1093,7 +1588,7 @@ async function deleteResult(id){
 async function addResult(){
   const msg = document.getElementById("result-msg");
   const ach = document.getElementById("r-ach").value.trim();
-  if (!ach) { msg.className = "msg err"; msg.textContent = "Achievement is required."; return; }
+  if (!ach) { msg.className = "msg err"; msg.textContent = isNGO() ? "Describe what they achieved first." : "Achievement is required."; return; }
   const { error } = await sb.from("institute_results").insert({
     client_id: CLIENT.id, achievement: ach,
     student_name: document.getElementById("r-name").value.trim() || null,
@@ -1101,7 +1596,7 @@ async function addResult(){
     active: true
   });
   if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
-  msg.className = "msg ok"; msg.textContent = "✅ Result added.";
+  msg.className = "msg ok"; msg.textContent = "✅ Added.";
   ["r-ach","r-name","r-year"].forEach(id => document.getElementById(id).value = "");
   loadResults();
 }
@@ -1186,7 +1681,8 @@ async function saveBizInfo(){
     business_name: document.getElementById("bi-name").value.trim(),
     location: document.getElementById("bi-loc").value.trim(),
     contact_phone: document.getElementById("bi-phone").value.trim(),
-    institute_timings: document.getElementById("bi-timings").value.trim()
+    institute_timings: document.getElementById("bi-timings").value.trim(),
+    website_url: document.getElementById("bi-website").value.trim() || null
   }).eq("id", CLIENT.id);
   if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
   msg.className = "msg ok"; msg.textContent = "✅ Saved — the bot will use this info from now on.";
@@ -1202,6 +1698,20 @@ async function saveBookingTerms(){
   }).eq("id", CLIENT.id);
   if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
   msg.className = "msg ok"; msg.textContent = "✅ Saved — applies to seats booked from now on.";
+}
+
+// NGO version: only the hold window is configurable. The deposit is forced to
+// null so the bot's booking flow takes its no-payment branch -- it can't be set
+// by accident from this screen.
+async function saveSlotTerms(){
+  const msg = document.getElementById("slot-terms-msg");
+  const holdRaw = document.getElementById("bi-hold-days-ngo").value.trim();
+  const { error } = await sb.from("clients").update({
+    booking_deposit_amount: null,
+    booking_hold_days: holdRaw ? parseInt(holdRaw) : null
+  }).eq("id", CLIENT.id);
+  if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
+  msg.className = "msg ok"; msg.textContent = "✅ Saved — applies to slots booked from now on.";
 }
 
 // ── CONNECT WHATSAPP (EMBEDDED SIGNUP + MANUAL FALLBACK) ─────────────────────
@@ -1422,6 +1932,19 @@ function renderPlansGrid(){
   const currentPlan = CLIENT ? (CLIENT.plan || "starter") : null;
   const mainPlans = ["starter","growth","pro"];
   const bulkPlans = ["message_basic","message_growth","message_pro"];
+
+  // Custom-priced clients (NGOs, skilling centres) aren't on the public
+  // ladder -- showing them "switch to Growth" invites a downgrade that would
+  // silently strip features they were sold. Show what they have instead.
+  if (currentPlan === "custom") {
+    el.innerHTML = '<div class="plan-card hot" style="grid-column:1/-1;">' +
+      '<h4>Your custom plan</h4>' +
+      '<div class="muted" style="margin-bottom:0.6rem;">Priced and configured for your organisation, with the full feature set enabled.</div>' +
+      '<ul><li>Registration, slot booking and reminders</li><li>Quick replies and media</li><li>Alumni tracking and job alerts</li></ul>' +
+      '<a class="btn sm" style="text-decoration:none;display:inline-block;margin-top:0.8rem;" href="https://wa.me/917484849508?text=Hi%2C%20a%20question%20about%20our%20NeverMiss%20plan" target="_blank">Talk to us about changes</a>' +
+      '</div>';
+    return;
+  }
 
   function cardHtml(key, label, isBulk){
     const pricing = isBulk ? BULK_PLAN_PRICING_RS[key] : PLAN_PRICING_RS[key];
