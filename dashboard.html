@@ -218,6 +218,32 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
     <button class="btn" onclick="uploadBulkCSV()">Upload contacts</button>
     <div class="msg" id="upload-msg"></div>
   </div>
+  <div class="card" id="broadcast-card">
+    <div class="card-title">Send a broadcast</div>
+    <div id="bc-template-status"></div>
+    <div id="bc-composer" style="display:none;">
+      <div class="form-row">
+        <label>What kind of message?</label>
+        <select id="bc-template" onchange="renderBroadcastInputs()"></select>
+        <span class="hint" id="bc-template-hint"></span>
+      </div>
+      <div id="bc-inputs"></div>
+      <div class="form-row">
+        <label>Preview</label>
+        <div id="bc-preview" style="background:var(--gray);border-radius:12px;padding:0.9rem 1.1rem;font-size:0.84rem;white-space:pre-wrap;line-height:1.55;min-height:3rem;"></div>
+        <span class="hint">This is what each contact receives, with their own name filled in.</span>
+      </div>
+      <div id="bc-cost" class="notice info" style="display:none;"></div>
+      <button class="btn" id="bc-send-btn" onclick="sendBroadcast()">Send broadcast</button>
+      <div class="msg" id="bc-msg"></div>
+      <div id="bc-progress" style="display:none;margin-top:1rem;">
+        <div class="meter-label"><span>Sending…</span><span id="bc-progress-text">0 / 0</span></div>
+        <div class="bar"><div class="fill" id="bc-progress-bar" style="width:0%"></div></div>
+        <button class="btn sm outline" onclick="cancelBroadcast()" id="bc-cancel-btn">Stop sending</button>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">Your contacts <span class="muted" id="contact-count"></span></div>
     <div id="contacts-body" class="muted">Loading…</div>
@@ -826,7 +852,7 @@ async function loadClient(){
       applyClientTypeUI();
       applyPlanGating();
       loadOverview(); loadLeads(); loadConversations(); loadQuick();
-      loadProfile(); loadConnect(); loadBilling(); loadBulk();
+      loadProfile(); loadConnect(); loadBilling(); loadBulk(); loadBroadcast();
       if (isNGO()) loadAlumni();
       return;
     }
@@ -1396,6 +1422,213 @@ async function loadContacts(){
   } catch (e) {
     body.innerHTML = '<div class="muted">Could not load contacts.</div>';
   }
+}
+
+// ── BROADCAST ─────────────────────────────────────────────────────────────────
+// Broadcasts go to people who haven't messaged recently, so they're outside
+// WhatsApp's 24-hour window and must use a template Meta has approved. The
+// templates are submitted automatically when a number is connected, so by the
+// time anyone opens this screen they're usually already approved -- but
+// approval takes minutes to hours, so this UI has to handle "not ready yet"
+// as a normal state rather than an error.
+
+let BC_TEMPLATES = [];
+let BC_CONTEXT = { business_name: "", contact_phone: "" };
+let BC_JOB = null;
+let BC_POLL = null;
+
+async function loadBroadcast(){
+  const statusEl = document.getElementById("bc-template-status");
+  if (!CLIENT) {
+    statusEl.innerHTML = '<div class="muted">Available once your bot is connected.</div>';
+    return;
+  }
+  try {
+    const r = await fetch(API_BASE + "/api/broadcast/templates", { headers: await authHeaders() });
+    const d = await r.json();
+    if (!d.success) {
+      statusEl.innerHTML = '<div class="muted">' + esc(d.error || "Could not load templates.") + '</div>';
+      return;
+    }
+    BC_TEMPLATES = d.templates || [];
+    BC_CONTEXT = { business_name: d.business_name || "", contact_phone: d.contact_phone || "" };
+
+    if (BC_TEMPLATES.length) {
+      statusEl.innerHTML = "";
+      document.getElementById("bc-composer").style.display = "block";
+      const sel = document.getElementById("bc-template");
+      sel.innerHTML = BC_TEMPLATES.map(t =>
+        `<option value="${esc(t.name)}">${esc(t.label)}</option>`).join("");
+      renderBroadcastInputs();
+      return;
+    }
+
+    // Nothing approved yet — show where each one actually stands, so a
+    // pending approval (resolves itself) is distinguishable from a failed
+    // submission (needs the retry button).
+    document.getElementById("bc-composer").style.display = "none";
+    const rows = (d.status || []).map(s => {
+      const label = { APPROVED: "✅ Approved", PENDING: "⏳ Waiting for Meta's approval",
+                      REJECTED: "❌ Rejected", NOT_SUBMITTED: "⚠️ Not submitted yet" }[s.status] || esc(s.status);
+      return `<div style="display:flex;justify-content:space-between;gap:0.6rem;padding:0.35rem 0;font-size:0.83rem;">
+                <span>${esc(s.label)}</span><span class="muted">${label}</span></div>`;
+    }).join("");
+    const anyMissing = (d.status || []).some(s => s.status === "NOT_SUBMITTED" || s.status === "REJECTED");
+    statusEl.innerHTML =
+      '<div class="notice info">Your broadcast templates need Meta\'s approval before you can send. ' +
+      'This usually takes a few hours and happens automatically — nothing for you to do while it\'s pending.</div>' +
+      rows +
+      (anyMissing ? '<button class="btn sm outline" style="margin-top:0.8rem;" onclick="provisionTemplates()">Submit missing templates</button><div class="msg" id="bc-prov-msg"></div>' : "");
+  } catch (e) {
+    statusEl.innerHTML = '<div class="muted">Could not load templates.</div>';
+  }
+}
+
+async function provisionTemplates(){
+  const msg = document.getElementById("bc-prov-msg");
+  if (msg) { msg.className = "msg"; msg.textContent = "Submitting…"; }
+  try {
+    const r = await fetch(API_BASE + "/api/broadcast/provision", {
+      method: "POST", headers: await authHeaders()
+    });
+    const d = await r.json();
+    if (!d.success) { if (msg) { msg.className = "msg err"; msg.textContent = "❌ " + (d.error || "Failed."); } return; }
+    if (msg) { msg.className = "msg ok"; msg.textContent = "✅ Submitted — check back in a few hours."; }
+    loadBroadcast();
+  } catch (e) {
+    if (msg) { msg.className = "msg err"; msg.textContent = "❌ Connection error."; }
+  }
+}
+
+function currentTemplate(){
+  const name = document.getElementById("bc-template").value;
+  return BC_TEMPLATES.find(t => t.name === name);
+}
+
+// Only the variables marked "input" get a field — the contact's name, the
+// business name and the contact number are filled in by the backend, so the
+// owner never retypes their own details on every broadcast.
+function renderBroadcastInputs(){
+  const tpl = currentTemplate();
+  const box = document.getElementById("bc-inputs");
+  if (!tpl) { box.innerHTML = ""; return; }
+  document.getElementById("bc-template-hint").textContent = tpl.hint || "";
+  const inputs = tpl.variables.filter(v => v.source === "input");
+  box.innerHTML = inputs.map((v, i) =>
+    `<div class="form-row">
+       <label>${esc(v.label)}</label>
+       <input id="bc-in-${i}" placeholder="${esc(v.placeholder || "")}" oninput="renderBroadcastPreview()">
+     </div>`).join("");
+  renderBroadcastPreview();
+}
+
+function collectBroadcastInputs(){
+  const tpl = currentTemplate();
+  if (!tpl) return [];
+  const count = tpl.variables.filter(v => v.source === "input").length;
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    const el = document.getElementById("bc-in-" + i);
+    out.push(el ? el.value.trim() : "");
+  }
+  return out;
+}
+
+function renderBroadcastPreview(){
+  const tpl = currentTemplate();
+  const prev = document.getElementById("bc-preview");
+  if (!tpl) { prev.textContent = ""; return; }
+  const inputs = collectBroadcastInputs();
+  let idx = 0;
+  const values = tpl.variables.map(v => {
+    if (v.source === "contact_name") return "Priya";
+    if (v.source === "business_name") return BC_CONTEXT.business_name || "your business";
+    if (v.source === "contact_phone") return BC_CONTEXT.contact_phone || "your number";
+    return inputs[idx++] || "…";
+  });
+  let body = tpl.body;
+  values.forEach((v, i) => { body = body.split("{{" + (i + 1) + "}}").join(v); });
+  prev.textContent = body;
+
+  // Marketing costs far more than utility and draws from a separate, much
+  // smaller allowance -- worth saying so before they send, not after.
+  const cost = document.getElementById("bc-cost");
+  if (tpl.category === "MARKETING") {
+    cost.style.display = "block";
+    cost.innerHTML = "This is a <strong>marketing</strong> message. It uses your marketing allowance, which is smaller and costs more than utility messages. If this is a schedule change or a reminder for people already enrolled, pick one of those instead — it's cheaper.";
+  } else {
+    cost.style.display = "none";
+  }
+}
+
+async function sendBroadcast(){
+  const msg = document.getElementById("bc-msg");
+  const btn = document.getElementById("bc-send-btn");
+  msg.className = "msg";
+  const tpl = currentTemplate();
+  if (!tpl) return;
+  const inputs = collectBroadcastInputs();
+  if (inputs.some(v => !v)) { msg.className = "msg err"; msg.textContent = "Fill in every field first."; return; }
+
+  if (!confirm("Send this to all your opted-in contacts?\n\nMessages can't be recalled once delivered.")) return;
+
+  btn.disabled = true;
+  msg.textContent = "Starting…";
+  try {
+    const r = await fetch(API_BASE + "/api/broadcast/send", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({ template: tpl.name, inputs })
+    });
+    const d = await r.json();
+    if (!d.success) { msg.className = "msg err"; msg.textContent = "❌ " + (d.error || "Could not send."); btn.disabled = false; return; }
+    msg.textContent = "";
+    BC_JOB = d.job_id;
+    document.getElementById("bc-progress").style.display = "block";
+    document.getElementById("bc-cancel-btn").disabled = false;
+    pollBroadcast();
+  } catch (e) {
+    msg.className = "msg err"; msg.textContent = "❌ Connection error."; btn.disabled = false;
+  }
+}
+
+function pollBroadcast(){
+  if (BC_POLL) clearInterval(BC_POLL);
+  BC_POLL = setInterval(async () => {
+    if (!BC_JOB) { clearInterval(BC_POLL); return; }
+    try {
+      const r = await fetch(API_BASE + "/api/broadcast/status/" + BC_JOB, { headers: await authHeaders() });
+      const d = await r.json();
+      if (!d.success) { clearInterval(BC_POLL); return; }
+      const j = d.job;
+      const done = j.sent + j.failed;
+      document.getElementById("bc-progress-text").textContent = done + " / " + j.total;
+      document.getElementById("bc-progress-bar").style.width = (j.total ? (done / j.total) * 100 : 0) + "%";
+      if (j.status !== "running") {
+        clearInterval(BC_POLL);
+        BC_JOB = null;
+        document.getElementById("bc-send-btn").disabled = false;
+        document.getElementById("bc-cancel-btn").disabled = true;
+        const msg = document.getElementById("bc-msg");
+        msg.className = "msg ok";
+        msg.textContent = (j.status === "cancelled" ? "Stopped. " : "✅ Done. ") +
+          "Sent to " + j.sent + (j.failed ? ", " + j.failed + " didn't go through" : "") + ".";
+        BULK = null;          // force a refetch so the quota meters reflect this send
+        loadBulk();
+      }
+    } catch (e) { /* transient — keep polling */ }
+  }, 2000);
+}
+
+async function cancelBroadcast(){
+  if (!BC_JOB) return;
+  if (!confirm("Stop sending? Messages already delivered can't be recalled.")) return;
+  document.getElementById("bc-cancel-btn").disabled = true;
+  try {
+    await fetch(API_BASE + "/api/broadcast/cancel/" + BC_JOB, {
+      method: "POST", headers: await authHeaders()
+    });
+  } catch (e) { /* the job checks its own flag; nothing else to do here */ }
 }
 
 // ── QUICK REPLIES ─────────────────────────────────────────────────────────────
