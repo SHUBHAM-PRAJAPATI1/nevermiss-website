@@ -479,10 +479,10 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
   </div>
 </div>
 
-<!-- ══════════ CONNECT WHATSAPP (AUTOMATED EMBEDDED SIGNUP) ══════════ -->
+<!-- ══════════ CONNECT WHATSAPP (MANUAL CONNECTION) ══════════ -->
 <div class="section" id="sec-connect">
   <h1>Connect WhatsApp</h1>
-  <div class="sec-sub">Link your WhatsApp Business number — the bot goes live automatically.</div>
+  <div class="sec-sub">Link your WhatsApp Business number — our team connects it on our end.</div>
   <div class="card">
     <div class="card-title">Your Business</div>
     <div class="muted" style="margin-bottom:0.8rem;">Phone Number ID: <strong id="conn-pnid">—</strong></div>
@@ -494,23 +494,13 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       <span class="muted" style="font-size:0.72rem;">New leads, bookings and demo requests from your customers will be sent to this number.</span>
     </div>
 
-    <!-- PRIMARY: fully automated Embedded Signup -->
-    <div id="conn-auto">
-      <p class="muted" style="margin-bottom:0.9rem;">🤖 <strong>Automatic (recommended):</strong> log in with Facebook, follow Meta's guided setup, and your bot goes live instantly — no manual work from you or us.</p>
-      <button class="btn" onclick="startEmbeddedSignup()">📱 Connect WhatsApp (Automatic)</button>
-      <div style="margin-top:0.9rem;">
-        <a href="javascript:void(0)" onclick="toggleManual()" style="color:var(--blue);font-weight:600;font-size:0.82rem;">Having trouble? Let us connect it manually instead</a>
-      </div>
-    </div>
-
-    <!-- FALLBACK: hidden unless the client clicks the link -->
-    <div id="conn-manual" style="display:none;margin-top:1rem;border-top:1px solid var(--gray2);padding-top:1rem;">
-      <p class="muted" style="margin-bottom:0.9rem;">🛠 <strong>Manual fallback:</strong> submit your business number and we'll connect it on our end (a few hours, up to 24). No Facebook login needed.</p>
+    <div id="conn-manual">
+      <p class="muted" style="margin-bottom:0.9rem;">🛠 Submit your business WhatsApp number below and our team will connect it on our end — usually within a few hours, up to 24. No Facebook login needed from you.</p>
       <div class="form-row">
         <label>WhatsApp Business number you want to connect</label>
         <input id="cw-business" placeholder="e.g. 9876543210">
       </div>
-      <button class="btn outline" onclick="requestConnection()">Request Manual Connection</button>
+      <button class="btn" onclick="requestConnection()">Request Connection</button>
     </div>
 
     <div class="msg" id="conn-msg"></div>
@@ -629,16 +619,9 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 const SUPABASE_URL      = "https://uwxthbxxiaujlgxosqjx.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w";   // same key login.html uses
 const API_BASE          = "https://my-saas-bot.onrender.com";      // e.g. https://nevermiss-api.onrender.com
-const FB_APP_ID         = "1662583918327842";            // same as backend META_APP_ID
-const EMBEDDED_SIGNUP_CONFIG_ID = "1027397859743156"; // Meta Business Manager → WhatsApp → Embedded Signup config ID
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { detectSessionInUrl: false }  // this page also receives Meta's own
-                                        // "?code=" param from Embedded Signup --
-                                        // without this, Supabase tries to treat
-                                        // it as its own login callback and fails,
-                                        // which was signing people out right after
-                                        // finishing the Meta flow.
+  auth: { detectSessionInUrl: false }
 });
 let TOKEN = null, EMAIL = null, CLIENT = null, BULK = null;
 let ALUMNI = [];   // cached alumni rows, so the status filter re-renders without refetching
@@ -651,20 +634,11 @@ let ALUMNI = [];   // cached alumni rows, so the status filter re-renders withou
 function isNGO(){ return !!(CLIENT && CLIENT.client_type === "ngo"); }
 
 // ── PLAN GATING ───────────────────────────────────────────────────────────────
-// Mirrors FEATURES_BY_PLAN in app.py. Kept in sync deliberately: the backend
-// is what actually enforces this (the bot refuses gated features regardless),
-// but if the dashboard lets a Starter client fill in quick replies or upload a
-// brochure, they reasonably expect it to work and it silently never does.
-// Showing the lock up front sets the expectation honestly -- and is the
-// natural place to mention what upgrading would unlock.
 const PLAN_FEATURES = {
   basic:   [],
   starter: [],
   growth:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   pro:     ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
-  // Widened to match app.py: custom pricing sets the RATE, it isn't a reason
-  // to cap what a bespoke client can use. Previously custom clients silently
-  // lost registration/booking/reminders here.
   custom:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"]
 };
 
@@ -675,7 +649,6 @@ function planHasFeature(feature){
   return (PLAN_FEATURES[plan] || []).indexOf(feature) !== -1;
 }
 
-// Returns the HTML for an inline "locked on your plan" notice.
 function lockNotice(what, unlockedOn){
   return '<div class="notice warn">' +
     '<strong>🔒 ' + what + ' isn\'t included on your ' + (PLAN_LABEL[(CLIENT && CLIENT.plan) || "starter"] || "current") + ' plan.</strong><br>' +
@@ -684,12 +657,6 @@ function lockNotice(what, unlockedOn){
     '</div>';
 }
 
-// Reconciles a container's locked state with `locked` on EVERY call -- both
-// directions. This runs again after every loadClient() (including right
-// after a successful plan purchase), so a client who just upgraded needs
-// the lock actually REMOVED, not just skipped a second application of it.
-// An earlier version only ever locked and remembered having done so, which
-// left fields stuck disabled even after upgrading until a full page reload.
 function applyLock(containerId, locked, what, unlockedOn){
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -707,7 +674,7 @@ function applyLock(containerId, locked, what, unlockedOn){
       notice.innerHTML = lockNotice(what, unlockedOn);
       el.parentNode.insertBefore(notice, el);
     } else {
-      prev.innerHTML = lockNotice(what, unlockedOn);  // keep plan name in the notice current
+      prev.innerHTML = lockNotice(what, unlockedOn);
     }
   } else {
     el.querySelectorAll("input, textarea, select, button").forEach(n => { n.disabled = false; });
@@ -724,8 +691,6 @@ function setText(id, text){ const el = document.getElementById(id); if (el) el.t
 function show(id, visible){ const el = document.getElementById(id); if (el) el.style.display = visible ? "" : "none"; }
 async function authHeaders(){ return { "Authorization": "Bearer " + TOKEN }; }
 
-// Accepts 9876543210 or 919876543210 and always stores the 91-prefixed form,
-// which is what the WhatsApp Cloud API expects as a recipient.
 function normalisePhone(raw){
   const digits = (raw || "").replace(/\D/g, "");
   if (digits.length === 10) return "91" + digits;
@@ -768,18 +733,12 @@ async function signOut(){
   location.href = "login.html";
 }
 
-// ── CLIENT-TYPE UI ────────────────────────────────────────────────────────────
-// One place that reshapes the dashboard for a skill-development / NGO centre.
-// Nothing here is a second dashboard -- it's the same page, relabelled around
-// free training instead of paid coaching, with the money-shaped controls
-// removed so they can't be filled in by mistake.
 function applyClientTypeUI(){
   const ngo = isNGO();
 
   show("nav-alumni", ngo);
   show("impact-card", ngo);
 
-  // Batches, not courses. Slots, not seats. No fees anywhere.
   setText("nav-profile-txt", ngo ? "Centre Profile" : "Institute Profile");
   setText("profile-h1", ngo ? "Centre Profile" : "Institute Profile");
   setText("profile-sub", ngo ? "Everything the bot knows about your centre and its batches." : "Everything the bot knows about your institute.");
@@ -812,9 +771,6 @@ function applyClientTypeUI(){
     setText("lc-booking-lbl", "🪑 Slot bookings");
   }
 
-  // Free training: no fees field, no demo-class checkbox, no deposit card.
-  // A per-batch eligibility box appears instead, because eligibility genuinely
-  // differs between batches and the bot has to quote the right one.
   show("c-fees-row", !ngo);
   show("c-demo-row", !ngo);
   show("c-elig-row", ngo);
@@ -823,15 +779,9 @@ function applyClientTypeUI(){
   show("ngo-slot-terms-card", ngo);
 }
 
-// Locks the parts of the dashboard this client's plan doesn't include, so
-// they don't set up something that silently never runs -- and can see what
-// upgrading would unlock. The backend gating in app.py is the real
-// enforcement; this is the honest front-end mirror of it.
 function applyPlanGating(){
   if (!CLIENT) return;
   applyLock("quick-add-card", !planHasFeature("quick_replies"), "Custom quick replies", "Growth and Pro");
-  // The Media tab covers brochure PDF + topper/facility PHOTOS, all Growth+.
-  // Text-only results and facilities stay available on every plan.
   applyLock("media-card", !(planHasFeature("brochure") || planHasFeature("toppers")), "Brochure &amp; photo uploads", "Growth and Pro");
 }
 
@@ -857,7 +807,6 @@ async function loadClient(){
       return;
     }
   } catch (e) { console.error(e); }
-  // No coaching client row → bulk-only account
   CLIENT = null;
   document.getElementById("biz-name").textContent = EMAIL;
   document.getElementById("plan-pill").textContent = "Bulk account";
@@ -867,7 +816,7 @@ async function loadClient(){
   });
   showSection("bulk");
   loadBulk();
-  loadBilling();  // bulk-only accounts can still buy/renew bulk plans and Plus
+  loadBilling();
 }
 
 function checkExpiry(){
@@ -877,7 +826,6 @@ function checkExpiry(){
   }
 }
 
-// ── Bulk account fetch (cached) ───────────────────────────────────────────────
 async function fetchBulk(){
   if (BULK) return BULK;
   try {
@@ -900,7 +848,6 @@ function meterHTML(uUsed, uQuota, mUsed, mQuota){
     <div class="bar"><div class="fill mkt" style="width:${mp}%"></div></div>`;
 }
 
-// ── OVERVIEW ──────────────────────────────────────────────────────────────────
 async function loadOverview(){
   if (!CLIENT) return;
   const cid = CLIENT.id;
@@ -920,7 +867,6 @@ async function loadOverview(){
   document.getElementById("ov-new").textContent = newToday.count || 0;
   document.getElementById("ov-botlive").textContent = CLIENT.status === "active" ? "🟢" : "⏳";
 
-  // Setup progress
   let done = 1;
   if (CLIENT.status === "active" || CLIENT.status === "awaiting_connection") done++;
   if (coursesRes.data && coursesRes.data.length) done++;
@@ -931,7 +877,6 @@ async function loadOverview(){
     if (i < done) document.getElementById(id).classList.add("done");
   });
 
-  // Billing line + bulk meters
   const bulk = await fetchBulk();
   const expTxt = CLIENT.plan_expires_at ? " · paid through " + fmtDate(CLIENT.plan_expires_at) : "";
   document.getElementById("billing-line").innerHTML =
@@ -942,7 +887,6 @@ async function loadOverview(){
       meterHTML(bulk.utility_used || 0, bulk.utility_quota || 0, bulk.marketing_used || 0, bulk.marketing_quota || 0);
   }
 
-  // Recent leads
   if (recentLeads.data && recentLeads.data.length) {
     document.getElementById("ov-recent-leads").innerHTML = recentLeads.data.map(l =>
       `<div style="display:flex;justify-content:space-between;gap:0.6rem;padding:0.45rem 0;border-bottom:1px solid var(--gray);font-size:0.82rem;">
@@ -953,7 +897,6 @@ async function loadOverview(){
     document.getElementById("ov-recent-leads").innerHTML = '<div class="muted">No leads yet.</div>';
   }
 
-  // Recent conversations
   if (recentConvs.data && recentConvs.data.length) {
     document.getElementById("ov-recent-convs").innerHTML = recentConvs.data.map(m =>
       `<div style="padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.8rem;">
@@ -963,7 +906,6 @@ async function loadOverview(){
     document.getElementById("ov-recent-convs").innerHTML = '<div class="muted">No conversations yet.</div>';
   }
 
-  // Skilling insights
   if (CLIENT.client_type === "skilling") {
     document.getElementById("insights-card").style.display = "block";
     try {
@@ -981,10 +923,6 @@ async function loadOverview(){
   if (isNGO()) loadImpact(coursesRes.data ? coursesRes.data.length : 0);
 }
 
-// Placement numbers for the centre's own reporting. Deliberately computed
-// from the alumni table only -- "trained" means someone actually marked as
-// having finished, not everyone who ever enquired, so the rate can't be
-// quietly inflated by enquiry volume.
 async function loadImpact(batchCount){
   const { data, error } = await sb.from("alumni").select("job_status").eq("client_id", CLIENT.id);
   if (error) { console.error(error); return; }
@@ -1001,7 +939,6 @@ async function loadImpact(batchCount){
   if (bar) bar.style.width = rate + "%";
 }
 
-// ── LEADS ─────────────────────────────────────────────────────────────────────
 async function loadLeads(){
   if (!CLIENT) { document.getElementById("leads-body").innerHTML = '<div class="muted">Available once your bot is connected.</div>'; return; }
   const { data, error } = await sb.from("leads")
@@ -1033,15 +970,11 @@ async function loadLeads(){
     return '<span class="pill warn" style="font-size:0.7rem;">⏳ Holding</span>';
   };
 
-  // A lead counts as "handled" once it's done/confirmed/released -- anything
-  // else (new, active, or no status at all yet) still needs attention.
-  // Handled leads sink to the bottom but keep their relative recency order
-  // within each group, rather than getting fully re-sorted by status alone.
   const isHandled = (status) => status === "done" || status === "confirmed" || status === "released";
   const sorted = data.slice().sort((a, b) => {
     const ah = isHandled(a.status), bh = isHandled(b.status);
-    if (ah !== bh) return ah ? 1 : -1;   // unhandled first, handled last
-    return 0;                             // keep existing created_at DESC order within each group
+    if (ah !== bh) return ah ? 1 : -1;
+    return 0;
   });
 
   const releaseLabel = isNGO() ? "Release slot" : "Release seat";
@@ -1091,11 +1024,6 @@ async function updateLeadStatus(leadId, status){
     alert("❌ Something went wrong. Please try again.");
   }
 }
-
-// ── ALUMNI (NGO clients) ──────────────────────────────────────────────────────
-// Alumni CRUD goes straight to Supabase under RLS, exactly like courses and
-// quick replies. Only the two things that need the server-held WhatsApp token
-// -- the job alert and the scheduled check-ins -- go through the backend.
 
 const JOB_STATUS_LABEL = {
   searching: "Still job hunting",
@@ -1163,7 +1091,7 @@ async function updateAlumnusStatus(id, status){
   const { error } = await sb.from("alumni").update({ job_status: status }).eq("id", id);
   if (error) { alert("❌ " + error.message); return; }
   loadAlumni();
-  loadOverview();   // placement rate on the Overview page moves with this
+  loadOverview();
 }
 
 async function deleteAlumnus(id){
@@ -1197,7 +1125,6 @@ async function addAlumnus(){
   loadOverview();
 }
 
-// Fills the "which batch finished" dropdown from the centre's own batches.
 async function loadBatchOptions(){
   const sel = document.getElementById("mb-course");
   if (!sel) return;
@@ -1210,10 +1137,6 @@ async function loadBatchOptions(){
     data.map(c => `<option value="${esc(c.course_name)}">${esc(c.course_name)}</option>`).join("");
 }
 
-// Copies everyone who registered or booked a slot for a batch into the alumni
-// table. Deliberately manual and deliberately additive: nothing is deleted,
-// nobody is messaged, and anyone already in the alumni list is skipped rather
-// than duplicated -- so running it twice on the same batch is harmless.
 async function markBatchCompleted(){
   const msg = document.getElementById("mb-msg");
   msg.className = "msg";
@@ -1266,10 +1189,6 @@ async function markBatchCompleted(){
   loadOverview();
 }
 
-// The job alert goes out as an approved WhatsApp template, because alumni are
-// almost never inside a live 24-hour chat window. Until that template is
-// approved and set on the backend, say so plainly here rather than letting
-// someone write an alert that quietly fails to send.
 function renderTemplateNotice(){
   const el = document.getElementById("alert-template-notice");
   if (!el) return;
@@ -1313,7 +1232,6 @@ async function sendJobAlert(){
   }
 }
 
-// ── CONVERSATIONS ─────────────────────────────────────────────────────────────
 async function loadConversations(){
   if (!CLIENT) { document.getElementById("conv-body").innerHTML = '<div class="muted">Available once your bot is connected.</div>'; return; }
   const { data, error } = await sb.from("conversations")
@@ -1340,7 +1258,6 @@ async function loadConversations(){
   document.getElementById("conv-body").innerHTML = html;
 }
 
-// ── BULK MESSAGING ────────────────────────────────────────────────────────────
 async function loadBulk(){
   const bulk = await fetchBulk();
   if (!bulk) {
@@ -1424,14 +1341,6 @@ async function loadContacts(){
   }
 }
 
-// ── BROADCAST ─────────────────────────────────────────────────────────────────
-// Broadcasts go to people who haven't messaged recently, so they're outside
-// WhatsApp's 24-hour window and must use a template Meta has approved. The
-// templates are submitted automatically when a number is connected, so by the
-// time anyone opens this screen they're usually already approved -- but
-// approval takes minutes to hours, so this UI has to handle "not ready yet"
-// as a normal state rather than an error.
-
 let BC_TEMPLATES = [];
 let BC_CONTEXT = { business_name: "", contact_phone: "" };
 let BC_JOB = null;
@@ -1463,9 +1372,6 @@ async function loadBroadcast(){
       return;
     }
 
-    // Nothing approved yet — show where each one actually stands, so a
-    // pending approval (resolves itself) is distinguishable from a failed
-    // submission (needs the retry button).
     document.getElementById("bc-composer").style.display = "none";
     const rows = (d.status || []).map(s => {
       const label = { APPROVED: "✅ Approved", PENDING: "⏳ Waiting for Meta's approval",
@@ -1505,9 +1411,6 @@ function currentTemplate(){
   return BC_TEMPLATES.find(t => t.name === name);
 }
 
-// Only the variables marked "input" get a field — the contact's name, the
-// business name and the contact number are filled in by the backend, so the
-// owner never retypes their own details on every broadcast.
 function renderBroadcastInputs(){
   const tpl = currentTemplate();
   const box = document.getElementById("bc-inputs");
@@ -1550,8 +1453,6 @@ function renderBroadcastPreview(){
   values.forEach((v, i) => { body = body.split("{{" + (i + 1) + "}}").join(v); });
   prev.textContent = body;
 
-  // Marketing costs far more than utility and draws from a separate, much
-  // smaller allowance -- worth saying so before they send, not after.
   const cost = document.getElementById("bc-cost");
   if (tpl.category === "MARKETING") {
     cost.style.display = "block";
@@ -1613,7 +1514,7 @@ function pollBroadcast(){
         msg.className = "msg ok";
         msg.textContent = (j.status === "cancelled" ? "Stopped. " : "✅ Done. ") +
           "Sent to " + j.sent + (j.failed ? ", " + j.failed + " didn't go through" : "") + ".";
-        BULK = null;          // force a refetch so the quota meters reflect this send
+        BULK = null;
         loadBulk();
       }
     } catch (e) { /* transient — keep polling */ }
@@ -1631,7 +1532,6 @@ async function cancelBroadcast(){
   } catch (e) { /* the job checks its own flag; nothing else to do here */ }
 }
 
-// ── QUICK REPLIES ─────────────────────────────────────────────────────────────
 async function loadQuick(){
   if (!CLIENT) { document.getElementById("quick-list").innerHTML = '<div class="muted">Available once your bot is connected.</div>'; return; }
   const { data, error } = await sb.from("quick_replies").select("*").eq("client_id", CLIENT.id).eq("active", true).order("created_at", { ascending: false });
@@ -1664,7 +1564,6 @@ async function addQuickReply(){
   loadQuick();
 }
 
-// ── INSTITUTE / CENTRE PROFILE ────────────────────────────────────────────────
 async function loadProfile(){
   if (!CLIENT) return;
   const { data } = await sb.from("clients").select("*").eq("id", CLIENT.id).single();
@@ -1678,9 +1577,6 @@ async function loadProfile(){
     document.getElementById("bi-hold-days").value = data.booking_hold_days || "";
     document.getElementById("bi-hold-days-ngo").value = data.booking_hold_days || "";
   }
-  // Job Suraksha Card / Earn & Learn brochure fields only apply to Skilling
-  // India clients -- hide them for regular coaching-institute clients so
-  // the Media tab doesn't show fields that don't apply to their business.
   const skillingFields = document.getElementById("skilling-media-fields");
   if (skillingFields) skillingFields.style.display = (CLIENT.client_type === "skilling") ? "contents" : "none";
   loadCourses(); loadResults(); loadFacilities(); loadMediaList();
@@ -1717,9 +1613,6 @@ async function loadCourses(){
   }).join("");
 }
 
-// Eligibility changes far more often than the rest of a batch (a new age band,
-// a women-only intake), so it gets its own quick edit rather than making
-// someone delete and re-add the whole batch.
 async function editEligibility(courseId){
   const { data } = await sb.from("courses").select("eligibility_criteria").eq("id", courseId).single();
   const current = (data && data.eligibility_criteria) || "";
@@ -1730,9 +1623,6 @@ async function editEligibility(courseId){
   loadCourses();
 }
 
-// Manual seat adjustment -- independent of the bot's own booking flow, for
-// walk-ins, phone bookings, cancellations, or any offline change that
-// needs reflecting here so the bot's seat-booking flow stays accurate.
 async function adjustSeats(courseId, delta){
   const { data } = await sb.from("courses").select("seats_available").eq("id", courseId).single();
   const current = (data && data.seats_available) || 0;
@@ -1777,7 +1667,6 @@ async function addCourse(){
     display_order: 0
   };
   if (ngo) {
-    // Free training: fees stay at 0 and there is no demo class to offer.
     payload.fees = 0;
     payload.demo_available = false;
     payload.eligibility_criteria = document.getElementById("c-elig").value.trim() || null;
@@ -1882,7 +1771,6 @@ async function deleteMedia(id){
 async function uploadMedia(){
   const msg = document.getElementById("media-msg");
   msg.className = "msg"; msg.textContent = "";
-  // NOTE: bucket name must match the one created in your Supabase Storage
   const BUCKET = "institute-media";
   const map = [
     ["m-brochure", "brochure"], ["m-topper", "topper_photo"], ["m-facility", "facility_photo"],
@@ -1933,9 +1821,6 @@ async function saveBookingTerms(){
   msg.className = "msg ok"; msg.textContent = "✅ Saved — applies to seats booked from now on.";
 }
 
-// NGO version: only the hold window is configurable. The deposit is forced to
-// null so the bot's booking flow takes its no-payment branch -- it can't be set
-// by accident from this screen.
 async function saveSlotTerms(){
   const msg = document.getElementById("slot-terms-msg");
   const holdRaw = document.getElementById("bi-hold-days-ngo").value.trim();
@@ -1947,7 +1832,14 @@ async function saveSlotTerms(){
   msg.className = "msg ok"; msg.textContent = "✅ Saved — applies to slots booked from now on.";
 }
 
-// ── CONNECT WHATSAPP (EMBEDDED SIGNUP + MANUAL FALLBACK) ─────────────────────
+// ── CONNECT WHATSAPP (MANUAL CONNECTION ONLY) ─────────────────────────────
+// Automatic Embedded Signup was removed on purpose: it let a client's WABA
+// land under whatever Business Manager THEY already had (or created) during
+// their own Facebook login, which meant Meta billed them directly for
+// message usage instead of NeverMiss. The manual path below never touches
+// the client's Facebook account at all, so their number goes straight into
+// a NeverMiss-owned WABA -- see /admin/manual-connect and the "process" we
+// worked out together for the exact steps on our side.
 function loadConnect(){
   if (!CLIENT) return;
   document.getElementById("conn-pnid").textContent = CLIENT.phone_number_id || "—";
@@ -1959,14 +1851,11 @@ function loadConnect(){
   } else if (st === "awaiting_connection") {
     statusEl.innerHTML = '<span class="pill warn">📩 Request received — we\'re connecting your number (up to 24h).</span> ' +
       '<a href="javascript:void(0)" onclick="reopenConnect()" style="color:var(--blue);font-weight:600;font-size:0.82rem;margin-left:0.8rem;">Change number</a>';
-    document.getElementById("conn-auto").style.display = "none";
     document.getElementById("conn-manual").style.display = "none";
   } else {
     statusEl.innerHTML = '<div class="muted" style="margin-bottom:0.8rem;">⏳ Setup pending — connect your number below.</div>';
-    document.getElementById("conn-auto").style.display = "block";
+    document.getElementById("conn-manual").style.display = "block";
   }
-  // The profile card only makes sense once a number is actually connected --
-  // there's no WhatsApp profile to edit before that.
   const profileCard = document.getElementById("wa-profile-card");
   if (profileCard) {
     profileCard.style.display = (st === "active") ? "block" : "none";
@@ -2015,8 +1904,6 @@ async function saveWhatsAppProfile(){
   });
 
   try {
-    // NOTE: no Content-Type header here on purpose -- the browser must set
-    // its own multipart boundary for the file upload to parse correctly.
     const r = await fetch(API_BASE + "/api/whatsapp-profile", {
       method: "POST",
       headers: await authHeaders(),
@@ -2034,68 +1921,10 @@ async function saveWhatsAppProfile(){
 }
 
 function reopenConnect(){
-  document.getElementById("conn-auto").style.display = "block";
-  document.getElementById("conn-manual").style.display = "none";
-  document.getElementById("conn-msg").className = "msg";
-  document.getElementById("conn-msg").textContent = "Run the setup again with your new number — it replaces the old one automatically.";
-}
-
-function toggleManual(){
-  document.getElementById("conn-auto").style.display = "none";
   document.getElementById("conn-manual").style.display = "block";
+  document.getElementById("conn-msg").className = "msg";
+  document.getElementById("conn-msg").textContent = "Submit your new number below — it replaces the old one automatically.";
 }
-
-// ── EMBEDDED SIGNUP — direct OAuth URL (no SDK, no popup) ────────────────────
-
-const REDIRECT_URI = "https://nevermiss.co.in/dashboard.html";
-
-async function startEmbeddedSignup(){
-  const msg = document.getElementById("conn-msg");
-  msg.className = "msg";
-  const owner = document.getElementById("cw-owner").value.trim();
-  if (!owner || owner.length < 10) { msg.className = "msg err"; msg.textContent = "Enter your notification number first."; return; }
-  sessionStorage.setItem("nm_owner", owner);
-  msg.textContent = "Opening Meta setup…";
-  const state = Math.random().toString(36).slice(2);
-  sessionStorage.setItem("fb_state", state);
-  const q = new URLSearchParams({
-    client_id: FB_APP_ID,
-    redirect_uri: REDIRECT_URI,
-    config_id: EMBEDDED_SIGNUP_CONFIG_ID,
-    response_type: "code",
-    state: state
-  });
-  window.location.href = "https://www.facebook.com/v20.0/dialog/oauth?" + q.toString();
-}
-
-// Runs ON PAGE LOAD: if Meta sent us back with ?code=…, exchange it.
-(async function () {
-  const params = new URLSearchParams(location.search);
-  const code = (params.get("code") || sessionStorage.getItem('nm_code') || sessionStorage.getItem('nm_token') || '');
-  if (!code) return;
-  history.replaceState(null, "", "dashboard.html");
-  showSection("connect");
-  const msg = document.getElementById("conn-msg");
-  if (msg) { msg.className = "msg ok"; msg.textContent = "Connecting your number on our end…"; }
-  const { data } = await sb.auth.getSession();
-  const email = (data.session && data.session.user.email) || EMAIL;
-  const authUserId = (data.session && data.session.user.id) || "";
-  const owner = sessionStorage.getItem("nm_owner") || "";
-  try {
-    const r = await fetch(API_BASE + "/exchange-token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ access_token: code, user_email: email, auth_user_id: authUserId, owner_whatsapp_number: owner, signed_request: sessionStorage.getItem('nm_signed_request') || '' })
-    });
-    const d = await r.json();
-    if (d.success) { msg.className = "msg ok"; msg.textContent = "✅ Connected & registered! Your bot is live now."; }
-    else if (d.pending) { msg.className = "msg ok"; msg.textContent = "📩 " + (d.error || "We're finishing your connection on our end — up to 24h."); }
-    else { msg.className = "msg err"; msg.textContent = "❌ " + (d.error || "Connection didn't complete."); }
-    if (typeof loadClient === "function") loadClient();
-  } catch (e) {
-    if (msg) { msg.className = "msg err"; msg.textContent = "❌ Connection error. Try again."; }
-  }
-})();
 
 async function requestConnection(){
   const msg = document.getElementById("conn-msg");
@@ -2116,7 +1945,6 @@ async function requestConnection(){
     if (d.success) {
       msg.className = "msg ok";
       msg.textContent = "✅ Request received! We'll connect your number and notify you the moment it's live.";
-      document.getElementById("conn-auto").style.display = "none";
       document.getElementById("conn-manual").style.display = "none";
       document.getElementById("conn-status").innerHTML = '<span class="pill warn">📩 Request received</span>';
     } else {
@@ -2128,10 +1956,6 @@ async function requestConnection(){
 }
 
 // ── PLAN & BILLING ────────────────────────────────────────────────────────────
-// ── PLAN PURCHASE / SWITCH (mirrors index.html's checkout + payment_handler.py exactly) ──
-// Prices in rupees, matching PLAN_PRICING / BULK_PLAN_PRICING in payment_handler.py
-// (kept in sync deliberately -- these are DISPLAY prices only, the backend always
-// recomputes the real charge server-side at order-creation time).
 const PLAN_PRICING_RS = {
   starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
   growth:  { monthly: 5999, half_yearly: 32999, yearly: 59990 },
@@ -2166,9 +1990,6 @@ function renderPlansGrid(){
   const mainPlans = ["starter","growth","pro"];
   const bulkPlans = ["message_basic","message_growth","message_pro"];
 
-  // Custom-priced clients (NGOs, skilling centres) aren't on the public
-  // ladder -- showing them "switch to Growth" invites a downgrade that would
-  // silently strip features they were sold. Show what they have instead.
   if (currentPlan === "custom") {
     el.innerHTML = '<div class="plan-card hot" style="grid-column:1/-1;">' +
       '<h4>Your custom plan</h4>' +
@@ -2181,7 +2002,7 @@ function renderPlansGrid(){
 
   function cardHtml(key, label, isBulk){
     const pricing = isBulk ? BULK_PLAN_PRICING_RS[key] : PLAN_PRICING_RS[key];
-    const cycle = isBulk ? "monthly" : currentBillingCycle;   // bulk plans are monthly-only
+    const cycle = isBulk ? "monthly" : currentBillingCycle;
     const price = pricing[cycle] || pricing.monthly;
     const feats = (PLAN_FEATURE_LIST[key] || []).map(f => "<li>" + esc(f) + "</li>").join("");
     const isCurrent = !isBulk && currentPlan === key;
@@ -2208,12 +2029,6 @@ async function choosePlan(plan){
   msg.className = "msg"; msg.textContent = "";
   const isBulk = plan.startsWith("message_");
 
-  // Bulk plans are matched server-side by user_email (bulk_clients table) and
-  // don't touch the clients/coaching-bot row at all -- so a bulk-only account
-  // (no CLIENT) can still buy one. Main plans (starter/growth/pro) DO require
-  // an existing coaching client, and save_or_update_client() there matches by
-  // contact_phone, not email -- if it's missing, a switch would create a
-  // SECOND client row instead of updating this one, so we require it here.
   let contactPhone = "";
   let businessName = "";
   if (!isBulk) {
@@ -2274,7 +2089,7 @@ async function choosePlan(plan){
         if (result.success) {
           msg.className = "msg ok";
           msg.textContent = "✅ Payment confirmed — your plan is updated.";
-          loadClient();  // refresh plan pill, gating, and this grid
+          loadClient();
         } else {
           msg.className = "msg err";
           msg.textContent = "Payment received but confirming it failed. Please WhatsApp us with payment ID: " + response.razorpay_payment_id;
