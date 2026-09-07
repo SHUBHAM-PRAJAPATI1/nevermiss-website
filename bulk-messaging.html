@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Bulk Messaging Plans — NeverMiss</title>
+<meta name="description" content="Send batch reminders, fee nudges and admission announcements to your opted-in WhatsApp contacts. Standalone bulk messaging plans from ₹799/month.">
+<link rel="canonical" href="https://nevermiss.co.in/bulk-messaging.html">
+<link rel="icon" type="image/png" sizes="32x32" href="/nevermiss-favicon-32.png">
+<link rel="apple-touch-icon" href="/nevermiss-apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--blue:#1B4FFF;--blue-dark:#0A2ECC;--blue-light:#EEF2FF;--black:#080C1A;--white:#FAFBFF;--gray:#F0F2FA;--gray2:#E2E6F3;--text:#0D1226;--muted:#5A6380;--accent:#FF4D00;}
+html{scroll-behavior:smooth;}
+body{font-family:'Instrument Sans',sans-serif;background:var(--white);color:var(--text);}
+nav{position:sticky;top:0;z-index:100;padding:1.1rem 3rem;display:flex;align-items:center;justify-content:space-between;background:rgba(250,251,255,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--gray2);}
+.logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.5rem;color:var(--black);display:flex;align-items:center;gap:0.5rem;text-decoration:none;}
+.logo img{width:32px;height:32px;border-radius:8px;object-fit:cover;}
+.nav-links{display:flex;align-items:center;gap:2rem;}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:0.9rem;font-weight:500;}
+.nav-links a:hover{color:var(--blue);}
+.head{background:var(--black);padding:5rem 3rem 4rem;text-align:center;}
+.kicker{font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7B9FFF;margin-bottom:0.8rem;}
+.head h1{font-family:'Clash Display',sans-serif;font-size:2.6rem;font-weight:700;color:white;line-height:1.15;margin-bottom:1rem;}
+.head p{color:rgba(255,255,255,0.55);font-size:1rem;line-height:1.75;max-width:620px;margin:0 auto;}
+.wrap{max-width:1100px;margin:0 auto;padding:4rem 1.5rem 5rem;}
+.sub-title{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:var(--black);margin:0 0 1.2rem;display:flex;align-items:center;gap:0.6rem;}
+.sub-title::before{content:'';width:4px;height:18px;background:var(--blue);border-radius:2px;}
+.msg-types{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:3rem;}
+.msg-type{border-radius:16px;padding:1.6rem 1.8rem;border:1.5px solid;}
+.msg-type.utility{background:#E9F9F6;border-color:#14B8A6;}
+.msg-type.marketing{background:#FFF3EA;border-color:#FB923C;}
+.msg-type-title{font-size:0.8rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.6rem;}
+.msg-type.utility .msg-type-title{color:#0F766E;}
+.msg-type.marketing .msg-type-title{color:#C2410C;}
+.msg-type p{font-size:0.88rem;line-height:1.65;color:var(--muted);}
+.table-wrap{background:white;border:1px solid var(--gray2);border-radius:16px;overflow:hidden;margin-bottom:3rem;}
+.quota-table{width:100%;border-collapse:collapse;}
+.quota-table th{background:var(--black);color:white;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:0.9rem 1.4rem;}
+.quota-table td{padding:0.9rem 1.4rem;font-size:0.88rem;border-top:1px solid var(--gray2);}
+.quota-table td strong{color:var(--blue);}
+.addon{background:#E9F9F6;border:2px solid #14B8A6;border-radius:20px;padding:1.8rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;margin-bottom:3rem;}
+.addon-title{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:#0F766E;margin-bottom:0.4rem;}
+.addon-desc{font-size:0.9rem;color:var(--muted);line-height:1.6;max-width:520px;}
+.addon-price{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--black);text-align:right;}
+.addon-price span{display:block;font-family:'Instrument Sans',sans-serif;font-size:0.75rem;font-weight:400;color:var(--muted);}
+.custom-btn{background:var(--blue);color:white;border:none;padding:0.85rem 1.6rem;border-radius:100px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;}
+.custom-btn:hover{background:var(--blue-dark);}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1.2rem;}
+.plan{background:var(--gray);border:1px solid var(--gray2);border-radius:24px;padding:2.2rem;position:relative;}
+.plan.popular{background:var(--blue);border-color:var(--blue);}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;font-size:0.7rem;font-weight:700;padding:0.3rem 1rem;border-radius:100px;white-space:nowrap;}
+.plan-name{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:600;color:var(--black);margin-bottom:0.5rem;}
+.plan.popular .plan-name{color:white;}
+.plan-price{font-family:'Clash Display',sans-serif;font-size:2.8rem;font-weight:700;color:var(--black);line-height:1;margin-bottom:0.3rem;}
+.plan.popular .plan-price{color:white;}
+.plan-price span{font-size:1rem;font-weight:400;color:var(--muted);}
+.plan.popular .plan-price span{color:rgba(255,255,255,0.6);}
+.plan-desc{font-size:0.82rem;color:var(--muted);margin-bottom:1.5rem;}
+.plan.popular .plan-desc{color:rgba(255,255,255,0.6);}
+.plan-features{list-style:none;margin-bottom:2rem;display:flex;flex-direction:column;gap:0.7rem;}
+.plan-features li{font-size:0.85rem;display:flex;align-items:center;gap:0.6rem;}
+.plan.popular .plan-features li{color:rgba(255,255,255,0.85);}
+.plan-features li::before{content:'✓';color:var(--blue);font-weight:700;}
+.plan.popular .plan-features li::before{color:rgba(255,255,255,0.7);}
+.plan-btn{width:100%;padding:0.85rem;border-radius:100px;font-weight:600;font-size:0.9rem;cursor:pointer;border:none;font-family:'Instrument Sans',sans-serif;}
+.plan-btn.outline{background:transparent;border:1.5px solid var(--gray2);color:var(--black);}
+.plan-btn.outline:hover{border-color:var(--blue);color:var(--blue);}
+.plan-btn.solid{background:white;color:var(--blue);}
+.bulk-note{font-size:0.8rem;color:var(--muted);text-align:center;margin-bottom:2rem;}
+.compliance{background:var(--gray);border-left:4px solid var(--blue);border-radius:12px;padding:1.2rem 1.5rem;font-size:0.82rem;color:var(--muted);line-height:1.7;}
+.buy{max-width:520px;margin:3rem auto 0;background:white;border:1px solid var(--gray2);border-radius:24px;padding:2.2rem;display:none;flex-direction:column;gap:1.1rem;}
+.buy h3{font-family:'Clash Display',sans-serif;font-size:1.2rem;}
+.form-group{display:flex;flex-direction:column;gap:0.4rem;}
+.form-group label{font-size:0.82rem;font-weight:600;}
+.form-group input{padding:0.75rem 1rem;border:1.5px solid var(--gray2);border-radius:10px;font-family:'Instrument Sans',sans-serif;font-size:0.9rem;background:var(--gray);outline:none;}
+.form-group input:focus{border-color:var(--blue);background:white;}
+.form-submit{background:var(--blue);color:white;padding:0.9rem;border:none;border-radius:100px;font-weight:600;font-size:0.95rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;}
+footer{background:#040710;padding:3rem;}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.footer-logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.2rem;color:white;}
+.footer-links{display:flex;gap:2rem;flex-wrap:wrap;}
+.footer-links a{color:rgba(255,255,255,0.3);font-size:0.82rem;text-decoration:none;}
+.footer-links a:hover{color:white;}
+.footer-copy{color:rgba(255,255,255,0.2);font-size:0.78rem;}
+@media(max-width:768px){nav{padding:1rem 1.2rem;}.nav-links a:not(.nav-back){display:none;}.head{padding:3.5rem 1.5rem 3rem;}.head h1{font-size:1.9rem;}.msg-types,.plans{grid-template-columns:1fr;}.addon{flex-direction:column;align-items:flex-start;}.addon-price{text-align:left;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo"><img src="/nevermiss-logo-256.png" alt="NeverMiss">NeverMiss</a>
+  <div class="nav-links">
+    <a href="index.html#features">Features</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="custom.html">Custom Plans</a>
+    <a href="index.html" class="nav-back">← Back to home</a>
+  </div>
+</nav>
+
+<section class="head">
+  <div class="kicker">Bulk Messaging</div>
+  <h1>Reach every student — safely</h1>
+  <p>Send reminders, fee nudges and admission announcements to your opted-in contact list. Every NeverMiss plan already includes a monthly allowance; these plans are for messaging on its own.</p>
+</section>
+
+<div class="wrap">
+
+  <div class="sub-title">Two kinds of messages</div>
+  <div class="msg-types">
+    <div class="msg-type utility">
+      <div class="msg-type-title">Utility Messages</div>
+      <p>Batch reminders, fee-due nudges, registration confirmations — everyday updates for students already engaging with your institute. Generously included every month.</p>
+    </div>
+    <div class="msg-type marketing">
+      <div class="msg-type-title">Marketing Messages</div>
+      <p>Admission-open announcements, promotional pushes, new batch launches — messages aimed at bringing in new enquiries and enrolments. Meta charges more for these, so allowances are smaller.</p>
+    </div>
+  </div>
+
+  <div class="sub-title">Included with every NeverMiss plan</div>
+  <div class="table-wrap">
+    <table class="quota-table">
+      <tr><th>Plan</th><th>Utility Messages</th><th>Marketing Messages</th></tr>
+      <tr><td>Starter</td><td><strong>300 / month</strong></td><td><strong>20 / month</strong></td></tr>
+      <tr><td>Growth</td><td><strong>750 / month</strong></td><td><strong>50 / month</strong></td></tr>
+      <tr><td>Pro</td><td><strong>1,500 / month</strong></td><td><strong>100 / month</strong></td></tr>
+    </table>
+  </div>
+
+  <div class="sub-title">Need more reach?</div>
+  <div class="addon">
+    <div>
+      <div class="addon-title">Bulk Messaging Plus</div>
+      <p class="addon-desc">1,500 extra utility messages + 300 extra marketing messages every month — for admission season pushes and larger batches.</p>
+    </div>
+    <div class="addon-price">₹999<span>+ GST, billed monthly</span></div>
+    <button class="custom-btn" onclick="selectPlan('bulk_plus')">Add Plus →</button>
+  </div>
+
+  <div class="sub-title">Just want bulk messaging? Standalone plans</div>
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Message Basic</div>
+      <div class="plan-price">₹799<span>/mo</span></div>
+      <p class="plan-desc">No AI bot or dashboard — messaging only</p>
+      <ul class="plan-features">
+        <li>1,500 utility messages/mo</li>
+        <li>80 marketing messages/mo</li>
+        <li>Template setup &amp; approval help</li>
+      </ul>
+      <button class="plan-btn outline" onclick="selectPlan('message_basic')">Get Started</button>
+    </div>
+    <div class="plan popular">
+      <div class="plan-badge">Best Value</div>
+      <div class="plan-name">Message Growth</div>
+      <div class="plan-price">₹1,499<span>/mo</span></div>
+      <p class="plan-desc">No AI bot or dashboard — messaging only</p>
+      <ul class="plan-features">
+        <li>3,500 utility messages/mo</li>
+        <li>200 marketing messages/mo</li>
+        <li>Template setup &amp; approval help</li>
+      </ul>
+      <button class="plan-btn solid" onclick="selectPlan('message_growth')">Get Started</button>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Message Pro</div>
+      <div class="plan-price">₹2,499<span>/mo</span></div>
+      <p class="plan-desc">No AI bot or dashboard — messaging only</p>
+      <ul class="plan-features">
+        <li>7,000 utility messages/mo</li>
+        <li>400 marketing messages/mo</li>
+        <li>Template setup &amp; approval help</li>
+      </ul>
+      <button class="plan-btn outline" onclick="selectPlan('message_pro')">Get Started</button>
+    </div>
+  </div>
+  <p class="bulk-note">All standalone plans priced +GST. Upgrade anytime to a full NeverMiss plan with the AI bot and leads dashboard.</p>
+
+  <div class="buy" id="buy-box">
+    <h3 id="buy-title">Message Basic — ₹799/month</h3>
+    <div class="form-group"><label>Your Name *</label><input id="f-name" type="text" placeholder="e.g. Rajesh Kumar" autocomplete="name"></div>
+    <div class="form-group"><label>Business Name *</label><input id="f-business" type="text" placeholder="e.g. Sharma Classes" autocomplete="organization"></div>
+    <div class="form-group"><label>Email Address *</label><input id="f-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+    <div class="form-group"><label>WhatsApp Number *</label><input id="f-phone" type="tel" placeholder="e.g. 9876543210" autocomplete="tel"></div>
+    <div class="form-group"><label>Coupon Code <span style="color:var(--muted);font-weight:400;">(optional)</span></label><input id="f-coupon" type="text" placeholder="Referral or promo code"></div>
+    <div id="form-error" style="display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#C00;"></div>
+    <button class="form-submit" id="pay-btn" onclick="startPayment()">Pay &amp; Activate →</button>
+    <p style="text-align:center;font-size:0.75rem;color:var(--muted);">🔒 Secured by Razorpay | Login invite sent to your email</p>
+  </div>
+
+  <div class="compliance">
+    Messages sent outside these limits, or larger one-time campaigns, can be added on request. All bulk messages go only to contacts who have <strong>opted in</strong> — this keeps your WhatsApp number in good standing with Meta and protects long-term deliverability.
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">NeverMiss</div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="custom.html">Custom Plans</a>
+      <a href="https://wa.me/917484849508" target="_blank" rel="noopener">💬 WhatsApp Support</a>
+      <a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a>
+    </div>
+    <div class="footer-copy">© 2026 NeverMiss. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const API_BASE = "https://my-saas-bot.onrender.com";
+const PLAN_LABELS = {
+  message_basic:  "Message Basic — ₹799/month",
+  message_growth: "Message Growth — ₹1,499/month",
+  message_pro:    "Message Pro — ₹2,499/month",
+  bulk_plus:      "Bulk Messaging Plus — ₹999/month",
+};
+let selectedPlan = "";
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.getElementById("buy-title").textContent = PLAN_LABELS[plan];
+  const box = document.getElementById("buy-box");
+  box.style.display = "flex";
+  box.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function showError(msg) {
+  const el = document.getElementById("form-error");
+  el.textContent = msg;
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 6000);
+}
+
+function setLoading(loading) {
+  const btn = document.getElementById("pay-btn");
+  btn.disabled = loading;
+  btn.textContent = loading ? "Creating order…" : "Pay & Activate →";
+  btn.style.opacity = loading ? "0.7" : "1";
+}
+
+async function startPayment() {
+  const name     = document.getElementById("f-name").value.trim();
+  const business = document.getElementById("f-business").value.trim();
+  const email    = document.getElementById("f-email").value.trim();
+  const phone    = document.getElementById("f-phone").value.trim().replace(/\D/g, "");
+  const coupon   = document.getElementById("f-coupon").value.trim();
+
+  if (!name)     return showError("Please enter your name.");
+  if (!business) return showError("Please enter your business name.");
+  if (!email || !email.includes("@")) return showError("Please enter a valid email address.");
+  if (phone.length < 10) return showError("Please enter a valid 10-digit WhatsApp number.");
+  if (!selectedPlan) return showError("Please pick a plan above.");
+
+  setLoading(true);
+  try {
+    // The server computes the amount from the plan and stores plan + buyer
+    // against the order id. Nothing about price or tier is trusted from here.
+    const orderRes = await fetch(`${API_BASE}/api/create-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: selectedPlan, name, business, phone, email, coupon_code: coupon }),
+    });
+    const order = await orderRes.json();
+
+    if (order.coupon_error) { showError("Coupon: " + order.coupon_error); setLoading(false); return; }
+    if (!order.id) { showError("Could not create order. Please try again."); setLoading(false); return; }
+    setLoading(false);
+
+    const options = {
+      key: order.key_id,
+      amount: order.amount,
+      currency: "INR",
+      name: "NeverMiss",
+      description: PLAN_LABELS[selectedPlan],
+      order_id: order.id,
+      prefill: { name, contact: phone, email },
+      theme: { color: "#1B4FFF" },
+      handler: async function (response) {
+        const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id:   response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature:  response.razorpay_signature,
+          }),
+        });
+        const result = await verifyRes.json();
+        if (result.success) {
+          document.getElementById("buy-box").innerHTML = `
+            <div style="text-align:center;padding:2rem 1rem;">
+              <div style="font-size:3.5rem;margin-bottom:1rem;">🎉</div>
+              <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;margin-bottom:0.75rem;">You're in, ${name}!</h3>
+              <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;">
+                Your <strong>${PLAN_LABELS[selectedPlan]}</strong> is active. Check your email (${email}) for your dashboard login invite — log in to upload contacts and start sending.
+              </p>
+              <div style="background:var(--blue-light);border-radius:12px;padding:1rem;font-size:0.82rem;color:var(--blue);font-weight:600;">Payment ID: ${response.razorpay_payment_id}</div>
+            </div>`;
+        } else {
+          showError("Payment received but verification failed. Please WhatsApp us with payment ID: " + response.razorpay_payment_id);
+        }
+      },
+      modal: { ondismiss: function () { setLoading(false); } }
+    };
+    const rzp = new Razorpay(options);
+    rzp.on("payment.failed", resp => showError("Payment failed: " + resp.error.description));
+    rzp.open();
+  } catch (err) {
+    console.error(err);
+    showError("Something went wrong. Please try again or WhatsApp us.");
+    setLoading(false);
+  }
+}
+</script>
+</body>
+</html>

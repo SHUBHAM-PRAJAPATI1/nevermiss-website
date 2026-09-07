@@ -196,7 +196,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
   <h1>📢 Bulk Messaging</h1>
   <div class="sec-sub">Send utility &amp; marketing broadcasts to your opted-in contacts. Your plan includes a monthly allowance.</div>
   <div class="card">
-    <div class="card-title">Your bulk account</div>
+    <div class="card-title">Your bulk account <button class="btn sm outline" onclick="refreshBulk()">Refresh</button></div>
     <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.2rem;">
       <span class="pill plan" id="bulk-plan">—</span>
       <span class="pill ok" id="bulk-status">—</span>
@@ -206,7 +206,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
     <div class="bar"><div class="fill" id="util-bar" style="width:0%"></div></div>
     <div class="meter-label"><span>📣 Marketing messages (announcements, promos)</span><span id="mkt-text">0 / 0</span></div>
     <div class="bar"><div class="fill mkt" id="mkt-bar" style="width:0%"></div></div>
-    <div class="muted">Need more? <a href="https://nevermiss.co.in/#bulk" target="_blank" style="color:var(--blue);font-weight:600;">Add Bulk Messaging Plus (+1,500 utility / +300 marketing for ₹999/mo) →</a></div>
+    <div class="muted">Need more? <a href="https://nevermiss.co.in/bulk-messaging.html" target="_blank" style="color:var(--blue);font-weight:600;">Add Bulk Messaging Plus (+1,500 utility / +300 marketing for ₹999/mo) →</a></div>
   </div>
   <div class="card">
     <div class="card-title">Upload contacts (CSV)</div>
@@ -451,7 +451,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       <div class="form-row"><label>Location</label><input id="bi-loc"></div>
       <div class="form-row"><label id="bi-phone-lbl">Contact phone (shown to students)</label><input id="bi-phone"></div>
       <div class="form-row"><label id="bi-timings-lbl">Institute timings</label><input id="bi-timings" placeholder="Monday to Saturday, 8 AM – 8 PM"></div>
-      <div class="form-row"><label>Website</label><input id="bi-website" placeholder="https://drreddysfoundation.org"><span class="hint">The bot shares this when someone asks where to read more or register online.</span></div>
+      <div class="form-row"><label>Website</label><input id="bi-website" placeholder="https://example.org"><span class="hint">The bot shares this when someone asks where to read more or register online.</span></div>
       <button class="btn" onclick="saveBizInfo()">Save changes ✅</button>
       <div class="msg" id="info-msg"></div>
     </div>
@@ -574,13 +574,14 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       <div class="bar"><div class="fill" id="b-util-bar" style="width:0%"></div></div>
       <div class="meter-label"><span>📣 Marketing bulk messages (included)</span><span id="b-mkt-text">0 / 0</span></div>
       <div class="bar"><div class="fill mkt" id="b-mkt-bar" style="width:0%"></div></div>
-      <div class="muted">Need more? <a href="https://nevermiss.co.in/#bulk" target="_blank" style="color:var(--blue);font-weight:600;">Add Bulk Messaging Plus (+1,500 utility / +300 marketing for ₹999/mo) →</a></div>
+      <div class="muted">Need more? <a href="https://nevermiss.co.in/bulk-messaging.html" target="_blank" style="color:var(--blue);font-weight:600;">Add Bulk Messaging Plus (+1,500 utility / +300 marketing for ₹999/mo) →</a></div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-title">Refer &amp; Earn</div>
     <div class="muted" style="margin-bottom:0.8rem;">Share your code — they get 20% off their first payment, you get 20% off your next renewal once they sign up.</div>
+    <div class="notice info" id="ref-founding-note" style="display:none;">You're on a founding-institute rate, which is already below our list price, so referral discounts don't stack on top of it. Your code still gives the institute you refer their 20% off.</div>
     <div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
       <span class="pill plan" id="ref-code" style="font-size:0.95rem;padding:0.6rem 1.4rem;">Loading…</span>
       <button class="btn sm outline" onclick="shareReferral()">Share on WhatsApp</button>
@@ -615,10 +616,10 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-// ── CONFIG — fill these values (copy from login.html / Render / Meta) ────────
+// ── CONFIG ───────────────────────────────────────────────────────────────────
 const SUPABASE_URL      = "https://uwxthbxxiaujlgxosqjx.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w";   // same key login.html uses
-const API_BASE          = "https://my-saas-bot.onrender.com";      // e.g. https://nevermiss-api.onrender.com
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w";
+const API_BASE          = "https://my-saas-bot.onrender.com";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { detectSessionInUrl: false }
@@ -634,24 +635,31 @@ let ALUMNI = [];   // cached alumni rows, so the status filter re-renders withou
 function isNGO(){ return !!(CLIENT && CLIENT.client_type === "ngo"); }
 
 // ── PLAN GATING ───────────────────────────────────────────────────────────────
+// "basic" is a legacy key for the same tier as "starter". planKey() collapses it
+// so nothing downstream has to know about both.
+function planKey(){
+  const p = (CLIENT && CLIENT.plan) || "starter";
+  return p === "basic" ? "starter" : p;
+}
+
+// Registration is included in Starter: at Rs 3,999 an owner assumes a lead can
+// finish signing up, and locking it there causes churn, not upgrades.
 const PLAN_FEATURES = {
-  basic:   [],
-  starter: [],
+  starter: ["registration"],
   growth:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   pro:     ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   custom:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"]
 };
 
-const PLAN_LABEL = { basic:"Starter", starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom" };
+const PLAN_LABEL = { starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom" };
 
 function planHasFeature(feature){
-  const plan = (CLIENT && CLIENT.plan) || "starter";
-  return (PLAN_FEATURES[plan] || []).indexOf(feature) !== -1;
+  return (PLAN_FEATURES[planKey()] || []).indexOf(feature) !== -1;
 }
 
 function lockNotice(what, unlockedOn){
   return '<div class="notice warn">' +
-    '<strong>🔒 ' + what + ' isn\'t included on your ' + (PLAN_LABEL[(CLIENT && CLIENT.plan) || "starter"] || "current") + ' plan.</strong><br>' +
+    '<strong>🔒 ' + what + ' isn\'t included on your ' + (PLAN_LABEL[planKey()] || "current") + ' plan.</strong><br>' +
     'Available on <strong>' + unlockedOn + '</strong>. Upgrading also raises your monthly conversation limit.<br>' +
     '<button class="btn" style="margin-top:0.7rem;" onclick="showSection(\'billing\')">See plans &amp; upgrade</button>' +
     '</div>';
@@ -689,7 +697,14 @@ function esc(s){ return (s == null ? "" : String(s)).replace(/[&<>"']/g, c => ({
 function fmtDate(iso){ return iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—"; }
 function setText(id, text){ const el = document.getElementById(id); if (el) el.textContent = text; }
 function show(id, visible){ const el = document.getElementById(id); if (el) el.style.display = visible ? "" : "none"; }
-async function authHeaders(){ return { "Authorization": "Bearer " + TOKEN }; }
+
+// Every authenticated call goes through this. The token is the only thing the
+// server should trust -- never an email or user id sent in a query string or body.
+async function authHeaders(){
+  const { data } = await sb.auth.getSession();
+  if (data.session) TOKEN = data.session.access_token;   // refreshes a stale token
+  return { "Authorization": "Bearer " + TOKEN };
+}
 
 function normalisePhone(raw){
   const digits = (raw || "").replace(/\D/g, "");
@@ -706,6 +721,9 @@ function showSection(id){
   if (sec) sec.classList.add("active");
   const nav = document.querySelector('.nav-item[data-sec="' + id + '"]');
   if (nav) nav.classList.add("active");
+  // Quota meters go stale the moment anything sends. Refetch whenever the user
+  // actually navigates to a screen that shows them.
+  if (id === "bulk" || id === "billing") refreshBulk();
 }
 document.querySelectorAll(".nav-item").forEach(n =>
   n.addEventListener("click", () => showSection(n.dataset.sec)));
@@ -787,12 +805,14 @@ function applyPlanGating(){
 
 async function loadClient(){
   try {
-    const r = await fetch(API_BASE + "/get-client?email=" + encodeURIComponent(EMAIL));
+    // Authenticated: the server must read the caller's identity from this token
+    // and ignore the email hint entirely.
+    const r = await fetch(API_BASE + "/get-client", { headers: await authHeaders() });
     const d = await r.json();
     if (d.success) {
       CLIENT = d.client;
       document.getElementById("biz-name").textContent = CLIENT.business_name || EMAIL;
-      document.getElementById("plan-pill").textContent = (CLIENT.plan || "starter") + " plan";
+      document.getElementById("plan-pill").textContent = (PLAN_LABEL[planKey()] || "Starter") + " plan";
       const sp = document.getElementById("status-pill");
       sp.style.display = "inline-block";
       if (CLIENT.status === "active") { sp.textContent = "🟢 Bot Active"; sp.className = "pill ok"; }
@@ -826,8 +846,8 @@ function checkExpiry(){
   }
 }
 
-async function fetchBulk(){
-  if (BULK) return BULK;
+async function fetchBulk(force){
+  if (BULK && !force) return BULK;
   try {
     const r = await fetch(API_BASE + "/api/bulk/account", { headers: await authHeaders() });
     if (r.status === 200) {
@@ -836,6 +856,14 @@ async function fetchBulk(){
     }
   } catch (e) { console.error(e); }
   return BULK;
+}
+
+// Drops the cache and repaints every meter that reads it.
+async function refreshBulk(){
+  BULK = null;
+  await fetchBulk(true);
+  loadBulk();
+  paintBillingMeters();
 }
 
 function meterHTML(uUsed, uQuota, mUsed, mQuota){
@@ -880,7 +908,7 @@ async function loadOverview(){
   const bulk = await fetchBulk();
   const expTxt = CLIENT.plan_expires_at ? " · paid through " + fmtDate(CLIENT.plan_expires_at) : "";
   document.getElementById("billing-line").innerHTML =
-    "<strong>" + esc((CLIENT.plan || "starter").toUpperCase()) + "</strong> plan" + esc(expTxt);
+    "<strong>" + esc(PLAN_LABEL[planKey()] || "Starter") + "</strong> plan" + esc(expTxt);
   if (bulk) {
     document.getElementById("ov-bulk-meters").innerHTML =
       '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.5rem;">📢 Bulk allowance this month</div>' +
@@ -909,13 +937,13 @@ async function loadOverview(){
   if (CLIENT.client_type === "skilling") {
     document.getElementById("insights-card").style.display = "block";
     try {
-      const ir = await fetch(API_BASE + "/api/skilling-insights?client_id=" + cid);
+      const ir = await fetch(API_BASE + "/api/skilling-insights", { headers: await authHeaders() });
       const idata = await ir.json();
       if (idata.success) {
         const langs = Object.entries(idata.languages).map(([k, v]) => k + ": " + v).join(" · ") || "—";
         const progs = Object.entries(idata.programmes).map(([k, v]) => k + ": " + v).join(" · ") || "—";
         document.getElementById("insights-box").innerHTML =
-          `👥 Total contacts: <strong>${idata.total}</strong><br>🌐 Languages: ${esc(langs)}<br>📚 Programmes: ${esc(progs)}<br>✅ Registered: <strong>${idata.registered}</strong>`;
+          `👥 Total contacts: <strong>${esc(idata.total)}</strong><br>🌐 Languages: ${esc(langs)}<br>📚 Programmes: ${esc(progs)}<br>✅ Registered: <strong>${esc(idata.registered)}</strong>`;
       }
     } catch (e) { console.error(e); }
   }
@@ -1080,9 +1108,9 @@ function renderAlumni(){
         <td>+${esc(a.phone)}</td>
         <td>${esc(a.batch || "—")}</td>
         <td class="muted">${a.completion_date ? fmtDate(a.completion_date) : "—"}</td>
-        <td><select class="status-select" onchange="updateAlumnusStatus('${a.id}', this.value)">${opts}</select></td>
+        <td><select class="status-select" onchange="updateAlumnusStatus('${esc(a.id)}', this.value)">${opts}</select></td>
         <td class="muted">${a.last_contacted_at ? fmtDate(a.last_contacted_at) : "Never"}</td>
-        <td><button onclick="deleteAlumnus('${a.id}')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;" title="Remove from alumni">🗑️</button></td>
+        <td><button onclick="deleteAlumnus('${esc(a.id)}')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;" title="Remove from alumni">🗑️</button></td>
       </tr>`;
     }).join("") + "</table>";
 }
@@ -1225,6 +1253,7 @@ async function sendJobAlert(){
     document.getElementById("ja-title").value = "";
     document.getElementById("ja-company").value = "";
     loadAlumni();
+    refreshBulk();
   } catch (e) {
     msg.className = "msg err"; msg.textContent = "❌ Connection problem. Try again in a moment.";
   } finally {
@@ -1269,9 +1298,9 @@ async function loadBulk(){
     return;
   }
   const names = {
-    basic: "Message Basic", growth: "Message Growth", pro: "Message Pro",
-    starter: "Starter (included allowance)", message_basic: "Message Basic",
-    message_growth: "Message Growth", message_pro: "Message Pro", plus_only: "Bulk Plus"
+    starter: "Starter (included allowance)", growth: "Growth (included allowance)", pro: "Pro (included allowance)",
+    message_basic: "Message Basic", message_growth: "Message Growth", message_pro: "Message Pro",
+    plus_only: "Bulk Plus"
   };
   document.getElementById("bulk-plan").textContent = "📦 " + (names[bulk.plan] || bulk.plan);
   document.getElementById("bulk-status").textContent = bulk.status === "active" ? "🟢 Active" : (bulk.status || "—");
@@ -1514,8 +1543,7 @@ function pollBroadcast(){
         msg.className = "msg ok";
         msg.textContent = (j.status === "cancelled" ? "Stopped. " : "✅ Done. ") +
           "Sent to " + j.sent + (j.failed ? ", " + j.failed + " didn't go through" : "") + ".";
-        BULK = null;
-        loadBulk();
+        refreshBulk();
       }
     } catch (e) { /* transient — keep polling */ }
   }, 2000);
@@ -1539,7 +1567,7 @@ async function loadQuick(){
   document.getElementById("quick-list").innerHTML =
     "<table><tr><th>Keyword</th><th>Reply</th><th></th></tr>" +
     data.map(q => "<tr><td><strong>#" + esc(q.keyword) + "</strong></td><td>" + esc(q.reply_text) + "</td><td>" +
-      "<button onclick=\"deleteQuickReply('" + q.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></td></tr>").join("") +
+      "<button onclick=\"deleteQuickReply('" + esc(q.id) + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></td></tr>").join("") +
     "</table>";
 }
 
@@ -1591,6 +1619,9 @@ async function loadCourses(){
     return;
   }
   el.innerHTML = data.map(c => {
+    // seats_available can legitimately be null on older rows; coerce to a number
+    // so it never lands in an onclick as an empty argument.
+    const seats = Number(c.seats_available) || 0;
     const feesPart = ngo ? "<span class='muted'> · free training</span>" : " · ₹" + esc(c.fees) + "/yr" + (c.demo_available ? " · 🎓 demo" : "");
     const eligPart = (ngo && c.eligibility_criteria)
       ? "<br><span class='muted'>Who can join: " + esc(c.eligibility_criteria) + "</span>"
@@ -1599,15 +1630,15 @@ async function loadCourses(){
       "<div>" +
       "<strong>" + esc(c.course_name) + "</strong>" + feesPart +
       "<br><span class='muted'>" + (ngo ? "Slots: " : "Seats: ") + "</span>" +
-      "<button onclick=\"adjustSeats('" + c.id + "',-1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One less (e.g. an offline booking)'>−</button> " +
-      "<strong onclick=\"setSeatsDirectly('" + c.id + "'," + esc(c.seats_available) + ")\" style='cursor:pointer;text-decoration:underline dotted;' title='Click to set an exact number'>" + esc(c.seats_available) + "</strong> " +
-      "<button onclick=\"adjustSeats('" + c.id + "',1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One more (e.g. a cancellation)'>+</button>" +
+      "<button onclick=\"adjustSeats('" + esc(c.id) + "',-1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One less (e.g. an offline booking)'>−</button> " +
+      "<strong onclick=\"setSeatsDirectly('" + esc(c.id) + "'," + seats + ")\" style='cursor:pointer;text-decoration:underline dotted;' title='Click to set an exact number'>" + seats + "</strong> " +
+      "<button onclick=\"adjustSeats('" + esc(c.id) + "',1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One more (e.g. a cancellation)'>+</button>" +
       eligPart +
       ((c.course_batches && c.course_batches.length) ? "<br><span class='muted'>" + c.course_batches.map(b => esc(b.batch_label) + " (" + esc(b.start_time) + "–" + esc(b.end_time) + ")").join(" · ") + "</span>" : "") +
       "</div>" +
       "<div style='display:flex;flex-direction:column;gap:0.3rem;align-items:flex-end;'>" +
-      (ngo ? "<button onclick=\"editEligibility('" + c.id + "')\" style='background:none;border:none;color:var(--teal);cursor:pointer;font-size:0.78rem;white-space:nowrap;font-weight:600;'>Edit eligibility</button>" : "") +
-      "<button onclick=\"deleteCourse('" + c.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;white-space:nowrap;' title='Delete'>🗑️ Delete</button>" +
+      (ngo ? "<button onclick=\"editEligibility('" + esc(c.id) + "')\" style='background:none;border:none;color:var(--teal);cursor:pointer;font-size:0.78rem;white-space:nowrap;font-weight:600;'>Edit eligibility</button>" : "") +
+      "<button onclick=\"deleteCourse('" + esc(c.id) + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;white-space:nowrap;' title='Delete'>🗑️ Delete</button>" +
       "</div>" +
       "</div>";
   }).join("");
@@ -1625,7 +1656,7 @@ async function editEligibility(courseId){
 
 async function adjustSeats(courseId, delta){
   const { data } = await sb.from("courses").select("seats_available").eq("id", courseId).single();
-  const current = (data && data.seats_available) || 0;
+  const current = Number(data && data.seats_available) || 0;
   const next = Math.max(0, current + delta);
   const { error } = await sb.from("courses").update({ seats_available: next }).eq("id", courseId);
   if (error) { alert("❌ " + error.message); return; }
@@ -1697,7 +1728,7 @@ async function loadResults(){
   const el = document.getElementById("results-list");
   if (!data || !data.length) { el.innerHTML = '<div class="muted">' + (isNGO() ? "No placement stories yet." : "No results yet.") + '</div>'; return; }
   el.innerHTML = data.map(r => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;display:flex;justify-content:space-between;align-items:center;'><span>🏆 " + esc(r.achievement) + (r.student_name ? " — " + esc(r.student_name) : "") + (r.year ? " (" + esc(r.year) + ")" : "") + "</span>" +
-    "<button onclick=\"deleteResult('" + r.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
+    "<button onclick=\"deleteResult('" + esc(r.id) + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
 }
 
 async function deleteResult(id){
@@ -1728,7 +1759,7 @@ async function loadFacilities(){
   const el = document.getElementById("facilities-list");
   if (!data || !data.length) { el.innerHTML = '<div class="muted">No facilities yet.</div>'; return; }
   el.innerHTML = data.map(f => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;display:flex;justify-content:space-between;align-items:center;'><span>🏫 " + esc(f.facility_name) + (f.description ? " — " + esc(f.description) : "") + "</span>" +
-    "<button onclick=\"deleteFacility('" + f.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
+    "<button onclick=\"deleteFacility('" + esc(f.id) + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
 }
 
 async function deleteFacility(id){
@@ -1757,8 +1788,8 @@ async function loadMediaList(){
   const { data } = await sb.from("institute_media").select("*").eq("client_id", CLIENT.id).eq("active", true);
   const el = document.getElementById("media-list");
   if (!data || !data.length) { el.innerHTML = '<div class="muted">No media uploaded yet.</div>'; return; }
-  el.innerHTML = data.map(m => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;display:flex;justify-content:space-between;align-items:center;'><span>📎 " + esc(m.media_type) + " — <a href='" + esc(m.file_url) + "' target='_blank' style='color:var(--blue);'>open</a></span>" +
-    "<button onclick=\"deleteMedia('" + m.id + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
+  el.innerHTML = data.map(m => "<div style='padding:0.4rem 0;border-bottom:1px solid var(--gray);font-size:0.84rem;display:flex;justify-content:space-between;align-items:center;'><span>📎 " + esc(m.media_type) + " — <a href='" + esc(m.file_url) + "' target='_blank' rel='noopener noreferrer' style='color:var(--blue);'>open</a></span>" +
+    "<button onclick=\"deleteMedia('" + esc(m.id) + "')\" style='background:none;border:none;color:#dc2626;cursor:pointer;font-size:0.8rem;' title='Delete'>🗑️</button></div>").join("");
 }
 
 async function deleteMedia(id){
@@ -1934,12 +1965,12 @@ async function requestConnection(){
   if (!own || own.length < 10) { msg.className = "msg err"; msg.textContent = "Enter a valid notification number."; return; }
   msg.textContent = "Sending…";
   try {
-    const { data: sessData } = await sb.auth.getSession();
-    const authUserId = (sessData.session && sessData.session.user.id) || "";
+    // No user_email / auth_user_id in the body -- both were caller-controlled.
+    // The server identifies the account from the bearer token instead.
     const r = await fetch(API_BASE + "/request-connection", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_email: EMAIL, auth_user_id: authUserId, business_whatsapp_number: biz, owner_whatsapp_number: own })
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({ business_whatsapp_number: biz, owner_whatsapp_number: own })
     });
     const d = await r.json();
     if (d.success) {
@@ -1956,6 +1987,8 @@ async function requestConnection(){
 }
 
 // ── PLAN & BILLING ────────────────────────────────────────────────────────────
+// Display prices only. The authoritative amount for any payment is computed
+// server-side in /api/create-order from the plan + cycle; nothing here is trusted.
 const PLAN_PRICING_RS = {
   starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
   growth:  { monthly: 5999, half_yearly: 32999, yearly: 59990 },
@@ -1967,8 +2000,8 @@ const BULK_PLAN_PRICING_RS = {
   message_pro:    { monthly: 2499 },
 };
 const PLAN_FEATURE_LIST = {
-  starter:         ["AI FAQ bot + lead capture", "1,000 conversations/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
-  growth:          ["Everything in Starter", "2,000 conversations/mo", "Registration, booking, demo, reminders", "750 utility + 50 marketing bulk msgs"],
+  starter:         ["AI FAQ bot + lead capture", "Guided registration flow", "1,000 conversations/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
+  growth:          ["Everything in Starter", "2,000 conversations/mo", "Seat booking, demo classes, reminders", "Custom quick replies, brochure & photos", "750 utility + 50 marketing bulk msgs"],
   pro:             ["Everything in Growth", "Unlimited conversations", "1,500 utility + 100 marketing bulk msgs", "Priority support"],
   message_basic:   ["Bulk messaging only", "1,500 utility / 80 marketing", "Template setup help"],
   message_growth:  ["Bulk messaging only", "3,500 utility / 200 marketing", "Template setup help"],
@@ -1986,7 +2019,7 @@ function setBillingCycle(cycle){
 function renderPlansGrid(){
   const el = document.getElementById("plans-grid");
   if (!el) return;
-  const currentPlan = CLIENT ? (CLIENT.plan || "starter") : null;
+  const currentPlan = CLIENT ? planKey() : null;
   const mainPlans = ["starter","growth","pro"];
   const bulkPlans = ["message_basic","message_growth","message_pro"];
 
@@ -2054,10 +2087,13 @@ async function choosePlan(plan){
 
   msg.textContent = "Preparing checkout…";
   try {
+    // Authenticated so the server can tie the order to this account. The server
+    // must store plan + billing_cycle against the Razorpay order id -- verification
+    // below deliberately sends no plan, so nothing from the browser can upgrade a tier.
     const orderRes = await fetch(API_BASE + "/api/create-order", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan, billing_cycle: billingCycle, name: businessName, business: businessName, phone: contactPhone, email: EMAIL })
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({ plan, billing_cycle: billingCycle })
     });
     const order = await orderRes.json();
     if (order.coupon_error) { msg.className = "msg err"; msg.textContent = "Coupon: " + order.coupon_error; return; }
@@ -2069,7 +2105,7 @@ async function choosePlan(plan){
       amount: order.amount,
       currency: "INR",
       name: "NeverMiss",
-      description: (PLAN_FEATURE_LIST[plan] ? plan : plan) + " subscription",
+      description: (PLAN_LABEL[plan] || plan) + " subscription",
       order_id: order.id,
       prefill: { name: businessName, contact: contactPhone, email: EMAIL },
       theme: { color: "#1B4FFF" },
@@ -2077,12 +2113,11 @@ async function choosePlan(plan){
         msg.className = "msg ok"; msg.textContent = "Confirming payment…";
         const verifyRes = await fetch(API_BASE + "/api/verify-payment", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
           body: JSON.stringify({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            customer: { name: businessName, business: businessName, phone: contactPhone, email: EMAIL, plan }
+            razorpay_signature: response.razorpay_signature
           })
         });
         const result = await verifyRes.json();
@@ -2105,27 +2140,34 @@ async function choosePlan(plan){
   }
 }
 
+function paintBillingMeters(){
+  if (!BULK) return;
+  const uq = BULK.utility_quota || 0, uu = BULK.utility_used || 0;
+  const mq = BULK.marketing_quota || 0, mu = BULK.marketing_used || 0;
+  setText("b-util-text", uu + " / " + uq);
+  setText("b-mkt-text", mu + " / " + mq);
+  const ub = document.getElementById("b-util-bar"); if (ub) ub.style.width = (uq ? Math.min(100, (uu / uq) * 100) : 0) + "%";
+  const mb = document.getElementById("b-mkt-bar");  if (mb) mb.style.width = (mq ? Math.min(100, (mu / mq) * 100) : 0) + "%";
+}
+
 async function loadBilling(){
   if (CLIENT) {
     const exp = CLIENT.plan_expires_at ? fmtDate(CLIENT.plan_expires_at) : "—";
     document.getElementById("bill-current").innerHTML =
-      "<strong>" + esc((CLIENT.plan || "starter").toUpperCase()) + "</strong> plan · paid through " + exp;
+      "<strong>" + esc(PLAN_LABEL[planKey()] || "Starter") + "</strong> plan · paid through " + esc(exp);
+    // Founding-rate institutes are already below list price, so referral
+    // discounts don't stack on their own renewal.
+    show("ref-founding-note", !!CLIENT.founding_rate);
   } else {
     document.getElementById("bill-current").innerHTML = "<strong>Bulk-only account</strong> — no coaching bot subscription.";
+    show("ref-founding-note", false);
   }
   renderPlansGrid();
-  const bulk = await fetchBulk();
-  if (bulk) {
-    const uq = bulk.utility_quota || 0, uu = bulk.utility_used || 0;
-    const mq = bulk.marketing_quota || 0, mu = bulk.marketing_used || 0;
-    document.getElementById("b-util-text").textContent = uu + " / " + uq;
-    document.getElementById("b-mkt-text").textContent = mu + " / " + mq;
-    document.getElementById("b-util-bar").style.width = (uq ? Math.min(100, (uu / uq) * 100) : 0) + "%";
-    document.getElementById("b-mkt-bar").style.width = (mq ? Math.min(100, (mu / mq) * 100) : 0) + "%";
-  }
+  await fetchBulk();
+  paintBillingMeters();
   if (CLIENT) {
     try {
-      const r = await fetch(API_BASE + "/api/referral-code?email=" + encodeURIComponent(EMAIL));
+      const r = await fetch(API_BASE + "/api/referral-code", { headers: await authHeaders() });
       const d = await r.json();
       document.getElementById("ref-code").textContent = d.success ? d.referral_code : "—";
     } catch (e) { document.getElementById("ref-code").textContent = "—"; }
