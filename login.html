@@ -74,7 +74,7 @@
 <script>
 var _db = supabase.createClient(
   'https://uwxthbxxiaujlgxosqjx.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eHRoYnh4aWF1amxneG9zcWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTI5MDMsImV4cCI6MjA5MjcyODkwM30.gqqku9mD8r7hTJoGTc8KWcnVrFM39Go2zK-CiT61H7w'
+  'sb_publishable_PASTE_YOUR_NEW_KEY_HERE'
 );
 
 _db.auth.getSession().then(function(r){ if(r.data.session) location.href='dashboard.html'; });
