@@ -577,6 +577,10 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       <button class="btn sm outline cycle-btn" data-cycle="half_yearly" onclick="setBillingCycle('half_yearly')">6 months <span style="opacity:0.75;">(save ~8%)</span></button>
       <button class="btn sm outline cycle-btn" data-cycle="yearly" onclick="setBillingCycle('yearly')">12 months <span style="opacity:0.75;">(save ~17%)</span></button>
     </div>
+    <div class="form-row" style="max-width:280px;">
+      <label>Coupon code <span class="muted" style="font-weight:400;">(optional)</span></label>
+      <input id="coupon-code" placeholder="e.g. FOUNDING2026" style="text-transform:uppercase;">
+    </div>
     <div id="plans-grid" class="plans-grid">Loading…</div>
     <div class="msg" id="plan-msg"></div>
     
@@ -1891,16 +1895,18 @@ async function choosePlan(plan){
   }
 
   const billingCycle = isBulk ? "monthly" : currentBillingCycle;
+  const couponCode = (document.getElementById("coupon-code").value || "").trim();
 
   msg.textContent = "Preparing checkout…";
   try {
-    // Authenticated so the server can tie the order to this account. The server
-    // must store plan + billing_cycle against the Razorpay order id -- verification
-    // below deliberately sends no plan, so nothing from the browser can upgrade a tier.
+    // Authenticated so the server can tie the order to this account. The
+    // server stores plan + billing_cycle against the Razorpay order id and
+    // reads them back from there at verification -- see verify-payment,
+    // which deliberately ignores any `plan` sent from the browser.
     const orderRes = await fetch(API_BASE + "/api/create-order", {
       method: "POST",
       headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
-      body: JSON.stringify({ plan, billing_cycle: billingCycle })
+      body: JSON.stringify({ plan, billing_cycle: billingCycle, phone: contactPhone, coupon_code: couponCode })
     });
     const order = await orderRes.json();
     if (order.coupon_error) { msg.className = "msg err"; msg.textContent = "Coupon: " + order.coupon_error; return; }
@@ -1924,7 +1930,12 @@ async function choosePlan(plan){
           body: JSON.stringify({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature
+            razorpay_signature: response.razorpay_signature,
+            // Contact/display fields only -- never the plan. The server
+            // resolves which plan was actually paid for from the order it
+            // created itself, so nothing here can change what access this
+            // payment grants.
+            customer: { name: businessName, business: businessName, phone: contactPhone, email: EMAIL }
           })
         });
         const result = await verifyRes.json();
