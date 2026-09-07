@@ -999,12 +999,12 @@ async function loadLeads(){
       const isBooking = l.lead_type === "booking";
 
       const tickCell = isBooking ? "" :
-        `<input type="checkbox" ${handled ? "checked" : ""} onchange="updateLeadStatus(${l.id}, this.checked ? 'done' : 'new')" title="Mark as handled" style="width:16px;height:16px;cursor:pointer;">`;
+        `<input type="checkbox" ${handled ? "checked" : ""} onchange="updateLeadStatus('${l.id}', this.checked ? 'done' : 'new')" title="Mark as handled" style="width:16px;height:16px;cursor:pointer;">`;
 
       const actionCell = isBooking
         ? bookingStatusBadge(l.status) + (l.status === "active" ? (
-            ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;" onclick="updateLeadStatus(${l.id},'confirmed')">Confirm</button>` +
-            ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;color:#dc2626;" onclick="updateLeadStatus(${l.id},'released')">${releaseLabel}</button>`
+            ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;" onclick="updateLeadStatus('${l.id}','confirmed')">Confirm</button>` +
+            ` <button class="btn sm outline" style="padding:0.2rem 0.6rem;font-size:0.7rem;color:#dc2626;" onclick="updateLeadStatus('${l.id}','released')">${releaseLabel}</button>`
           ) : "")
         : (handled ? '<span class="muted" style="font-size:0.75rem;">✓ Handled</span>' : "");
 
