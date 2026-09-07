@@ -206,7 +206,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
     <div class="bar"><div class="fill" id="util-bar" style="width:0%"></div></div>
     <div class="meter-label"><span>📣 Marketing messages (announcements, promos)</span><span id="mkt-text">0 / 0</span></div>
     <div class="bar"><div class="fill mkt" id="mkt-bar" style="width:0%"></div></div>
-    <div class="muted">Need more? <a href="https://nevermiss.co.in/bulk-messaging.html" target="_blank" style="color:var(--blue);font-weight:600;">Add Bulk Messaging Plus (+1,500 utility / +300 marketing for ₹999/mo) →</a></div>
+    <div class="muted">Extra message capacity is coming soon. <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> if you need more in the meantime.</div>
   </div>
   <div class="card">
     <div class="card-title">Upload contacts (CSV)</div>
@@ -556,7 +556,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       <div class="bar"><div class="fill" id="b-util-bar" style="width:0%"></div></div>
       <div class="meter-label"><span>📣 Marketing bulk messages (included)</span><span id="b-mkt-text">0 / 0</span></div>
       <div class="bar"><div class="fill mkt" id="b-mkt-bar" style="width:0%"></div></div>
-      <div class="muted">Need more? <a href="https://nevermiss.co.in/bulk-messaging.html" target="_blank" style="color:var(--blue);font-weight:600;">Add Bulk Messaging Plus (+1,500 utility / +300 marketing for ₹999/mo) →</a></div>
+      <div class="muted">Extra message capacity is coming soon. <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> if you need more in the meantime.</div>
     </div>
   </div>
 
@@ -579,7 +579,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
     </div>
     <div id="plans-grid" class="plans-grid">Loading…</div>
     <div class="msg" id="plan-msg"></div>
-    <div class="muted" style="margin-top:1rem;">💡 Bulk Messaging Plus is available on any plan. <a href="https://wa.me/917484849508?text=Hi%2C%20I%20want%20Bulk%20Messaging%20Plus" target="_blank" style="color:var(--blue);font-weight:600;">Add it via WhatsApp →</a></div>
+    
   </div>
 </div>
 
@@ -984,7 +984,10 @@ async function loadLeads(){
   const sorted = data.slice().sort((a, b) => {
     const ah = isHandled(a.status), bh = isHandled(b.status);
     if (ah !== bh) return ah ? 1 : -1;
-    return 0;
+    // Within each group, newest first -- the API already returns this order,
+    // but Array.sort isn't guaranteed stable across every engine, so make it
+    // explicit rather than relying on it.
+    return new Date(b.created_at) - new Date(a.created_at);
   });
 
   const releaseLabel = isNGO() ? "Release slot" : "Release seat";
