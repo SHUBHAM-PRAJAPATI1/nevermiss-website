@@ -175,9 +175,19 @@ h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px rgba(255,255
 .plan-btn.outline:hover{border-color:var(--blue);color:var(--blue);}
 .plan-btn.solid{background:white;color:var(--blue);}
 .plan-btn.solid:hover{background:var(--blue-light);}
-.buy-now-link{display:block;text-align:center;margin-top:0.7rem;font-size:0.8rem;color:var(--blue);font-weight:600;text-decoration:none;cursor:pointer;background:none;border:none;width:100%;font-family:'Instrument Sans',sans-serif;}
-.buy-now-link:hover{text-decoration:underline;}
-.plan.popular .buy-now-link{color:white;}
+.buy-now-banner{max-width:1000px;margin:2.2rem auto 0;background:linear-gradient(135deg,var(--blue),var(--blue-mid));border-radius:24px;padding:2.6rem 2.8rem;color:white;box-shadow:0 24px 60px rgba(27,79,255,0.3);}
+.buy-now-banner-inner{display:flex;align-items:center;justify-content:space-between;gap:2.2rem;flex-wrap:wrap;}
+.buy-now-eyebrow{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:0.5rem;}
+.buy-now-banner h3{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;margin-bottom:0.6rem;color:white;}
+.buy-now-banner p{font-size:0.94rem;color:rgba(255,255,255,0.88);line-height:1.65;max-width:480px;}
+.buy-now-banner-cta{text-align:center;flex-shrink:0;}
+.buy-now-banner-price{font-family:'Clash Display',sans-serif;font-size:2.4rem;font-weight:700;margin-bottom:0.9rem;}
+.buy-now-banner-price span{font-size:0.85rem;font-weight:400;color:rgba(255,255,255,0.75);}
+.buy-now-banner-cta .btn-buy-big{background:white;color:var(--blue);padding:1.05rem 2.4rem;border-radius:100px;font-weight:700;font-size:1rem;border:none;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.buy-now-banner-cta .btn-buy-big:hover{background:#EEF2FF;transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,0.18);}
+.form-submit.outline{background:white;color:var(--blue);border:2px solid var(--blue);}
+.form-submit.outline:hover{background:var(--blue-light);transform:translateY(-1px);}
+@media(max-width:768px){.buy-now-banner{padding:1.9rem;}.buy-now-banner-inner{flex-direction:column;text-align:center;}.buy-now-banner p{max-width:100%;}}
 .pricing-links{max-width:1000px;margin:2.5rem auto 0;text-align:center;font-size:0.88rem;color:var(--muted);line-height:2;}
 .pricing-links a{color:var(--blue);font-weight:600;text-decoration:none;}
 .why{background:var(--white);padding:6rem 3rem;}
@@ -394,7 +404,6 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Email support</li>
       </ul>
       <button class="plan-btn outline" onclick="selectPlan('Starter')">Get a free demo</button>
-      <button class="buy-now-link" onclick="openCheckout('starter')">Already sure? Buy now →</button>
     </div>
     <div class="plan popular fade-in">
       <div class="plan-badge">Most Popular</div>
@@ -413,7 +422,6 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Priority support</li>
       </ul>
       <button class="plan-btn solid" onclick="selectPlan('Growth')">Get a free demo</button>
-      <button class="buy-now-link" onclick="openCheckout('growth')">Already sure? Buy now →</button>
     </div>
     <div class="plan fade-in">
       <div class="plan-name">Pro</div>
@@ -426,9 +434,23 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Priority support</li>
       </ul>
       <button class="plan-btn outline" onclick="selectPlan('Pro')">Get a free demo</button>
-      <button class="buy-now-link" onclick="openCheckout('pro')">Already sure? Buy now →</button>
     </div>
   </div>
+
+  <div class="buy-now-banner fade-in">
+    <div class="buy-now-banner-inner">
+      <div>
+        <div class="buy-now-eyebrow">⚡ Skip the demo</div>
+        <h3>Already sure? Get everything, right now.</h3>
+        <p>One plan, everything unlocked — registration, seat booking, demo bookings, quick replies, reminders, brochure &amp; photos, unlimited conversations, priority support. No waiting on a demo slot.</p>
+      </div>
+      <div class="buy-now-banner-cta">
+        <div class="buy-now-banner-price">₹8,999<span>/mo</span></div>
+        <button class="btn-buy-big" onclick="openCheckout('pro')">Buy now — go live today →</button>
+      </div>
+    </div>
+  </div>
+
   <p class="pricing-links fade-in">
     One extra admission recovered per year covers the subscription many times over.<br>
     
@@ -497,11 +519,11 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       <div id="form-error" style="display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#C00;"></div>
 
       <button class="form-submit" id="demo-btn" onclick="bookDemo()">Book my free demo →</button>
+      <button class="form-submit outline" onclick="openCheckout('pro')">⚡ Skip the demo — buy now →</button>
 
       <p class="form-note">No payment now. No signup. We'll call you, come to your institute, and set it up on your number.</p>
       <p class="form-note">This is a free demo, not a free trial — once you're ready to go live, plans start at ₹3,999/month.</p>
       <p class="form-note">Prefer to message? <a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20a%20demo%20of%20NeverMiss%20for%20my%20coaching%20institute" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a></p>
-      <p class="form-note">Already know you want in? <a href="javascript:void(0)" onclick="openCheckout('starter')" style="color:var(--blue);font-weight:600;text-decoration:none;">Skip the demo and buy now →</a></p>
     </div>
   </div>
 </section>
@@ -635,7 +657,13 @@ function showSuccess(name) {
 // gets a Supabase Auth account + invite email + clients row created for them
 // server-side in verify_payment() -- nothing new needed on the backend for
 // that part, this form just reaches it.
-let CHECKOUT_PLAN = "starter";
+//
+// Buy-now only offers ONE plan now (the all-inclusive "pro" tier) rather than
+// a Starter/Growth/Pro choice -- both entry points (the banner and the
+// contact-form button) always call openCheckout('pro'). CHECKOUT_PRICING
+// still carries starter/growth too; harmless to leave in, just unreachable
+// from the UI unless you wire another entry point to them later.
+let CHECKOUT_PLAN = "pro";
 let CHECKOUT_CYCLE = "monthly";
 const CHECKOUT_PRICING = {
   starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
@@ -646,9 +674,9 @@ const CHECKOUT_CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr
 const CHECKOUT_PLAN_TITLE = { starter: "Starter", growth: "Growth", pro: "Pro" };
 
 function openCheckout(planKey){
-  CHECKOUT_PLAN = planKey;
+  CHECKOUT_PLAN = planKey || "pro";
   CHECKOUT_CYCLE = "monthly";
-  document.getElementById("checkout-title").textContent = "Get started with " + CHECKOUT_PLAN_TITLE[planKey];
+  document.getElementById("checkout-title").textContent = "Get everything — one plan, all included";
   document.querySelectorAll(".cycle-chip").forEach(b => b.classList.toggle("active", b.dataset.cycle === "monthly"));
   updateCheckoutPrice();
   const err = document.getElementById("checkout-error");
