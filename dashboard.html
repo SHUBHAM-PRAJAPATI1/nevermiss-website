@@ -102,10 +102,17 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 .notice.info{background:var(--teal-light);border:1.5px solid var(--teal);color:#0B5D57;}
 .notice.warn{background:#FFF7ED;border:1.5px solid #FB923C;color:#7C2D12;}
 .status-select{padding:0.3rem 0.5rem;border:1.5px solid var(--gray2);border-radius:8px;font-size:0.78rem;font-family:'Instrument Sans',sans-serif;background:white;cursor:pointer;}
+.connect-divider{display:flex;align-items:center;gap:0.8rem;margin:1.4rem 0;color:var(--muted);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.06em;}
+.connect-divider::before,.connect-divider::after{content:'';flex:1;height:1px;background:var(--gray2);}
+.btn-fb{background:#1877F2;color:white;border:none;border-radius:100px;padding:0.75rem 1.4rem;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;display:inline-flex;align-items:center;gap:0.55rem;}
+.btn-fb:hover{background:#0F5FCC;}
+.btn-fb:disabled{opacity:0.55;cursor:not-allowed;}
 @media(max-width:900px){.sidebar{width:64px;}.sidebar .txt,.menu-label,.side-foot{display:none;}.topbar,.main{margin-left:64px;}.grid-stats,.grid-2,.plans-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
+
+<div id="fb-root"></div>
 
 <div class="sidebar">
   <a class="logo" href="#" style="display:flex;align-items:center;gap:0.5rem;"><img src="/nevermiss-logo-256.png" alt="" style="width:24px;height:24px;border-radius:6px;object-fit:cover;">Never<span>Miss</span></a>
@@ -461,10 +468,10 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
   </div>
 </div>
 
-<!-- ══════════ CONNECT WHATSAPP (MANUAL CONNECTION) ══════════ -->
+<!-- ══════════ CONNECT WHATSAPP ══════════ -->
 <div class="section" id="sec-connect">
   <h1>Connect WhatsApp</h1>
-  <div class="sec-sub">Link your WhatsApp Business number — our team connects it on our end.</div>
+  <div class="sec-sub">Link your WhatsApp Business number.</div>
   <div class="card">
     <div class="card-title">Your Business</div>
     <div class="muted" style="margin-bottom:0.8rem;">Phone Number ID: <strong id="conn-pnid">—</strong></div>
@@ -476,13 +483,22 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       <span class="muted" style="font-size:0.72rem;">New leads, bookings and demo requests from your customers will be sent to this number.</span>
     </div>
 
+    <div id="conn-embedded">
+      <p class="muted" style="margin-bottom:0.9rem;">🔵 Fastest way: connect straight through Facebook. Fill in your notification number above first, then click below.</p>
+      <button class="btn-fb" id="fb-connect-btn" onclick="launchEmbeddedSignup()">
+        <span>📘</span> Connect via Facebook
+      </button>
+    </div>
+
+    <div class="connect-divider">or connect manually</div>
+
     <div id="conn-manual">
-      <p class="muted" style="margin-bottom:0.9rem;">🛠 Submit your business WhatsApp number below and our team will connect it on our end — usually within a few hours, up to 24. No Facebook login needed from you.</p>
+      <p class="muted" style="margin-bottom:0.9rem;">🛠 Having trouble with Facebook? Submit your business WhatsApp number below and our team will connect it on our end — usually within a few hours, up to 24.</p>
       <div class="form-row">
         <label>WhatsApp Business number you want to connect</label>
         <input id="cw-business" placeholder="e.g. 9876543210">
       </div>
-      <button class="btn" onclick="requestConnection()">Request Connection</button>
+      <button class="btn outline" onclick="requestConnection()">Request Connection</button>
     </div>
 
     <div class="msg" id="conn-msg"></div>
@@ -601,17 +617,126 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
 <script>
 // ── CONFIG ───────────────────────────────────────────────────────────────────
 const SUPABASE_URL      = "https://uwxthbxxiaujlgxosqjx.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_MLPKMAL2JnseHnh-zyxidA_kwsBirfj";
 const API_BASE          = "https://my-saas-bot.onrender.com";
 
+// Embedded Signup config. FB_APP_ID / ES_CONFIG_ID are the same Meta app +
+// WhatsApp Embedded Signup configuration already used elsewhere (Meta App
+// Dashboard > NeverMiss > Use cases > WhatsApp > Embedded Signup). Confirm
+// these still match if Meta's config ever gets recreated.
+const FB_APP_ID   = "1662583918327842";
+const ES_CONFIG_ID = "1027397859743156";
+const GRAPH_VERSION = "v20.0";
+
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { detectSessionInUrl: false }
 });
 let TOKEN = null, EMAIL = null, CLIENT = null, BULK = null;
 let ALUMNI = [];   // cached alumni rows, so the status filter re-renders without refetching
+
+// ── Embedded Signup (real, multi-client) ───────────────────────────────────
+// Captured from Meta's own WA_EMBEDDED_SIGNUP postMessage event, fired by
+// the Facebook login popup while the flow is in progress. This is the
+// reliable way to learn which WABA/number THIS signup just created --
+// asking the Graph API "which WABA can this token see" afterwards is what
+// used to silently resolve to the wrong business under Tech Provider.
+let ES_WABA_ID = null, ES_PHONE_ID = null, ES_READY = false;
+
+window.fbAsyncInit = function () {
+  FB.init({ appId: FB_APP_ID, autoLogAppEvents: true, xfbml: false, version: GRAPH_VERSION });
+  ES_READY = true;
+};
+
+window.addEventListener("message", (event) => {
+  if (!event.origin || !event.origin.endsWith("facebook.com")) return;
+  let data;
+  try { data = JSON.parse(event.data); } catch (e) { return; }
+  if (!data || data.type !== "WA_EMBEDDED_SIGNUP") return;
+
+  if (data.event === "FINISH" || data.event === "FINISH_ONLY_WABA") {
+    ES_WABA_ID  = (data.data && data.data.waba_id) || ES_WABA_ID;
+    ES_PHONE_ID = (data.data && data.data.phone_number_id) || ES_PHONE_ID;
+    console.log("[ES] captured", ES_WABA_ID, ES_PHONE_ID);
+  } else if (data.event === "CANCEL") {
+    console.warn("[ES] cancelled at step", data.data && data.data.current_step);
+  } else if (data.event === "ERROR") {
+    console.error("[ES] error", data.data);
+  }
+});
+
+function launchEmbeddedSignup(){
+  const msg = document.getElementById("conn-msg");
+  const btn = document.getElementById("fb-connect-btn");
+  const own = document.getElementById("cw-owner").value.trim();
+  if (!own || own.length < 10) {
+    msg.className = "msg err";
+    msg.textContent = "Please enter your notification number above first.";
+    return;
+  }
+  if (!ES_READY || typeof FB === "undefined") {
+    msg.className = "msg err";
+    msg.textContent = "Still loading Facebook — please wait a second and try again.";
+    return;
+  }
+  ES_WABA_ID = null; ES_PHONE_ID = null;
+  msg.className = "msg"; msg.textContent = "";
+  btn.disabled = true;
+
+  FB.login(function (response) {
+    btn.disabled = false;
+    if (response.authResponse && response.authResponse.code) {
+      completeEmbeddedSignup(response.authResponse.code);
+    } else {
+      msg.className = "msg err";
+      msg.textContent = "Facebook connection didn't complete. You can try again, or use manual connection below.";
+    }
+  }, {
+    config_id: ES_CONFIG_ID,
+    response_type: "code",
+    override_default_response_type: true,
+    extras: {
+      feature: "whatsapp_embedded_signup",
+      sessionInfoVersion: "3"
+    }
+  });
+}
+
+async function completeEmbeddedSignup(code){
+  const msg = document.getElementById("conn-msg");
+  const own = document.getElementById("cw-owner").value.trim();
+  msg.className = "msg"; msg.textContent = "Connecting your WhatsApp number…";
+  try {
+    const r = await fetch(API_BASE + "/exchange-token", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({
+        access_token: code,
+        owner_whatsapp_number: own,
+        waba_id: ES_WABA_ID,
+        phone_number_id: ES_PHONE_ID
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      msg.className = "msg ok";
+      msg.textContent = "✅ WhatsApp connected! Loading your dashboard…";
+      loadClient();
+    } else if (d.pending) {
+      msg.className = "msg ok";
+      msg.textContent = d.error || "We're finishing your connection — this can take a few minutes. You'll see it go active here once it's done.";
+    } else {
+      msg.className = "msg err";
+      msg.textContent = "❌ " + (d.error || "Could not connect. Please try manual connection below.");
+    }
+  } catch (e) {
+    msg.className = "msg err";
+    msg.textContent = "❌ Connection error. Please try again, or use manual connection below.";
+  }
+}
 
 // True for skill-development / NGO clients (currently Dr. Reddy's Foundation's
 // GROW centre). Training is free there, so the whole money-shaped half of this
@@ -1674,14 +1799,14 @@ async function saveSlotTerms(){
   msg.className = "msg ok"; msg.textContent = "✅ Saved — applies to slots booked from now on.";
 }
 
-// ── CONNECT WHATSAPP (MANUAL CONNECTION ONLY) ─────────────────────────────
-// Automatic Embedded Signup was removed on purpose: it let a client's WABA
-// land under whatever Business Manager THEY already had (or created) during
-// their own Facebook login, which meant Meta billed them directly for
-// message usage instead of NeverMiss. The manual path below never touches
-// the client's Facebook account at all, so their number goes straight into
-// a NeverMiss-owned WABA -- see /admin/manual-connect and the "process" we
-// worked out together for the exact steps on our side.
+// ── CONNECT WHATSAPP ────────────────────────────────────────────────────────
+// Two paths: real Embedded Signup (launchEmbeddedSignup / completeEmbeddedSignup,
+// defined above) as the primary route -- it lands the number directly in
+// NeverMiss's own WABA because we're a Tech Provider and Meta's postMessage
+// event tells us exactly which WABA/number this signup just created, so
+// there's no client-side Facebook login into THEIR business happening.
+// Manual connection (requestConnection, below) stays as the fallback for
+// when Facebook's popup misbehaves or a client is stuck.
 function loadConnect(){
   if (!CLIENT) return;
   document.getElementById("conn-pnid").textContent = CLIENT.phone_number_id || "—";
@@ -1690,13 +1815,20 @@ function loadConnect(){
   if (st === "active") {
     statusEl.innerHTML = '<span class="pill ok">🟢 Bot Active</span> ' +
       '<a href="javascript:void(0)" onclick="reopenConnect()" style="color:var(--blue);font-weight:600;font-size:0.82rem;margin-left:0.8rem;">🔄 Change / reconnect number</a>';
+    document.getElementById("conn-embedded").style.display = "none";
+    document.getElementById("conn-manual").style.display = "none";
+    document.querySelector(".connect-divider").style.display = "none";
   } else if (st === "awaiting_connection") {
     statusEl.innerHTML = '<span class="pill warn">📩 Request received — we\'re connecting your number (up to 24h).</span> ' +
       '<a href="javascript:void(0)" onclick="reopenConnect()" style="color:var(--blue);font-weight:600;font-size:0.82rem;margin-left:0.8rem;">Change number</a>';
+    document.getElementById("conn-embedded").style.display = "none";
     document.getElementById("conn-manual").style.display = "none";
+    document.querySelector(".connect-divider").style.display = "none";
   } else {
     statusEl.innerHTML = '<div class="muted" style="margin-bottom:0.8rem;">⏳ Setup pending — connect your number below.</div>';
+    document.getElementById("conn-embedded").style.display = "block";
     document.getElementById("conn-manual").style.display = "block";
+    document.querySelector(".connect-divider").style.display = "flex";
   }
   const profileCard = document.getElementById("wa-profile-card");
   if (profileCard) {
@@ -1763,9 +1895,11 @@ async function saveWhatsAppProfile(){
 }
 
 function reopenConnect(){
+  document.getElementById("conn-embedded").style.display = "block";
   document.getElementById("conn-manual").style.display = "block";
+  document.querySelector(".connect-divider").style.display = "flex";
   document.getElementById("conn-msg").className = "msg";
-  document.getElementById("conn-msg").textContent = "Submit your new number below — it replaces the old one automatically.";
+  document.getElementById("conn-msg").textContent = "Connect a new number below — it replaces the old one automatically.";
 }
 
 async function requestConnection(){
@@ -1787,7 +1921,9 @@ async function requestConnection(){
     if (d.success) {
       msg.className = "msg ok";
       msg.textContent = "✅ Request received! We'll connect your number and notify you the moment it's live.";
+      document.getElementById("conn-embedded").style.display = "none";
       document.getElementById("conn-manual").style.display = "none";
+      document.querySelector(".connect-divider").style.display = "none";
       document.getElementById("conn-status").innerHTML = '<span class="pill warn">📩 Request received</span>';
     } else {
       msg.className = "msg err"; msg.textContent = "❌ " + (d.error || "Failed. Try again.");

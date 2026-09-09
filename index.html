@@ -175,6 +175,9 @@ h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px rgba(255,255
 .plan-btn.outline:hover{border-color:var(--blue);color:var(--blue);}
 .plan-btn.solid{background:white;color:var(--blue);}
 .plan-btn.solid:hover{background:var(--blue-light);}
+.buy-now-link{display:block;text-align:center;margin-top:0.7rem;font-size:0.8rem;color:var(--blue);font-weight:600;text-decoration:none;cursor:pointer;background:none;border:none;width:100%;font-family:'Instrument Sans',sans-serif;}
+.buy-now-link:hover{text-decoration:underline;}
+.plan.popular .buy-now-link{color:white;}
 .pricing-links{max-width:1000px;margin:2.5rem auto 0;text-align:center;font-size:0.88rem;color:var(--muted);line-height:2;}
 .pricing-links a{color:var(--blue);font-weight:600;text-decoration:none;}
 .why{background:var(--white);padding:6rem 3rem;}
@@ -216,9 +219,24 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
 .form-group input:focus{border-color:var(--blue);background:white;}
 .form-submit{background:var(--blue);color:white;padding:0.9rem;border:none;border-radius:100px;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all 0.2s;font-family:'Instrument Sans',sans-serif;}
 .form-submit:hover{background:var(--blue-dark);transform:translateY(-1px);}
+.form-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
 .form-note{text-align:center;font-size:0.8rem;color:var(--muted);line-height:1.6;}
 .fade-in{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease;}
 .fade-in.visible{opacity:1;transform:translateY(0);}
+/* ── Checkout modal (buy now) ─────────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(8,12,26,0.6);display:none;align-items:center;justify-content:center;z-index:200;padding:1rem;}
+.modal-overlay.show{display:flex;}
+.checkout-box{background:white;border-radius:24px;padding:2.2rem;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
+.checkout-close{position:absolute;top:1rem;right:1.1rem;background:none;border:none;font-size:1.2rem;color:var(--muted);cursor:pointer;line-height:1;padding:0.2rem;}
+.checkout-close:hover{color:var(--text);}
+#checkout-title{font-family:'Clash Display',sans-serif;font-size:1.25rem;font-weight:600;color:var(--black);margin-bottom:0.9rem;padding-right:1.5rem;}
+.checkout-cycle{display:flex;gap:0.5rem;margin-bottom:0.9rem;flex-wrap:wrap;}
+.cycle-chip{border:1.5px solid var(--gray2);background:white;border-radius:100px;padding:0.4rem 0.9rem;font-size:0.78rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Instrument Sans',sans-serif;}
+.cycle-chip.active{background:var(--blue);border-color:var(--blue);color:white;}
+.checkout-price{font-family:'Clash Display',sans-serif;font-size:2.1rem;font-weight:700;color:var(--black);margin-bottom:1.3rem;}
+.checkout-price span{font-size:0.85rem;font-weight:400;color:var(--muted);}
+.checkout-coupon-toggle{font-size:0.8rem;color:var(--blue);text-decoration:none;font-weight:600;cursor:pointer;margin-top:-0.4rem;margin-bottom:0.3rem;display:inline-block;}
+#checkout-error{display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.7rem 0.9rem;font-size:0.82rem;color:#C00;margin-top:0.3rem;}
 @media(max-width:768px){
   nav{padding:1rem 1.2rem;}.nav-links{display:none;}
   .hero{padding:6rem 1.5rem 3rem;}.hero-inner{grid-template-columns:1fr;gap:3rem;}
@@ -376,6 +394,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Email support</li>
       </ul>
       <button class="plan-btn outline" onclick="selectPlan('Starter')">Get a free demo</button>
+      <button class="buy-now-link" onclick="openCheckout('starter')">Already sure? Buy now →</button>
     </div>
     <div class="plan popular fade-in">
       <div class="plan-badge">Most Popular</div>
@@ -394,6 +413,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Priority support</li>
       </ul>
       <button class="plan-btn solid" onclick="selectPlan('Growth')">Get a free demo</button>
+      <button class="buy-now-link" onclick="openCheckout('growth')">Already sure? Buy now →</button>
     </div>
     <div class="plan fade-in">
       <div class="plan-name">Pro</div>
@@ -406,6 +426,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
         <li>Priority support</li>
       </ul>
       <button class="plan-btn outline" onclick="selectPlan('Pro')">Get a free demo</button>
+      <button class="buy-now-link" onclick="openCheckout('pro')">Already sure? Buy now →</button>
     </div>
   </div>
   <p class="pricing-links fade-in">
@@ -480,6 +501,7 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
       <p class="form-note">No payment now. No signup. We'll call you, come to your institute, and set it up on your number.</p>
       <p class="form-note">This is a free demo, not a free trial — once you're ready to go live, plans start at ₹3,999/month.</p>
       <p class="form-note">Prefer to message? <a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20a%20demo%20of%20NeverMiss%20for%20my%20coaching%20institute" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a></p>
+      <p class="form-note">Already know you want in? <a href="javascript:void(0)" onclick="openCheckout('starter')" style="color:var(--blue);font-weight:600;text-decoration:none;">Skip the demo and buy now →</a></p>
     </div>
   </div>
 </section>
@@ -500,9 +522,49 @@ footer{background:#040710;padding:3rem;border-top:1px solid rgba(255,255,255,0.0
   </div>
 </footer>
 
+<!-- ══════════ CHECKOUT MODAL (buy now — no login needed) ══════════ -->
+<div class="modal-overlay" id="checkout-modal">
+  <div class="checkout-box">
+    <button class="checkout-close" onclick="closeCheckout()">✕</button>
+
+    <div id="checkout-form-view">
+      <h3 id="checkout-title">Get started with NeverMiss</h3>
+
+      <div class="checkout-cycle">
+        <button class="cycle-chip active" data-cycle="monthly" onclick="setCheckoutCycle('monthly')">Monthly</button>
+        <button class="cycle-chip" data-cycle="half_yearly" onclick="setCheckoutCycle('half_yearly')">6 months</button>
+        <button class="cycle-chip" data-cycle="yearly" onclick="setCheckoutCycle('yearly')">12 months</button>
+      </div>
+      <div class="checkout-price" id="checkout-price">₹3,999<span>/mo</span></div>
+
+      <div class="form-group"><label>Your Name *</label><input id="co-name" type="text" placeholder="e.g. Rajesh Kumar" autocomplete="name"></div>
+      <div class="form-group"><label>Institute Name *</label><input id="co-business" type="text" placeholder="e.g. Sharma Classes" autocomplete="organization"></div>
+      <div class="form-group"><label>WhatsApp Number *</label><input id="co-phone" type="tel" placeholder="e.g. 9876543210" autocomplete="tel"></div>
+      <div class="form-group"><label>Email *</label><input id="co-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+
+      <a href="javascript:void(0)" class="checkout-coupon-toggle" id="co-coupon-toggle" onclick="toggleCouponField()">Have a coupon code?</a>
+      <div class="form-group" id="co-coupon-row" style="display:none;">
+        <label>Coupon code</label>
+        <input id="co-coupon" type="text" placeholder="e.g. FOUNDING2026" style="text-transform:uppercase;">
+      </div>
+
+      <div id="checkout-error"></div>
+
+      <button class="form-submit" id="checkout-pay-btn" onclick="startCheckoutPayment()" style="margin-top:0.9rem;">Pay &amp; activate →</button>
+
+      <p class="form-note" style="margin-top:0.9rem;">You'll get an email right after payment with a link to set your dashboard password. From there, connect WhatsApp and you're live.</p>
+    </div>
+
+    <div id="checkout-success-view" style="display:none;"></div>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 const API_BASE = "https://my-saas-bot.onrender.com";
 let interestedPlan = "";
+
+function esc(s){ return (s == null ? "" : String(s)).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
 function selectPlan(plan) {
   interestedPlan = plan;
@@ -562,6 +624,181 @@ function showSuccess(name) {
       </p>
       <p style="color:var(--muted);font-size:0.85rem;margin-top:1.2rem;">
         In a hurry? <a href="https://wa.me/917484849508" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us directly →</a>
+      </p>
+    </div>`;
+}
+
+// ── CHECKOUT (buy now — public, no dashboard login needed) ───────────────────
+// Hits the same /api/create-order + /api/verify-payment routes the dashboard
+// uses for renewals. Neither route checks a session token (only /referral-code
+// does), so a first-time, not-logged-in buyer completing payment here already
+// gets a Supabase Auth account + invite email + clients row created for them
+// server-side in verify_payment() -- nothing new needed on the backend for
+// that part, this form just reaches it.
+let CHECKOUT_PLAN = "starter";
+let CHECKOUT_CYCLE = "monthly";
+const CHECKOUT_PRICING = {
+  starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
+  growth:  { monthly: 5999, half_yearly: 32999, yearly: 59990 },
+  pro:     { monthly: 8999, half_yearly: 48999, yearly: 89990 },
+};
+const CHECKOUT_CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
+const CHECKOUT_PLAN_TITLE = { starter: "Starter", growth: "Growth", pro: "Pro" };
+
+function openCheckout(planKey){
+  CHECKOUT_PLAN = planKey;
+  CHECKOUT_CYCLE = "monthly";
+  document.getElementById("checkout-title").textContent = "Get started with " + CHECKOUT_PLAN_TITLE[planKey];
+  document.querySelectorAll(".cycle-chip").forEach(b => b.classList.toggle("active", b.dataset.cycle === "monthly"));
+  updateCheckoutPrice();
+  const err = document.getElementById("checkout-error");
+  err.style.display = "none"; err.textContent = "";
+  document.getElementById("checkout-form-view").style.display = "block";
+  document.getElementById("checkout-success-view").style.display = "none";
+  const btn = document.getElementById("checkout-pay-btn");
+  btn.disabled = false; btn.textContent = "Pay & activate →";
+  document.getElementById("checkout-modal").classList.add("show");
+}
+
+function closeCheckout(){
+  document.getElementById("checkout-modal").classList.remove("show");
+}
+
+function setCheckoutCycle(cycle){
+  CHECKOUT_CYCLE = cycle;
+  document.querySelectorAll(".cycle-chip").forEach(b => b.classList.toggle("active", b.dataset.cycle === cycle));
+  updateCheckoutPrice();
+}
+
+function updateCheckoutPrice(){
+  const price = CHECKOUT_PRICING[CHECKOUT_PLAN][CHECKOUT_CYCLE];
+  document.getElementById("checkout-price").innerHTML = "₹" + price.toLocaleString("en-IN") + "<span>" + CHECKOUT_CYCLE_LABEL[CHECKOUT_CYCLE] + "</span>";
+}
+
+function toggleCouponField(){
+  const row = document.getElementById("co-coupon-row");
+  row.style.display = row.style.display === "none" ? "block" : "none";
+}
+
+function showCheckoutError(msg){
+  const el = document.getElementById("checkout-error");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+async function startCheckoutPayment(){
+  const name     = document.getElementById("co-name").value.trim();
+  const business = document.getElementById("co-business").value.trim();
+  const phoneRaw = document.getElementById("co-phone").value.trim();
+  const email    = document.getElementById("co-email").value.trim();
+  const coupon   = document.getElementById("co-coupon").value.trim();
+  const digits   = phoneRaw.replace(/\D/g, "");
+
+  const err = document.getElementById("checkout-error");
+  err.style.display = "none"; err.textContent = "";
+
+  if (!name)      return showCheckoutError("Please enter your name.");
+  if (!business)  return showCheckoutError("Please enter your institute's name.");
+  if (digits.length < 10) return showCheckoutError("Please enter a valid 10-digit WhatsApp number.");
+  if (!email || email.indexOf("@") === -1) return showCheckoutError("Please enter a valid email — that's where your login link goes.");
+
+  const btn = document.getElementById("checkout-pay-btn");
+  btn.disabled = true;
+  btn.textContent = "Preparing checkout…";
+
+  let order;
+  try {
+    const orderRes = await fetch(`${API_BASE}/api/create-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        plan: CHECKOUT_PLAN,
+        billing_cycle: CHECKOUT_CYCLE,
+        phone: digits,
+        coupon_code: coupon,
+        name, business, email
+      })
+    });
+    order = await orderRes.json();
+  } catch (e) {
+    showCheckoutError("Connection error. Please try again, or WhatsApp us.");
+    btn.disabled = false; btn.textContent = "Pay & activate →";
+    return;
+  }
+
+  if (order.coupon_error) {
+    showCheckoutError("Coupon: " + order.coupon_error);
+    btn.disabled = false; btn.textContent = "Pay & activate →";
+    return;
+  }
+  if (!order.id) {
+    showCheckoutError("Could not start checkout. Please try again or WhatsApp us.");
+    btn.disabled = false; btn.textContent = "Pay & activate →";
+    return;
+  }
+
+  btn.textContent = "Pay & activate →";
+  btn.disabled = false;
+
+  const options = {
+    key: order.key_id,
+    amount: order.amount,
+    currency: "INR",
+    name: "NeverMiss",
+    description: CHECKOUT_PLAN_TITLE[CHECKOUT_PLAN] + " subscription",
+    order_id: order.id,
+    prefill: { name, contact: digits, email },
+    theme: { color: "#1B4FFF" },
+    handler: async function (response){
+      btn.disabled = true;
+      btn.textContent = "Confirming payment…";
+      try {
+        const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            customer: { name, business, phone: digits, email }
+          })
+        });
+        const result = await verifyRes.json();
+        if (result.success) {
+          showCheckoutSuccess(name, email);
+        } else {
+          showCheckoutError("Payment received but confirming it failed. Please WhatsApp us with payment ID: " + response.razorpay_payment_id);
+          btn.disabled = false;
+        }
+      } catch (e) {
+        showCheckoutError("Payment received but confirming it failed. Please WhatsApp us with payment ID: " + response.razorpay_payment_id);
+        btn.disabled = false;
+      }
+    },
+    modal: { ondismiss: function(){ btn.disabled = false; btn.textContent = "Pay & activate →"; } }
+  };
+  const rzp = new Razorpay(options);
+  rzp.on("payment.failed", function(resp){
+    showCheckoutError("Payment failed: " + ((resp.error && resp.error.description) || "please try again."));
+    btn.disabled = false; btn.textContent = "Pay & activate →";
+  });
+  rzp.open();
+}
+
+function showCheckoutSuccess(name, email){
+  document.getElementById("checkout-form-view").style.display = "none";
+  const sv = document.getElementById("checkout-success-view");
+  sv.style.display = "block";
+  sv.innerHTML = `
+    <div style="text-align:center;padding:0.5rem 0 1rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🎉</div>
+      <h3 style="font-family:'Clash Display',sans-serif;font-size:1.35rem;color:var(--black);margin-bottom:0.7rem;">You're in, ${esc(name)}!</h3>
+      <p style="color:var(--muted);font-size:0.92rem;line-height:1.7;">
+        Check <strong>${esc(email)}</strong> for an email from us with a link to set your dashboard password.
+        Set it, log in, and connect your WhatsApp number to go live.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;margin-top:1.1rem;">
+        Don't see it in a few minutes? Check spam, or <a href="https://wa.me/917484849508" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a>.
       </p>
     </div>`;
 }
