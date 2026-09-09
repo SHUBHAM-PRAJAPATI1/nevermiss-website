@@ -488,6 +488,7 @@ td{padding:0.65rem 0.7rem;border-bottom:1px solid var(--gray);vertical-align:top
       <button class="btn-fb" id="fb-connect-btn" onclick="launchEmbeddedSignup()">
         <span>📘</span> Connect via Facebook
       </button>
+      <div class="msg" id="fb-connect-msg"></div>
     </div>
 
     <div class="connect-divider">or connect manually</div>
@@ -669,7 +670,7 @@ window.addEventListener("message", (event) => {
 });
 
 function launchEmbeddedSignup(){
-  const msg = document.getElementById("conn-msg");
+  const msg = document.getElementById("fb-connect-msg");
   const btn = document.getElementById("fb-connect-btn");
   const own = document.getElementById("cw-owner").value.trim();
   if (!own || own.length < 10) {
@@ -706,7 +707,7 @@ function launchEmbeddedSignup(){
 }
 
 async function completeEmbeddedSignup(code){
-  const msg = document.getElementById("conn-msg");
+  const msg = document.getElementById("fb-connect-msg");
   const own = document.getElementById("cw-owner").value.trim();
   msg.className = "msg"; msg.textContent = "Connecting your WhatsApp number…";
   try {
@@ -1900,6 +1901,8 @@ function reopenConnect(){
   document.querySelector(".connect-divider").style.display = "flex";
   document.getElementById("conn-msg").className = "msg";
   document.getElementById("conn-msg").textContent = "Connect a new number below — it replaces the old one automatically.";
+  document.getElementById("fb-connect-msg").className = "msg";
+  document.getElementById("fb-connect-msg").textContent = "";
 }
 
 async function requestConnection(){
