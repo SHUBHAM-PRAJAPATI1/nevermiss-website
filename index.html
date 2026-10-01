@@ -103,7 +103,8 @@ h2{font-size:clamp(2rem,3.6vw,2.9rem);}
 nav{position:sticky;top:0;z-index:100;background:rgba(245,248,247,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px;}
 .logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;font-family:var(--display);font-weight:700;font-size:1.3rem;letter-spacing:-0.02em;color:var(--ink);}
-.logo img{width:32px;height:32px;border-radius:9px;}
+.logo img{width:34px;height:34px;display:block;}
+.logo .wm span{color:var(--teal);}
 .nav-links{display:flex;align-items:center;gap:1.8rem;}
 .nav-links a{text-decoration:none;font-size:.97rem;font-weight:500;color:var(--muted);}
 .nav-links a:hover{color:var(--ink);}
@@ -252,7 +253,9 @@ section{padding:5.5rem 0;}
 .founder h2{max-width:14ch;}
 .letter{background:var(--white);border:1px solid var(--line);border-radius:22px;padding:2.2rem 2.2rem 1.8rem;}
 .letter p{margin-bottom:1rem;}
-.letter .sign{font-family:var(--display);font-weight:700;font-size:1.15rem;margin-top:1.4rem;}
+.letter .sign{font-family:var(--display);font-weight:700;font-size:1.15rem;margin-top:1.4rem;display:flex;align-items:center;gap:.9rem;}
+.founder-photo{flex:none;width:56px;height:56px;border-radius:50%;background:var(--mint);color:var(--teal-deep);display:flex;align-items:center;justify-content:center;font-size:1.05rem;font-weight:700;overflow:hidden;}
+.founder-photo img{width:100%;height:100%;object-fit:cover;}
 .letter .sign small{display:block;font-family:var(--body);font-weight:400;font-size:.92rem;color:var(--muted);}
 .promises{list-style:none;margin-top:1.6rem;display:flex;flex-direction:column;gap:1.1rem;}
 .promises li{display:grid;grid-template-columns:28px 1fr;gap:.7rem;}
@@ -290,6 +293,7 @@ section{padding:5.5rem 0;}
 footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap;}
 .foot .logo{color:#fff;font-size:1.15rem;}
+.foot .logo .wm span{color:#5FE3C4;}
 .foot-links{display:flex;gap:1.4rem;flex-wrap:wrap;}
 .foot-links a{color:#9CB9B2;text-decoration:none;font-size:.93rem;}
 .foot-links a:hover{color:#fff;}
@@ -354,7 +358,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
 
 <nav>
   <div class="wrap nav-inner">
-    <a href="#" class="logo"><img src="/nevermiss-logo-256.png" alt="">NeverMiss</a>
+    <a href="#" class="logo"><img src="/nevermiss-logo.svg" alt=""><span class="wm">Never<span>Miss</span></span></a>
     <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" onclick="this.setAttribute('aria-expanded', document.querySelector('.nav-links').classList.toggle('open'))">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
@@ -393,7 +397,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <div class="phone">
         <div class="screen">
           <div class="wa-top">
-            <div class="wa-av"><img src="/nevermiss-logo-256.png" alt=""></div>
+            <div class="wa-av"><img src="/nevermiss-apple-touch-icon.png" alt=""></div>
             <div><div class="wa-name">Sharma Classes</div><div class="wa-sub">online</div></div>
           </div>
           <div class="wa-body">
@@ -607,7 +611,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <p>NeverMiss is built in Pune, for Pune's coaching institutes. We're new, and we're onboarding our first few institutes personally rather than hiding behind a signup form.</p>
       <p>That means we come to you, set it up on your number ourselves, and stay until it's actually working.</p>
       <p>If you'd rather wait until we have a wall of logos, that's fair — but the institutes who start now get our full attention and a founding price.</p>
-      <div class="sign">Shubham<small>Founder, NeverMiss</small></div>
+      <div class="sign"><span class="founder-photo" aria-hidden="true">SP</span><div>Shubham Kumar Prajapati<small>Founder, NeverMiss · Pune</small></div></div>
     </div>
   </div>
 </section>
@@ -638,7 +642,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
 
 <footer>
   <div class="wrap foot">
-    <a href="#" class="logo"><img src="/nevermiss-logo-256.png" alt="">NeverMiss</a>
+    <a href="#" class="logo"><img src="/nevermiss-logo.svg" alt=""><span class="wm">Never<span>Miss</span></span></a>
     <div class="foot-links">
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
@@ -1015,4 +1019,4 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 });
 </script>
 </body>
-</html>
+</html>
