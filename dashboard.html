@@ -722,7 +722,11 @@ async function completeEmbeddedSignup(code){
       })
     });
     const d = await r.json();
-    if (d.success) {
+    if (d.success && d.warning) {
+      msg.className = "msg err";
+      msg.textContent = "⚠️ " + d.warning;
+      loadClient();
+    } else if (d.success) {
       msg.className = "msg ok";
       msg.textContent = "✅ WhatsApp connected! Loading your dashboard…";
       loadClient();
