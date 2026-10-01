@@ -239,6 +239,8 @@ section{padding:5.5rem 0;}
 .buy-now p{color:#D4F0E8;max-width:58ch;}
 .buy-now-cta{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;}
 .buy-now-price{font-family:var(--display);font-weight:700;font-size:2.4rem;letter-spacing:-0.03em;}
+.founding-left{margin-top:.7rem;font-weight:600;color:#fff !important;}
+.founding-left:empty{display:none;}
 .buy-now-price span{font-family:var(--body);font-size:.95rem;font-weight:500;color:#D4F0E8;letter-spacing:0;}
 .btn-white{background:#fff;color:var(--teal-deep);}
 .btn-white:hover{background:var(--mint);}
@@ -301,6 +303,8 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
 .checkout-close:hover{color:var(--ink);}
 #checkout-form-view{display:flex;flex-direction:column;gap:.9rem;}
 #checkout-title{font-family:var(--display);font-size:1.45rem;padding-right:2.4rem;}
+.checkout-sub{color:var(--muted);font-size:.95rem;margin:-.2rem 0 1rem;}
+.checkout-sub:empty{display:none;}
 .checkout-cycle{display:flex;gap:.4rem;flex-wrap:wrap;background:var(--paper);padding:.3rem;border-radius:12px;width:fit-content;}
 .cycle-chip{border:none;background:transparent;border-radius:9px;padding:.5rem .9rem;font-family:var(--body);font-weight:600;font-size:.92rem;color:var(--muted);cursor:pointer;}
 .cycle-chip.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(11,38,34,.15);}
@@ -358,7 +362,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <a href="#features">Features</a>
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
-      <a href="bulk-messaging.html">Bulk messaging <span class="soon">(soon)</span></a>
+      <a href="bulk-messaging.html">Bulk messaging</a>
       <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">Support</a>
       <a href="login.html">Log in</a>
       <a href="#contact" class="btn btn-teal">Book a free demo</a>
@@ -373,10 +377,10 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <h1>Never miss an admission enquiry again.</h1>
       <p class="lede">NeverMiss replies to every WhatsApp enquiry within a second, captures the student's details, and handles registration and seat booking — at 10 PM, on Sundays, whenever a parent messages.</p>
       <div class="hero-btns">
-        <a href="#contact" class="btn btn-teal">Get a free demo on your number</a>
-        <a href="#how" class="btn btn-line">See how it works</a>
+        <button type="button" class="btn btn-teal" onclick="openCheckout('trial')">Start your 7-day free trial</button>
+        <a href="#contact" class="btn btn-line">Book a free demo</a>
       </div>
-      <p class="hero-note">The demo is free. No free trial after — plans start the day you go live.</p>
+      <p class="hero-note">Free for 7 days, no card needed. Everything in Growth, plus 10 reminders and 10 announcements to try.</p>
       <dl class="hero-facts">
         <div><dt>24/7</dt><dd>Always answering</dd></div>
         <div><dt>&lt;1s</dt><dd>Reply time</dd></div>
@@ -457,7 +461,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
         <ul>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg><div><b>Instant alerts to you</b><span>Every new lead pings your own WhatsApp the moment it arrives.</span></div></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1015.5-6.2M21 3v6h-6"/></svg><div><b>Automated reminders</b><span>Nudges students who went quiet, before the 24-hour window closes.</span></div></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 001 1h3l5 4V6L7 10H4a1 1 0 00-1 1zM16 9a4 4 0 010 6"/></svg><div><b>Bulk broadcasts</b><span>Admission drives and fee reminders to opted-in students. <span class="soon">Coming soon</span></span></div></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 001 1h3l5 4V6L7 10H4a1 1 0 00-1 1zM16 9a4 4 0 010 6"/></svg><div><b>Bulk broadcasts</b><span>Admission drives and fee reminders to opted-in students, sent from your dashboard.</span></div></li>
         </ul>
       </div>
     </div>
@@ -537,7 +541,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
           <li>Guided registration flow</li>
           <li>Callback requests</li>
           <li>1,000 conversations / month</li>
-          <li>Bulk messaging <span class="soon">(coming soon)</span></li>
+          <li>300 utility + 20 marketing broadcasts / month</li>
           <li>Email support</li>
         </ul>
         <button class="plan-btn" onclick="selectPlan('Starter')">Get a free demo</button>
@@ -554,7 +558,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
           <li>Demo class bookings</li>
           <li>Custom quick replies</li>
           <li>Automated re-engagement reminders</li>
-          <li>Bulk messaging <span class="soon">(coming soon)</span></li>
+          <li>750 utility + 50 marketing broadcasts / month</li>
           <li>Priority support</li>
         </ul>
         <button class="plan-btn" onclick="selectPlan('Growth')">Get a free demo</button>
@@ -565,22 +569,23 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
         <p class="plan-desc">For large institutes with high enquiry volume</p>
         <ul class="plan-features">
           <li>Everything in Growth</li>
-          <li>Unlimited conversations</li>
-          <li>Bulk messaging <span class="soon">(coming soon)</span></li>
+          <li>5,000 conversations / month</li>
+          <li>1,500 utility + 100 marketing broadcasts / month</li>
           <li>Priority support</li>
         </ul>
         <button class="plan-btn" onclick="selectPlan('Pro')">Get a free demo</button>
       </div>
     </div>
 
-    <div class="buy-now">
+    <div class="buy-now" id="founding-offer">
       <div>
-        <h3>Already sure? Skip the demo.</h3>
-        <p>One plan, everything unlocked — registration, seat booking, demo bookings, quick replies, reminders, brochure &amp; photos, unlimited conversations, priority support.</p>
+        <h3>Founding offer for our first 20 institutes.</h3>
+        <p>Everything in Growth (registration, seat and demo booking, reminders, quick replies, brochure and photos, 2,000 conversations and 800 broadcasts a month) at ₹1,999. Your price stays the same for 12 months.</p>
+        <p class="founding-left" id="founding-left"></p>
       </div>
       <div class="buy-now-cta">
-        <div class="buy-now-price">₹8,999<span> / month</span></div>
-        <button class="btn btn-white" onclick="openCheckout('pro')">Buy now and go live today</button>
+        <div class="buy-now-price">₹1,999<span> / month</span></div>
+        <button class="btn btn-white" id="founding-btn" onclick="openCheckout('founding')">Claim a founding spot</button>
       </div>
     </div>
 
@@ -625,9 +630,8 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <div class="form-group"><label for="f-phone">WhatsApp number</label><input id="f-phone" type="tel" placeholder="e.g. 9876543210" autocomplete="tel"></div>
       <div id="form-error"></div>
       <button class="form-submit" id="demo-btn" onclick="bookDemo()">Book my free demo</button>
-      <button class="form-submit outline" onclick="openCheckout('pro')">Skip the demo and buy now</button>
-      <p class="form-note">No payment now. No signup. We'll call you, come to your institute, and set it up on your number.</p>
-      <p class="form-note">This is a free demo, not a free trial — once you're ready to go live, plans start at ₹3,999/month.</p>
+      <button class="form-submit outline" onclick="openCheckout('trial')">Or start a 7-day free trial yourself</button>
+      <p class="form-note">No payment now. We'll call you, come to your institute, and set it up on your number.</p>
     </div>
   </div>
 </section>
@@ -638,7 +642,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
     <div class="foot-links">
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
-      <a href="bulk-messaging.html">Bulk messaging (soon)</a>
+      <a href="bulk-messaging.html">Bulk messaging</a>
       <a href="custom.html">Other sectors</a>
       <a href="#contact">Contact</a>
       <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">WhatsApp support</a>
@@ -657,7 +661,8 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
     <div id="checkout-form-view">
       <h3 id="checkout-title">Get started with NeverMiss</h3>
 
-      <div class="checkout-cycle">
+      <p class="checkout-sub" id="checkout-sub"></p>
+      <div class="checkout-cycle" id="checkout-cycle">
         <button class="cycle-chip active" data-cycle="monthly" onclick="setCheckoutCycle('monthly')">Monthly</button>
         <button class="cycle-chip" data-cycle="half_yearly" onclick="setCheckoutCycle('half_yearly')">6 months</button>
         <button class="cycle-chip" data-cycle="yearly" onclick="setCheckoutCycle('yearly')">12 months</button>
@@ -679,7 +684,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
 
       <button class="form-submit" id="checkout-pay-btn" onclick="startCheckoutPayment()">Pay &amp; activate →</button>
 
-      <p class="form-note">You'll get an email right after payment with a link to set your dashboard password. From there, connect WhatsApp and you're live.</p>
+      <p class="form-note" id="checkout-note">You'll get an email right after payment with a link to set your dashboard password. From there, connect WhatsApp and you're live.</p>
     </div>
 
     <div id="checkout-success-view" style="display:none;"></div>
@@ -771,25 +776,58 @@ function showSuccess(name) {
 let CHECKOUT_PLAN = "pro";
 let CHECKOUT_CYCLE = "monthly";
 const CHECKOUT_PRICING = {
+  founding:{ monthly: 1999 },
   starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
   growth:  { monthly: 5999, half_yearly: 32999, yearly: 59990 },
   pro:     { monthly: 8999, half_yearly: 48999, yearly: 89990 },
 };
 const CHECKOUT_CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
-const CHECKOUT_PLAN_TITLE = { starter: "Starter", growth: "Growth", pro: "Pro" };
+const CHECKOUT_PLAN_TITLE = { starter: "Starter", growth: "Growth", pro: "Pro", founding: "Founding" };
+const CHECKOUT_HEADINGS = {
+  trial:    ["Start your 7-day free trial", "No card needed. You get everything in Growth, plus 10 reminders and 10 announcements to try. We'll email you a login link."],
+  founding: ["Claim a founding spot", "₹1,999 a month for everything in Growth, locked for 12 months."],
+  pro:      ["Get everything — one plan, all included", ""],
+};
+
+function payBtnLabel(){ return CHECKOUT_PLAN === "trial" ? "Start free trial" : "Pay & activate →"; }
+
+// Founding spots left, shown on the offer banner. Hides the offer when full.
+fetch(`${API_BASE}/api/founding-slots`).then(r => r.json()).then(d => {
+  const el = document.getElementById("founding-left");
+  if (typeof d.left !== "number") return;
+  if (d.left <= 0) {
+    el.textContent = "All 20 founding spots are taken.";
+    const b = document.getElementById("founding-btn");
+    b.textContent = "Start a free trial instead"; b.setAttribute("onclick", "openCheckout('trial')");
+  } else {
+    el.textContent = d.left + " of " + d.total + " spots left.";
+  }
+}).catch(() => {});
 
 function openCheckout(planKey){
   CHECKOUT_PLAN = planKey || "pro";
   CHECKOUT_CYCLE = "monthly";
-  document.getElementById("checkout-title").textContent = "Get everything — one plan, all included";
+  const head = CHECKOUT_HEADINGS[CHECKOUT_PLAN] || CHECKOUT_HEADINGS.pro;
+  document.getElementById("checkout-title").textContent = head[0];
+  document.getElementById("checkout-sub").textContent = head[1];
+  const isTrial = CHECKOUT_PLAN === "trial";
+  const monthlyOnly = isTrial || CHECKOUT_PLAN === "founding";
+  document.getElementById("checkout-cycle").style.display = monthlyOnly ? "none" : "";
+  document.getElementById("checkout-price").style.display = isTrial ? "none" : "";
+  document.getElementById("co-coupon-toggle").style.display = monthlyOnly ? "none" : "";
+  document.getElementById("co-coupon-row").style.display = "none";
+  document.getElementById("co-coupon").value = "";
+  document.getElementById("checkout-note").textContent = isTrial
+    ? "One trial per institute. When it ends, pick a plan to keep your bot replying."
+    : "You'll get an email right after payment with a link to set your dashboard password. From there, connect WhatsApp and you're live.";
   document.querySelectorAll(".cycle-chip").forEach(b => b.classList.toggle("active", b.dataset.cycle === "monthly"));
-  updateCheckoutPrice();
+  if (!isTrial) updateCheckoutPrice();
   const err = document.getElementById("checkout-error");
   err.style.display = "none"; err.textContent = "";
   document.getElementById("checkout-form-view").style.display = "block";
   document.getElementById("checkout-success-view").style.display = "none";
   const btn = document.getElementById("checkout-pay-btn");
-  btn.disabled = false; btn.textContent = "Pay & activate →";
+  btn.disabled = false; btn.textContent = payBtnLabel();
   document.getElementById("checkout-modal").classList.add("show");
 }
 
@@ -837,6 +875,24 @@ async function startCheckoutPayment(){
 
   const btn = document.getElementById("checkout-pay-btn");
   btn.disabled = true;
+
+  if (CHECKOUT_PLAN === "trial") {
+    btn.textContent = "Starting your trial…";
+    try {
+      const r = await fetch(`${API_BASE}/api/start-trial`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, business, phone: digits, email })
+      });
+      const d = await r.json();
+      if (d.success) { showCheckoutSuccess(name, email, true); return; }
+      showCheckoutError(d.error || "Couldn't start the trial. Please try again or WhatsApp us.");
+    } catch (e) {
+      showCheckoutError("Connection error. Please try again, or WhatsApp us.");
+    }
+    btn.disabled = false; btn.textContent = payBtnLabel();
+    return;
+  }
   btn.textContent = "Preparing checkout…";
 
   let order;
@@ -865,7 +921,7 @@ async function startCheckoutPayment(){
     return;
   }
   if (!order.id) {
-    showCheckoutError("Could not start checkout. Please try again or WhatsApp us.");
+    showCheckoutError(order.error || "Could not start checkout. Please try again or WhatsApp us.");
     btn.disabled = false; btn.textContent = "Pay & activate →";
     return;
   }
@@ -918,7 +974,7 @@ async function startCheckoutPayment(){
   rzp.open();
 }
 
-function showCheckoutSuccess(name, email){
+function showCheckoutSuccess(name, email, isTrial){
   document.getElementById("checkout-form-view").style.display = "none";
   const sv = document.getElementById("checkout-success-view");
   sv.style.display = "block";
@@ -928,7 +984,7 @@ function showCheckoutSuccess(name, email){
       <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:1.35rem;color:var(--black);margin-bottom:0.7rem;">You're in, ${esc(name)}!</h3>
       <p style="color:var(--muted);font-size:0.92rem;line-height:1.7;">
         Check <strong>${esc(email)}</strong> for an email from us with a link to set your dashboard password.
-        Set it, log in, and connect your WhatsApp number to go live.
+        Set it, log in, and connect your WhatsApp number to go live.${isTrial ? " Your 7 days start now." : ""}
       </p>
       <p style="color:var(--muted);font-size:0.85rem;margin-top:1.1rem;">
         Don't see it in a few minutes? Check spam, or <a href="https://wa.me/917484849508" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a>.
@@ -959,4 +1015,4 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 });
 </script>
 </body>
-</html>
+</html>

@@ -157,6 +157,15 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
 .optin{display:flex;align-items:flex-start;gap:.65rem;font-size:.93rem;background:var(--mint-2);border:1px solid var(--mint);border-radius:12px;padding:.8rem 1rem;margin-bottom:1rem;cursor:pointer;}
 .optin input{margin-top:.25rem;width:16px;height:16px;accent-color:var(--teal);flex:none;}
 .file-box{border:1.5px dashed #BFD3CE;background:#FBFCFC;border-radius:14px;padding:1.2rem;text-align:center;font-size:.93rem;color:var(--muted);margin-bottom:1rem;}
+.bc-preview{background:#E7F3EF;border-radius:12px;padding:.9rem 1rem;margin-bottom:1rem;}
+.bc-preview .bubble{background:#fff;border-radius:10px 10px 10px 3px;padding:.7rem .85rem;max-width:460px;white-space:pre-wrap;font-size:.95rem;box-shadow:0 1px 0 rgba(11,38,34,.08);}
+.bc-preview .bubble mark{background:var(--marigold-soft);color:#6E4508;border-radius:4px;padding:0 .2rem;}
+.bc-summary{font-size:.93rem;margin:.2rem 0 1rem;color:var(--muted);}
+.bc-summary strong{color:var(--ink);}
+.bc-grid{display:grid;grid-template-columns:1.2fr 1.4fr .8fr;gap:0 1rem;}
+@media (max-width:760px){.bc-grid{grid-template-columns:1fr;}}
+.st-pill{display:inline-block;border-radius:100px;padding:.1rem .55rem;font-size:.78rem;font-weight:600;background:var(--mint);color:var(--teal-deep);}
+.st-pill.sending{background:var(--marigold-soft);color:#8A560E;}
 .notice{border-radius:12px;padding:.9rem 1.1rem;font-size:.95rem;margin-bottom:1rem;}
 .notice.info{background:var(--mint-2);border:1px solid #B9E3D7;color:var(--teal-deep);}
 .notice.warn{background:var(--marigold-soft);border:1px solid #F1CF92;color:#6E4508;}
@@ -292,7 +301,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     <div class="bar"><div class="fill" id="util-bar" style="width:0%"></div></div>
     <div class="meter-label"><span>📣 Marketing messages (announcements, promos)</span><span id="mkt-text">0 / 0</span></div>
     <div class="bar"><div class="fill mkt" id="mkt-bar" style="width:0%"></div></div>
-    <div class="muted">Extra message capacity is coming soon. <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> if you need more in the meantime.</div>
+    <div class="muted">Need more this month? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
   </div>
   <div class="card">
     <div class="card-title">Upload contacts (CSV)</div>
@@ -305,11 +314,46 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     <div class="msg" id="upload-msg"></div>
   </div>
   <div class="card" id="broadcast-card">
-    <div class="card-title">Send a broadcast <span class="pill warn" style="font-size:0.68rem;">Coming soon</span></div>
-    <div class="notice info">
-      Sending broadcasts straight from this dashboard isn't live yet — your contacts and CSV upload above are ready and waiting for it.
-      Need to send fee reminders or an admission announcement in the meantime? <a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20send%20a%20broadcast%20to%20my%20contacts" target="_blank" style="color:var(--blue);font-weight:600;">WhatsApp us</a> and we'll send it for you.
+    <div class="card-title">Send a broadcast <button class="btn sm outline" onclick="loadBroadcast(true)">Refresh templates</button></div>
+    <div class="muted" style="margin-bottom:1rem;">WhatsApp only allows messages to contacts outside a chat through templates it has approved. Pick one, fill in the blanks and send it to your opted-in contacts.</div>
+    <div id="bc-blocked" class="notice warn" style="display:none;"></div>
+    <div id="bc-form">
+      <div class="form-row">
+        <label for="bc-template">Template</label>
+        <select id="bc-template" onchange="bcRenderTemplate()"><option value="">Loading templates…</option></select>
+        <div class="muted" id="bc-template-note" style="font-size:.86rem;"></div>
+      </div>
+      <div id="bc-preview" class="bc-preview" style="display:none;"></div>
+      <div id="bc-params"></div>
+      <div class="bc-summary" id="bc-summary"></div>
+      <button class="btn" id="bc-send-btn" onclick="sendBroadcast()" disabled>Send broadcast</button>
+      <div class="msg" id="bc-msg"></div>
     </div>
+  </div>
+
+  <div class="card" id="tpl-card">
+    <div class="card-title">Create a template</div>
+    <div class="muted" style="margin-bottom:1rem;">WhatsApp reviews every new template, usually within a few minutes to a few hours. Use <strong>{{1}}</strong>, <strong>{{2}}</strong> for parts that change, like a name or date.</div>
+    <div class="bc-grid">
+      <div class="form-row"><label for="tpl-name">Template name</label><input id="tpl-name" placeholder="e.g. fee_reminder_oct" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'_')"></div>
+      <div class="form-row"><label for="tpl-category">Type</label>
+        <select id="tpl-category">
+          <option value="UTILITY">Utility: fee reminders, class updates, confirmations</option>
+          <option value="MARKETING">Marketing: admissions open, offers, new batches</option>
+        </select></div>
+      <div class="form-row"><label for="tpl-lang">Language</label>
+        <select id="tpl-lang"><option value="en">English</option><option value="hi">Hindi</option><option value="mr">Marathi</option></select></div>
+    </div>
+    <div class="form-row"><label for="tpl-body">Message</label>
+      <textarea id="tpl-body" maxlength="1024" oninput="tplRenderExamples()" placeholder="Hi {{1}}, this is a reminder that the fee for {{2}} is due on {{3}}. Reply here if you have any questions."></textarea></div>
+    <div id="tpl-examples"></div>
+    <button class="btn" onclick="createTemplate()">Submit for approval</button>
+    <div class="msg" id="tpl-msg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recent broadcasts <button class="btn sm outline" onclick="loadCampaigns()">Refresh</button></div>
+    <div id="bc-history" class="muted">No broadcasts yet.</div>
   </div>
 
   <div class="card">
@@ -652,7 +696,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
       <div class="bar"><div class="fill" id="b-util-bar" style="width:0%"></div></div>
       <div class="meter-label"><span>📣 Marketing bulk messages (included)</span><span id="b-mkt-text">0 / 0</span></div>
       <div class="bar"><div class="fill mkt" id="b-mkt-bar" style="width:0%"></div></div>
-      <div class="muted">Extra message capacity is coming soon. <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> if you need more in the meantime.</div>
+      <div class="muted">Need more this month? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
     </div>
   </div>
 
@@ -710,6 +754,11 @@ const API_BASE          = "https://my-saas-bot.onrender.com";
 // these still match if Meta's config ever gets recreated.
 const FB_APP_ID   = "1662583918327842";
 const ES_CONFIG_ID = "1027397859743156";
+// NeverMiss-Gupshup multi-partner solution. Passing it makes Meta share
+// Gupshup's credit line with the client's WABA, so the institute never has
+// to add a card. Must be "Active" in App Dashboard -> WhatsApp -> Partner
+// Solutions; set to "" to fall back to plain Tech Provider onboarding.
+const ES_SOLUTION_ID = "1046296291536994";
 const GRAPH_VERSION = "v20.0";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -778,10 +827,10 @@ function launchEmbeddedSignup(){
     config_id: ES_CONFIG_ID,
     response_type: "code",
     override_default_response_type: true,
-    extras: {
+    extras: Object.assign({
       feature: "whatsapp_embedded_signup",
       sessionInfoVersion: "3"
-    }
+    }, ES_SOLUTION_ID ? { setup: { solutionID: ES_SOLUTION_ID } } : {})
   });
 }
 
@@ -843,10 +892,27 @@ const PLAN_FEATURES = {
   starter: ["registration"],
   growth:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   pro:     ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
+  founding:["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
+  trial:   ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   custom:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"]
 };
 
-const PLAN_LABEL = { starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom" };
+const PLAN_LABEL = { starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom", founding:"Founding", trial:"Free trial" };
+
+// One line describing the current plan, used on Overview and Plan & Billing.
+function planLineHTML(){
+  const key = planKey();
+  const exp = CLIENT && CLIENT.plan_expires_at;
+  if (key === "trial") {
+    const days = exp ? Math.ceil((new Date(exp) - new Date()) / 86400000) : null;
+    if (days !== null && days <= 0) return "<strong>Free trial ended</strong> · choose a plan below to keep your bot replying.";
+    return "<strong>Free trial</strong>" + (days !== null ? " · " + days + (days === 1 ? " day" : " days") + " left (ends " + esc(fmtDate(exp)) + ")" : "") +
+      ". Includes everything in Growth, plus 10 utility and 10 marketing broadcasts.";
+  }
+  let line = "<strong>" + esc(PLAN_LABEL[key] || "Starter") + "</strong> plan" + (exp ? " · paid through " + esc(fmtDate(exp)) : "");
+  if (key === "founding" && CLIENT.founding_until) line += " · ₹1,999 locked until " + esc(fmtDate(CLIENT.founding_until));
+  return line;
+}
 
 function planHasFeature(feature){
   return (PLAN_FEATURES[planKey()] || []).indexOf(feature) !== -1;
@@ -1101,9 +1167,7 @@ async function loadOverview(){
   });
 
   const bulk = await fetchBulk();
-  const expTxt = CLIENT.plan_expires_at ? " · paid through " + fmtDate(CLIENT.plan_expires_at) : "";
-  document.getElementById("billing-line").innerHTML =
-    "<strong>" + esc(PLAN_LABEL[planKey()] || "Starter") + "</strong> plan" + esc(expTxt);
+  document.getElementById("billing-line").innerHTML = planLineHTML();
   if (bulk) {
     document.getElementById("ov-bulk-meters").innerHTML =
       '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.5rem;">📢 Bulk allowance this month</div>' +
@@ -1498,7 +1562,7 @@ async function loadBulk(){
   const names = {
     starter: "Starter (included allowance)", growth: "Growth (included allowance)", pro: "Pro (included allowance)",
     message_basic: "Message Basic", message_growth: "Message Growth", message_pro: "Message Pro",
-    plus_only: "Bulk Plus"
+    plus_only: "Bulk Plus", founding: "Founding (included allowance)", trial: "Free trial allowance"
   };
   document.getElementById("bulk-plan").textContent = "📦 " + (names[bulk.plan] || bulk.plan);
   document.getElementById("bulk-status").textContent = bulk.status === "active" ? "🟢 Active" : (bulk.status || "—");
@@ -1513,6 +1577,7 @@ async function loadBulk(){
   document.getElementById("util-bar").style.width = (uq ? Math.min(100, (uu / uq) * 100) : 0) + "%";
   document.getElementById("mkt-bar").style.width = (mq ? Math.min(100, (mu / mq) * 100) : 0) + "%";
   loadContacts();
+  bcSummary();
 }
 
 async function uploadBulkCSV(){
@@ -1568,17 +1633,200 @@ async function loadContacts(){
   }
 }
 
+// ── BROADCASTS ────────────────────────────────────────────────────────────────
 let BC_TEMPLATES = [];
-let BC_CONTEXT = { business_name: "", contact_phone: "" };
-let BC_JOB = null;
+let BC_CONTACT_COUNT = 0;
 let BC_POLL = null;
 
-// Broadcast sending isn't built yet -- see the "Coming soon" notice on the
-// card. This stub replaces five functions that used to call endpoints
-// (/api/broadcast/*) which don't exist on the backend. Keeping it as a
-// deliberate no-op rather than deleting every call site, so nothing else
-// in this file has to know the feature is unbuilt.
-async function loadBroadcast(){ /* no-op -- see broadcast-card notice */ }
+function bcSelected(){
+  const v = document.getElementById("bc-template").value;
+  return BC_TEMPLATES.find(t => t.name + "|" + t.language === v) || null;
+}
+
+async function loadBroadcast(force){
+  const sel = document.getElementById("bc-template");
+  const blocked = document.getElementById("bc-blocked");
+  const note = document.getElementById("bc-template-note");
+  if (!sel) return;
+  try {
+    const r = await fetch(API_BASE + "/api/bulk/templates", { headers: await authHeaders() });
+    const d = await r.json();
+    if (!d.success) {
+      blocked.style.display = ""; blocked.textContent = d.error || "Broadcasts aren't available yet.";
+      document.getElementById("bc-form").style.display = "none";
+      document.getElementById("tpl-card").style.display = "none";
+      loadCampaigns();
+      return;
+    }
+    blocked.style.display = "none";
+    document.getElementById("bc-form").style.display = "";
+    document.getElementById("tpl-card").style.display = d.can_create ? "" : "none";
+    const all = d.templates || [];
+    BC_TEMPLATES = all.filter(t => t.status === "APPROVED" && t.supported);
+    const pending = all.filter(t => t.status === "PENDING" || t.status === "IN_APPEAL").length;
+    const rejected = all.filter(t => t.status === "REJECTED").map(t => t.name);
+    sel.innerHTML = BC_TEMPLATES.length
+      ? '<option value="">Choose a template…</option>' + BC_TEMPLATES.map(t =>
+          '<option value="' + esc(t.name + "|" + t.language) + '">' + esc(t.name) + " · " + esc(t.language) + " · " +
+          (t.category === "MARKETING" ? "Marketing" : "Utility") + '</option>').join("")
+      : '<option value="">No approved templates yet — create one below</option>';
+    const bits = [];
+    if (pending) bits.push(pending + (pending === 1 ? " template is" : " templates are") + " waiting for WhatsApp's approval.");
+    if (rejected.length) bits.push("Rejected: " + rejected.join(", ") + ". Edit the wording and submit again under a new name.");
+    note.textContent = bits.join(" ");
+  } catch (e) {
+    console.error(e);
+    sel.innerHTML = '<option value="">Couldn\'t load templates</option>';
+  }
+  try {
+    const r2 = await fetch(API_BASE + "/api/bulk/contacts", { headers: await authHeaders() });
+    const d2 = await r2.json();
+    BC_CONTACT_COUNT = (d2.contacts || []).filter(c => c.opted_in !== false).length;
+  } catch (e) { BC_CONTACT_COUNT = 0; }
+  await fetchBulk();
+  bcRenderTemplate();
+  loadCampaigns();
+}
+
+function bcRenderTemplate(){
+  const t = bcSelected();
+  const prev = document.getElementById("bc-preview");
+  const params = document.getElementById("bc-params");
+  const btn = document.getElementById("bc-send-btn");
+  if (!t) { prev.style.display = "none"; params.innerHTML = ""; btn.disabled = true; bcSummary(); return; }
+  const old = Array.from(params.querySelectorAll("input")).map(i => i.value);
+  params.innerHTML = Array.from({ length: t.params }, (_, i) =>
+    '<div class="form-row"><label for="bc-p' + (i + 1) + '">Blank {{' + (i + 1) + '}}</label>' +
+    '<input id="bc-p' + (i + 1) + '" value="' + esc(old[i] || (i === 0 ? "{name}" : "")) + '" oninput="bcPreview()" placeholder="Text for {{' + (i + 1) + '}}"></div>'
+  ).join("") + (t.params ? '<div class="muted" style="font-size:.86rem;margin:-.4rem 0 1rem;">Type <strong>{name}</strong> to use each contact\'s first name.</div>' : "");
+  prev.style.display = "";
+  btn.disabled = false;
+  bcPreview();
+}
+
+function bcPreview(){
+  const t = bcSelected();
+  if (!t) return;
+  let body = esc(t.body || "");
+  for (let i = 1; i <= t.params; i++) {
+    const el = document.getElementById("bc-p" + i);
+    const v = el && el.value.trim() ? el.value.replace("{name}", "Riya") : "{{" + i + "}}";
+    body = body.split("{{" + i + "}}").join("<mark>" + esc(v) + "</mark>");
+  }
+  document.getElementById("bc-preview").innerHTML =
+    '<div class="muted" style="font-size:.82rem;margin-bottom:.45rem;">Preview (for a contact named Riya)</div><div class="bubble">' + body + "</div>";
+  bcSummary();
+}
+
+function bcSummary(){
+  const el = document.getElementById("bc-summary");
+  const t = bcSelected();
+  if (!t) { el.innerHTML = BC_CONTACT_COUNT ? "<strong>" + BC_CONTACT_COUNT + "</strong> opted-in contacts ready." : "Upload contacts above to get started."; return; }
+  const mkt = t.category === "MARKETING";
+  const left = BULK ? (mkt ? (BULK.marketing_quota || 0) - (BULK.marketing_used || 0) : (BULK.utility_quota || 0) - (BULK.utility_used || 0)) : 0;
+  const enough = BC_CONTACT_COUNT > 0 && BC_CONTACT_COUNT <= left;
+  el.innerHTML = "Sends to <strong>" + BC_CONTACT_COUNT + "</strong> opted-in contacts · uses <strong>" + BC_CONTACT_COUNT + " " +
+    (mkt ? "marketing" : "utility") + "</strong> messages · <strong>" + Math.max(0, left) + "</strong> left this month" +
+    (BC_CONTACT_COUNT && !enough ? ' · <span style="color:#B42318;font-weight:600;">not enough left</span>' : "");
+  document.getElementById("bc-send-btn").disabled = !enough;
+}
+
+async function sendBroadcast(){
+  const t = bcSelected();
+  const msg = document.getElementById("bc-msg");
+  const btn = document.getElementById("bc-send-btn");
+  if (!t) return;
+  const params = Array.from({ length: t.params }, (_, i) => (document.getElementById("bc-p" + (i + 1)).value || "").trim());
+  if (params.some(p => !p)) { msg.className = "msg err"; msg.textContent = "Fill in every blank first."; return; }
+  if (!confirm("Send \"" + t.name + "\" to " + BC_CONTACT_COUNT + " contacts now?")) return;
+  btn.disabled = true; msg.className = "msg"; msg.textContent = "Starting broadcast…";
+  try {
+    const r = await fetch(API_BASE + "/api/bulk/send", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({ template_name: t.name, language: t.language, params })
+    });
+    const d = await r.json();
+    if (!d.success) { msg.className = "msg err"; msg.textContent = d.error || "Couldn't send."; btn.disabled = false; return; }
+    msg.className = "msg ok";
+    msg.textContent = "Sending to " + d.total + " contacts. Progress shows under Recent broadcasts.";
+    await refreshBulk();
+    bcSummary();
+    loadCampaigns();
+    clearInterval(BC_POLL);
+    let ticks = 0;
+    BC_POLL = setInterval(async () => {
+      ticks++;
+      const still = await loadCampaigns();
+      if (!still || ticks > 40) { clearInterval(BC_POLL); refreshBulk(); }
+    }, 5000);
+  } catch (e) {
+    console.error(e);
+    msg.className = "msg err"; msg.textContent = "Connection error. Check Recent broadcasts before trying again.";
+    btn.disabled = false;
+  }
+}
+
+// Returns true while any campaign is still sending (used for polling).
+async function loadCampaigns(){
+  const box = document.getElementById("bc-history");
+  if (!box) return false;
+  try {
+    const r = await fetch(API_BASE + "/api/bulk/campaigns", { headers: await authHeaders() });
+    const d = await r.json();
+    const rows = d.campaigns || [];
+    if (!rows.length) { box.innerHTML = '<div class="muted">No broadcasts yet.</div>'; return false; }
+    box.innerHTML = "<div style='overflow-x:auto;'><table><tr><th>Sent on</th><th>Template</th><th>Contacts</th><th>Sent</th><th>Delivered</th><th>Read</th><th>Failed</th><th>Status</th></tr>" +
+      rows.map(c => "<tr><td class='muted'>" + fmtDate(c.created_at) + "</td><td><strong>" + esc(c.template_name) + "</strong><div class='muted' style='font-size:.8rem;'>" +
+        (c.category === "MARKETING" ? "Marketing" : "Utility") + "</div></td><td>" + (c.total || 0) + "</td><td>" + (c.sent_count || 0) +
+        "</td><td>" + (c.delivered_count || 0) + "</td><td>" + (c.read_count || 0) + "</td><td>" + (c.failed_count || 0) +
+        "</td><td><span class='st-pill" + (c.status === "sending" ? " sending" : "") + "'>" + (c.status === "sending" ? "Sending" : "Done") + "</span></td></tr>").join("") +
+      "</table></div>";
+    return rows.some(c => c.status === "sending");
+  } catch (e) {
+    box.innerHTML = '<div class="muted">Couldn\'t load broadcasts.</div>';
+    return false;
+  }
+}
+
+function tplRenderExamples(){
+  const body = document.getElementById("tpl-body").value;
+  const nums = (body.match(/\{\{\s*(\d+)\s*\}\}/g) || []).map(m => parseInt(m.replace(/\D/g, ""), 10));
+  const n = nums.length ? Math.max.apply(null, nums) : 0;
+  const box = document.getElementById("tpl-examples");
+  const old = Array.from(box.querySelectorAll("input")).map(i => i.value);
+  box.innerHTML = n ? '<div class="muted" style="font-size:.86rem;margin-bottom:.5rem;">WhatsApp needs a sample for each blank to review the template.</div>' +
+    '<div class="bc-grid">' + Array.from({ length: n }, (_, i) =>
+      '<div class="form-row"><label for="tpl-ex' + (i + 1) + '">Sample for {{' + (i + 1) + '}}</label><input id="tpl-ex' + (i + 1) + '" value="' + esc(old[i] || "") + '"></div>').join("") + "</div>" : "";
+}
+
+async function createTemplate(){
+  const msg = document.getElementById("tpl-msg");
+  const name = document.getElementById("tpl-name").value.trim();
+  const body = document.getElementById("tpl-body").value.trim();
+  const examples = Array.from(document.querySelectorAll("#tpl-examples input")).map(i => i.value.trim());
+  if (!name || !body) { msg.className = "msg err"; msg.textContent = "Add a name and a message."; return; }
+  if (examples.some(x => !x)) { msg.className = "msg err"; msg.textContent = "Add a sample for every blank."; return; }
+  msg.className = "msg"; msg.textContent = "Submitting to WhatsApp…";
+  try {
+    const r = await fetch(API_BASE + "/api/bulk/templates", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({ name, category: document.getElementById("tpl-category").value,
+        language: document.getElementById("tpl-lang").value, body, examples })
+    });
+    const d = await r.json();
+    if (!d.success) { msg.className = "msg err"; msg.textContent = d.error || "WhatsApp didn't accept the template."; return; }
+    msg.className = "msg ok";
+    msg.textContent = "Submitted. Status: " + String(d.status || "pending").toLowerCase() +
+      (d.category && d.category !== document.getElementById("tpl-category").value ? " (WhatsApp classed it as " + d.category.toLowerCase() + ")" : "") +
+      ". It appears in the template list once approved.";
+    document.getElementById("tpl-name").value = ""; document.getElementById("tpl-body").value = ""; tplRenderExamples();
+    loadBroadcast(true);
+  } catch (e) {
+    msg.className = "msg err"; msg.textContent = "Connection error. Try again.";
+  }
+}
 
 async function loadQuick(){
   if (!CLIENT) { document.getElementById("quick-list").innerHTML = '<div class="muted">Available once your bot is connected.</div>'; return; }
@@ -2023,6 +2271,7 @@ async function requestConnection(){
 // Display prices only. The authoritative amount for any payment is computed
 // server-side in /api/create-order from the plan + cycle; nothing here is trusted.
 const PLAN_PRICING_RS = {
+  founding:{ monthly: 1999 },
   starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
   growth:  { monthly: 5999, half_yearly: 32999, yearly: 59990 },
   pro:     { monthly: 8999, half_yearly: 48999, yearly: 89990 },
@@ -2035,13 +2284,28 @@ const BULK_PLAN_PRICING_RS = {
 const PLAN_FEATURE_LIST = {
   starter:         ["AI FAQ bot + lead capture", "Guided registration flow", "1,000 conversations/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
   growth:          ["Everything in Starter", "2,000 conversations/mo", "Seat booking, demo classes, reminders", "Custom quick replies, brochure & photos", "750 utility + 50 marketing bulk msgs"],
-  pro:             ["Everything in Growth", "Unlimited conversations", "1,500 utility + 100 marketing bulk msgs", "Priority support"],
+  pro:             ["Everything in Growth", "5,000 conversations/mo", "1,500 utility + 100 marketing bulk msgs", "Priority support"],
+  founding:        ["Everything in Growth", "2,000 conversations/mo", "750 utility + 50 marketing bulk msgs", "Price locked for 12 months", "First 20 institutes only"],
   message_basic:   ["Bulk messaging only", "1,500 utility / 80 marketing", "Template setup help"],
   message_growth:  ["Bulk messaging only", "3,500 utility / 200 marketing", "Template setup help"],
   message_pro:     ["Bulk messaging only", "7,000 utility / 400 marketing", "Template setup help"],
 };
 const CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
 let currentBillingCycle = "monthly";
+let FOUNDING_LEFT = null;   // fetched once from /api/founding-slots
+
+async function fetchFoundingSlots(){
+  if (FOUNDING_LEFT !== null) return FOUNDING_LEFT;
+  try {
+    const r = await fetch(API_BASE + "/api/founding-slots");
+    const d = await r.json();
+    FOUNDING_LEFT = typeof d.left === "number" ? d.left : 0;
+  } catch (e) { FOUNDING_LEFT = 0; }
+  return FOUNDING_LEFT;
+}
+function isFoundingLocked(){
+  return !!(CLIENT && CLIENT.founding_rate && CLIENT.founding_until && new Date(CLIENT.founding_until) > new Date());
+}
 
 function setBillingCycle(cycle){
   currentBillingCycle = cycle;
@@ -2054,6 +2318,8 @@ function renderPlansGrid(){
   if (!el) return;
   const currentPlan = CLIENT ? planKey() : null;
   const mainPlans = ["starter","growth","pro"];
+  if (isFoundingLocked() || (FOUNDING_LEFT || 0) > 0) mainPlans.unshift("founding");
+  if (FOUNDING_LEFT === null) fetchFoundingSlots().then(() => { if (FOUNDING_LEFT > 0) renderPlansGrid(); });
   const bulkPlans = ["message_basic","message_growth","message_pro"];
 
   if (currentPlan === "custom") {
@@ -2068,12 +2334,14 @@ function renderPlansGrid(){
 
   function cardHtml(key, label, isBulk){
     const pricing = isBulk ? BULK_PLAN_PRICING_RS[key] : PLAN_PRICING_RS[key];
-    const cycle = isBulk ? "monthly" : currentBillingCycle;
+    const cycle = (isBulk || key === "founding") ? "monthly" : currentBillingCycle;
     const price = pricing[cycle] || pricing.monthly;
     const feats = (PLAN_FEATURE_LIST[key] || []).map(f => "<li>" + esc(f) + "</li>").join("");
     const isCurrent = !isBulk && currentPlan === key;
-    const hot = key === "growth" ? ' hot' : '';
-    const tag = key === "growth" ? '<span class="tag">MOST POPULAR</span>' : '';
+    const hot = (key === "founding" || (key === "growth" && mainPlans.indexOf("founding") === -1)) ? ' hot' : '';
+    const tag = key === "founding"
+      ? '<span class="tag">' + (isFoundingLocked() ? "YOUR LOCKED RATE" : (FOUNDING_LEFT + " OF 20 LEFT")) + '</span>'
+      : (hot ? '<span class="tag">MOST POPULAR</span>' : '');
     const btn = isCurrent
       ? '<button class="btn sm" disabled style="width:100%;margin-top:0.8rem;opacity:0.6;">✓ Current plan</button>'
       : '<button class="btn sm" style="width:100%;margin-top:0.8rem;" onclick="choosePlan(\'' + key + '\')">' +
@@ -2084,7 +2352,7 @@ function renderPlansGrid(){
       '<ul>' + feats + '</ul>' + btn + '</div>';
   }
 
-  let html = mainPlans.map(k => cardHtml(k, k.charAt(0).toUpperCase() + k.slice(1), false)).join("");
+  let html = mainPlans.map(k => cardHtml(k, PLAN_LABEL[k] || (k.charAt(0).toUpperCase() + k.slice(1)), false)).join("");
   html += bulkPlans.map(k => cardHtml(k, k === "message_basic" ? "Message Basic" : k === "message_growth" ? "Message Growth" : "Message Pro", true)).join("");
   el.innerHTML = html;
   document.querySelectorAll(".cycle-btn").forEach(b => b.classList.toggle("active", b.dataset.cycle === currentBillingCycle));
@@ -2116,7 +2384,7 @@ async function choosePlan(plan){
     contactPhone = (CLIENT && CLIENT.contact_phone) || "";
   }
 
-  const billingCycle = isBulk ? "monthly" : currentBillingCycle;
+  const billingCycle = (isBulk || plan === "founding") ? "monthly" : currentBillingCycle;
   const couponCode = (document.getElementById("coupon-code").value || "").trim();
 
   msg.textContent = "Preparing checkout…";
@@ -2132,8 +2400,14 @@ async function choosePlan(plan){
     });
     const order = await orderRes.json();
     if (order.coupon_error) { msg.className = "msg err"; msg.textContent = "Coupon: " + order.coupon_error; return; }
-    if (!order.id) { msg.className = "msg err"; msg.textContent = "Could not start checkout. Please try again."; return; }
+    if (!order.id) {
+      msg.className = "msg err";
+      msg.textContent = order.error || "Could not start checkout. Please try again.";
+      if (order.founding_full) { FOUNDING_LEFT = 0; renderPlansGrid(); }
+      return;
+    }
     msg.textContent = "";
+    if (order.coupon_note) { msg.className = "msg"; msg.textContent = order.coupon_note; }
 
     const options = {
       key: order.key_id,
@@ -2192,9 +2466,7 @@ function paintBillingMeters(){
 
 async function loadBilling(){
   if (CLIENT) {
-    const exp = CLIENT.plan_expires_at ? fmtDate(CLIENT.plan_expires_at) : "—";
-    document.getElementById("bill-current").innerHTML =
-      "<strong>" + esc(PLAN_LABEL[planKey()] || "Starter") + "</strong> plan · paid through " + esc(exp);
+    document.getElementById("bill-current").innerHTML = planLineHTML();
     // Founding-rate institutes are already below list price, so referral
     // discounts don't stack on their own renewal.
     show("ref-founding-note", !!CLIENT.founding_rate);
@@ -2226,4 +2498,4 @@ function shareReferral(){
 init();
 </script>
 </body>
-</html>
+</html>
