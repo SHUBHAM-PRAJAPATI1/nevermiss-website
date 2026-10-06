@@ -353,6 +353,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
   .hero-facts{gap:1.6rem;}
 }
 </style>
+<script src="nm-track.js" data-endpoint="https://my-saas-bot.onrender.com/api/track" data-product="nevermiss" defer></script>
 </head>
 <body>
 
@@ -731,6 +732,7 @@ async function bookDemo() {
   btn.textContent = "Sending…";
 
   const payload = { name, institute, phone: digits, interested_plan: interestedPlan, source: "website" };
+  if (window.nmTrack) nmTrack.identify({ name, phone: digits, business: institute, form: "demo" });
 
   try {
     const res = await fetch(`${API_BASE}/api/demo-request`, {
@@ -879,6 +881,7 @@ async function startCheckoutPayment(){
 
   const btn = document.getElementById("checkout-pay-btn");
   btn.disabled = true;
+  if (window.nmTrack) nmTrack.identify({ name, phone: digits, email, business, form: CHECKOUT_PLAN === "trial" ? "trial" : "checkout-" + CHECKOUT_PLAN });
 
   if (CHECKOUT_PLAN === "trial") {
     btn.textContent = "Starting your trial…";

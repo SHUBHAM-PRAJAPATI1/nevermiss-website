@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>HQ — NeverMiss + Docket</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f4f6f5; --card:#fff; --text:#14201d; --muted:#64716d; --line:#e2e8e6;
+  --teal:#0F766E; --teal-soft:#e3f2f0; --docket:#b45309; --docket-soft:#fdf0e1;
+  --good:#15803d; --warn:#b45309; --bad:#b91c1c; --chip:#eef2f1; --r:14px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0d1413; --card:#151f1d; --text:#e6eeec; --muted:#8fa09b; --line:#25332f;
+  --teal:#2dd4bf; --teal-soft:#123a35; --docket:#f59e0b; --docket-soft:#3a2a10;
+  --good:#4ade80; --warn:#fbbf24; --bad:#f87171; --chip:#1d2a27;
+}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.45}
+.mono{font-family:'DM Mono',monospace}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--teal)}
+.wrap{max-width:1180px;margin:0 auto;padding:16px}
+
+/* login */
+#login{max-width:380px;margin:10vh auto;padding:16px}
+#login .card{padding:22px}
+#login h1{font-size:20px;margin-bottom:4px}
+#login p{color:var(--muted);font-size:13px;margin-bottom:16px}
+label.f{display:block;font-size:12px;font-weight:500;color:var(--muted);margin:12px 0 5px}
+input.i,select.i{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);outline:none}
+input.i:focus{border-color:var(--teal)}
+.btn{background:var(--teal);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:500;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.err{color:var(--bad);font-size:13px;margin-top:10px;min-height:18px}
+
+/* header */
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;max-width:1180px;margin:0 auto}
+.logo{width:28px;height:28px;border-radius:9px;background:var(--teal);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+.title{font-weight:700;font-size:16px}
+.sub{color:var(--muted);font-size:12px}
+.spacer{flex:1}
+.seg{display:flex;background:var(--chip);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;padding:0 16px 10px;max-width:1180px;margin:0 auto;scrollbar-width:none}
+nav.tabs button{border:0;background:transparent;padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;color:var(--muted);font-weight:500}
+nav.tabs button.on{background:var(--text);color:var(--bg)}
+
+/* cards & grid */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.kpi{padding:14px}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi .v{font-size:26px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:2px}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.sec{padding:16px;margin-bottom:14px}
+.sec h2{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec h2 .c{color:var(--muted);font-weight:400;font-size:13px}
+.empty{color:var(--muted);padding:18px 4px;text-align:center;font-size:13px}
+
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted);white-space:nowrap}
+.badge.nm{background:var(--teal-soft);color:var(--teal)}
+.badge.dk{background:var(--docket-soft);color:var(--docket)}
+.badge.good{color:var(--good)} .badge.warn{color:var(--warn)} .badge.bad{color:var(--bad)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+
+/* lists */
+.row{display:flex;gap:10px;align-items:flex-start;padding:10px 4px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row.click{cursor:pointer;border-radius:10px}
+.row.click:hover{background:var(--chip)}
+.av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--chip);color:var(--muted)}
+.grow{flex:1;min-width:0}
+.nm1{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.when{font-size:12px;color:var(--muted);white-space:nowrap}
+.acts{display:flex;gap:6px;margin-top:6px}
+.act{font-size:12px;padding:4px 10px;border-radius:8px;border:1px solid var(--line);text-decoration:none;color:var(--text);background:var(--card)}
+.act.wa{border-color:#25D366;color:#128C7E}
+@media (prefers-color-scheme:dark){.act.wa{color:#4ade80}}
+
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar .t{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;gap:8px}
+.bar .t span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .track{height:6px;background:var(--chip);border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;background:var(--teal);border-radius:6px}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--chip)}
+.tw{overflow-x:auto;margin:0 -4px}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.filters input{flex:1;min-width:180px}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px}
+
+/* drawer */
+#drawer{position:fixed;inset:0;z-index:20;display:none}
+#drawer.open{display:block}
+#drawer .bk{position:absolute;inset:0;background:rgba(0,0,0,.4)}
+#drawer .pn{position:absolute;right:0;top:0;bottom:0;width:min(460px,100%);background:var(--card);overflow-y:auto;padding:18px;border-left:1px solid var(--line)}
+.tl{border-left:2px solid var(--line);margin:8px 0 0 6px;padding-left:14px}
+.tl .e{position:relative;padding:6px 0;font-size:13px}
+.tl .e:before{content:"";position:absolute;left:-20px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--line)}
+.tl .e.hot:before{background:var(--teal)}
+.warnbox{font-size:12px;color:var(--warn);background:var(--docket-soft);border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.hide{display:none!important}
+.status{font-size:12px;color:var(--muted)}
+.spin{display:inline-block;width:10px;height:10px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:s .8s linear infinite;vertical-align:-1px}
+@keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="card">
+    <h1>HQ</h1>
+    <p>NeverMiss + Docket — visitors, people and activity in one place.</p>
+    <label class="f">NeverMiss admin secret</label>
+    <input class="i" id="k-nm" type="password" autocomplete="off"/>
+    <label class="f">Docket admin secret <span style="font-weight:400">(leave blank if same)</span></label>
+    <input class="i" id="k-dk" type="password" autocomplete="off"/>
+    <label class="f">Docket backend URL</label>
+    <input class="i" id="u-dk" placeholder="https://repair-tracker.onrender.com"/>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)">
+      <input type="checkbox" id="remember"/> Remember on this device
+    </label>
+    <div style="margin-top:16px"><button class="btn" style="width:100%" onclick="unlock()">Open dashboard</button></div>
+    <div class="err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hide">
+<header>
+  <div class="hrow">
+    <div class="logo">HQ</div>
+    <div><div class="title">Master dashboard</div><div class="sub" id="updated">—</div></div>
+    <div class="spacer"></div>
+    <div class="seg" id="prod-seg">
+      <button data-v="all" class="on">All</button><button data-v="nevermiss">NeverMiss</button><button data-v="docket">Docket</button>
+    </div>
+    <div class="seg" id="days-seg">
+      <button data-v="1">Today</button><button data-v="7">7d</button><button data-v="30" class="on">30d</button><button data-v="90">90d</button>
+    </div>
+    <button class="btn ghost" onclick="load()" title="Refresh">↻</button>
+    <button class="btn ghost" onclick="logout()">Lock</button>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-t="overview" class="on">Overview</button>
+    <button data-t="people">People</button>
+    <button data-t="visitors">Visitors</button>
+    <button data-t="nmclients">NeverMiss clients</button>
+    <button data-t="dkshops">Docket shops</button>
+    <button data-t="helpline">Helpline</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div id="warn"></div>
+
+  <section data-p="overview">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid2">
+      <div>
+        <div class="card sec chart"><h2>Unique visitors per day</h2><div id="chart"></div>
+          <div class="legend"><span><span class="dot" style="background:var(--teal)"></span> NeverMiss</span><span><span class="dot" style="background:var(--docket)"></span> Docket</span></div></div>
+        <div class="card sec"><h2>Latest people <span class="c">who left a contact</span></h2><div id="ov-people"></div></div>
+      </div>
+      <div>
+        <div class="card sec"><h2>Live activity</h2><div id="feed"></div></div>
+        <div class="card sec"><h2>Where visitors come from</h2><div class="bars" id="sources"></div></div>
+        <div class="card sec"><h2>Top pages</h2><div class="bars" id="pages"></div></div>
+        <div class="card sec"><h2>Devices</h2><div class="bars" id="devices"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-p="people" class="hide">
+    <div class="card sec">
+      <h2>People <span class="c" id="people-count"></span></h2>
+      <div class="filters">
+        <input class="i" id="people-q" placeholder="Search name, phone, email, business…"/>
+        <select class="i" id="people-stage" style="width:auto">
+          <option value="">All stages</option><option>Paid</option><option>Trial</option><option>Demo request</option>
+          <option>Custom request</option><option>Helpline</option><option>Filled a form</option><option>Expired</option>
+        </select>
+      </div>
+      <div id="people"></div>
+    </div>
+  </section>
+
+  <section data-p="visitors" class="hide">
+    <div class="card sec">
+      <h2>Visitors <span class="c" id="vis-count"></span></h2>
+      <div class="filters">
+        <input class="i" id="vis-q" placeholder="Filter by page, source, name…"/>
+        <select class="i" id="vis-only" style="width:auto">
+          <option value="">Everyone</option><option value="known">With contact</option><option value="wa">Clicked WhatsApp</option><option value="return">Returning (2+ visits)</option>
+        </select>
+      </div>
+      <div class="tw"><table><thead><tr><th>Visitor</th><th>Source</th><th class="num">Visits</th><th class="num">Pages</th><th class="num">Time</th><th>Last seen</th></tr></thead><tbody id="vis"></tbody></table></div>
+    </div>
+  </section>
+
+  <section data-p="nmclients" class="hide">
+    <div class="card sec"><h2>NeverMiss clients <span class="c" id="nm-count"></span></h2>
+      <div class="tw"><table><thead><tr><th>Institute</th><th>Contact</th><th>Plan</th><th>Status</th><th>Expires</th><th class="num">Student msgs</th><th class="num">Students</th><th class="num">Leads</th><th>Last activity</th></tr></thead><tbody id="nm"></tbody></table></div>
+    </div>
+    <div class="grid2">
+      <div class="card sec"><h2>Demo requests</h2><div id="demos"></div></div>
+      <div class="card sec"><h2>Custom requests</h2><div id="customs"></div></div>
+    </div>
+  </section>
+
+  <section data-p="dkshops" class="hide">
+    <div class="card sec"><h2>Docket shops <span class="c" id="dk-count"></span></h2>
+      <div class="tw"><table><thead><tr><th>Shop</th><th>Contact</th><th>Plan</th><th>Type</th><th>Expires</th><th class="num">Jobs</th><th class="num">Bills</th><th class="num">Sales</th><th>Last activity</th></tr></thead><tbody id="dk"></tbody></table></div>
+    </div>
+    <div class="card sec"><h2>Docket payments <span class="c" id="dkpay-count"></span></h2><div id="dkpay"></div></div>
+  </section>
+
+  <section data-p="helpline" class="hide">
+    <div class="card sec"><h2>People messaging the NeverMiss number <span class="c" id="hl-count"></span></h2><div id="helpline"></div></div>
+  </section>
+</div>
+</div>
+
+<div id="drawer"><div class="bk" onclick="closeDrawer()"></div><div class="pn" id="drawer-pn"></div></div>
+
+<script>
+const NM_API = "https://my-saas-bot.onrender.com";
+const DEFAULT_DK = "https://repair-tracker.onrender.com";
+const store = (() => { try { return localStorage; } catch (e) { return null; } })();
+const sstore = (() => { try { return sessionStorage; } catch (e) { return null; } })();
+const sget = k => { try { return (sstore && sstore.getItem(k)) || (store && store.getItem(k)) || ""; } catch (e) { return ""; } };
+
+let CFG = { nm: "", dk: "", dkUrl: "" };
+let RAW = { nm: null, dk: null };
+let STATE = { prod: "all", days: 30, tab: "overview" };
+let MODEL = null;
+let timer = null;
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const digits = p => String(p || "").replace(/\D/g, "");
+const key10 = p => { const d = digits(p); return d.length >= 10 ? d.slice(-10) : ""; };
+const waNum = p => { const d = digits(p); return d.length === 10 ? "91" + d : d; };
+const ts = s => s ? new Date(s).getTime() : 0;
+function ago(s) {
+  if (!s) return "—";
+  const d = (Date.now() - ts(s)) / 1000;
+  if (d < 60) return "just now";
+  if (d < 3600) return Math.floor(d / 60) + "m ago";
+  if (d < 86400) return Math.floor(d / 3600) + "h ago";
+  if (d < 86400 * 7) return Math.floor(d / 86400) + "d ago";
+  return new Date(s).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
+const fmtDate = s => s ? new Date(s).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" }) : "—";
+const fmtDur = sec => !sec ? "—" : sec < 60 ? sec + "s" : sec < 3600 ? Math.round(sec / 60) + "m" : (sec / 3600).toFixed(1) + "h";
+const initials = n => (String(n || "?").trim().split(/\s+/).map(x => x[0]).slice(0, 2).join("") || "?").toUpperCase();
+const pBadge = p => p === "docket" ? '<span class="badge dk">Docket</span>' : '<span class="badge nm">NeverMiss</span>';
+const inProd = p => STATE.prod === "all" || STATE.prod === p;
+function host(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } }
+function sourceOf(v) {
+  if (v.utm_source) return v.utm_source.toLowerCase();
+  const h = host(v.referrer);
+  if (!h) return "direct";
+  if (/google\./.test(h)) return "google";
+  if (/instagram|l\.instagram/.test(h)) return "instagram";
+  if (/facebook|fb\.|m\.facebook|lm\.facebook/.test(h)) return "facebook";
+  if (/youtube|youtu\.be/.test(h)) return "youtube";
+  if (/linkedin|lnkd/.test(h)) return "linkedin";
+  if (/whatsapp|wa\.me/.test(h)) return "whatsapp";
+  if (/bing\./.test(h)) return "bing";
+  if (/t\.co|twitter|x\.com/.test(h)) return "x / twitter";
+  return h;
+}
+function contactActs(phone, email) {
+  let h = "";
+  if (digits(phone).length >= 10) {
+    h += `<a class="act wa" target="_blank" rel="noopener" href="https://wa.me/${waNum(phone)}">WhatsApp</a>`;
+    h += `<a class="act" href="tel:+${waNum(phone)}">Call</a>`;
+  }
+  if (email) h += `<a class="act" href="mailto:${esc(email)}">Email</a>`;
+  return h ? `<div class="acts">${h}</div>` : "";
+}
+
+/* ---------- auth ---------- */
+function unlock() {
+  const nm = $("k-nm").value.trim(), dk = $("k-dk").value.trim() || nm;
+  const url = ($("u-dk").value.trim() || DEFAULT_DK).replace(/\/+$/, "");
+  if (!nm) { $("login-err").textContent = "Enter the NeverMiss admin secret."; return; }
+  CFG = { nm, dk, dkUrl: url };
+  const target = $("remember").checked ? store : sstore;
+  try { target.setItem("hq_cfg", JSON.stringify(CFG)); } catch (e) {}
+  start();
+}
+function logout() {
+  try { store && store.removeItem("hq_cfg"); sstore && sstore.removeItem("hq_cfg"); } catch (e) {}
+  location.reload();
+}
+function start() {
+  $("login").classList.add("hide");
+  $("app").classList.remove("hide");
+  load();
+  clearInterval(timer);
+  timer = setInterval(() => { if (document.visibilityState === "visible") load(true); }, 60000);
+}
+
+/* ---------- data ---------- */
+async function fetchJson(url, headers) {
+  const r = await fetch(url, { headers });
+  let body = null;
+  try { body = await r.json(); } catch (e) {}
+  if (r.status === 401) throw new Error("wrong secret");
+  if (!r.ok || !body || body.success === false) throw new Error((body && body.error) || ("HTTP " + r.status));
+  return body;
+}
+async function load(silent) {
+  if (!silent) $("updated").innerHTML = '<span class="spin"></span> loading… (Render may take ~30s to wake up)';
+  const q = "?days=" + Math.max(STATE.days, 7);
+  const [nm, dk] = await Promise.allSettled([
+    fetchJson(NM_API + "/admin/overview" + q, { Authorization: "Bearer " + CFG.nm }),
+    fetchJson(CFG.dkUrl + "/api/admin/overview" + q, { "X-Admin-Secret": CFG.dk }),
+  ]);
+  const warns = [];
+  if (nm.status === "fulfilled") RAW.nm = nm.value; else warns.push("NeverMiss: " + nm.reason.message);
+  if (dk.status === "fulfilled") RAW.dk = dk.value; else warns.push("Docket: " + dk.reason.message);
+  if (!RAW.nm && !RAW.dk) {
+    if (nm.status === "rejected" && /secret/.test(nm.reason.message)) { logoutToLogin("NeverMiss secret was rejected."); return; }
+  }
+  [RAW.nm, RAW.dk].forEach(r => (r && r.warnings || []).forEach(w => warns.push((r.product === "docket" ? "Docket" : "NeverMiss") + " table — " + w)));
+  $("warn").innerHTML = warns.length ? `<div class="warnbox">${warns.map(esc).join("<br>")}</div>` : "";
+  build();
+  render();
+  $("updated").textContent = "Updated " + new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" }) + " · auto-refreshes every minute";
+}
+function logoutToLogin(msg) {
+  $("app").classList.add("hide"); $("login").classList.remove("hide");
+  $("login-err").textContent = msg;
+}
+
+/* ---------- model ---------- */
+function build() {
+  const nm = RAW.nm || {}, dk = RAW.dk || {};
+  const visits = [];
+  (nm.visits || []).forEach(v => visits.push(Object.assign({ product: "nevermiss" }, v)));
+  (dk.visits || []).forEach(v => visits.push(Object.assign({ product: "docket" }, v)));
+  visits.sort((a, b) => ts(b.created_at) - ts(a.created_at));
+
+  // Visitors: one record per browser per product.
+  const visitors = new Map();
+  for (const v of visits.slice().reverse()) {   // oldest first so "first touch" is right
+    const k = v.product + ":" + v.visitor_id;
+    let r = visitors.get(k);
+    if (!r) {
+      r = { key: k, product: v.product, vid: v.visitor_id, first: v.created_at, last: v.created_at, sessions: new Set(),
+            pageviews: 0, seconds: 0, wa: 0, calls: 0, ctas: 0, paths: [], events: [], device: v.device, source: null, identity: null };
+      visitors.set(k, r);
+    }
+    r.last = v.created_at;
+    if (v.session_id) r.sessions.add(v.session_id);
+    if (v.device) r.device = v.device;
+    if (v.event === "pageview") {
+      r.pageviews++; r.paths.push(v.path);
+      if (!r.source) r.source = sourceOf(v);
+      if (!r.campaign && v.utm_campaign) r.campaign = v.utm_campaign;
+    }
+    if (v.event === "leave") r.seconds += v.duration_sec || 0;
+    if (v.event === "wa_click") r.wa++;
+    if (v.event === "call_click") r.calls++;
+    if (v.event === "cta_click") r.ctas++;
+    if (v.event === "identify") r.identity = Object.assign({}, r.identity || {}, Object.fromEntries(Object.entries({
+      name: v.name, phone: v.phone, email: v.email, business: v.business, form: v.form, at: v.created_at }).filter(([, x]) => x)));
+    r.events.push(v);
+  }
+  visitors.forEach(r => { r.source = r.source || "direct"; r.visits = Math.max(r.sessions.size, 1); });
+
+  // People: merged by phone (last 10 digits) or email, across both products.
+  const people = [];
+  const byPhone = new Map(), byEmail = new Map();
+  function person(phone, email) {
+    const p10 = key10(phone), em = (email || "").toLowerCase().trim();
+    let p = (p10 && byPhone.get(p10)) || (em && byEmail.get(em));
+    if (!p) {
+      p = { name: "", business: "", phone: "", email: "", products: new Set(), touches: [], stages: new Set(), last: null, first: null, visitors: [] };
+      people.push(p);
+    }
+    if (p10 && !byPhone.has(p10)) byPhone.set(p10, p);
+    if (em && !byEmail.has(em)) byEmail.set(em, p);
+    if (!p.phone && p10) p.phone = waNum(phone);
+    if (!p.email && em) p.email = em;
+    return p;
+  }
+  function touch(p, product, stage, at, label, extra) {
+    p.products.add(product);
+    if (stage) p.stages.add(stage);
+    p.touches.push({ product, stage, at, label, extra });
+    if (!p.last || ts(at) > ts(p.last)) p.last = at;
+    if (!p.first || ts(at) < ts(p.first)) p.first = at;
+  }
+  const now = Date.now();
+  (nm.clients || []).forEach(c => {
+    const phone = c.contact_phone || c.owner_whatsapp || c.requested_business_number;
+    if (!phone && !c.user_email) return;
+    const p = person(phone, c.user_email);
+    p.name = p.name || c.owner_name || c.contact_name || "";
+    p.business = p.business || c.business_name || "";
+    const expired = c.plan_expires_at && ts(c.plan_expires_at) < now;
+    const stage = expired ? "Expired" : (c.plan === "trial" ? "Trial" : "Paid");
+    touch(p, "nevermiss", stage, c.created_at || c.plan_expires_at, `${c.plan === "trial" ? "Started trial" : "Client"} · ${c.plan || "—"} · ${c.status || ""}`, { client: c });
+  });
+  (nm.demo_requests || []).forEach(d => {
+    const p = person(d.phone, null);
+    p.name = p.name || d.name; p.business = p.business || d.institute;
+    touch(p, "nevermiss", "Demo request", d.created_at, `Requested a demo${d.interested_plan ? " · " + d.interested_plan : ""}`);
+  });
+  (nm.custom_requests || []).forEach(d => {
+    const p = person(d.phone, d.email);
+    p.name = p.name || d.name; p.business = p.business || d.business;
+    touch(p, "nevermiss", "Custom request", d.created_at, `Custom request · ${d.sector || ""} · ${d.volume || ""}`, { notes: d.needs });
+  });
+  (nm.helpline || []).forEach(h => {
+    const p = person(h.phone, null);
+    touch(p, "nevermiss", "Helpline", h.last_at, `${h.messages} msg(s) to NeverMiss number`, { msg: h.last_message });
+  });
+  (dk.shops || []).forEach(s => {
+    const p = person(s.owner_phone, s.owner_email);
+    p.business = p.business || s.name;
+    const expired = s.plan_expires_at && ts(s.plan_expires_at) < now;
+    const stage = expired ? "Expired" : (s.plan === "trial" ? "Trial" : "Paid");
+    touch(p, "docket", stage, s.created_at, `${s.plan === "trial" ? "Signed up (trial)" : "Shop"} · ${s.plan || "—"}`, { shop: s });
+  });
+  visitors.forEach(r => {
+    if (!r.identity || !(r.identity.phone || r.identity.email)) return;
+    const p = person(r.identity.phone, r.identity.email);
+    p.name = p.name || r.identity.name || ""; p.business = p.business || r.identity.business || "";
+    p.visitors.push(r);
+    touch(p, r.product, "Filled a form", r.identity.at, `Filled “${r.identity.form || "form"}” after ${r.pageviews} page view(s) · from ${r.source}`);
+  });
+  people.forEach(p => {
+    const order = ["Paid", "Trial", "Expired", "Custom request", "Demo request", "Helpline", "Filled a form"];
+    p.stage = order.find(s => p.stages.has(s)) || "Filled a form";
+    p.touches.sort((a, b) => ts(b.at) - ts(a.at));
+  });
+  people.sort((a, b) => ts(b.last) - ts(a.last));
+
+  // Live feed
+  const feed = [];
+  visits.slice(0, 400).forEach(v => {
+    if (v.event === "pageview") feed.push({ at: v.created_at, product: v.product, vkey: v.product + ":" + v.visitor_id, text: `Visitor viewed <b>${esc(v.path || "/")}</b>`, sub: sourceOf(v) + " · " + (v.device || "") });
+    else if (v.event === "wa_click") feed.push({ at: v.created_at, product: v.product, vkey: v.product + ":" + v.visitor_id, hot: 1, text: `Clicked <b>WhatsApp</b> on ${esc(v.path || "/")}`, sub: v.form || "" });
+    else if (v.event === "call_click") feed.push({ at: v.created_at, product: v.product, vkey: v.product + ":" + v.visitor_id, hot: 1, text: `Clicked <b>Call</b>`, sub: v.path || "" });
+    else if (v.event === "cta_click") feed.push({ at: v.created_at, product: v.product, vkey: v.product + ":" + v.visitor_id, text: `Clicked <b>${esc(v.form || "button")}</b>`, sub: v.path || "" });
+    else if (v.event === "identify") feed.push({ at: v.created_at, product: v.product, vkey: v.product + ":" + v.visitor_id, hot: 1, text: `<b>${esc(v.name || v.phone || v.email)}</b> filled ${esc(v.form || "a form")}`, sub: v.business || "" });
+  });
+  people.forEach(p => p.touches.forEach(t => {
+    if (t.stage === "Filled a form") return;
+    feed.push({ at: t.at, product: t.product, pidx: people.indexOf(p), hot: /Paid|Trial|Demo|Custom/.test(t.stage), text: `<b>${esc(p.name || p.business || p.phone || p.email)}</b> — ${esc(t.label)}`, sub: "" });
+  }));
+  feed.sort((a, b) => ts(b.at) - ts(a.at));
+
+  MODEL = { visits, visitors: [...visitors.values()].sort((a, b) => ts(b.last) - ts(a.last)), people, feed };
+}
+
+/* ---------- render ---------- */
+function inWindow(at) { return STATE.days <= 1 ? new Date(at).toDateString() === new Date().toDateString() : ts(at) >= Date.now() - STATE.days * 86400000; }
+
+function render() {
+  if (!MODEL) return;
+  const M = MODEL;
+  const vis = M.visitors.filter(v => inProd(v.product) && inWindow(v.last));
+  const visits = M.visits.filter(v => inProd(v.product) && inWindow(v.created_at));
+  const people = M.people.filter(p => [...p.products].some(inProd));
+  const newPeople = people.filter(p => p.first && inWindow(p.first));
+  const pv = visits.filter(v => v.event === "pageview").length;
+  const wa = visits.filter(v => v.event === "wa_click").length;
+  const todayV = new Set(M.visits.filter(v => inProd(v.product) && new Date(v.created_at).toDateString() === new Date().toDateString()).map(v => v.product + v.visitor_id)).size;
+  const paid = people.filter(p => p.stage === "Paid").length;
+  const trial = people.filter(p => p.stage === "Trial").length;
+  const expiring = [...((RAW.nm && RAW.nm.clients) || []).filter(() => inProd("nevermiss")).map(c => c.plan_expires_at),
+                    ...((RAW.dk && RAW.dk.shops) || []).filter(() => inProd("docket")).map(s => s.plan_expires_at)]
+                    .filter(x => x && ts(x) > Date.now() && ts(x) < Date.now() + 7 * 86400000).length;
+  const conv = vis.length ? (vis.filter(v => v.identity).length / vis.length * 100) : 0;
+  const lbl = STATE.days <= 1 ? "today" : "last " + STATE.days + "d";
+
+  $("kpis").innerHTML = [
+    ["Unique visitors", vis.length, `${pv} page views · ${lbl}`],
+    ["Visitors today", todayV, "live, both sites"],
+    ["New people", newPeople.length, `left a number/email · ${lbl}`],
+    ["WhatsApp clicks", wa, lbl],
+    ["Visitor → contact", conv.toFixed(1) + "%", "visitors who filled a form"],
+    ["Paying", paid, `${trial} on trial`],
+    ["Expiring ≤ 7 days", expiring, "renewal follow-ups"],
+  ].map(([l, v, s]) => `<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+
+  renderChart();
+  const ranked = (arr, n) => { const m = {}; arr.forEach(x => m[x] = (m[x] || 0) + 1); return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, n); };
+  const bars = (el, rows, color) => {
+    const max = rows.length ? rows[0][1] : 1;
+    $(el).innerHTML = rows.length ? rows.map(([k, n]) => `<div class="bar"><div class="t"><span>${esc(k)}</span><span class="mono">${n}</span></div><div class="track"><div class="fill" style="width:${n / max * 100}%;${color ? "background:" + color : ""}"></div></div></div>`).join("") : '<div class="empty">No visits yet</div>';
+  };
+  bars("sources", ranked(vis.map(v => v.source), 8));
+  bars("pages", ranked(visits.filter(v => v.event === "pageview").map(v => (STATE.prod === "all" ? (v.product === "docket" ? "Docket " : "NM ") : "") + (v.path || "/")), 8));
+  bars("devices", ranked(vis.map(v => v.device || "unknown"), 3));
+
+  $("feed").innerHTML = M.feed.filter(f => inProd(f.product)).slice(0, 25).map(f =>
+    `<div class="row ${f.vkey || f.pidx != null ? "click" : ""}" ${f.vkey ? `onclick="openVisitor('${esc(f.vkey)}')"` : f.pidx != null ? `onclick="openPerson(${f.pidx})"` : ""}>
+      <span class="dot" style="margin-top:7px;background:${f.product === "docket" ? "var(--docket)" : "var(--teal)"};${f.hot ? "" : "opacity:.35"}"></span>
+      <div class="grow"><div style="font-size:13px">${f.text}</div>${f.sub ? `<div class="meta">${esc(f.sub)}</div>` : ""}</div>
+      <div class="when">${ago(f.at)}</div></div>`).join("") || '<div class="empty">Nothing yet — activity appears here as people visit.</div>';
+
+  $("ov-people").innerHTML = peopleRows(people.slice(0, 6)) || '<div class="empty">No contacts yet.</div>';
+
+  renderPeople(); renderVisitors(); renderNm(); renderDk(); renderHelpline();
+}
+
+function renderChart() {
+  const days = Math.max(STATE.days, 7), W = 640, H = 170, P = 22;
+  const buckets = [];
+  for (let i = days - 1; i >= 0; i--) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i); buckets.push({ d, nm: new Set(), dk: new Set() }); }
+  const idx = new Map(buckets.map((b, i) => [b.d.toDateString(), i]));
+  MODEL.visits.forEach(v => {
+    if (v.event !== "pageview" || !inProd(v.product)) return;
+    const i = idx.get(new Date(v.created_at).toDateString()); if (i == null) return;
+    buckets[i][v.product === "docket" ? "dk" : "nm"].add(v.visitor_id);
+  });
+  const max = Math.max(1, ...buckets.map(b => b.nm.size + b.dk.size));
+  const bw = (W - P) / days, gap = Math.min(4, bw * .25);
+  let s = `<svg viewBox="0 0 ${W} ${H + 18}" role="img">`;
+  [0, .5, 1].forEach(f => { const y = H - (H - 10) * f; s += `<line x1="${P}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="0" y="${y + 4}" font-size="10" fill="var(--muted)">${Math.round(max * f)}</text>`; });
+  buckets.forEach((b, i) => {
+    const x = P + i * bw + gap / 2, w = bw - gap, hn = (H - 10) * b.nm.size / max, hd = (H - 10) * b.dk.size / max;
+    if (hn) s += `<rect x="${x}" y="${H - hn}" width="${w}" height="${hn}" rx="2" fill="var(--teal)"><title>${b.d.toDateString()}: ${b.nm.size} NeverMiss</title></rect>`;
+    if (hd) s += `<rect x="${x}" y="${H - hn - hd}" width="${w}" height="${hd}" rx="2" fill="var(--docket)"><title>${b.d.toDateString()}: ${b.dk.size} Docket</title></rect>`;
+    if (i % Math.ceil(days / 7) === 0 || i === days - 1) s += `<text x="${x + w / 2}" y="${H + 14}" font-size="10" text-anchor="middle" fill="var(--muted)">${b.d.getDate()}/${b.d.getMonth() + 1}</text>`;
+  });
+  $("chart").innerHTML = s + "</svg>";
+}
+
+const STAGE_CLS = { Paid: "good", Trial: "warn", Expired: "bad" };
+function peopleRows(list) {
+  return list.map(p => {
+    const i = MODEL.people.indexOf(p);
+    return `<div class="row click" onclick="openPerson(${i})">
+      <div class="av">${esc(initials(p.name || p.business))}</div>
+      <div class="grow">
+        <div class="nm1">${esc(p.name || p.business || p.phone || p.email)}</div>
+        <div class="meta">${esc([p.business && p.name ? p.business : "", p.phone ? "+" + p.phone : "", p.email].filter(Boolean).join(" · "))}</div>
+        <div class="tags">${[...p.products].map(pBadge).join("")}<span class="badge ${STAGE_CLS[p.stage] || ""}">${p.stage}</span>${p.touches[0] ? `<span class="badge">${esc(p.touches[0].label.slice(0, 60))}</span>` : ""}</div>
+      </div>
+      <div class="when">${ago(p.last)}</div></div>`;
+  }).join("");
+}
+
+function renderPeople() {
+  const q = $("people-q").value.trim().toLowerCase(), st = $("people-stage").value;
+  const list = MODEL.people.filter(p => [...p.products].some(inProd))
+    .filter(p => !st || p.stage === st)
+    .filter(p => !q || [p.name, p.business, p.phone, p.email].join(" ").toLowerCase().includes(q));
+  $("people-count").textContent = list.length;
+  $("people").innerHTML = peopleRows(list) || '<div class="empty">No one matches.</div>';
+}
+
+function renderVisitors() {
+  const q = $("vis-q").value.trim().toLowerCase(), only = $("vis-only").value;
+  const list = MODEL.visitors.filter(v => inProd(v.product) && inWindow(v.last))
+    .filter(v => !only || (only === "known" && v.identity) || (only === "wa" && v.wa) || (only === "return" && v.visits > 1))
+    .filter(v => !q || [v.source, v.paths.join(" "), v.identity && JSON.stringify(v.identity), v.campaign].join(" ").toLowerCase().includes(q));
+  $("vis-count").textContent = list.length;
+  $("vis").innerHTML = list.slice(0, 300).map(v => `<tr class="click" onclick="openVisitor('${esc(v.key)}')">
+    <td>${pBadge(v.product)} <b>${esc(v.identity ? (v.identity.name || v.identity.phone || v.identity.email) : "Anonymous")}</b>
+      <div class="meta">${esc(v.device || "")}${v.wa ? " · 💬 WhatsApp click" : ""}${v.identity && v.identity.phone ? " · +" + esc(v.identity.phone) : ""}</div></td>
+    <td>${esc(v.source)}${v.campaign ? `<div class="meta">${esc(v.campaign)}</div>` : ""}</td>
+    <td class="num">${v.visits}</td><td class="num">${v.pageviews}</td><td class="num">${fmtDur(v.seconds)}</td><td class="when">${ago(v.last)}</td></tr>`).join("")
+    || '<tr><td colspan="6" class="empty">No visitors in this window yet. Data starts flowing once the tracker is live.</td></tr>';
+}
+
+function renderNm() {
+  const sec = document.querySelector('[data-p="nmclients"]');
+  const show = inProd("nevermiss");
+  sec.style.opacity = show ? 1 : .35;
+  const nm = RAW.nm; if (!nm) { $("nm").innerHTML = '<tr><td colspan="9" class="empty">NeverMiss data not loaded.</td></tr>'; return; }
+  const act = nm.activity || {};
+  const rows = (nm.clients || []).slice().sort((a, b) => ts((act[b.id] || {}).last_at) - ts((act[a.id] || {}).last_at) || (b.id > a.id ? 1 : -1));
+  $("nm-count").textContent = rows.length;
+  $("nm").innerHTML = rows.map(c => {
+    const a = act[String(c.id)] || {}, phone = c.contact_phone || c.owner_whatsapp;
+    const exp = c.plan_expires_at, expired = exp && ts(exp) < Date.now();
+    return `<tr><td><b>${esc(c.business_name || "—")}</b><div class="meta">${esc(c.user_email || "")}</div></td>
+      <td>${phone ? `<a href="https://wa.me/${waNum(phone)}" target="_blank" rel="noopener">+${esc(waNum(phone))}</a>` : "—"}</td>
+      <td><span class="badge">${esc(c.plan || "—")}</span></td>
+      <td><span class="badge ${c.status === "active" ? "good" : "warn"}">${esc(c.status || "—")}</span></td>
+      <td>${expired ? `<span class="badge bad">expired ${fmtDate(exp)}</span>` : fmtDate(exp)}</td>
+      <td class="num">${a.messages || 0}</td><td class="num">${a.students || 0}</td><td class="num">${a.leads || 0}</td>
+      <td class="when">${a.last_at ? ago(a.last_at) : "no activity"}</td></tr>`;
+  }).join("") || '<tr><td colspan="9" class="empty">No clients yet.</td></tr>';
+
+  const simple = (list, f) => list.length ? list.slice(0, 30).map(f).join("") : '<div class="empty">None yet.</div>';
+  $("demos").innerHTML = simple(nm.demo_requests || [], d => `<div class="row"><div class="av">${esc(initials(d.name))}</div><div class="grow"><div class="nm1">${esc(d.name)} <span class="badge">${esc(d.status || "new")}</span></div><div class="meta">${esc(d.institute || "")} · +${esc(d.phone)}${d.interested_plan ? " · " + esc(d.interested_plan) : ""}</div>${contactActs(d.phone)}</div><div class="when">${ago(d.created_at)}</div></div>`);
+  $("customs").innerHTML = simple(nm.custom_requests || [], d => `<div class="row"><div class="av">${esc(initials(d.name))}</div><div class="grow"><div class="nm1">${esc(d.name)} · ${esc(d.business || "")}</div><div class="meta">${esc([d.sector, d.volume, d.estimate_range].filter(Boolean).join(" · "))}</div><div class="meta">${esc(d.needs || "")}</div>${contactActs(d.phone, d.email)}</div><div class="when">${ago(d.created_at)}</div></div>`);
+}
+
+function renderDk() {
+  const sec = document.querySelector('[data-p="dkshops"]');
+  sec.style.opacity = inProd("docket") ? 1 : .35;
+  const dk = RAW.dk; if (!dk) { $("dk").innerHTML = '<tr><td colspan="9" class="empty">Docket data not loaded — check the Docket URL/secret (Lock → log in again).</td></tr>'; $("dkpay").innerHTML = ""; return; }
+  const act = dk.activity || {};
+  const rows = (dk.shops || []).slice().sort((a, b) => ts((act[b.id] || {}).last_at) - ts((act[a.id] || {}).last_at) || ts(b.created_at) - ts(a.created_at));
+  $("dk-count").textContent = rows.length;
+  $("dk").innerHTML = rows.map(s => {
+    const a = act[String(s.id)] || {}, exp = s.plan_expires_at, expired = exp && ts(exp) < Date.now();
+    return `<tr><td><b>${esc(s.name || "—")}</b><div class="meta">${esc(s.owner_email || "")} · joined ${fmtDate(s.created_at)}</div></td>
+      <td>${s.owner_phone ? `<a href="https://wa.me/${waNum(s.owner_phone)}" target="_blank" rel="noopener">${esc(s.owner_phone)}</a>` : "—"}</td>
+      <td><span class="badge ${s.plan === "trial" ? "warn" : "good"}">${esc(s.plan || "—")}</span></td>
+      <td>${esc(s.shop_type || "—")}</td>
+      <td>${expired ? `<span class="badge bad">expired ${fmtDate(exp)}</span>` : exp ? fmtDate(exp) : "never"}</td>
+      <td class="num">${a.jobs || 0}</td><td class="num">${a.invoices || 0}</td><td class="num">${a.sales || 0}</td>
+      <td class="when">${a.last_at ? ago(a.last_at) : "no activity"}</td></tr>`;
+  }).join("") || '<tr><td colspan="9" class="empty">No shops yet.</td></tr>';
+  const pays = (dk.payments || []).slice().sort((a, b) => ts(b.created_at || b.processed_at) - ts(a.created_at || a.processed_at));
+  $("dkpay-count").textContent = pays.length;
+  $("dkpay").innerHTML = pays.length ? pays.slice(0, 40).map(p => `<div class="row"><div class="grow"><div class="nm1">${esc(p.shop_email || "—")}</div><div class="meta mono">${esc(p.razorpay_payment_id || "")}</div></div><div class="when">${ago(p.created_at || p.processed_at)}</div></div>`).join("") : '<div class="empty">No payments yet.</div>';
+}
+
+function renderHelpline() {
+  const sec = document.querySelector('[data-p="helpline"]');
+  sec.style.opacity = inProd("nevermiss") ? 1 : .35;
+  const list = (RAW.nm && RAW.nm.helpline) || [];
+  $("hl-count").textContent = list.length;
+  $("helpline").innerHTML = list.map(h => {
+    const p = MODEL.people.find(x => x.phone && key10(x.phone) === key10(h.phone));
+    return `<div class="row"><div class="av">${esc(initials(p && (p.name || p.business) || "?"))}</div><div class="grow">
+      <div class="nm1">${esc(p && (p.name || p.business) || "+" + h.phone)}</div>
+      <div class="meta">+${esc(h.phone)} · ${h.messages} message(s) · first ${ago(h.first_at)}</div>
+      ${h.last_message ? `<div class="meta" style="white-space:normal">“${esc(h.last_message)}”</div>` : ""}
+      ${contactActs(h.phone)}</div><div class="when">${ago(h.last_at)}</div></div>`;
+  }).join("") || '<div class="empty">No one has messaged the NeverMiss number in this window.</div>';
+}
+
+/* ---------- drawers ---------- */
+function journeyHtml(v) {
+  const evs = v.events.slice().sort((a, b) => ts(b.created_at) - ts(a.created_at)).slice(0, 80);
+  const label = e => e.event === "pageview" ? `Viewed <b>${esc(e.path || "/")}</b>` :
+    e.event === "leave" ? `Left after ${fmtDur(e.duration_sec)}` :
+    e.event === "wa_click" ? `💬 Clicked WhatsApp ${e.form ? "(" + esc(e.form) + ")" : ""}` :
+    e.event === "call_click" ? "📞 Clicked call" :
+    e.event === "identify" ? `✍️ Filled <b>${esc(e.form || "form")}</b>: ${esc([e.name, e.phone, e.email, e.business].filter(Boolean).join(" · "))}` :
+    `Clicked <b>${esc(e.form || "button")}</b>`;
+  return `<div class="tl">${evs.map(e => `<div class="e ${/identify|wa_click|call_click/.test(e.event) ? "hot" : ""}">${label(e)}<div class="meta">${new Date(e.created_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</div></div>`).join("")}</div>`;
+}
+function openVisitor(key) {
+  const v = MODEL.visitors.find(x => x.key === key); if (!v) return;
+  const id = v.identity || {};
+  $("drawer-pn").innerHTML = `<button class="btn ghost" onclick="closeDrawer()" style="float:right">✕</button>
+    <div style="font-size:18px;font-weight:700">${esc(id.name || id.phone || id.email || "Anonymous visitor")}</div>
+    <div class="tags" style="margin:6px 0 10px">${pBadge(v.product)}<span class="badge">${esc(v.device || "")}</span><span class="badge">from ${esc(v.source)}</span>${v.campaign ? `<span class="badge">${esc(v.campaign)}</span>` : ""}</div>
+    ${id.business ? `<div class="meta">${esc(id.business)}</div>` : ""}
+    ${contactActs(id.phone, id.email)}
+    <div class="kpis" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">
+      <div class="card kpi"><div class="l">Visits</div><div class="v">${v.visits}</div></div>
+      <div class="card kpi"><div class="l">Pages</div><div class="v">${v.pageviews}</div></div>
+      <div class="card kpi"><div class="l">Time</div><div class="v">${fmtDur(v.seconds)}</div></div></div>
+    <div class="meta">First seen ${new Date(v.first).toLocaleString("en-IN")} · ID <span class="mono">${esc(v.vid)}</span></div>
+    <h3 style="font-size:14px;margin:14px 0 4px">Journey</h3>${journeyHtml(v)}`;
+  $("drawer").classList.add("open");
+}
+function openPerson(i) {
+  const p = MODEL.people[i]; if (!p) return;
+  $("drawer-pn").innerHTML = `<button class="btn ghost" onclick="closeDrawer()" style="float:right">✕</button>
+    <div style="font-size:18px;font-weight:700">${esc(p.name || p.business || p.phone || p.email)}</div>
+    <div class="meta">${esc([p.name ? p.business : "", p.phone ? "+" + p.phone : "", p.email].filter(Boolean).join(" · "))}</div>
+    <div class="tags" style="margin:6px 0">${[...p.products].map(pBadge).join("")}<span class="badge ${STAGE_CLS[p.stage] || ""}">${p.stage}</span></div>
+    ${contactActs(p.phone, p.email)}
+    <h3 style="font-size:14px;margin:16px 0 4px">Timeline</h3>
+    <div class="tl">${p.touches.map(t => `<div class="e hot">${pBadge(t.product)} ${esc(t.label)}${t.extra && t.extra.msg ? `<div class="meta" style="white-space:normal">“${esc(t.extra.msg)}”</div>` : ""}${t.extra && t.extra.notes ? `<div class="meta" style="white-space:normal">${esc(t.extra.notes)}</div>` : ""}<div class="meta">${t.at ? new Date(t.at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : ""}</div></div>`).join("")}</div>
+    ${p.visitors.map(v => `<h3 style="font-size:14px;margin:16px 0 4px">Website journey ${pBadge(v.product)} <span class="meta">· ${v.pageviews} pages, ${fmtDur(v.seconds)}, from ${esc(v.source)}</span></h3>${journeyHtml(v)}`).join("")}`;
+  $("drawer").classList.add("open");
+}
+function closeDrawer() { $("drawer").classList.remove("open"); }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+/* ---------- controls ---------- */
+function seg(id, fn) {
+  $(id).addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    [...$(id).children].forEach(x => x.classList.toggle("on", x === b));
+    fn(b.dataset.v);
+  });
+}
+seg("prod-seg", v => { STATE.prod = v; render(); });
+seg("days-seg", v => {
+  const old = STATE.days; STATE.days = +v;
+  if (Math.max(+v, 7) > ((RAW.nm && RAW.nm.days) || (RAW.dk && RAW.dk.days) || 0)) load(); else render();
+});
+$("tabs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...$("tabs").children].forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll("section[data-p]").forEach(s => s.classList.toggle("hide", s.dataset.p !== b.dataset.t));
+  window.scrollTo({ top: 0 });
+});
+["people-q", "people-stage"].forEach(id => $(id).addEventListener("input", renderPeople));
+["vis-q", "vis-only"].forEach(id => $(id).addEventListener("input", renderVisitors));
+
+/* ---------- boot ---------- */
+(function boot() {
+  try {
+    const saved = JSON.parse(sget("hq_cfg") || "null");
+    if (saved && saved.nm) { CFG = saved; start(); return; }
+  } catch (e) {}
+  $("u-dk").value = DEFAULT_DK;
+})();
+</script>
+</body>
+</html>
