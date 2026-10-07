@@ -117,6 +117,19 @@ tr.click:hover td{background:var(--chip)}
 .tl .e:before{content:"";position:absolute;left:-20px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--line)}
 .tl .e.hot:before{background:var(--teal)}
 .warnbox{font-size:12px;color:var(--warn);background:var(--docket-soft);border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.up-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.up{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.up .h{display:flex;align-items:center;gap:8px;font-weight:500}
+.up .h .nm1{flex:1}
+.up .u{display:flex;gap:12px;font-size:12px;color:var(--muted);margin-top:6px}
+.up .u b{color:var(--text);font-weight:500}
+.up svg{width:100%;height:28px;display:block;margin-top:8px}
+.pulse{width:9px;height:9px;border-radius:50%;flex:none}
+.pulse.s-up{background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 25%,transparent)}
+.pulse.s-down{background:var(--bad);box-shadow:0 0 0 3px color-mix(in srgb,var(--bad) 25%,transparent)}
+.pulse.s-degraded,.pulse.s-pending{background:var(--warn)}
+.pulse.s-paused,.pulse.s-unknown{background:var(--muted)}
+#hdr-up{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;padding:6px 10px;border-radius:999px;background:var(--chip)}
 .hide{display:none!important}
 .status{font-size:12px;color:var(--muted)}
 .spin{display:inline-block;width:10px;height:10px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:s .8s linear infinite;vertical-align:-1px}
@@ -151,6 +164,7 @@ tr.click:hover td{background:var(--chip)}
     <div class="logo">HQ</div>
     <div><div class="title">Master dashboard</div><div class="sub" id="updated">—</div></div>
     <div class="spacer"></div>
+    <div id="hdr-up" class="hide" onclick="showTab('uptime')"></div>
     <div class="seg" id="prod-seg">
       <button data-v="all" class="on">All</button><button data-v="nevermiss">NeverMiss</button><button data-v="docket">Docket</button>
     </div>
@@ -167,6 +181,7 @@ tr.click:hover td{background:var(--chip)}
     <button data-t="nmclients">NeverMiss clients</button>
     <button data-t="dkshops">Docket shops</button>
     <button data-t="helpline">Helpline</button>
+    <button data-t="uptime">Uptime</button>
   </nav>
 </header>
 
@@ -174,6 +189,7 @@ tr.click:hover td{background:var(--chip)}
   <div id="warn"></div>
 
   <section data-p="overview">
+    <div class="card sec" id="ov-up-wrap"><h2>Servers <span class="c" id="ov-up-sub"></span></h2><div class="up-grid" id="ov-up"></div></div>
     <div class="kpis" id="kpis"></div>
     <div class="grid2">
       <div>
@@ -234,6 +250,11 @@ tr.click:hover td{background:var(--chip)}
     <div class="card sec"><h2>Docket payments <span class="c" id="dkpay-count"></span></h2><div id="dkpay"></div></div>
   </section>
 
+  <section data-p="uptime" class="hide">
+    <div class="card sec"><h2>Monitors <span class="c" id="up-sub"></span></h2><div class="up-grid" id="up-full"></div></div>
+    <div class="card sec"><h2>Recent incidents</h2><div id="up-logs"></div></div>
+  </section>
+
   <section data-p="helpline" class="hide">
     <div class="card sec"><h2>People messaging the NeverMiss number <span class="c" id="hl-count"></span></h2><div id="helpline"></div></div>
   </section>
@@ -250,7 +271,7 @@ const sstore = (() => { try { return sessionStorage; } catch (e) { return null; 
 const sget = k => { try { return (sstore && sstore.getItem(k)) || (store && store.getItem(k)) || ""; } catch (e) { return ""; } };
 
 let CFG = { nm: "", dk: "", dkUrl: "" };
-let RAW = { nm: null, dk: null };
+let RAW = { nm: null, dk: null, up: null };
 let STATE = { prod: "all", days: 30, tab: "overview" };
 let MODEL = null;
 let timer = null;
@@ -335,10 +356,13 @@ async function fetchJson(url, headers) {
 async function load(silent) {
   if (!silent) $("updated").innerHTML = '<span class="spin"></span> loading… (Render may take ~30s to wake up)';
   const q = "?days=" + Math.max(STATE.days, 7);
+  const upP = fetch(NM_API + "/admin/uptime", { headers: { Authorization: "Bearer " + CFG.nm } })
+    .then(r => r.json()).then(d => { RAW.up = d; }).catch(e => { RAW.up = { success: false, configured: true, error: "Couldn't reach NeverMiss backend" }; });
   const [nm, dk] = await Promise.allSettled([
     fetchJson(NM_API + "/admin/overview" + q, { Authorization: "Bearer " + CFG.nm }),
     fetchJson(CFG.dkUrl + "/api/admin/overview" + q, { "X-Admin-Secret": CFG.dk }),
   ]);
+  await upP;
   const warns = [];
   if (nm.status === "fulfilled") RAW.nm = nm.value; else warns.push("NeverMiss: " + nm.reason.message);
   if (dk.status === "fulfilled") RAW.dk = dk.value; else warns.push("Docket: " + dk.reason.message);
@@ -528,7 +552,7 @@ function render() {
 
   $("ov-people").innerHTML = peopleRows(people.slice(0, 6)) || '<div class="empty">No contacts yet.</div>';
 
-  renderPeople(); renderVisitors(); renderNm(); renderDk(); renderHelpline();
+  renderPeople(); renderVisitors(); renderNm(); renderDk(); renderHelpline(); renderUptime();
 }
 
 function renderChart() {
@@ -654,6 +678,56 @@ function renderHelpline() {
   }).join("") || '<div class="empty">No one has messaged the NeverMiss number in this window.</div>';
 }
 
+/* ---------- uptime ---------- */
+const upPct = v => v == null ? "—" : (v >= 99.995 ? "100" : v.toFixed(2)) + "%";
+function spark(rt) {
+  const pts = (rt || []).slice().reverse().map(x => x.ms).filter(x => x != null);
+  if (pts.length < 2) return "";
+  const W = 240, H = 28, max = Math.max(...pts), min = Math.min(...pts), span = Math.max(max - min, 1);
+  const d = pts.map((v, i) => `${(i / (pts.length - 1) * W).toFixed(1)},${(H - 3 - (v - min) / span * (H - 6)).toFixed(1)}`).join(" ");
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${d}" fill="none" stroke="var(--teal)" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function upCard(m, full) {
+  const label = { up: "Up", down: "Down", degraded: "Seems down", pending: "Not checked yet", paused: "Paused" }[m.status] || m.status;
+  return `<div class="up"><div class="h"><span class="pulse s-${esc(m.status)}"></span><span class="nm1">${esc(m.name)}</span><span class="badge ${m.status === "up" ? "good" : m.status === "down" ? "bad" : "warn"}">${esc(label)}</span></div>
+    <div class="meta">${esc((m.url || "").replace(/^https?:\/\//, ""))}</div>
+    <div class="u"><span>24h <b>${upPct(m.uptime_1d)}</b></span><span>7d <b>${upPct(m.uptime_7d)}</b></span><span>30d <b>${upPct(m.uptime_30d)}</b></span>${m.avg_response_ms ? `<span><b>${m.avg_response_ms}</b> ms</span>` : ""}</div>
+    ${full ? spark(m.response_times) : ""}</div>`;
+}
+function renderUptime() {
+  const u = RAW.up, pill = $("hdr-up");
+  if (!u || !u.success) {
+    const msg = !u ? "Loading…" : u.configured === false
+      ? 'Not connected yet. Add <span class="mono">UPTIMEROBOT_API_KEY</span> (read-only key) to the my-saas-bot service on Render.'
+      : esc(u.error || "Couldn't load uptime");
+    $("ov-up").innerHTML = `<div class="empty" style="grid-column:1/-1;text-align:left">${msg}</div>`;
+    $("up-full").innerHTML = $("ov-up").innerHTML; $("up-logs").innerHTML = "";
+    $("ov-up-sub").textContent = ""; pill.classList.add("hide"); return;
+  }
+  const ms = u.monitors || [];
+  const down = ms.filter(m => m.status === "down" || m.status === "degraded");
+  $("ov-up").innerHTML = ms.map(m => upCard(m, false)).join("") || '<div class="empty">No monitors in UptimeRobot yet.</div>';
+  $("up-full").innerHTML = ms.map(m => upCard(m, true)).join("") || '<div class="empty">No monitors in UptimeRobot yet.</div>';
+  const sub = down.length ? `${down.length} down` : `all ${ms.length} up`;
+  $("ov-up-sub").textContent = sub; $("up-sub").textContent = sub;
+  pill.classList.remove("hide");
+  pill.innerHTML = `<span class="pulse s-${down.length ? "down" : "up"}"></span>${down.length ? down.length + " server" + (down.length > 1 ? "s" : "") + " down" : "All servers up"}`;
+  const logs = [];
+  ms.forEach(m => (m.logs || []).forEach(l => { if (l.type === "down" || l.type === "up") logs.push(Object.assign({ name: m.name }, l)); }));
+  logs.sort((a, b) => b.at - a.at);
+  $("up-logs").innerHTML = logs.slice(0, 25).map(l => `<div class="row"><span class="pulse s-${l.type === "down" ? "down" : "up"}" style="margin-top:6px"></span>
+    <div class="grow"><div class="nm1">${esc(l.name)} went ${l.type === "down" ? "down" : "back up"}</div>
+    <div class="meta">${l.type === "down" ? "Lasted " + fmtDur(l.duration) + (l.reason ? " · " + esc(l.reason) : "") : ""}</div></div>
+    <div class="when">${ago(new Date(l.at * 1000).toISOString())}</div></div>`).join("") || '<div class="empty">No incidents recorded.</div>';
+}
+
+function showTab(t) {
+  [...$("tabs").children].forEach(x => x.classList.toggle("on", x.dataset.t === t));
+  const on = [...$("tabs").children].find(x => x.dataset.t === t); if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest", inline: "center" });
+  document.querySelectorAll("section[data-p]").forEach(s => s.classList.toggle("hide", s.dataset.p !== t));
+  window.scrollTo({ top: 0 });
+}
+
 /* ---------- drawers ---------- */
 function journeyHtml(v) {
   const evs = v.events.slice().sort((a, b) => ts(b.created_at) - ts(a.created_at)).slice(0, 80);
@@ -711,9 +785,7 @@ seg("days-seg", v => {
 });
 $("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
-  [...$("tabs").children].forEach(x => x.classList.toggle("on", x === b));
-  document.querySelectorAll("section[data-p]").forEach(s => s.classList.toggle("hide", s.dataset.p !== b.dataset.t));
-  window.scrollTo({ top: 0 });
+  showTab(b.dataset.t);
 });
 ["people-q", "people-stage"].forEach(id => $(id).addEventListener("input", renderPeople));
 ["vis-q", "vis-only"].forEach(id => $(id).addEventListener("input", renderVisitors));
