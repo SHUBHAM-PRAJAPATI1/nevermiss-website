@@ -143,16 +143,15 @@ tr.click:hover td{background:var(--chip)}
   <div class="card">
     <h1>HQ</h1>
     <p>NeverMiss + Docket — visitors, people and activity in one place.</p>
-    <label class="f">NeverMiss admin secret</label>
-    <input class="i" id="k-nm" type="password" autocomplete="off"/>
-    <label class="f">Docket admin secret <span style="font-weight:400">(leave blank if same)</span></label>
-    <input class="i" id="k-dk" type="password" autocomplete="off"/>
-    <label class="f">Docket backend URL</label>
-    <input class="i" id="u-dk" placeholder="https://repair-tracker.onrender.com"/>
-    <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)">
-      <input type="checkbox" id="remember"/> Remember on this device
-    </label>
-    <div style="margin-top:16px"><button class="btn" style="width:100%" onclick="unlock()">Open dashboard</button></div>
+    <form onsubmit="unlock(event)">
+      <input type="text" name="username" value="hq" autocomplete="username" hidden/>
+      <label class="f" for="pw">Password</label>
+      <input class="i" id="pw" type="password" autocomplete="current-password" autofocus/>
+      <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)">
+        <input type="checkbox" id="remember" checked/> Keep me logged in on this device
+      </label>
+      <div style="margin-top:16px"><button class="btn" id="login-btn" style="width:100%" type="submit">Open dashboard</button></div>
+    </form>
     <div class="err" id="login-err"></div>
   </div>
 </div>
@@ -265,12 +264,11 @@ tr.click:hover td{background:var(--chip)}
 
 <script>
 const NM_API = "https://my-saas-bot.onrender.com";
-const DEFAULT_DK = "https://repair-tracker.onrender.com";
 const store = (() => { try { return localStorage; } catch (e) { return null; } })();
 const sstore = (() => { try { return sessionStorage; } catch (e) { return null; } })();
 const sget = k => { try { return (sstore && sstore.getItem(k)) || (store && store.getItem(k)) || ""; } catch (e) { return ""; } };
 
-let CFG = { nm: "", dk: "", dkUrl: "" };
+let TOKEN = "";
 let RAW = { nm: null, dk: null, up: null };
 let STATE = { prod: "all", days: 30, tab: "overview" };
 let MODEL = null;
@@ -323,19 +321,34 @@ function contactActs(phone, email) {
 }
 
 /* ---------- auth ---------- */
-function unlock() {
-  const nm = $("k-nm").value.trim(), dk = $("k-dk").value.trim() || nm;
-  const url = ($("u-dk").value.trim() || DEFAULT_DK).replace(/\/+$/, "");
-  if (!nm) { $("login-err").textContent = "Enter the NeverMiss admin secret."; return; }
-  CFG = { nm, dk, dkUrl: url };
-  const target = $("remember").checked ? store : sstore;
-  try { target.setItem("hq_cfg", JSON.stringify(CFG)); } catch (e) {}
-  start();
+async function unlock(ev) {
+  if (ev) ev.preventDefault();
+  const pw = $("pw").value;
+  if (!pw) { $("login-err").textContent = "Enter your password."; return; }
+  const btn = $("login-btn");
+  btn.disabled = true; btn.textContent = "Checking… (server may take ~30s to wake)";
+  $("login-err").textContent = "";
+  try {
+    const r = await fetch(NM_API + "/admin/hq-login", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!d.success) { $("login-err").textContent = d.error || "Login failed"; return; }
+    TOKEN = d.token;
+    const target = $("remember").checked ? store : sstore;
+    try { target.setItem("hq_token", TOKEN); } catch (e) {}
+    $("pw").value = "";
+    start();
+  } catch (e) {
+    $("login-err").textContent = "Couldn't reach the server. Try again in a few seconds.";
+  } finally {
+    btn.disabled = false; btn.textContent = "Open dashboard";
+  }
 }
-function logout() {
-  try { store && store.removeItem("hq_cfg"); sstore && sstore.removeItem("hq_cfg"); } catch (e) {}
-  location.reload();
+function clearToken() {
+  try { store && store.removeItem("hq_token"); sstore && sstore.removeItem("hq_token"); store && store.removeItem("hq_cfg"); sstore && sstore.removeItem("hq_cfg"); } catch (e) {}
 }
+function logout() { clearToken(); location.reload(); }
 function start() {
   $("login").classList.add("hide");
   $("app").classList.remove("hide");
@@ -356,18 +369,19 @@ async function fetchJson(url, headers) {
 async function load(silent) {
   if (!silent) $("updated").innerHTML = '<span class="spin"></span> loading… (Render may take ~30s to wake up)';
   const q = "?days=" + Math.max(STATE.days, 7);
-  const upP = fetch(NM_API + "/admin/uptime", { headers: { Authorization: "Bearer " + CFG.nm } })
+  const auth = { Authorization: "Bearer " + TOKEN };
+  const upP = fetch(NM_API + "/admin/uptime", { headers: auth })
     .then(r => r.json()).then(d => { RAW.up = d; }).catch(e => { RAW.up = { success: false, configured: true, error: "Couldn't reach NeverMiss backend" }; });
   const [nm, dk] = await Promise.allSettled([
-    fetchJson(NM_API + "/admin/overview" + q, { Authorization: "Bearer " + CFG.nm }),
-    fetchJson(CFG.dkUrl + "/api/admin/overview" + q, { "X-Admin-Secret": CFG.dk }),
+    fetchJson(NM_API + "/admin/overview" + q, auth),
+    fetchJson(NM_API + "/admin/docket-overview" + q, auth),
   ]);
   await upP;
   const warns = [];
   if (nm.status === "fulfilled") RAW.nm = nm.value; else warns.push("NeverMiss: " + nm.reason.message);
   if (dk.status === "fulfilled") RAW.dk = dk.value; else warns.push("Docket: " + dk.reason.message);
-  if (!RAW.nm && !RAW.dk) {
-    if (nm.status === "rejected" && /secret/.test(nm.reason.message)) { logoutToLogin("NeverMiss secret was rejected."); return; }
+  if (nm.status === "rejected" && /wrong secret/.test(nm.reason.message)) {
+    clearToken(); clearInterval(timer); logoutToLogin("Session expired — log in again."); return;
   }
   [RAW.nm, RAW.dk].forEach(r => (r && r.warnings || []).forEach(w => warns.push((r.product === "docket" ? "Docket" : "NeverMiss") + " table — " + w)));
   $("warn").innerHTML = warns.length ? `<div class="warnbox">${warns.map(esc).join("<br>")}</div>` : "";
@@ -644,7 +658,7 @@ function renderNm() {
 function renderDk() {
   const sec = document.querySelector('[data-p="dkshops"]');
   sec.style.opacity = inProd("docket") ? 1 : .35;
-  const dk = RAW.dk; if (!dk) { $("dk").innerHTML = '<tr><td colspan="9" class="empty">Docket data not loaded — check the Docket URL/secret (Lock → log in again).</td></tr>'; $("dkpay").innerHTML = ""; return; }
+  const dk = RAW.dk; if (!dk) { $("dk").innerHTML = '<tr><td colspan="9" class="empty">Docket data not loaded — see the warning at the top.</td></tr>'; $("dkpay").innerHTML = ""; return; }
   const act = dk.activity || {};
   const rows = (dk.shops || []).slice().sort((a, b) => ts((act[b.id] || {}).last_at) - ts((act[a.id] || {}).last_at) || ts(b.created_at) - ts(a.created_at));
   $("dk-count").textContent = rows.length;
@@ -793,10 +807,9 @@ $("tabs").addEventListener("click", e => {
 /* ---------- boot ---------- */
 (function boot() {
   try {
-    const saved = JSON.parse(sget("hq_cfg") || "null");
-    if (saved && saved.nm) { CFG = saved; start(); return; }
+    const t = sget("hq_token");
+    if (t) { TOKEN = t; start(); return; }
   } catch (e) {}
-  $("u-dk").value = DEFAULT_DK;
 })();
 </script>
 </body>
