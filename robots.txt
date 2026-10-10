@@ -4,5 +4,6 @@ Disallow: /dashboard.html
 Disallow: /hq.html
 Disallow: /login.html
 Disallow: /set-password.html
+Disallow: /master-register.html
 
 Sitemap: https://nevermiss.co.in/sitemap.xml

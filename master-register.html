@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1D6B4F">
+<title>Master Register</title>
+<link rel="icon" href="nevermiss-favicon-32.png">
+<link rel="apple-touch-icon" href="nevermiss-apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a library catalogue — sticky top bar with search + views, a shelf of colour-spined "volumes", each opening into its register filtered by sub-part and status. */
+:root{
+  --bg:#EEF0EC; --surface:#FFFFFF; --sunk:#E3E6E0; --ink:#15191A; --muted:#5E6763; --line:#D3D8D2;
+  --accent:#1D6B4F; --accent-ink:#FFFFFF; --stamp:#B8402A;
+  --s-idea:#7A4FB5; --s-planned:#2F6FB3; --s-active:#1D7A50; --s-waiting:#B07812; --s-done:#55605B; --s-paused:#8A6A55; --s-dropped:#A23B3B;
+  --h0:#1D6B4F; --h1:#2F6FB3; --h2:#B8402A; --h3:#7A4FB5; --h4:#B07812; --h5:#0F7C86; --h6:#9B3F73; --h7:#4D5A2A;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#111514; --surface:#1A1F1E; --sunk:#232A28; --ink:#E8ECE9; --muted:#9AA5A0; --line:#2E3634;
+  --accent:#4FBF8F; --accent-ink:#0C1210; --stamp:#E8775F;
+  --s-idea:#B595E8; --s-planned:#7DB0EA; --s-active:#5FD19B; --s-waiting:#E3B34E; --s-done:#A3ADA8; --s-paused:#C9A68E; --s-dropped:#EE8080;
+  --h0:#4FBF8F; --h1:#7DB0EA; --h2:#E8775F; --h3:#B595E8; --h4:#E3B34E; --h5:#4FC4CE; --h6:#E08AB9; --h7:#B4C36E;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:0 64px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+
+.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:12px 16px 10px}
+.top-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:8px;min-width:0}
+.brand h1{font-size:1.35rem;font-weight:800}
+.brand .mono{font-size:.72rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.sync{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:5px}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--s-waiting);display:inline-block}
+.sync.on i{background:var(--s-active)}
+.search{flex:1 1 220px;min-width:0;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+.search input{border:0;background:transparent;outline:0;width:100%;min-width:0}
+.tabs{display:flex;gap:4px;margin-top:10px;overflow-x:auto;align-items:center}
+.tab{border:1px solid transparent;background:transparent;border-radius:999px;padding:5px 12px;font-weight:500;color:var(--muted);white-space:nowrap}
+.tab[aria-current="true"]{background:var(--ink);color:var(--bg)}
+.tabs .spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:500}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--stamp);border-color:var(--stamp)}
+.btn.ghost{background:transparent}
+.btn.small{padding:4px 10px;font-size:.82rem}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:20px}
+.stat{background:var(--surface);padding:12px 14px}
+.stat b{display:block;font-family:var(--f-display);font-size:1.6rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.sec-head{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:28px 0 12px}
+.sec-head h2{font-size:1.15rem}
+.eyebrow{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--f-mono)}
+
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.vol{position:relative;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 12px 20px;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:hidden}
+.vol::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--hc)}
+.vol:hover{border-color:var(--hc)}
+.vol .call{font-family:var(--f-mono);font-size:.72rem;color:var(--hc);letter-spacing:.06em}
+.vol h3{font-size:1.15rem;font-weight:700}
+.vol p{margin:0;color:var(--muted);font-size:.88rem}
+.vol .meta{display:flex;gap:12px;font-size:.78rem;color:var(--muted);font-family:var(--f-mono)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:.74rem;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted);background:var(--bg)}
+.kindtag{font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:11px 14px;border:0;border-top:1px solid var(--line);text-align:left;background:transparent;width:100%}
+.row:first-child{border-top:0}
+.row:hover{background:var(--sunk)}
+.dot{width:9px;height:9px;border-radius:50%;margin-top:7px;background:var(--hc)}
+.row .t{font-weight:600;overflow-wrap:anywhere}
+.row .sub{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.row .notes{grid-column:2/4;font-size:.85rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.pill{font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:2px 8px;border:1px solid currentColor;white-space:nowrap;color:var(--sc)}
+.prio{font-family:var(--f-mono);font-size:.72rem;color:var(--stamp)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--r)}
+
+.back{border:0;background:transparent;color:var(--muted);padding:0;margin-top:18px}
+.sp-head{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-top:8px;padding-bottom:14px;border-bottom:3px solid var(--hc)}
+.sp-head h2{font-size:2rem;font-weight:800}
+.sp-head p{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.fchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.85rem}
+.fchip[aria-pressed="true"]{background:var(--fc,var(--ink));border-color:var(--fc,var(--ink));color:var(--bg)}
+.fchip .n{font-family:var(--f-mono);font-size:.75rem;opacity:.75;margin-left:4px}
+.groups{display:flex;flex-direction:column;gap:18px}
+.grp h3{font-family:var(--f-mono);font-size:.75rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+
+/* login */
+.gate{min-height:80vh;display:grid;place-items:center}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;width:min(380px,100%);display:flex;flex-direction:column;gap:12px}
+.card h1{font-size:1.6rem;font-weight:800}
+.card p{margin:0;color:var(--muted);font-size:.9rem}
+.err{color:var(--stamp);font-size:.88rem}
+
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(10,14,13,.45)}
+.dlg{display:flex;flex-direction:column;gap:12px;padding:18px}
+.dlg h2{font-size:1.25rem}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;width:100%;min-width:0;font-size:16px}
+.field textarea{min-height:110px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:440px){.two{grid-template-columns:1fr}}
+.acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}
+.acts .grow{margin-right:auto}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.sw{width:28px;height:28px;border-radius:50%;border:2px solid transparent;background:var(--hc)}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:.88rem;z-index:20;max-width:calc(100vw - 32px);text-align:center}
+.note{color:var(--muted);font-size:.85rem}
+a.lnk{color:var(--accent);overflow-wrap:anywhere;font-size:.85rem}
+@media (prefers-reduced-motion:no-preference){.vol,.row{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="gate" hidden>
+  <div class="gate">
+    <form class="card" id="loginForm">
+      <div class="eyebrow">Private · NeverMiss</div>
+      <h1>Master Register</h1>
+      <p>Log in to open your register. It stays in sync on every device you log in from.</p>
+      <div class="field"><label for="l_email">Email</label><input id="l_email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="l_pass">Password</label><input id="l_pass" type="password" autocomplete="current-password" required></div>
+      <div class="err" id="l_err" hidden></div>
+      <button class="btn primary" type="submit" id="l_btn">Log in</button>
+    </form>
+  </div>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <div class="top-row">
+      <div class="brand"><h1>Master Register</h1><span class="mono">S.K. Prajapati · vol. I</span></div>
+      <label class="search" for="q"><span aria-hidden="true">⌕</span><input id="q" type="search" placeholder="Search every entry, idea and note" autocomplete="off"></label>
+      <button class="btn primary" id="addEntryTop">+ Entry</button>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-v="shelf" aria-current="true">Shelf</button>
+      <button class="tab" data-v="now">Working on</button>
+      <button class="tab" data-v="ideas">Idea vault</button>
+      <button class="tab" data-v="log">Recent log</button>
+      <button class="tab" data-v="done">Done</button>
+      <span class="spacer"></span>
+      <span class="sync" id="sync" title="Live sync status"><i></i><span>connecting</span></span>
+      <button class="btn ghost small" id="exportBtn" title="Download a JSON backup">Backup</button>
+      <button class="btn ghost small" id="logoutBtn">Log out</button>
+    </nav>
+  </header>
+  <main id="main"><p class="note" style="margin-top:24px">Opening the register…</p></main>
+</div>
+
+<dialog id="entryDlg"><form class="dlg" id="entryForm" method="dialog">
+  <h2 id="entryTitle">New entry</h2>
+  <div class="field"><label for="e_title">Title</label><input id="e_title" required maxlength="160" placeholder="What is it?"></div>
+  <div class="two">
+    <div class="field"><label for="e_section">Volume</label><select id="e_section"></select></div>
+    <div class="field"><label for="e_sub">Sub-part</label><select id="e_sub"></select></div>
+  </div>
+  <div class="two">
+    <div class="field"><label for="e_status">Status</label><select id="e_status"></select></div>
+    <div class="field"><label for="e_prio">Priority</label><select id="e_prio"><option value="">—</option><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select></div>
+  </div>
+  <div class="two">
+    <div class="field"><label for="e_date">Date</label><input id="e_date" type="date"></div>
+    <div class="field"><label for="e_link">Link</label><input id="e_link" type="url" placeholder="https://"></div>
+  </div>
+  <div class="field"><label for="e_notes">Notes</label><textarea id="e_notes" placeholder="Details, decisions, next step"></textarea></div>
+  <a class="lnk" id="e_open" target="_blank" rel="noopener" hidden>Open link ↗</a>
+  <div class="acts">
+    <button type="button" class="btn danger grow" id="e_del" hidden>Delete</button>
+    <button type="button" class="btn ghost" id="e_cancel">Cancel</button>
+    <button type="submit" class="btn primary" id="e_save">Save</button>
+  </div>
+</form></dialog>
+
+<dialog id="secDlg"><form class="dlg" id="secForm" method="dialog">
+  <h2 id="secTitle">New volume</h2>
+  <div class="two">
+    <div class="field"><label for="s_name">Name</label><input id="s_name" required maxlength="60"></div>
+    <div class="field"><label for="s_code">Call number</label><input id="s_code" maxlength="6" placeholder="e.g. NM"></div>
+  </div>
+  <div class="field"><label for="s_kind">Kind</label><select id="s_kind"><option>Venture</option><option>Content</option><option>Idea</option><option>Tech project</option><option>College</option><option>Career</option><option>Personal</option></select></div>
+  <div class="field"><label for="s_tag">One-line description</label><input id="s_tag" maxlength="140"></div>
+  <div class="field"><label for="s_subs">Sub-parts (comma separated)</label><input id="s_subs" placeholder="Long-form, Shorts, Instagram"></div>
+  <div class="field"><label>Colour</label><div class="swatches" id="s_sw"></div></div>
+  <div class="acts">
+    <button type="button" class="btn danger grow" id="s_del" hidden>Delete volume</button>
+    <button type="button" class="btn ghost" id="s_cancel">Cancel</button>
+    <button type="submit" class="btn primary" id="s_save">Save</button>
+  </div>
+</form></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL      = "https://uwxthbxxiaujlgxosqjx.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_MLPKMAL2JnseHnh-zyxidA_kwsBirfj";
+// Own storage key so this login never clashes with the client dashboard session.
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth:{storageKey:"nm-master-register-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}
+});
+
+const STATUSES=[["idea","Idea"],["planned","Planned"],["active","Active"],["waiting","Waiting"],["paused","Paused"],["done","Done"],["dropped","Dropped"]];
+const SLABEL=Object.fromEntries(STATUSES);
+const S={sections:[],entries:[],view:"shelf",sec:null,sub:"All",stat:"open",q:"",loaded:false};
+const $=s=>document.querySelector(s);
+const main=$("#main");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hc=i=>`var(--h${(+i||0)%8})`;
+const secById=id=>S.sections.find(s=>s.id===id);
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
+const isOpen=e=>!["done","dropped"].includes(e.status);
+const prioRank={high:0,med:1,low:2,"":3};
+const ts=e=>Date.parse(e.updated_at||0)||0;
+function sortEntries(a){return a.slice().sort((x,y)=>(prioRank[x.prio||""]-prioRank[y.prio||""])||(ts(y)-ts(x)))}
+const sortedSecs=()=>S.sections.slice().sort((a,b)=>(a.sort??99)-(b.sort??99));
+
+/* ---------- data ---------- */
+async function load(){
+  const [s,e]=await Promise.all([
+    sb.from("register_sections").select("*"),
+    sb.from("register_entries").select("*")
+  ]);
+  if(s.error||e.error){toast("Couldn't load: "+(s.error||e.error).message);return}
+  S.sections=s.data;S.entries=e.data;S.loaded=true;render();
+}
+let rt=null,reloadT=null;
+function reloadSoon(){clearTimeout(reloadT);reloadT=setTimeout(load,250)}
+function setSync(on){const el=$("#sync");el.classList.toggle("on",on);el.lastElementChild.textContent=on?"live":"offline"}
+function startRealtime(){
+  if(rt)return;
+  rt=sb.channel("master-register")
+    .on("postgres_changes",{event:"*",schema:"public",table:"register_entries"},reloadSoon)
+    .on("postgres_changes",{event:"*",schema:"public",table:"register_sections"},reloadSoon)
+    .subscribe(st=>setSync(st==="SUBSCRIBED"));
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&S.loaded)load()});
+window.addEventListener("online",()=>S.loaded&&load());
+
+/* ---------- render ---------- */
+function rowHTML(e,showSec=true){
+  const s=secById(e.section_id)||{name:"Unfiled",color:0};
+  const sub=[showSec?s.name:null,e.sub].filter(Boolean).join(" › ");
+  return `<button class="row" data-entry="${esc(e.id)}" style="--hc:${hc(s.color)}">
+    <span class="dot"></span>
+    <span><span class="t">${esc(e.title)}</span><br><span class="sub">${esc(sub)}${e.entry_date?` · <span class="mono">${esc(e.entry_date)}</span>`:""}${e.prio==="high"?` · <span class="prio">HIGH</span>`:""}${e.link?" · ↗":""}</span></span>
+    <span class="pill" style="--sc:var(--s-${esc(e.status)})">${esc(SLABEL[e.status]||e.status)}</span>
+    ${e.notes?`<span class="notes">${esc(e.notes)}</span>`:""}
+  </button>`;
+}
+function listHTML(arr,showSec=true,emptyMsg="Nothing here yet."){
+  if(!arr.length)return `<div class="empty">${esc(emptyMsg)}</div>`;
+  return `<div class="list">${arr.map(e=>rowHTML(e,showSec)).join("")}</div>`;
+}
+function render(){
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-current",String(!S.sec&&!S.q&&b.dataset.v===S.view)));
+  if(!S.loaded){main.innerHTML=`<p class="note" style="margin-top:24px">Loading your volumes…</p>`;return}
+  if(S.q)return renderSearch();
+  if(S.sec)return renderSection();
+  ({shelf:renderShelf,now:renderNow,ideas:renderIdeas,log:renderLog,done:renderDone})[S.view]();
+}
+function statsHTML(){
+  const E=S.entries;
+  return `<div class="stats">
+    <div class="stat"><b>${S.sections.length}</b><span>Volumes</span></div>
+    <div class="stat"><b>${E.filter(e=>e.status==="active").length}</b><span>Active</span></div>
+    <div class="stat"><b>${E.filter(e=>e.status==="idea").length}</b><span>Ideas in vault</span></div>
+    <div class="stat"><b>${E.filter(e=>e.status==="done").length}</b><span>Done</span></div></div>`;
+}
+function renderShelf(){
+  const secs=sortedSecs();
+  const vols=secs.map(s=>{
+    const es=S.entries.filter(e=>e.section_id===s.id);
+    return `<button class="vol" data-sec="${esc(s.id)}" style="--hc:${hc(s.color)}">
+      <span class="call">${esc(s.code||"")} · <span class="kindtag">${esc(s.kind||"")}</span></span>
+      <h3>${esc(s.name)}</h3>
+      ${s.tagline?`<p>${esc(s.tagline)}</p>`:""}
+      <span class="chips">${(s.subs||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join("")}</span>
+      <span class="meta"><span>${es.length} entries</span><span>${es.filter(e=>e.status==="active").length} active</span><span>${es.filter(e=>e.status==="idea").length} ideas</span></span>
+    </button>`}).join("");
+  main.innerHTML=statsHTML()+`
+    <div class="sec-head"><div><div class="eyebrow">The shelf</div><h2>Every volume you run</h2></div><button class="btn" id="addSec">+ Volume</button></div>
+    ${secs.length?`<div class="shelf">${vols}</div>`:`<div class="empty">No volumes yet. Add your first one with “+ Volume”.</div>`}
+    <div class="sec-head"><div><div class="eyebrow">High priority, still open</div><h2>On the desk</h2></div></div>
+    ${listHTML(sortEntries(S.entries.filter(e=>isOpen(e)&&e.prio==="high")).slice(0,8),true,"No high-priority open entries.")}`;
+}
+function renderNow(){
+  const g=["active","waiting","planned"].map(st=>{const a=sortEntries(S.entries.filter(e=>e.status===st));return a.length?`<section class="grp"><h3>${SLABEL[st]} · ${a.length}</h3>${listHTML(a)}</section>`:""}).join("");
+  main.innerHTML=`<div class="sec-head"><div><div class="eyebrow">Across all volumes</div><h2>Working on</h2></div></div><div class="groups">${g||`<div class="empty">Nothing in progress.</div>`}</div>`;
+}
+function renderIdeas(){
+  const a=S.entries.filter(e=>e.status==="idea");const by={};
+  a.forEach(e=>(by[e.section_id]=by[e.section_id]||[]).push(e));
+  const g=Object.keys(by).sort((x,y)=>((secById(x)?.sort??99)-(secById(y)?.sort??99))).map(k=>`<section class="grp"><h3>${esc(secById(k)?.name||"Unfiled")} · ${by[k].length}</h3>${listHTML(sortEntries(by[k]),false)}</section>`).join("");
+  main.innerHTML=`<div class="sec-head"><div><div class="eyebrow">${a.length} ideas waiting</div><h2>Idea vault</h2></div><button class="btn" id="addIdea">+ Idea</button></div><div class="groups">${g||`<div class="empty">No ideas logged yet.</div>`}</div>`;
+}
+function renderLog(){
+  const a=S.entries.slice().sort((x,y)=>ts(y)-ts(x)).slice(0,60);
+  main.innerHTML=`<div class="sec-head"><div><div class="eyebrow">Last 60 changes</div><h2>Recent log</h2></div></div>${listHTML(a)}`;
+}
+function renderDone(){
+  const a=S.entries.filter(e=>!isOpen(e)).sort((x,y)=>(y.entry_date||"").localeCompare(x.entry_date||"")||ts(y)-ts(x));
+  main.innerHTML=`<div class="sec-head"><div><div class="eyebrow">Shipped and closed</div><h2>Done</h2></div></div>${listHTML(a,true,"Nothing closed yet.")}`;
+}
+function renderSearch(){
+  const q=S.q.toLowerCase();
+  const a=S.entries.filter(e=>[e.title,e.notes,e.sub,secById(e.section_id)?.name].join(" ").toLowerCase().includes(q));
+  main.innerHTML=`<div class="sec-head"><div><div class="eyebrow">${a.length} matches</div><h2>“${esc(S.q)}”</h2></div></div>${listHTML(sortEntries(a),true,"No entries match.")}`;
+}
+function renderSection(){
+  const s=secById(S.sec);if(!s){S.sec=null;return render()}
+  const es=S.entries.filter(e=>e.section_id===s.id);
+  const extra=[...new Set(es.map(e=>e.sub).filter(x=>x&&!(s.subs||[]).includes(x)))];
+  const allSubs=["All",...(s.subs||[]),...extra];
+  if(!allSubs.includes(S.sub))S.sub="All";
+  const a=S.sub==="All"?es:es.filter(e=>e.sub===S.sub);
+  const counts={open:a.filter(isOpen).length,idea:a.filter(e=>e.status==="idea").length,closed:a.filter(e=>!isOpen(e)).length,all:a.length};
+  const shown=S.stat==="open"?a.filter(isOpen):S.stat==="idea"?a.filter(e=>e.status==="idea"):S.stat==="closed"?a.filter(e=>!isOpen(e)):a;
+  const groups=STATUSES.map(([k,l])=>{const g=sortEntries(shown.filter(e=>e.status===k));return g.length?`<section class="grp"><h3>${l} · ${g.length}</h3>${listHTML(g,false)}</section>`:""}).join("");
+  main.innerHTML=`<div style="--hc:${hc(s.color)}">
+    <button class="back" id="back">← Shelf</button>
+    <div class="sp-head"><div style="min-width:0"><div class="eyebrow" style="color:var(--hc)">${esc(s.code||"")} · ${esc(s.kind||"")}</div><h2>${esc(s.name)}</h2>${s.tagline?`<p>${esc(s.tagline)}</p>`:""}</div>
+      <div style="display:flex;gap:8px"><button class="btn" id="editSec">Edit volume</button><button class="btn primary" id="addHere">+ Entry</button></div></div>
+    <div class="filters">${allSubs.map(x=>`<button class="fchip" style="--fc:var(--hc)" data-sub="${esc(x)}" aria-pressed="${S.sub===x}">${esc(x)}<span class="n">${x==="All"?es.length:es.filter(e=>e.sub===x).length}</span></button>`).join("")}</div>
+    <div class="filters" style="margin-top:-6px">${[["open","Open"],["idea","Ideas"],["closed","Closed"],["all","Everything"]].map(([k,l])=>`<button class="fchip" data-stat="${k}" aria-pressed="${S.stat===k}">${l}<span class="n">${counts[k]}</span></button>`).join("")}</div>
+    <div class="groups">${groups||`<div class="empty">No entries here yet. Add one with “+ Entry”.</div>`}</div></div>`;
+}
+
+/* ---------- navigation ---------- */
+main.addEventListener("click",ev=>{
+  const t=ev.target.closest("[data-sec],[data-entry],[data-sub],[data-stat],#back,#addSec,#editSec,#addHere,#addIdea");if(!t)return;
+  if(t.dataset.sec){S.sec=t.dataset.sec;S.sub="All";S.stat="open";render();window.scrollTo(0,0)}
+  else if(t.dataset.entry)openEntry(S.entries.find(e=>e.id===t.dataset.entry));
+  else if(t.dataset.sub){S.sub=t.dataset.sub;render()}
+  else if(t.dataset.stat){S.stat=t.dataset.stat;render()}
+  else if(t.id==="back"){S.sec=null;render()}
+  else if(t.id==="addSec")openSec(null);
+  else if(t.id==="editSec")openSec(secById(S.sec));
+  else if(t.id==="addHere")openEntry(null,{section_id:S.sec,sub:S.sub==="All"?"":S.sub});
+  else if(t.id==="addIdea")openEntry(null,{status:"idea",section_id:secById("idea-vault")?"idea-vault":undefined});
+});
+$("#tabs").addEventListener("click",ev=>{const b=ev.target.closest(".tab");if(!b)return;S.view=b.dataset.v;S.sec=null;S.q="";$("#q").value="";render();window.scrollTo(0,0)});
+let qt;$("#q").addEventListener("input",e=>{clearTimeout(qt);qt=setTimeout(()=>{S.q=e.target.value.trim();render()},150)});
+$("#addEntryTop").addEventListener("click",()=>openEntry(null,S.sec?{section_id:S.sec,sub:S.sub==="All"?"":S.sub}:{}));
+
+/* ---------- entry dialog ---------- */
+const ed=$("#entryDlg");let editing=null,delArmed=false;
+$("#e_status").innerHTML=STATUSES.map(([k,l])=>`<option value="${k}">${l}</option>`).join("");
+function fillSecSelect(sel){$("#e_section").innerHTML=sortedSecs().map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");if(sel)$("#e_section").value=sel}
+function fillSubSelect(cur){const s=secById($("#e_section").value);const subs=[...(s?.subs||[])];if(cur&&!subs.includes(cur))subs.push(cur);$("#e_sub").innerHTML=`<option value="">General</option>`+subs.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");$("#e_sub").value=cur||""}
+$("#e_section").addEventListener("change",()=>fillSubSelect(""));
+function openEntry(e,pre={}){
+  if(!S.sections.length){toast("Add a volume first");return}
+  editing=e||null;delArmed=false;$("#e_del").textContent="Delete";
+  $("#entryTitle").textContent=e?"Edit entry":"New entry";
+  const d=e||{title:"",section_id:pre.section_id||sortedSecs()[0].id,sub:pre.sub||"",status:pre.status||"active",prio:"",entry_date:today(),link:"",notes:""};
+  fillSecSelect(secById(d.section_id)?d.section_id:sortedSecs()[0].id);fillSubSelect(d.sub);
+  $("#e_title").value=d.title;$("#e_status").value=d.status;$("#e_prio").value=d.prio||"";$("#e_date").value=d.entry_date||"";$("#e_link").value=d.link||"";$("#e_notes").value=d.notes||"";
+  const ok=/^https?:\/\//i.test(d.link||"");$("#e_open").hidden=!ok;if(ok)$("#e_open").href=d.link;
+  $("#e_del").hidden=!e;ed.showModal();if(!e)setTimeout(()=>$("#e_title").focus(),30);
+}
+$("#e_cancel").addEventListener("click",()=>ed.close());
+$("#e_del").addEventListener("click",async()=>{
+  if(!editing)return;
+  if(!delArmed){delArmed=true;$("#e_del").textContent="Tap again to delete";return}
+  const {error}=await sb.from("register_entries").delete().eq("id",editing.id);
+  if(error)return toast(errMsg(error));
+  S.entries=S.entries.filter(x=>x.id!==editing.id);ed.close();render();toast("Entry deleted");
+});
+$("#entryForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const body={title:$("#e_title").value.trim(),section_id:$("#e_section").value,sub:$("#e_sub").value,status:$("#e_status").value,prio:$("#e_prio").value,entry_date:$("#e_date").value||null,link:$("#e_link").value.trim(),notes:$("#e_notes").value.trim()};
+  if(!body.title)return;
+  const btn=$("#e_save");btn.disabled=true;
+  const q=editing?sb.from("register_entries").update(body).eq("id",editing.id).select().single():sb.from("register_entries").insert(body).select().single();
+  const {data,error}=await q;btn.disabled=false;
+  if(error)return toast(errMsg(error));
+  S.entries=editing?S.entries.map(x=>x.id===data.id?data:x):[...S.entries,data];
+  ed.close();render();toast(editing?"Entry updated":"Entry added");
+});
+
+/* ---------- volume dialog ---------- */
+const sd=$("#secDlg");let secEditing=null,secColor=0,secDelArmed=false;
+$("#s_sw").innerHTML=[0,1,2,3,4,5,6,7].map(i=>`<button type="button" class="sw" data-c="${i}" style="--hc:${hc(i)}" aria-label="Colour ${i+1}"></button>`).join("");
+$("#s_sw").addEventListener("click",e=>{const b=e.target.closest(".sw");if(!b)return;secColor=+b.dataset.c;paintSw()});
+function paintSw(){document.querySelectorAll(".sw").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.c===secColor)))}
+function openSec(s){
+  secEditing=s||null;secDelArmed=false;$("#s_del").textContent="Delete volume";
+  $("#secTitle").textContent=s?"Edit volume":"New volume";
+  $("#s_name").value=s?.name||"";$("#s_code").value=s?.code||"";$("#s_kind").value=s?.kind||"Venture";$("#s_tag").value=s?.tagline||"";$("#s_subs").value=(s?.subs||[]).join(", ");
+  secColor=s?.color??(S.sections.length%8);paintSw();$("#s_del").hidden=!s;sd.showModal();
+}
+$("#s_cancel").addEventListener("click",()=>sd.close());
+$("#s_del").addEventListener("click",async()=>{
+  if(!secEditing)return;
+  const n=S.entries.filter(e=>e.section_id===secEditing.id).length;
+  if(n)return toast(`Move or delete its ${n} entries first`);
+  if(!secDelArmed){secDelArmed=true;$("#s_del").textContent="Tap again to delete";return}
+  const {error}=await sb.from("register_sections").delete().eq("id",secEditing.id);
+  if(error)return toast(errMsg(error));
+  S.sections=S.sections.filter(x=>x.id!==secEditing.id);sd.close();S.sec=null;render();toast("Volume deleted");
+});
+$("#secForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const name=$("#s_name").value.trim();if(!name)return;
+  const body={name,code:($("#s_code").value.trim()||name.slice(0,2)).toUpperCase(),kind:$("#s_kind").value,tagline:$("#s_tag").value.trim(),subs:$("#s_subs").value.split(",").map(x=>x.trim()).filter(Boolean),color:secColor};
+  if(!secEditing){body.sort=Math.max(0,...S.sections.map(s=>s.sort||0))+1;body.id=(name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"vol")+"-"+Date.now().toString(36)}
+  const btn=$("#s_save");btn.disabled=true;
+  const q=secEditing?sb.from("register_sections").update(body).eq("id",secEditing.id).select().single():sb.from("register_sections").insert(body).select().single();
+  const {data,error}=await q;btn.disabled=false;
+  if(error)return toast(errMsg(error));
+  S.sections=secEditing?S.sections.map(x=>x.id===data.id?data:x):[...S.sections,data];
+  sd.close();render();toast(secEditing?"Volume updated":"Volume added");
+});
+
+function errMsg(e){
+  const m=(e&&e.message)||"";
+  if(/row-level security|permission/i.test(m))return"This account isn't allowed to edit the register";
+  if(/fetch|network/i.test(m))return"No connection. Check your internet and try again";
+  return"Couldn't save: "+m;
+}
+
+/* ---------- backup ---------- */
+$("#exportBtn").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify({exported_at:new Date().toISOString(),sections:S.sections,entries:S.entries},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`master-register-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+});
+
+/* ---------- auth ---------- */
+function showGate(msg){$("#app").hidden=true;$("#gate").hidden=false;$("#l_err").hidden=!msg;$("#l_err").textContent=msg||""}
+async function enter(){
+  const {data,error}=await sb.rpc("is_register_owner");
+  if(error||data!==true){await sb.auth.signOut();showGate(error?"Couldn't check access: "+error.message:"This account doesn't have access to the register.");return}
+  $("#gate").hidden=true;$("#app").hidden=false;render();await load();startRealtime();
+}
+$("#loginForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();const btn=$("#l_btn");btn.disabled=true;$("#l_err").hidden=true;
+  const {error}=await sb.auth.signInWithPassword({email:$("#l_email").value.trim(),password:$("#l_pass").value});
+  btn.disabled=false;
+  if(error)return showGate(error.message==="Invalid login credentials"?"Wrong email or password.":error.message);
+  $("#l_pass").value="";enter();
+});
+$("#logoutBtn").addEventListener("click",async()=>{if(rt){sb.removeChannel(rt);rt=null}await sb.auth.signOut();S.loaded=false;S.sections=[];S.entries=[];showGate()});
+
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(session)enter();else showGate();
+})();
+</script>
+</body>
+</html>
