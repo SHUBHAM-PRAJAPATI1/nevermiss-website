@@ -1,0 +1,18 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.co.nevermiss.twa",
+      "sha256_cert_fingerprints": ["D4:7D:56:ED:EB:84:AA:63:C9:E3:FF:BE:84:FA:97:85:20:BA:AF:A9:DD:B1:6E:5C:E1:DE:C7:CB:67:8C:D2:7F"]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.co.nevermiss.docket.twa",
+      "sha256_cert_fingerprints": ["3A:18:75:F2:2C:05:EA:54:EE:48:F0:54:8E:0D:EF:1F:4C:F9:C6:A1:B7:87:86:E8:53:C3:1C:98:DC:70:C9:44"]
+    }
+  }
+]
