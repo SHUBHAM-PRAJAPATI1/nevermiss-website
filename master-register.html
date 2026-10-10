@@ -407,7 +407,7 @@ a.open-link{display:inline-flex;align-items:center;gap:6px;color:var(--hc,var(--
       <span class="sync" id="sync" title="Live sync between your devices"><i></i><span>connecting</span></span>
       <button class="icon-btn" id="installBtn" title="Install as an app" aria-label="Install as an app" hidden><svg class="i" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3M10 18.5h4"/></svg></button>
       <button class="icon-btn" id="peopleBtn" title="People and access" aria-label="People and access" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3 3 0 010 6M18 14c2 .7 3 2.6 3 6"/></svg></button>
-      <button class="icon-btn" id="exportBtn" title="Download backup" aria-label="Download backup"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></button>
+      <button class="icon-btn" id="exportBtn" title="Back up all data (.json)" aria-label="Back up all data"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></button>
       <button class="icon-btn" id="logoutBtn" title="Log out" aria-label="Log out"><svg class="i" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 17l-5-5 5-5M5 12h11"/></svg></button>
     </div>
   </aside>
@@ -1248,10 +1248,19 @@ $("#peopleBtn").addEventListener("click",()=>{rmArmed=null;renderPeople();closeD
 pd.addEventListener("close",()=>{renderPage(false)});
 
 /* ================= backup ================= */
-$("#exportBtn").addEventListener("click",()=>{
-  const blob=new Blob([JSON.stringify({exported_at:new Date().toISOString(),sections:S.sections,entries:S.entries,targets:S.targets},null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`master-register-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-  toast("Backup downloaded");
+$("#exportBtn").addEventListener("click",async()=>{
+  const name=`master-register-backup-${today()}.json`;
+  const text=JSON.stringify({exported_at:new Date().toISOString(),sections:S.sections,entries:S.entries,targets:S.targets},null,2);
+  // phones and installed apps: use the share sheet (Save to Files, Drive, Telegram...)
+  try{
+    const file=new File([text],name,{type:"application/json"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})&&matchMedia("(pointer:coarse)").matches){await navigator.share({files:[file],title:"Master Register backup"});return}
+  }catch(e){if(e&&e.name==="AbortError")return}
+  // laptop: a real .json download
+  const url=URL.createObjectURL(new Blob([text],{type:"application/octet-stream"}));
+  const a=document.createElement("a");a.href=url;a.download=name;a.style.display="none";document.body.appendChild(a);a.click();
+  setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},60000);
+  toast("Backup saved as "+name);
 });
 
 /* ================= auth ================= */
