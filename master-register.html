@@ -4,10 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#06080A">
+<meta name="theme-color" content="#05070A">
+<link rel="manifest" href="master-register.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Register">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Master Register</title>
-<link rel="icon" href="nevermiss-favicon-32.png">
-<link rel="apple-touch-icon" href="nevermiss-apple-touch-icon.png">
+<link rel="icon" href="mr-icon-192.png">
+<link rel="apple-touch-icon" href="mr-icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
@@ -400,6 +405,7 @@ a.open-link{display:inline-flex;align-items:center;gap:6px;color:var(--hc,var(--
     <nav class="side-scroll" id="sideNav"></nav>
     <div class="side-foot">
       <span class="sync" id="sync" title="Live sync between your devices"><i></i><span>connecting</span></span>
+      <button class="icon-btn" id="installBtn" title="Install as an app" aria-label="Install as an app" hidden><svg class="i" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3M10 18.5h4"/></svg></button>
       <button class="icon-btn" id="peopleBtn" title="People and access" aria-label="People and access" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3 3 0 010 6M18 14c2 .7 3 2.6 3 6"/></svg></button>
       <button class="icon-btn" id="exportBtn" title="Download backup" aria-label="Download backup"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></button>
       <button class="icon-btn" id="logoutBtn" title="Log out" aria-label="Log out"><svg class="i" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 17l-5-5 5-5M5 12h11"/></svg></button>
@@ -1278,6 +1284,16 @@ document.addEventListener("keydown",e=>{
   if(e.key==="t"&&!typing&&!shell.hidden&&S.v2){e.preventDefault();openTarget(null,{cadence:"weekly",section_id:S.route.t==="sec"?S.route.sec:null})}
   if(e.key==="Escape")closeDrawer();
 });
+
+
+/* ================= installable app ================= */
+if("serviceWorker" in navigator&&location.protocol==="https:"){addEventListener("load",()=>navigator.serviceWorker.register("/mr-sw.js",{scope:"/"}).catch(()=>{}))}
+let installEvt=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;$("#installBtn").hidden=false});
+$("#installBtn").addEventListener("click",async()=>{if(!installEvt)return;installEvt.prompt();const r=await installEvt.userChoice;if(r.outcome==="accepted")toast("Installed. Open it from your apps");installEvt=null;$("#installBtn").hidden=true});
+addEventListener("appinstalled",()=>{$("#installBtn").hidden=true});
+const goParam=new URLSearchParams(location.search).get("go");
+if(goParam){history.replaceState(null,"",location.pathname);if(goParam==="targets")S.route={t:"view",v:"targets"};if(goParam==="new")setTimeout(()=>{if(!shell.hidden)$("#addEntryTop").click()},1500)}
 
 (async()=>{
   const {data:{session}}=await sb.auth.getSession();
