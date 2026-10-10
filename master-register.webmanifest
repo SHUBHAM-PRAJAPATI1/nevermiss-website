@@ -1,0 +1,23 @@
+{
+  "name": "Master Register",
+  "short_name": "Register",
+  "description": "Shubham's master register: every venture, channel, project, target and idea.",
+  "id": "/master-register.html",
+  "start_url": "/master-register.html?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#05070A",
+  "theme_color": "#05070A",
+  "categories": ["productivity", "business"],
+  "icons": [
+    { "src": "mr-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "mr-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "mr-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Targets", "url": "/master-register.html?go=targets", "icons": [{ "src": "mr-icon-192.png", "sizes": "192x192" }] },
+    { "name": "New entry", "url": "/master-register.html?go=new", "icons": [{ "src": "mr-icon-192.png", "sizes": "192x192" }] }
+  ]
+}
