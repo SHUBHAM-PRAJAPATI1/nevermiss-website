@@ -443,6 +443,7 @@ dialog::backdrop{backdrop-filter:none!important;-webkit-backdrop-filter:none!imp
       <div class="field"><label for="e_section">Work</label><select id="e_section"></select></div>
       <div class="field"><label for="e_sub">Part</label><select id="e_sub"></select></div>
     </div>
+    <div class="field" id="e_talk_f" hidden><span class="flabel">Talk status</span><div class="chips" id="e_talk"></div></div>
     <div class="field"><span class="flabel">Status</span><div class="chips" id="e_status"></div></div>
     <div class="field"><span class="flabel">Priority</span><div class="chips" id="e_prio"></div></div>
     <div class="two">
@@ -1072,6 +1073,17 @@ $("#e_due_quick").addEventListener("click",e=>{const b=e.target.closest("[data-d
 $("#e_due").addEventListener("change",paintChips);
 function tintSheet(form,id){const s=secById(id);form.style.setProperty("--hc",s?hc(s.color):"var(--accent)")}
 $("#e_section").addEventListener("change",()=>{$("#e_sub").innerHTML=subOptions($("#e_section").value,"").replace(">Any part<",">General<");tintSheet($("#entryForm"),$("#e_section").value)});
+/* talk status: one-tap stage chips for parts named "Clients · <stage>" */
+const TALK_PREFIX="Clients · ";
+function paintTalk(){
+  const sec=secById($("#e_section").value),cur=$("#e_sub").value;
+  const stages=(sec?.subs||[]).filter(x=>x.startsWith(TALK_PREFIX));
+  $("#e_talk_f").hidden=!stages.length;
+  $("#e_talk").innerHTML=stages.map(x=>`<button type="button" class="chip" data-talk="${esc(x)}" aria-pressed="${cur===x}">${esc(x.slice(TALK_PREFIX.length))}</button>`).join("");
+}
+$("#e_talk").addEventListener("click",e=>{const b=e.target.closest("[data-talk]");if(b){$("#e_sub").value=b.dataset.talk;paintTalk()}});
+$("#e_sub").addEventListener("change",paintTalk);
+$("#e_section").addEventListener("change",paintTalk);
 $("#e_link").addEventListener("input",e=>{const ok=/^https?:\/\//i.test(e.target.value);$("#e_open").hidden=!ok;if(ok)$("#e_open").href=e.target.value});
 function openEntry(e,pre={}){
   if(!S.sections.length){toast(isOwner()?"Add a work first":"Nothing is shared with you yet");return}
@@ -1087,6 +1099,7 @@ function openEntry(e,pre={}){
   $("#e_title").value=d.title;$("#e_link").value=d.link||"";$("#e_notes").value=d.notes||"";
   const ok=/^https?:\/\//i.test(d.link||"");$("#e_open").hidden=!ok;if(ok)$("#e_open").href=d.link;
   $("#e_stamp").textContent=e?`Last updated ${ago(ts(e))}${e.done_at?` · done ${ago(Date.parse(e.done_at))}`:""}`:"";
+  paintTalk();
   $("#e_del").hidden=!e;ed.showModal();if(!e)setTimeout(()=>$("#e_title").focus(),80);
 }
 $("#e_del").addEventListener("click",async()=>{

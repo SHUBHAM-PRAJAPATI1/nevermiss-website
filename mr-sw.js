@@ -1,6 +1,6 @@
 // Master Register service worker: makes the page installable and opens fast.
 // Only the app shell is cached. Your data always comes live from Supabase.
-const CACHE = "mr-shell-v1";
+const CACHE = "mr-shell-v2";
 const SHELL = ["/master-register.html", "/master-register.webmanifest", "/mr-icon-192.png", "/mr-icon-512.png", "/mr-icon-maskable-512.png"];
 const CDN = ["cdn.jsdelivr.net", "fonts.googleapis.com", "fonts.gstatic.com"];
 
