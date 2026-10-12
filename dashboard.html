@@ -559,6 +559,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   <div class="tabpane" id="pane-info">
     <div class="card">
       <div class="card-title" id="info-card-title">Business Info</div>
+      <div class="form-row" id="bi-type-row"><label>Type of business</label><select id="bi-type"></select><span class="hint">Changes how the bot talks (services, appointments, free trials…) and the words used across this dashboard.</span></div>
       <div class="form-row"><label id="bi-name-lbl">Coaching / Business name</label><input id="bi-name"></div>
       <div class="form-row"><label>Location</label><input id="bi-loc"></div>
       <div class="form-row"><label id="bi-phone-lbl">Contact phone (shown to students)</label><input id="bi-phone"></div>
@@ -1012,6 +1013,356 @@ async function signOut(){
   location.href = "login.html";
 }
 
+// ── OTHER BUSINESS TYPES (salons, gyms, clinics, studios …) ─────────────────
+// Mirrors VERTICALS in verticals.py on the backend. Coaching / skilling / NGO
+// clients are not in this table, so nothing below changes for them.
+const VERTICAL_UI = {
+ "salon": {
+  "label": "Salon / Beauty parlour",
+  "biz": "salon",
+  "item": "service",
+  "items": "services",
+  "icon": "💇",
+  "customer": "client",
+  "results": "Client Reviews",
+  "work": "Our Work (Photos)",
+  "place": "Salon Photos",
+  "brochure": "Price List / Menu",
+  "example": "Haircut + Wash",
+  "appointment": "Book an Appointment",
+  "trial": null,
+  "enquiry": "Packages & Offers"
+ },
+ "makeup": {
+  "label": "Makeup artist / Bridal studio",
+  "biz": "makeup studio",
+  "item": "package",
+  "items": "packages",
+  "icon": "💄",
+  "customer": "client",
+  "results": "Client Reviews",
+  "work": "Our Work (Portfolio)",
+  "place": "Studio Photos",
+  "brochure": "Price List / Packages",
+  "example": "Bridal HD Makeup",
+  "appointment": "Book a Slot",
+  "trial": null,
+  "enquiry": "Bridal / Event Enquiry"
+ },
+ "gym": {
+  "label": "Gym / Fitness studio",
+  "biz": "gym",
+  "item": "membership plan",
+  "items": "membership plans",
+  "icon": "🏋️",
+  "customer": "member",
+  "results": "Member Transformations",
+  "work": "Transformation Photos",
+  "place": "Gym Photos",
+  "brochure": "Membership Plans & Prices",
+  "example": "3-month membership",
+  "appointment": null,
+  "trial": "Free Trial Workout",
+  "enquiry": "Membership Enquiry"
+ },
+ "yoga": {
+  "label": "Yoga / Wellness studio",
+  "biz": "yoga studio",
+  "item": "class",
+  "items": "classes",
+  "icon": "🧘",
+  "customer": "student",
+  "results": "Student Stories",
+  "work": "Class Photos",
+  "place": "Studio Photos",
+  "brochure": "Schedule & Fees",
+  "example": "Morning Hatha Yoga",
+  "appointment": null,
+  "trial": "Free Trial Class",
+  "enquiry": "Join a Batch"
+ },
+ "dance": {
+  "label": "Dance academy / Zumba",
+  "biz": "dance academy",
+  "item": "dance style",
+  "items": "dance styles and batches",
+  "icon": "💃",
+  "customer": "student",
+  "results": "Performances & Achievements",
+  "work": "Performance Photos",
+  "place": "Studio Photos",
+  "brochure": "Batches & Fees",
+  "example": "Bollywood (Kids)",
+  "appointment": null,
+  "trial": "Free Trial Class",
+  "enquiry": "Join a Batch"
+ },
+ "music": {
+  "label": "Music academy",
+  "biz": "music academy",
+  "item": "instrument / course",
+  "items": "courses",
+  "icon": "🎵",
+  "customer": "student",
+  "results": "Student Achievements",
+  "work": "Performance Photos",
+  "place": "Academy Photos",
+  "brochure": "Courses & Fees",
+  "example": "Guitar – Beginner",
+  "appointment": null,
+  "trial": "Free Trial Class",
+  "enquiry": "Join a Course"
+ },
+ "art": {
+  "label": "Art / Hobby classes",
+  "biz": "art studio",
+  "item": "class",
+  "items": "classes and workshops",
+  "icon": "🎨",
+  "customer": "student",
+  "results": "Student Achievements",
+  "work": "Student Artwork",
+  "place": "Studio Photos",
+  "brochure": "Classes & Fees",
+  "example": "Sketching (Kids)",
+  "appointment": null,
+  "trial": "Free Trial Class",
+  "enquiry": "Join a Class"
+ },
+ "sports": {
+  "label": "Sports academy / Swimming",
+  "biz": "sports academy",
+  "item": "sport / batch",
+  "items": "sports and batches",
+  "icon": "🏸",
+  "customer": "player",
+  "results": "Achievements",
+  "work": "Match & Training Photos",
+  "place": "Facility Photos",
+  "brochure": "Batches & Fees",
+  "example": "Swimming – Beginner",
+  "appointment": null,
+  "trial": "Free Trial Session",
+  "enquiry": "Join a Batch"
+ },
+ "dental": {
+  "label": "Dental clinic",
+  "biz": "dental clinic",
+  "item": "treatment",
+  "items": "treatments",
+  "icon": "🦷",
+  "customer": "patient",
+  "results": "Patient Reviews",
+  "work": "Smile Results",
+  "place": "Clinic Photos",
+  "brochure": "Treatments & Charges",
+  "example": "Teeth Cleaning",
+  "appointment": "Book a Dental Appointment",
+  "trial": null,
+  "enquiry": null
+ },
+ "skin_clinic": {
+  "label": "Skin / Hair clinic",
+  "biz": "clinic",
+  "item": "treatment",
+  "items": "treatments",
+  "icon": "✨",
+  "customer": "patient",
+  "results": "Patient Reviews",
+  "work": "Before & After",
+  "place": "Clinic Photos",
+  "brochure": "Treatments & Charges",
+  "example": "Acne Treatment",
+  "appointment": "Book a Consultation",
+  "trial": null,
+  "enquiry": null
+ },
+ "physio": {
+  "label": "Physiotherapy clinic",
+  "biz": "physiotherapy clinic",
+  "item": "treatment",
+  "items": "treatments",
+  "icon": "🩺",
+  "customer": "patient",
+  "results": "Patient Reviews",
+  "work": "Recovery Stories",
+  "place": "Clinic Photos",
+  "brochure": "Treatments & Charges",
+  "example": "Back Pain Therapy",
+  "appointment": "Book a Physio Session",
+  "trial": null,
+  "enquiry": null
+ },
+ "clinic": {
+  "label": "Clinic / Doctor (eye, ayurveda, homeo, general)",
+  "biz": "clinic",
+  "item": "service",
+  "items": "services",
+  "icon": "🏥",
+  "customer": "patient",
+  "results": "Patient Reviews",
+  "work": "Patient Stories",
+  "place": "Clinic Photos",
+  "brochure": "Services & Charges",
+  "example": "General Consultation",
+  "appointment": "Book an Appointment",
+  "trial": null,
+  "enquiry": null
+ },
+ "diagnostic": {
+  "label": "Pathology lab / Diagnostic centre",
+  "biz": "diagnostic centre",
+  "item": "test / package",
+  "items": "tests and health packages",
+  "icon": "🧪",
+  "customer": "patient",
+  "results": "Patient Reviews",
+  "work": "Certifications",
+  "place": "Lab Photos",
+  "brochure": "Test Price List",
+  "example": "Full Body Checkup",
+  "appointment": "Book a Test",
+  "trial": null,
+  "enquiry": null
+ },
+ "pet": {
+  "label": "Pet clinic / Grooming",
+  "biz": "pet clinic",
+  "item": "service",
+  "items": "services",
+  "icon": "🐾",
+  "customer": "pet parent",
+  "results": "Pet Parent Reviews",
+  "work": "Grooming Photos",
+  "place": "Clinic Photos",
+  "brochure": "Services & Prices",
+  "example": "Dog Grooming",
+  "appointment": "Book a Pet Appointment",
+  "trial": null,
+  "enquiry": null
+ },
+ "driving": {
+  "label": "Driving school",
+  "biz": "driving school",
+  "item": "course",
+  "items": "driving courses",
+  "icon": "🚗",
+  "customer": "learner",
+  "results": "Learner Reviews",
+  "work": "Our Cars & Training",
+  "place": "Training Photos",
+  "brochure": "Courses & Fees",
+  "example": "Car – 21 days course",
+  "appointment": null,
+  "trial": "Free Trial Drive",
+  "enquiry": "Join a Driving Course"
+ },
+ "study_abroad": {
+  "label": "Study abroad / Visa consultant",
+  "biz": "consultancy",
+  "item": "service",
+  "items": "services and countries",
+  "icon": "✈️",
+  "customer": "student",
+  "results": "Student Success Stories",
+  "work": "Visa Approvals",
+  "place": "Office Photos",
+  "brochure": "Services Brochure",
+  "example": "Masters in Germany",
+  "appointment": "Book Free Counselling",
+  "trial": null,
+  "enquiry": null
+ },
+ "interior": {
+  "label": "Interior designer",
+  "biz": "interior design studio",
+  "item": "service",
+  "items": "services",
+  "icon": "🛋️",
+  "customer": "client",
+  "results": "Client Reviews",
+  "work": "Our Projects",
+  "place": "Studio Photos",
+  "brochure": "Portfolio / Brochure",
+  "example": "2BHK Full Interior",
+  "appointment": "Free Consultation / Site Visit",
+  "trial": null,
+  "enquiry": "Get a Quote"
+ }
+};
+function verticalUI(){ return (CLIENT && VERTICAL_UI[CLIENT.client_type]) || null; }
+function isVertical(){ return !!verticalUI(); }
+function cap1(t){ return t ? t.charAt(0).toUpperCase() + t.slice(1) : t; }
+function leadTypeLabel(t){
+  const v = verticalUI();
+  if (!v) return t;
+  return ({ booking: "Appointment", demo: "Free trial", registration: "Enquiry", callback: "Callback" })[t] || t;
+}
+function setLabelIn(id, text){ const el = document.querySelector("#" + id + " label"); if (el) el.textContent = text; }
+function prevLabel(inputId, text){ const el = document.getElementById(inputId); const l = el && el.closest(".form-row") && el.closest(".form-row").querySelector("label"); if (l) l.textContent = text; }
+
+function fillBusinessTypePicker(){
+  const sel = document.getElementById("bi-type");
+  if (!sel || !CLIENT) return;
+  const fixed = CLIENT.client_type === "skilling" || CLIENT.client_type === "ngo";
+  show("bi-type-row", !fixed);
+  if (fixed) return;
+  sel.innerHTML = '<option value="coaching">Coaching / Tuition / Training institute</option>' +
+    Object.keys(VERTICAL_UI).map(k => '<option value="' + k + '">' + esc(VERTICAL_UI[k].label) + '</option>').join("");
+  sel.value = VERTICAL_UI[CLIENT.client_type] ? CLIENT.client_type : "coaching";
+}
+
+function applyVerticalUI(){
+  fillBusinessTypePicker();
+  const v = verticalUI();
+  if (!v) return;
+  const Items = cap1(v.items), Item = cap1(v.item);
+  setText("nav-profile-txt", "Business Profile");
+  setText("profile-h1", "Business Profile");
+  setText("profile-sub", "Everything the bot knows about your " + v.biz + ".");
+  setText("tab-courses", Items.split(" ")[0]);
+  setText("tab-results", v.results);
+  setText("tab-info", "Business Info");
+  setText("courses-card-title", v.icon + " " + Items + " & prices");
+  setText("c-name-lbl", Item + " name");
+  document.getElementById("c-name").placeholder = "e.g. " + v.example;
+  setLabelIn("c-fees-row", "Price (₹)");
+  document.getElementById("c-fees").placeholder = "e.g. 999";
+  prevLabel("c-batch", "Timing label (optional)");
+  document.getElementById("c-batch").placeholder = "e.g. Mon–Sat";
+  prevLabel("c-start", "Opens / starts");
+  prevLabel("c-end", "Closes / ends");
+  const seatsRow = document.getElementById("c-seats") && document.getElementById("c-seats").closest(".form-row");
+  if (seatsRow) seatsRow.style.display = "none";
+  const demoRow = document.getElementById("c-demo-row");
+  if (demoRow) {
+    demoRow.style.display = v.trial ? "" : "none";
+    demoRow.lastChild.textContent = " Free trial available for this " + v.item;
+    document.getElementById("c-demo").checked = !!v.trial;
+  }
+  setText("c-add-btn", "+ Add " + v.item);
+  setText("results-card-title", v.results);
+  setText("r-ach-lbl", "Review / result");
+  document.getElementById("r-ach").placeholder = "e.g. Loved the service, very professional!";
+  setText("r-name-lbl", cap1(v.customer) + " name");
+  setText("m-topper-lbl", v.work + " photo");
+  prevLabel("m-brochure", v.brochure + " (PDF)");
+  prevLabel("m-facility", v.place.replace(/s$/, "") + " photo");
+  setText("info-card-title", "Business Info");
+  setText("bi-name-lbl", "Business name");
+  setText("bi-phone-lbl", "Contact phone (shown to " + v.customer + "s)");
+  setText("bi-timings-lbl", "Opening hours");
+  setText("sp-3-txt", "At least one " + v.item + " added");
+  setText("ov-leads-lbl", "Total enquiries");
+  setText("leads-sub", "Every appointment, trial and enquiry your bot captured.");
+  const lbl = (id, text) => { const n = document.getElementById(id); if (n && n.nextElementSibling) n.nextElementSibling.textContent = text; };
+  lbl("lc-reg", "📝 Enquiries");
+  lbl("lc-demo", "🎟️ Free trials");
+  lbl("lc-booking", "📅 Appointments");
+  show("lc-demo-stat", !!v.trial);
+  show("booking-terms-card", false);
+}
+
 function applyClientTypeUI(){
   const ngo = isNGO();
 
@@ -1056,6 +1407,7 @@ function applyClientTypeUI(){
   show("lc-demo-stat", !ngo);
   show("booking-terms-card", !ngo);
   show("ngo-slot-terms-card", ngo);
+  applyVerticalUI();
 }
 
 function applyPlanGating(){
@@ -1270,10 +1622,10 @@ async function loadLeads(){
   const releaseLabel = isNGO() ? "Release slot" : "Release seat";
 
   document.getElementById("leads-body").innerHTML =
-    `<table><tr><th></th><th>Name</th><th>Type / ${isNGO() ? "Batch" : "Course"}</th><th>Phone</th><th>Date</th><th></th></tr>` +
+    `<table><tr><th></th><th>Name</th><th>Type / ${isNGO() ? "Batch" : (isVertical() ? "Details" : "Course")}</th><th>Phone</th><th>Date</th><th></th></tr>` +
     sorted.map(l => {
       const handled = isHandled(l.status);
-      const isBooking = l.lead_type === "booking";
+      const isBooking = l.lead_type === "booking" && !isVertical();
 
       const tickCell = isBooking ? "" :
         `<input type="checkbox" ${handled ? "checked" : ""} onchange="updateLeadStatus('${l.id}', this.checked ? 'done' : 'new')" title="Mark as handled" style="width:16px;height:16px;cursor:pointer;">`;
@@ -1288,7 +1640,7 @@ async function loadLeads(){
       return `<tr style="${handled ? 'opacity:0.55;' : ''}">
       <td>${tickCell}</td>
       <td><strong>${esc(l.name)}</strong></td>
-      <td>${esc(l.lead_type)}${l.course && l.course !== l.lead_type ? " · " + esc(l.course) : ""}</td>
+      <td>${esc(leadTypeLabel(l.lead_type))}${l.course && l.course !== l.lead_type ? " · " + esc(l.course) : ""}</td>
       <td>+${esc(l.phone || l.whatsapp_number)}</td>
       <td class="muted">${fmtDate(l.created_at)}</td>
       <td>${actionCell}</td>
@@ -1883,24 +2235,27 @@ async function loadCourses(){
   const el = document.getElementById("courses-list");
   const ngo = isNGO();
   if (!data || !data.length) {
-    el.innerHTML = '<div class="muted">' + (ngo ? "No batches yet. Add your first one above and the bot can start telling candidates about it." : "No courses yet.") + '</div>';
+    el.innerHTML = '<div class="muted">' + (ngo ? "No batches yet. Add your first one above and the bot can start telling candidates about it." : (isVertical() ? "No " + verticalUI().items + " yet. Add your first one above and the bot can start answering about it." : "No courses yet.")) + '</div>';
     return;
   }
   el.innerHTML = data.map(c => {
     // seats_available can legitimately be null on older rows; coerce to a number
     // so it never lands in an onclick as an empty argument.
     const seats = Number(c.seats_available) || 0;
-    const feesPart = ngo ? "<span class='muted'> · free training</span>" : " · ₹" + esc(c.fees) + "/yr" + (c.demo_available ? " · 🎓 demo" : "");
+    const vt = verticalUI();
+    const feesPart = ngo ? "<span class='muted'> · free training</span>"
+      : vt ? (c.fees ? " · ₹" + esc(c.fees) : "") + (vt.trial && c.demo_available ? " · 🎟️ free trial" : "")
+      : " · ₹" + esc(c.fees) + "/yr" + (c.demo_available ? " · 🎓 demo" : "");
     const eligPart = (ngo && c.eligibility_criteria)
       ? "<br><span class='muted'>Who can join: " + esc(c.eligibility_criteria) + "</span>"
       : (ngo ? "<br><span class='muted' style='color:#C2410C;'>No eligibility set — the bot will say your team will confirm.</span>" : "");
     return "<div style='border:1px solid var(--gray2);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.84rem;display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;'>" +
       "<div>" +
       "<strong>" + esc(c.course_name) + "</strong>" + feesPart +
-      "<br><span class='muted'>" + (ngo ? "Slots: " : "Seats: ") + "</span>" +
+      (vt ? "" : "<br><span class='muted'>" + (ngo ? "Slots: " : "Seats: ") + "</span>" +
       "<button onclick=\"adjustSeats('" + esc(c.id) + "',-1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One less (e.g. an offline booking)'>−</button> " +
       "<strong onclick=\"setSeatsDirectly('" + esc(c.id) + "'," + seats + ")\" style='cursor:pointer;text-decoration:underline dotted;' title='Click to set an exact number'>" + seats + "</strong> " +
-      "<button onclick=\"adjustSeats('" + esc(c.id) + "',1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One more (e.g. a cancellation)'>+</button>" +
+      "<button onclick=\"adjustSeats('" + esc(c.id) + "',1)\" style='background:var(--gray);border:none;border-radius:4px;width:20px;height:20px;cursor:pointer;font-weight:700;' title='One more (e.g. a cancellation)'>+</button>") +
       eligPart +
       ((c.course_batches && c.course_batches.length) ? "<br><span class='muted'>" + c.course_batches.map(b => esc(b.batch_label) + " (" + esc(b.start_time) + "–" + esc(b.end_time) + ")").join(" · ") + "</span>" : "") +
       "</div>" +
@@ -2097,15 +2452,27 @@ async function uploadMedia(){
 
 async function saveBizInfo(){
   const msg = document.getElementById("info-msg");
-  const { error } = await sb.from("clients").update({
+  const update = {
     business_name: document.getElementById("bi-name").value.trim(),
     location: document.getElementById("bi-loc").value.trim(),
     contact_phone: document.getElementById("bi-phone").value.trim(),
     institute_timings: document.getElementById("bi-timings").value.trim(),
     website_url: document.getElementById("bi-website").value.trim() || null
-  }).eq("id", CLIENT.id);
+  };
+  // Business type: only for coaching + the new business types. Skilling and
+  // NGO clients are set up by the NeverMiss team and the picker is hidden.
+  const typeSel = document.getElementById("bi-type");
+  const fixedType = CLIENT.client_type === "skilling" || CLIENT.client_type === "ngo";
+  const newType = (!fixedType && typeSel && typeSel.value) ? typeSel.value : null;
+  const typeChanged = newType && newType !== (CLIENT.client_type || "coaching");
+  if (typeChanged) update.client_type = newType;
+  const { error } = await sb.from("clients").update(update).eq("id", CLIENT.id);
   if (error) { msg.className = "msg err"; msg.textContent = "❌ " + error.message; return; }
   msg.className = "msg ok"; msg.textContent = "✅ Saved — the bot will use this info from now on.";
+  if (typeChanged) {
+    msg.textContent = "✅ Saved — switching the dashboard to your business type…";
+    setTimeout(() => location.reload(), 900);
+  }
 }
 
 async function saveBookingTerms(){
