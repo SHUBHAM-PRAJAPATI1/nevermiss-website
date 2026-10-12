@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp booking assistant for salons and beauty studios | NeverMiss</title>
+<meta name="description" content="NeverMiss answers your salon&#x27;s WhatsApp in seconds: prices, offers and appointment requests, even while you&#x27;re with a client. For salons, beauty parlours, makeup artists and bridal studios in India.">
+<link rel="canonical" href="https://nevermiss.co.in/salons.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevermiss.co.in/salons.html">
+<meta property="og:title" content="WhatsApp booking assistant for salons and beauty studios | NeverMiss">
+<meta property="og:description" content="NeverMiss answers your salon&#x27;s WhatsApp in seconds: prices, offers and appointment requests, even while you&#x27;re with a client. For salons, beauty parlours, makeup artists and bridal studios in India.">
+<meta property="og:image" content="https://nevermiss.co.in/nevermiss-og-image.png">
+<meta property="og:locale" content="en_IN">
+<meta property="og:site_name" content="NeverMiss">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#6B2D4A">
+<link rel="icon" type="image/png" sizes="32x32" href="/nevermiss-favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/nevermiss-favicon-16.png">
+<link rel="apple-touch-icon" href="/nevermiss-apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"NeverMiss","url":"https://nevermiss.co.in/salons.html","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"NeverMiss answers your salon&#x27;s WhatsApp in seconds: prices, offers and appointment requests, even while you&#x27;re with a client. For salons, beauty parlours, makeup artists and bridal studios in India.","offers":{"@type":"AggregateOffer","priceCurrency":"INR","lowPrice":"3999","highPrice":"8999","offerCount":"3"},"provider":{"@type":"Organization","name":"NeverMiss","url":"https://nevermiss.co.in/","areaServed":"IN"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hind:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+<script src="/nm-track.js" data-endpoint="https://my-saas-bot.onrender.com/api/track" data-product="nevermiss" defer></script>
+
+<style>
+/* Salons & beauty: soft, polished, a little editorial — like a good salon's
+   price menu. The memorable object is the appointment book in the hero. */
+:root{
+  --bg:#FBF4F1; --surface:#FFFFFF; --ink:#2A1720; --muted:#7A5E66; --line:#EBDCD7;
+  --brand:#6B2D4A; --brand-deep:#521F38; --brand-ink:#FFFFFF; --soft:#F4E3E6; --accent:#A8844A;
+  --display:"Cormorant Garamond", Georgia, serif; --display-weight:600; --display-tracking:-0.01em;
+}
+h1{font-size:clamp(2.6rem,5.2vw,4.1rem);line-height:1.03;}
+h2{font-size:clamp(2.1rem,3.9vw,3.1rem);line-height:1.05;}
+h3{font-family:"Hind",sans-serif;font-weight:600;letter-spacing:0;font-size:1.12rem;}
+.plan-name{font-size:1.65rem;}
+.hero{padding:76px 0 96px;}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:center;}
+.hero .lede{margin-top:22px;}
+.rule{width:56px;height:2px;background:var(--accent);margin-bottom:26px;}
+
+/* appointment book */
+.book{background:#fff;border-radius:6px 22px 22px 6px;box-shadow:0 40px 80px -40px rgba(82,31,56,.45),inset 6px 0 0 #6B2D4A;padding:28px 30px 22px 40px;position:relative;}
+.book-head{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;align-items:baseline;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:6px;}
+.book-head b{font-family:var(--display);font-size:1.75rem;font-weight:600;white-space:nowrap;}
+.book-head span{font-size:.88rem;color:var(--muted);}
+.slot{display:grid;grid-template-columns:62px 1fr;gap:14px;padding:12px 0;border-bottom:1px dashed var(--line);align-items:start;}
+.slot:last-of-type{border-bottom:0;}
+.slot time{font-family:var(--display);font-size:1.2rem;font-weight:600;color:var(--muted);line-height:1.3;}
+.slot .who{font-weight:600;line-height:1.3;}
+.slot .what{color:var(--muted);font-size:.93rem;}
+.slot.free .who{color:#B9A3A9;font-weight:500;font-style:italic;}
+.via{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:.78rem;font-weight:600;color:#1A7F4B;background:#E7F6EC;padding:2px 8px;border-radius:6px;}
+.via svg{width:13px;height:13px;}
+.slot.new{background:linear-gradient(90deg,#FBF1F3,transparent);margin:0 -14px;padding-left:14px;padding-right:14px;border-radius:8px;}
+.slot.new{opacity:0;animation:seqIn .6s .5s ease forwards;}
+.book-foot{margin-top:12px;font-size:.86rem;color:var(--muted);}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:44px;}.hero{padding:48px 0 70px;}}
+
+/* conversation section */
+.convo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:72px;align-items:center;}
+.beats{list-style:none;counter-reset:b;display:flex;flex-direction:column;gap:22px;margin-top:30px;}
+.beats li{counter-increment:b;display:grid;grid-template-columns:40px 1fr;gap:14px;}
+.beats li::before{content:counter(b);font-family:var(--display);font-size:1.6rem;font-weight:600;color:var(--accent);line-height:1;}
+.beats b{display:block;font-weight:600;}
+.beats span{color:var(--muted);}
+@media (max-width:900px){.convo{grid-template-columns:1fr;justify-items:center;gap:40px;}.convo>div:first-child{justify-self:stretch;}}
+.phone .wa-av{background:#6B2D4A;}
+.band{background:var(--surface);}
+.types .type h3{font-family:var(--display);font-size:1.5rem;font-weight:600;}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <div class="wrap nav-in">
+    <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span><span class="sr-only">home</span></a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="nav-links">
+      <div class="nav-for" data-open="false">
+        <button type="button" aria-expanded="false" aria-haspopup="true">Who it's for<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="nav-menu"><a href="/coaching.html"><span class="sw" style="background:#0F766E"></span><span><b>Coaching institutes</b><small>JEE, NEET, CET, board, MPSC and tuition classes</small></span></a><a href="/salons.html" aria-current="page"><span class="sw" style="background:#6B2D4A"></span><span><b>Salons &amp; beauty</b><small>Salons, parlours, makeup and bridal studios</small></span></a><a href="/fitness.html"><span class="sw" style="background:#2438A8"></span><span><b>Gyms &amp; studios</b><small>Gyms, yoga, dance, music and sports academies</small></span></a><a href="/clinics.html"><span class="sw" style="background:#1F5F8B"></span><span><b>Clinics &amp; labs</b><small>Dental, skin, physio, eye, diagnostic and pet clinics</small></span></a></div>
+      </div>
+      <a href="#pricing">Pricing</a>
+      <a href="/bulk-messaging.html">Bulk messaging</a>
+      <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">Support</a>
+      <a href="/login.html">Log in</a>
+      <a href="#contact" class="nav-cta">Book a free demo</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="rule" aria-hidden="true"></div>
+      <h1>Your appointment book fills up, even with a client in the chair.</h1>
+      <p class="lede">When your hands are busy, WhatsApp waits, and the customer books somewhere else. NeverMiss replies in seconds with your prices and offers, takes the appointment request, and sends it to your phone.</p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-main" data-checkout="trial">Start a 7-day free trial</button>
+        <a href="#contact" class="btn btn-line">Book a free demo</a>
+      </div>
+      <p class="fine">For salons, beauty parlours, makeup artists and bridal studios. No card needed.</p>
+    </div>
+    <div class="book" role="img" aria-label="A salon's appointment book for Saturday, with two new bookings that came in on WhatsApp overnight">
+      <div class="book-head"><b>Saturday, 18 Oct</b><span>Chair 1 · Lumière Salon</span></div>
+      <div class="slot"><time>11:00</time><div><div class="who">Anjali M.</div><div class="what">Haircut and blow-dry</div></div></div>
+      <div class="slot new"><time>12:30</time><div><div class="who">Sneha K.</div><div class="what">Global hair colour</div><span class="via"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg>Booked on WhatsApp · 11:48 PM</span></div></div>
+      <div class="slot free"><time>2:00</time><div><div class="who">Open</div></div></div>
+      <div class="slot new" style="animation-delay:1s"><time>5:00</time><div><div class="who">Priya S.</div><div class="what">Hair spa</div><span class="via"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg>Booked on WhatsApp · 11:12 PM</span></div></div>
+      <div class="slot"><time>6:30</time><div><div class="who">Ritu & mother</div><div class="what">Party makeup, two people</div></div></div>
+      <p class="book-foot">Example. You confirm each request with one tap, or a call.</p>
+    </div>
+  </div>
+</header>
+
+<section class="band" aria-labelledby="convo-h">
+  <div class="wrap convo">
+    <div>
+      <h2 id="convo-h">The 11 PM message, handled.</h2>
+      <p class="lede" style="margin-top:14px">Most salon enquiries are the same few questions. NeverMiss answers them the way your front desk would, then takes the booking.</p>
+      <ol class="beats">
+        <li><div><b>She asks the price</b><span>It answers from your own service list, with the offer you're running this month.</span></div></li>
+        <li><div><b>She picks a time</b><span>It collects the service, the day and time she wants, and her number.</span></div></li>
+        <li><div><b>You get the request</b><span>A WhatsApp alert with everything, so you confirm the slot in a few seconds.</span></div></li>
+      </ol>
+    </div>
+    <div class="phone" role="img" aria-label="Example WhatsApp chat between a customer and Lumière Salon's assistant">
+      <div class="screen">
+        <div class="wa-top"><div class="wa-av">LS</div><div><div class="wa-name">Lumière Salon</div><div class="wa-sub">online</div></div></div>
+        <div class="wa-body">
+          <div class="wa-day">Today</div>
+          <div class="b out">Hi, how much for hair spa? Any offer?<span class="t">11:10 PM ✓✓</span></div>
+          <div class="b in">Hi! 😊 Hair spa is <strong>₹1,200</strong>. This month it's <strong>₹999</strong> with a free head massage.<br><br>Want me to book you a slot? Type <strong>book</strong>.<span class="t">11:10 PM</span></div>
+          <div class="b out">book saturday 5pm<span class="t">11:11 PM ✓✓</span></div>
+          <div class="b in">Sure! What's your <strong>full name</strong>?<span class="t">11:11 PM</span></div>
+          <div class="b out">Priya Sharma<span class="t">11:11 PM ✓✓</span></div>
+          <div class="b in">✅ Request received, Priya!<br>💇 Hair spa · Saturday 5 PM<br>We'll confirm your slot shortly.<span class="t">11:12 PM</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="jobs-h">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="jobs-h">Everything between “how much?” and “see you Saturday”</h2></div>
+    <div class="jobs">
+      <div class="job"><h3>Answers</h3><p>Every message, in seconds.</p><ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><div><b>Your price list, read out right</b><span>Haircuts, colour, facials, packages, from the prices you add.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg><div><b>Your work, in the chat</b><span>Sends your rate card and photos of your work when someone asks.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 6 8M11 5c0 4-3 8-7 9M13 21l4-10 4 10M14.5 17.5h5"/></svg><div><b>Hindi, Marathi or English</b><span>Replies in whatever language the customer writes in.</span></div></li></ul></div>
+      <div class="job"><h3>Books</h3><p>Requests arrive complete.</p><ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><div><b>Appointment requests</b><span>Service, preferred day and time, name and number, collected step by step.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><div><b>Bridal and event enquiries</b><span>Asks for the event date and city so you can quote properly.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg><div><b>Instant alert to you</b><span>Every request lands on your WhatsApp the moment it's made.</span></div></li></ul></div>
+      <div class="job"><h3>Brings them back</h3><p>So a “maybe” doesn’t go quiet.</p><ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1015.5-6.2M21 3v6h-6"/></svg><div><b>Gentle follow-ups</b><span>A reminder to people who asked about prices but didn't book.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 001 1h3l5 4V6L7 10H4a1 1 0 00-1 1zM16 9a4 4 0 010 6"/></svg><div><b>Festive and wedding-season offers</b><span>Send them to customers who opted in, from your dashboard.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg><div><b>Your team can step in</b><span>Every chat is in your dashboard if you'd rather reply yourself.</span></div></li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="types-h">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="types-h">Set up for your kind of studio</h2></div>
+    <div class="types">
+      <div class="type"><h3>Unisex & family salons</h3><p>Haircuts, colour and grooming, with appointment requests by day and time.</p></div>
+      <div class="type"><h3>Beauty parlours</h3><p>Facials, waxing, threading and packages, with this month's offers.</p></div>
+      <div class="type"><h3>Makeup & bridal studios</h3><p>Bridal and party enquiries with the event date, so no wedding lead is lost.</p></div>
+      <div class="type"><h3>Nail, spa & skin studios</h3><p>Treatments and memberships, answered from your own menu.</p></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="owner-h">
+  <div class="wrap owner">
+    <div>
+      <h2 id="owner-h">You see every booking the moment it's made</h2>
+      <p class="lede" style="margin-top:14px">No new app to check. The request comes to your own WhatsApp, and the full list is in your dashboard.</p>
+      <ul class="ticks">
+        <li>Name, service, preferred time and number in one message</li>
+        <li>Confirm on WhatsApp, or tap the number to call</li>
+        <li>Mark it handled in your dashboard so nothing slips</li>
+      </ul>
+    </div>
+    <div class="alert-card" role="img" aria-label="Example WhatsApp alert sent to the salon owner">
+      <div class="who"><i>N</i>NeverMiss alert · 11:12 PM</div>
+      <div class="msg">📅 <b>New Appointment Request</b>
+
+👤 Priya Sharma
+💇 Hair spa · Saturday 5 PM
+📱 98765 43210</div>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="guard-h">
+  <div class="wrap">
+    <div class="guard">
+      <div>
+        <h2 id="guard-h">It only says what you'd say</h2>
+        <p class="lede" style="margin-top:14px">A wrong price or a promised result costs you a client. So the bot works inside clear limits.</p>
+      </div>
+      <ul>
+        <li><b>Prices from your list only</b><span>It never invents a price, offer or discount. If it isn't listed, it offers a callback.</span></li>
+        <li><b>You confirm the slot</b><span>It takes requests and never promises a time is free, so you're never double-booked.</span></li>
+        <li><b>No promised results</b><span>For colour, treatments and skin, it says your stylist will advise in person.</span></li>
+        <li><b>Allergies and skin</b><span>It suggests a patch test at the salon instead of giving advice.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="trust" aria-labelledby="trust-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="trust-h">What happens if something goes wrong?</h2>
+      <p class="lede">It's the right question to ask before you hand a new company your customers. Here's what's behind the bot.</p>
+    </div>
+    <div class="trust-grid"><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg><h3>Official WhatsApp Business API</h3><p>Your bot runs on Meta's WhatsApp Cloud API, the same platform large brands use. No unofficial tools that can get your number blocked.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16c.7-1.6 1.9-2.4 3.2-2.4s2.5.8 3.2 2.4M15 10h3M15 13h3"/></svg><h3>A registered business</h3><p>NeverMiss is registered under Udyam (MSME) and based in Pune. You know who you're paying and where to find us.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13v-1a8 8 0 0116 0v1"/><rect x="2.5" y="13" width="4" height="6" rx="1.5"/><rect x="17.5" y="13" width="4" height="6" rx="1.5"/><path d="M19.5 19c0 1.5-2 2.5-5 2.5"/></svg><h3>Support on WhatsApp</h3><p>Message <a href="https://wa.me/917484849508" style="color:#5FD3BC" target="_blank" rel="noopener">+91 74848 49508</a> and a person replies, usually the same day. In Pune, we'll come to you.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 017.5-2"/></svg><h3>Monthly, cancel anytime</h3><p>No long contract and no setup fee. Stay because it works, not because you're locked in.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 13h18M12 9v12M12 9c-1.5-3-5-4-5-1.5S10 9 12 9zM12 9c1.5-3 5-4 5-1.5S14 9 12 9z"/></svg><h3>Try it free for 7 days</h3><p>Run it on your own number with your own prices before you pay anything. No card needed.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg><h3>Your customers stay yours</h3><p>Every lead and every chat is saved in your dashboard. We never message your customers for anyone else.</p></div></div>
+  </div>
+</section>
+<section id="pricing" aria-labelledby="pricing-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="pricing-h">One price, nothing hidden.</h2>
+      <p class="lede">Pick a plan by how many WhatsApp chats you get. One extra bridal booking can pay for several months.</p>
+    </div>
+    <div class="plans">
+      <div class="plan"><div class="plan-top"><div class="plan-name">Starter</div></div><div class="plan-price">₹3,999<span> / month</span></div><p class="plan-desc">For a single salon getting started</p><ul><li>AI replies with your prices and offers</li><li>Lead capture and callback requests</li><li>Instant lead alerts on WhatsApp</li><li>1,000 conversations a month</li><li>300 utility + 20 marketing broadcasts a month</li></ul><button type="button" class="btn btn-line" data-checkout="starter">Choose Starter</button></div>
+      <div class="plan pop"><div class="plan-top"><div class="plan-name">Growth</div><div class="plan-badge">Recommended</div></div><div class="plan-price">₹5,999<span> / month</span></div><p class="plan-desc">For salons that want bookings in the chat</p><ul><li>Everything in Starter</li><li>Appointment and bridal enquiry booking</li><li>Rate card and work photos in the chat</li><li>Custom quick replies</li><li>Automatic follow-up reminders</li><li>2,000 conversations a month</li><li>750 utility + 50 marketing broadcasts a month</li></ul><button type="button" class="btn btn-main" data-checkout="growth">Choose Growth</button></div>
+      <div class="plan"><div class="plan-top"><div class="plan-name">Pro</div></div><div class="plan-price">₹8,999<span> / month</span></div><p class="plan-desc">For busy salons and multiple branches</p><ul><li>Everything in Growth</li><li>5,000 conversations a month</li><li>1,500 utility + 100 marketing broadcasts a month</li><li>Priority support</li></ul><button type="button" class="btn btn-line" data-checkout="pro">Choose Pro</button></div>
+    </div>
+    <div class="founding">
+      <div>
+        <h3>Founding price for our first 20 customers</h3>
+        <p>Everything in Growth for ₹1,999 a month, and that price stays the same for 12 months. In return, we ask for honest feedback.</p>
+        <p class="left" id="founding-left"></p>
+      </div>
+      <div><div class="fp">₹1,999<span> / month</span></div><button type="button" class="btn" id="founding-btn" data-checkout="founding">Claim a founding spot</button></div>
+    </div>
+    <p class="fine">Pay monthly, or pay for 6 or 12 months and save. Every plan includes setup and support.</p>
+  </div>
+</section>
+<section aria-labelledby="faq-h" style="padding-top:24px">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="faq-h">Questions owners ask us</h2></div>
+    <div class="faq"><details><summary>Will it double-book my chairs?</summary><p>No. It takes appointment requests with the customer's preferred time and sends them to you. You confirm the slot, so your own calendar stays the source of truth.</p></details><details><summary>Can it send my rate card and photos?</summary><p>Yes, on Growth and above. Upload your rate card as a PDF and photos of your work in the dashboard, and it sends them when a customer asks.</p></details><details><summary>What if a customer asks something it doesn&#x27;t know?</summary><p>It says it doesn't have that detail and offers a callback from you, instead of guessing.</p></details><details><summary>Can I change prices and offers myself?</summary><p>Yes. Edit your services and prices in the dashboard any time, and the bot uses the new ones from the next message.</p></details><details><summary>Does it work for a makeup artist without a salon?</summary><p>Yes. Makeup artists get a bridal and event enquiry flow that asks for the event date and city, so you can check availability and quote.</p></details></div>
+  </div>
+</section>
+<section id="contact" aria-labelledby="contact-h">
+  <div class="wrap contact-grid">
+    <div>
+      <h2 id="contact-h">See it running for your salon</h2>
+      <p class="lede" style="margin-top:14px">We'll call you the same day and set it up on your own number with your real prices. Free, with no commitment.</p>
+      <div class="contact-alt">
+        <a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20a%20demo%20of%20NeverMiss%20for%20my%20salon" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg>Prefer to message? WhatsApp us</a>
+        <a href="mailto:support@nevermiss.co.in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>support@nevermiss.co.in</a>
+      </div>
+    </div>
+    <form class="form" id="demo-form" novalidate>
+      <p id="plan-note" hidden>You were looking at the <strong></strong> plan. We'll cover it on the call.</p>
+      <div class="form-group"><label for="f-name">Your name</label><input id="f-name" autocomplete="name" placeholder="e.g. Priya Shah"></div>
+      <div class="form-group"><label for="f-business">Business name</label><input id="f-business" autocomplete="organization" placeholder="e.g. Lumière Salon, Baner"></div>
+      <div class="form-group"><label for="f-type">Type of business</label><select id="f-type"></select></div>
+      <div class="form-group"><label for="f-phone">WhatsApp number</label><input id="f-phone" type="tel" autocomplete="tel" placeholder="e.g. 9876543210"></div>
+      <div class="form-error" id="form-error" role="alert"></div>
+      <button type="submit" class="form-submit" id="demo-btn">Book my free demo</button>
+      <button type="button" class="form-submit outline" data-checkout="trial">Or start a 7-day free trial yourself</button>
+      <p class="form-note">No payment for the demo. We'll call you the same day.</p>
+    </form>
+  </div>
+</section>
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span></a>
+        <p>An AI front desk on WhatsApp for local businesses in India. Built in Pune.</p>
+      </div>
+      <div><h4>Who it's for</h4><ul><li><a href="/coaching.html">Coaching institutes</a></li><li><a href="/salons.html">Salons &amp; beauty</a></li><li><a href="/fitness.html">Gyms &amp; studios</a></li><li><a href="/clinics.html">Clinics &amp; labs</a></li><li><a href="/custom.html">Something else</a></li></ul></div>
+      <div><h4>Product</h4><ul><li><a href="#pricing">Pricing</a></li><li><a href="/bulk-messaging.html">Bulk messaging</a></li><li><a href="/login.html">Log in</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="https://wa.me/917484849508" target="_blank" rel="noopener">WhatsApp support</a></li><li><a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a></li><li><a href="/privacy-policy.html">Privacy</a></li><li><a href="/terms-of-service.html">Terms</a></li></ul></div>
+    </div>
+    <div class="foot-base"><span>© 2026 NeverMiss · Pune, Maharashtra</span><span>Udyam-registered MSME</span></div>
+  </div>
+</footer>
+<script>window.NM_PAGE = { sector: "salons", defaultType: "salon" };</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+<script src="/nm-site.js" defer></script>
+</body>
+</html>

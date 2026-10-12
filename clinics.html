@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp appointment assistant for clinics, labs and pet clinics | NeverMiss</title>
+<meta name="description" content="NeverMiss answers your clinic&#x27;s WhatsApp after hours: timings, consultation charges and appointment requests, sent to your phone. It never gives medical advice and sends emergencies to 108. For dental, skin, physio, eye clinics, labs and pet clinics.">
+<link rel="canonical" href="https://nevermiss.co.in/clinics.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevermiss.co.in/clinics.html">
+<meta property="og:title" content="WhatsApp appointment assistant for clinics, labs and pet clinics | NeverMiss">
+<meta property="og:description" content="NeverMiss answers your clinic&#x27;s WhatsApp after hours: timings, consultation charges and appointment requests, sent to your phone. It never gives medical advice and sends emergencies to 108. For dental, skin, physio, eye clinics, labs and pet clinics.">
+<meta property="og:image" content="https://nevermiss.co.in/nevermiss-og-image.png">
+<meta property="og:locale" content="en_IN">
+<meta property="og:site_name" content="NeverMiss">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1F5F8B">
+<link rel="icon" type="image/png" sizes="32x32" href="/nevermiss-favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/nevermiss-favicon-16.png">
+<link rel="apple-touch-icon" href="/nevermiss-apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"NeverMiss","url":"https://nevermiss.co.in/clinics.html","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"NeverMiss answers your clinic&#x27;s WhatsApp after hours: timings, consultation charges and appointment requests, sent to your phone. It never gives medical advice and sends emergencies to 108. For dental, skin, physio, eye clinics, labs and pet clinics.","offers":{"@type":"AggregateOffer","priceCurrency":"INR","lowPrice":"3999","highPrice":"8999","offerCount":"3"},"provider":{"@type":"Organization","name":"NeverMiss","url":"https://nevermiss.co.in/","areaServed":"IN"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hind:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+<script src="/nm-track.js" data-endpoint="https://my-saas-bot.onrender.com/api/track" data-product="nevermiss" defer></script>
+
+<style>
+/* Clinics & labs: calm, exact, trustworthy. IBM Plex Sans, cool blue,
+   lots of white, a hint of clinical green for "confirmed". The memorable
+   object is tomorrow's appointment list with overnight WhatsApp requests. */
+:root{
+  --bg:#F5F8FB; --surface:#FFFFFF; --ink:#10263A; --muted:#4F6579; --line:#D8E3EC;
+  --brand:#1F5F8B; --brand-deep:#164A6D; --brand-ink:#FFFFFF; --soft:#E1EEF6; --accent:#2E8B6B;
+  --display:"IBM Plex Sans", system-ui, sans-serif; --display-weight:600; --display-tracking:-0.02em;
+}
+body{font-family:"IBM Plex Sans","Hind",system-ui,sans-serif;font-size:16.5px;}
+h1{font-size:clamp(2.2rem,4.8vw,3.6rem);line-height:1.08;}
+h3{font-size:1.08rem;letter-spacing:-0.01em;}
+.hero{padding:72px 0 88px;background:#fff;border-bottom:1px solid var(--line);}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:center;}
+.hero .lede{margin-top:20px;}
+.safe-line{display:flex;gap:10px;align-items:flex-start;margin-top:26px;padding:14px 16px;border-radius:12px;background:var(--soft);color:var(--brand-deep);font-size:.95rem;max-width:56ch;}
+.safe-line svg{width:22px;height:22px;flex:none;margin-top:1px;}
+
+/* appointment list */
+.opd{border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 30px 70px -40px rgba(16,38,58,.5);overflow:hidden;}
+.opd-head{display:flex;flex-wrap:wrap;gap:2px 12px;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);background:#FAFCFE;}
+.opd-head b{font-weight:600;font-size:1.05rem;}
+.opd-head span{font-size:.84rem;color:var(--muted);}
+.opd table{width:100%;border-collapse:collapse;font-size:.92rem;}
+.opd th{text-align:left;font-weight:500;color:var(--muted);font-size:.8rem;padding:10px 20px 8px;border-bottom:1px solid var(--line);}
+.opd td{padding:12px 20px;border-bottom:1px solid #EDF2F6;vertical-align:top;}
+.opd tr:last-child td{border-bottom:0;}
+.opd td.t{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.opd .src{display:block;font-size:.76rem;color:var(--muted);margin-top:2px;}
+.st{display:inline-block;font-size:.76rem;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap;}
+.st.ok{background:#E3F4EC;color:#1D6B4F;}
+.st.new{background:#FFF4DE;color:#8A5A00;}
+.opd tr.wa td{background:#FBFDFF;}
+.opd tr.wa{opacity:0;animation:seqIn .5s ease forwards;}
+.opd-foot{padding:12px 20px;font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);}
+@media (max-width:960px){.hero-grid{grid-template-columns:1fr;gap:44px;}.hero{padding:48px 0 64px;}}
+@media (max-width:480px){.opd th,.opd td{padding-left:12px;padding-right:12px;}.opd .hide-s{display:none;}}
+
+.convo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:72px;align-items:center;}
+.beats{list-style:none;counter-reset:b;display:flex;flex-direction:column;gap:22px;margin-top:30px;}
+.beats li{counter-increment:b;display:grid;grid-template-columns:36px 1fr;gap:12px;}
+.beats li::before{content:counter(b);width:28px;height:28px;border-radius:50%;border:1.5px solid var(--brand);color:var(--brand);font-weight:600;font-size:.9rem;display:grid;place-items:center;}
+.beats b{display:block;font-weight:600;}
+.beats span{color:var(--muted);}
+@media (max-width:900px){.convo{grid-template-columns:1fr;justify-items:center;gap:40px;}.convo>div:first-child{justify-self:stretch;}}
+.phone .wa-av{background:#1F5F8B;}
+.band{background:var(--surface);}
+.guard{border-color:#BFD6E6;background:#F7FBFE;}
+.guard li b{color:var(--brand-deep);}
+.emergency{margin-top:22px;display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:12px;border:1.5px solid #F2C6C2;background:#FFF6F5;color:#7A1F17;font-size:.95rem;}
+.emergency svg{width:22px;height:22px;flex:none;}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <div class="wrap nav-in">
+    <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span><span class="sr-only">home</span></a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="nav-links">
+      <div class="nav-for" data-open="false">
+        <button type="button" aria-expanded="false" aria-haspopup="true">Who it's for<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="nav-menu"><a href="/coaching.html"><span class="sw" style="background:#0F766E"></span><span><b>Coaching institutes</b><small>JEE, NEET, CET, board, MPSC and tuition classes</small></span></a><a href="/salons.html"><span class="sw" style="background:#6B2D4A"></span><span><b>Salons &amp; beauty</b><small>Salons, parlours, makeup and bridal studios</small></span></a><a href="/fitness.html"><span class="sw" style="background:#2438A8"></span><span><b>Gyms &amp; studios</b><small>Gyms, yoga, dance, music and sports academies</small></span></a><a href="/clinics.html" aria-current="page"><span class="sw" style="background:#1F5F8B"></span><span><b>Clinics &amp; labs</b><small>Dental, skin, physio, eye, diagnostic and pet clinics</small></span></a></div>
+      </div>
+      <a href="#pricing">Pricing</a>
+      <a href="/bulk-messaging.html">Bulk messaging</a>
+      <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">Support</a>
+      <a href="/login.html">Log in</a>
+      <a href="#contact" class="nav-cta">Book a free demo</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Patients message after hours. Now someone replies.</h1>
+      <p class="lede">NeverMiss is a front desk for your clinic's WhatsApp. It shares your timings, consultation charges and services, takes appointment requests, and sends each one to you, without ever giving medical advice.</p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-main" data-checkout="trial">Start a 7-day free trial</button>
+        <a href="#contact" class="btn btn-line">Book a free demo</a>
+      </div>
+      <div class="safe-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span>Never diagnoses or suggests medicines. Anyone describing an emergency is told to call 108 or go to the nearest hospital.</span></div>
+    </div>
+    <div class="opd" role="img" aria-label="Tomorrow's appointment list at a dental clinic, with three requests that came in on WhatsApp overnight">
+      <div class="opd-head"><b>Tomorrow · Smile Care Dental</b><span>3 requests from WhatsApp</span></div>
+      <table>
+        <thead><tr><th>Time</th><th>Patient</th><th class="hide-s">Reason</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="t">10:00</td><td>R. Kulkarni<span class="src">Follow-up</span></td><td class="hide-s">Root canal, sitting 2</td><td><span class="st ok">Confirmed</span></td></tr>
+          <tr class="wa" style="animation-delay:.4s"><td class="t">10:30</td><td>S. Deshpande<span class="src">WhatsApp · 9:58 PM</span></td><td class="hide-s">Tooth pain, lower left</td><td><span class="st new">To confirm</span></td></tr>
+          <tr><td class="t">11:30</td><td>A. Shaikh<span class="src">Walk-in booking</span></td><td class="hide-s">Cleaning</td><td><span class="st ok">Confirmed</span></td></tr>
+          <tr class="wa" style="animation-delay:.9s"><td class="t">5:00</td><td>M. Iyer<span class="src">WhatsApp · 11:24 PM</span></td><td class="hide-s">Braces consultation</td><td><span class="st new">To confirm</span></td></tr>
+          <tr class="wa" style="animation-delay:1.4s"><td class="t">6:30</td><td>K. Patil<span class="src">WhatsApp · 6:41 AM</span></td><td class="hide-s">Child, first visit</td><td><span class="st new">To confirm</span></td></tr>
+        </tbody>
+      </table>
+      <div class="opd-foot">Example. Your staff confirms each request with a call or a message.</div>
+    </div>
+  </div>
+</header>
+
+<section aria-labelledby="convo-h">
+  <div class="wrap convo">
+    <div>
+      <h2 id="convo-h">Careful with patients, fast with bookings</h2>
+      <p class="lede" style="margin-top:14px">Most late-night messages are simple: are you open, what does it cost, can I come tomorrow. Those get answered. Anything medical goes to the doctor.</p>
+      <ol class="beats">
+        <li><div><b>The patient asks about charges and timings</b><span>It answers from your own list of services and clinic hours.</span></div></li>
+        <li><div><b>Symptoms are left to the doctor</b><span>It doesn't comment on what the problem might be. It offers an appointment instead.</span></div></li>
+        <li><div><b>Your staff confirms the request</b><span>You get the name, reason, preferred time and number on WhatsApp.</span></div></li>
+      </ol>
+    </div>
+    <div class="phone" role="img" aria-label="Example WhatsApp chat between a patient and Smile Care Dental's assistant">
+      <div class="screen">
+        <div class="wa-top"><div class="wa-av">SD</div><div><div class="wa-name">Smile Care Dental</div><div class="wa-sub">online</div></div></div>
+        <div class="wa-body">
+          <div class="wa-day">Today</div>
+          <div class="b out">Tooth paining since evening. Open tomorrow? Consultation fees?<span class="t">9:55 PM ✓✓</span></div>
+          <div class="b in">Sorry you're in pain. 🙏 We're open tomorrow, <strong>10 AM to 8 PM</strong>. Consultation is <strong>₹300</strong>.<br><br>The doctor will check it properly. Shall I request a slot? Type <strong>book</strong>.<span class="t">9:56 PM</span></div>
+          <div class="b out">book, morning please<span class="t">9:56 PM ✓✓</span></div>
+          <div class="b in">Of course. What's the patient's <strong>full name</strong>?<span class="t">9:56 PM</span></div>
+          <div class="b out">Sanjay Deshpande<span class="t">9:57 PM ✓✓</span></div>
+          <div class="b in">✅ Request noted, Sanjay.<br>🦷 Tooth pain · Tomorrow 10:30 AM<br>The clinic will confirm shortly.<span class="t">9:58 PM</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="guard-h">
+  <div class="wrap">
+    <div class="guard">
+      <div>
+        <h2 id="guard-h">Rules it never breaks</h2>
+        <p class="lede" style="margin-top:14px">A clinic's WhatsApp is not the place for an AI to play doctor. These limits are built in for every clinic and lab.</p>
+      </div>
+      <ul>
+        <li><b>No diagnosis</b><span>It never guesses what a symptom means or whether it's serious.</span></li>
+        <li><b>No medicines or doses</b><span>It never suggests a medicine, a dose or a home remedy.</span></li>
+        <li><b>No report reading</b><span>For labs, it never interprets values. The doctor explains reports.</span></li>
+        <li><b>Your charges only</b><span>It quotes consultation and test prices only from what you've added.</span></li>
+        <li><b>You confirm every slot</b><span>It takes requests and never promises a doctor is free.</span></li>
+      </ul>
+    </div>
+    <div class="emergency" role="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span><b>Emergencies come first.</b> If someone mentions chest pain, heavy bleeding, breathing trouble, unconsciousness or a serious injury, the first thing it says is to call 108 or go to the nearest hospital now.</span></div>
+  </div>
+</section>
+
+<section aria-labelledby="jobs-h">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="jobs-h">What it handles for your front desk</h2></div>
+    <div class="jobs">
+      <div class="job"><h3>Answers</h3><p>The questions your receptionist repeats all day.</p><ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><b>Timings and doctor days</b><span>Clinic hours, which doctor sits when, Sunday hours.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><div><b>Charges and services</b><span>Consultation fees, treatment and test prices from your list.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><div><b>Location and directions</b><span>Your address and landmark, every time someone asks.</span></div></li></ul></div>
+      <div class="job"><h3>Books</h3><p>Requests your staff can confirm in seconds.</p><ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><div><b>Appointment requests</b><span>Patient name, reason, preferred time and number.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg><div><b>Test bookings and home collection</b><span>For labs: which test, when, and whether they want home collection.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg><div><b>Instant alert to you</b><span>Each request goes to your WhatsApp the moment it's made.</span></div></li></ul></div>
+      <div class="job"><h3>Follows up</h3><p>Without your staff chasing.</p><ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1015.5-6.2M21 3v6h-6"/></svg><div><b>Reminders for the undecided</b><span>A gentle follow-up to people who asked but didn't book.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 001 1h3l5 4V6L7 10H4a1 1 0 00-1 1zM16 9a4 4 0 010 6"/></svg><div><b>Camps and announcements</b><span>Free check-up camps or holiday timings to patients who opted in.</span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 6 8M11 5c0 4-3 8-7 9M13 21l4-10 4 10M14.5 17.5h5"/></svg><div><b>Marathi, Hindi or English</b><span>Replies in the language your patient writes in.</span></div></li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="types-h">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="types-h">Set up for your kind of practice</h2></div>
+    <div class="types">
+      <div class="type"><h3>Dental clinics</h3><p>Treatments, charges and appointment requests for new and existing patients.</p></div>
+      <div class="type"><h3>Skin & hair clinics</h3><p>Consultations and treatments, with no promised results.</p></div>
+      <div class="type"><h3>Physiotherapy</h3><p>Session bookings and charges, and home visits if you offer them.</p></div>
+      <div class="type"><h3>Eye, ayurveda, homeopathy & general</h3><p>Doctor timings, consultation fees and appointment requests.</p></div>
+      <div class="type"><h3>Pathology labs</h3><p>Test prices, health packages and home-collection bookings.</p></div>
+      <div class="type"><h3>Pet clinics & grooming</h3><p>Vet and grooming bookings, with urgent cases sent straight to a call.</p></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="owner-h">
+  <div class="wrap owner">
+    <div>
+      <h2 id="owner-h">Each request reaches your staff complete</h2>
+      <p class="lede" style="margin-top:14px">No back-and-forth to find out who it was and what they needed.</p>
+      <ul class="ticks">
+        <li>Patient name, reason, preferred time and number in one message</li>
+        <li>Every request listed in your dashboard for the morning</li>
+        <li>Your staff confirms by call or WhatsApp, as you do today</li>
+      </ul>
+    </div>
+    <div class="alert-card" role="img" aria-label="Example WhatsApp alert sent to the clinic">
+      <div class="who"><i>N</i>NeverMiss alert · 9:58 PM</div>
+      <div class="msg">📅 <b>New Patient Appointment</b>
+
+👤 Sanjay Deshpande
+🦷 Tooth pain · Tomorrow 10:30 AM
+📱 98765 43210</div>
+    </div>
+  </div>
+</section>
+<section class="trust" aria-labelledby="trust-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="trust-h">What happens if something goes wrong?</h2>
+      <p class="lede">It's the right question to ask before you hand a new company your customers. Here's what's behind the bot.</p>
+    </div>
+    <div class="trust-grid"><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg><h3>Official WhatsApp Business API</h3><p>Your bot runs on Meta's WhatsApp Cloud API, the same platform large brands use. No unofficial tools that can get your number blocked.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16c.7-1.6 1.9-2.4 3.2-2.4s2.5.8 3.2 2.4M15 10h3M15 13h3"/></svg><h3>A registered business</h3><p>NeverMiss is registered under Udyam (MSME) and based in Pune. You know who you're paying and where to find us.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13v-1a8 8 0 0116 0v1"/><rect x="2.5" y="13" width="4" height="6" rx="1.5"/><rect x="17.5" y="13" width="4" height="6" rx="1.5"/><path d="M19.5 19c0 1.5-2 2.5-5 2.5"/></svg><h3>Support on WhatsApp</h3><p>Message <a href="https://wa.me/917484849508" style="color:#5FD3BC" target="_blank" rel="noopener">+91 74848 49508</a> and a person replies, usually the same day. In Pune, we'll come to you.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 017.5-2"/></svg><h3>Monthly, cancel anytime</h3><p>No long contract and no setup fee. Stay because it works, not because you're locked in.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 13h18M12 9v12M12 9c-1.5-3-5-4-5-1.5S10 9 12 9zM12 9c1.5-3 5-4 5-1.5S14 9 12 9z"/></svg><h3>Try it free for 7 days</h3><p>Run it on your own number with your own prices before you pay anything. No card needed.</p></div><div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg><h3>Your customers stay yours</h3><p>Every lead and every chat is saved in your dashboard. We never message your customers for anyone else.</p></div></div>
+  </div>
+</section>
+<section id="pricing" aria-labelledby="pricing-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="pricing-h">One price, nothing hidden.</h2>
+      <p class="lede">Pick a plan by how many WhatsApp chats you get. A few extra patients a month can cover it.</p>
+    </div>
+    <div class="plans">
+      <div class="plan"><div class="plan-top"><div class="plan-name">Starter</div></div><div class="plan-price">₹3,999<span> / month</span></div><p class="plan-desc">For a single clinic getting started</p><ul><li>AI replies with timings and charges</li><li>Lead capture and callback requests</li><li>Instant alerts on WhatsApp</li><li>1,000 conversations a month</li><li>300 utility + 20 marketing broadcasts a month</li></ul><button type="button" class="btn btn-line" data-checkout="starter">Choose Starter</button></div>
+      <div class="plan pop"><div class="plan-top"><div class="plan-name">Growth</div><div class="plan-badge">Recommended</div></div><div class="plan-price">₹5,999<span> / month</span></div><p class="plan-desc">For clinics that want appointment requests in the chat</p><ul><li>Everything in Starter</li><li>Appointment and test booking requests</li><li>Price list and clinic photos in the chat</li><li>Custom quick replies</li><li>Automatic follow-up reminders</li><li>2,000 conversations a month</li><li>750 utility + 50 marketing broadcasts a month</li></ul><button type="button" class="btn btn-main" data-checkout="growth">Choose Growth</button></div>
+      <div class="plan"><div class="plan-top"><div class="plan-name">Pro</div></div><div class="plan-price">₹8,999<span> / month</span></div><p class="plan-desc">For busy clinics, labs and multiple doctors</p><ul><li>Everything in Growth</li><li>5,000 conversations a month</li><li>1,500 utility + 100 marketing broadcasts a month</li><li>Priority support</li></ul><button type="button" class="btn btn-line" data-checkout="pro">Choose Pro</button></div>
+    </div>
+    <div class="founding">
+      <div>
+        <h3>Founding price for our first 20 customers</h3>
+        <p>Everything in Growth for ₹1,999 a month, and that price stays the same for 12 months. In return, we ask for honest feedback.</p>
+        <p class="left" id="founding-left"></p>
+      </div>
+      <div><div class="fp">₹1,999<span> / month</span></div><button type="button" class="btn" id="founding-btn" data-checkout="founding">Claim a founding spot</button></div>
+    </div>
+    <p class="fine">Pay monthly, or pay for 6 or 12 months and save. Every plan includes setup and support.</p>
+  </div>
+</section>
+<section aria-labelledby="faq-h" style="padding-top:24px">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="faq-h">Questions owners ask us</h2></div>
+    <div class="faq"><details><summary>Will the bot give medical advice?</summary><p>No. It's set up as a front desk, not a doctor. It won't diagnose, suggest medicines or read reports, and it tells anyone describing an emergency to call 108 or go to the nearest hospital.</p></details><details><summary>Can it book an exact slot with a specific doctor?</summary><p>It takes an appointment request with the preferred day, time and reason, and your staff confirms it. That way your existing appointment system stays in charge.</p></details><details><summary>Where is patient data kept?</summary><p>Chats and requests are stored in your dashboard, behind your clinic's own login. We never message your patients for anyone else. Read our <a href="/privacy-policy.html">privacy policy</a>.</p></details><details><summary>We&#x27;re a lab. Can it handle home collection?</summary><p>Yes. Labs get a test booking flow that asks which test, when, and whether they want home collection. It only gives fasting or preparation instructions if you've added them.</p></details><details><summary>Does it work for a pet clinic?</summary><p>Yes. It books vet and grooming appointments, and tells owners of a seriously unwell or injured pet to call the clinic or an emergency vet straight away.</p></details></div>
+  </div>
+</section>
+<section id="contact" aria-labelledby="contact-h">
+  <div class="wrap contact-grid">
+    <div>
+      <h2 id="contact-h">See it running for your clinic</h2>
+      <p class="lede" style="margin-top:14px">We'll call you the same day and set it up on your own number with your real timings and charges. Free, with no commitment.</p>
+      <div class="contact-alt">
+        <a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20a%20demo%20of%20NeverMiss%20for%20my%20clinic" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg>Prefer to message? WhatsApp us</a>
+        <a href="mailto:support@nevermiss.co.in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>support@nevermiss.co.in</a>
+      </div>
+    </div>
+    <form class="form" id="demo-form" novalidate>
+      <p id="plan-note" hidden>You were looking at the <strong></strong> plan. We'll cover it on the call.</p>
+      <div class="form-group"><label for="f-name">Your name</label><input id="f-name" autocomplete="name" placeholder="e.g. Priya Shah"></div>
+      <div class="form-group"><label for="f-business">Business name</label><input id="f-business" autocomplete="organization" placeholder="e.g. Smile Care Dental, Wakad"></div>
+      <div class="form-group"><label for="f-type">Type of business</label><select id="f-type"></select></div>
+      <div class="form-group"><label for="f-phone">WhatsApp number</label><input id="f-phone" type="tel" autocomplete="tel" placeholder="e.g. 9876543210"></div>
+      <div class="form-error" id="form-error" role="alert"></div>
+      <button type="submit" class="form-submit" id="demo-btn">Book my free demo</button>
+      <button type="button" class="form-submit outline" data-checkout="trial">Or start a 7-day free trial yourself</button>
+      <p class="form-note">No payment for the demo. We'll call you the same day.</p>
+    </form>
+  </div>
+</section>
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span></a>
+        <p>An AI front desk on WhatsApp for local businesses in India. Built in Pune.</p>
+      </div>
+      <div><h4>Who it's for</h4><ul><li><a href="/coaching.html">Coaching institutes</a></li><li><a href="/salons.html">Salons &amp; beauty</a></li><li><a href="/fitness.html">Gyms &amp; studios</a></li><li><a href="/clinics.html">Clinics &amp; labs</a></li><li><a href="/custom.html">Something else</a></li></ul></div>
+      <div><h4>Product</h4><ul><li><a href="#pricing">Pricing</a></li><li><a href="/bulk-messaging.html">Bulk messaging</a></li><li><a href="/login.html">Log in</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="https://wa.me/917484849508" target="_blank" rel="noopener">WhatsApp support</a></li><li><a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a></li><li><a href="/privacy-policy.html">Privacy</a></li><li><a href="/terms-of-service.html">Terms</a></li></ul></div>
+    </div>
+    <div class="foot-base"><span>© 2026 NeverMiss · Pune, Maharashtra</span><span>Udyam-registered MSME</span></div>
+  </div>
+</footer>
+<script>window.NM_PAGE = { sector: "clinics", defaultType: "dental" };</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+<script src="/nm-site.js" defer></script>
+</body>
+</html>
