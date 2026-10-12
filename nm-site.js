@@ -126,12 +126,31 @@
   }
 
   /* ── checkout / free trial modal ───────── */
-  var PRICING = {
-    founding: { monthly: 1999 },
-    starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
-    growth: { monthly: 5999, half_yearly: 32999, yearly: 59990 },
-    pro: { monthly: 8999, half_yearly: 48999, yearly: 89990 }
+  /* Display only. The amount actually charged is computed server-side in
+     payment_handler.py (SECTOR_MONTHLY_RS) from the same business type, so
+     keep the two tables in step. Monthly prices in rupees, excl. GST. */
+  var SECTOR_RS = {
+    coaching: { starter: 2499, growth: 3999, pro: 6999 },
+    clinic: { starter: 1999, growth: 3499, pro: 5999 },
+    salon: { starter: 1499, growth: 2499, pro: 3999 },
+    gym: { starter: 1499, growth: 2499, pro: 3999 },
+    dance: { starter: 1499, growth: 2499, pro: 3999 }
   };
+  var SECTOR_OF = {
+    coaching: "coaching",
+    dental: "clinic", skin_clinic: "clinic", physio: "clinic", clinic: "clinic", diagnostic: "clinic", pet: "clinic",
+    salon: "salon", makeup: "salon",
+    gym: "gym", yoga: "gym", sports: "gym",
+    dance: "dance", music: "dance", art: "dance"
+  };
+  function cyclePrices(m) {
+    return { monthly: m, half_yearly: Math.ceil(m * 5.5 / 100) * 100 - 1, yearly: m * 10 };
+  }
+  function priceFor(plan, cycle, type) {
+    if (plan === "founding") return 1999;
+    var tier = SECTOR_RS[SECTOR_OF[type] || "coaching"];
+    return cyclePrices(tier[plan])[cycle];
+  }
   var CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
   var TITLE = { starter: "Starter", growth: "Growth", pro: "Pro", founding: "Founding" };
   var HEAD = {
@@ -164,7 +183,11 @@
   document.body.appendChild(modal);
 
   function payLabel() { return PLAN === "trial" ? "Start free trial" : "Pay and activate"; }
-  function updatePrice() { $("#co-price").innerHTML = "₹" + PRICING[PLAN][CYCLE].toLocaleString("en-IN") + "<span>" + CYCLE_LABEL[CYCLE] + "</span>"; }
+  function updatePrice() {
+    var type = $("#co-type").value || PAGE.defaultType || "";
+    if (!type && PLAN !== "founding") { $("#co-price").innerHTML = '<span>Choose your type of business to see the price</span>'; return; }
+    $("#co-price").innerHTML = "₹" + priceFor(PLAN, CYCLE, type).toLocaleString("en-IN") + "<span>" + CYCLE_LABEL[CYCLE] + "</span>";
+  }
   function coError(m) { var e = $("#co-error"); e.textContent = m; e.style.display = "block"; }
 
   window.nmCheckout = function (plan) {
@@ -194,10 +217,11 @@
   modal.querySelectorAll(".cycle button").forEach(function (b) {
     b.addEventListener("click", function () { CYCLE = b.dataset.c; modal.querySelectorAll(".cycle button").forEach(function (x) { x.classList.toggle("on", x === b); }); updatePrice(); });
   });
+  $("#co-type").addEventListener("change", function () { if (PLAN !== "trial") updatePrice(); });
   $("#co-coupon-toggle").addEventListener("click", function () { var r = $("#co-coupon-row"); r.hidden = !r.hidden; });
   $("#co-pay").addEventListener("click", startPayment);
   document.querySelectorAll("[data-checkout]").forEach(function (el) {
-    el.addEventListener("click", function () { window.nmCheckout(el.getAttribute("data-checkout")); });
+    el.addEventListener("click", function () { var p = el.getAttribute("data-checkout"); if (p) window.nmCheckout(p); });
   });
   document.querySelectorAll("[data-plan]").forEach(function (el) {
     el.addEventListener("click", function () { window.nmPickPlan(el.getAttribute("data-plan")); });

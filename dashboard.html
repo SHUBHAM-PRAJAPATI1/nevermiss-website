@@ -2637,21 +2637,37 @@ async function requestConnection(){
 // ── PLAN & BILLING ────────────────────────────────────────────────────────────
 // Display prices only. The authoritative amount for any payment is computed
 // server-side in /api/create-order from the plan + cycle; nothing here is trusted.
-const PLAN_PRICING_RS = {
-  founding:{ monthly: 1999 },
-  starter: { monthly: 3999, half_yearly: 21999, yearly: 39990 },
-  growth:  { monthly: 5999, half_yearly: 32999, yearly: 59990 },
-  pro:     { monthly: 8999, half_yearly: 48999, yearly: 89990 },
+// Sector-wise monthly prices (rupees, excl. GST); mirrors SECTOR_MONTHLY_RS in
+// payment_handler.py. 6 months ~ 5.5x monthly (rounded up to ...99), 12 months = 10x.
+const SECTOR_MONTHLY_RS = {
+  coaching: { starter: 2499, growth: 3999, pro: 6999 },
+  clinic:   { starter: 1999, growth: 3499, pro: 5999 },
+  salon:    { starter: 1499, growth: 2499, pro: 3999 },
+  gym:      { starter: 1499, growth: 2499, pro: 3999 },
+  dance:    { starter: 1499, growth: 2499, pro: 3999 },
 };
+const SECTOR_OF_TYPE = {
+  coaching: "coaching",
+  dental: "clinic", skin_clinic: "clinic", physio: "clinic", clinic: "clinic", diagnostic: "clinic", pet: "clinic",
+  salon: "salon", makeup: "salon",
+  gym: "gym", yoga: "gym", sports: "gym",
+  dance: "dance", music: "dance", art: "dance",
+};
+function sectorPlanPricing(key){
+  if (key === "founding") return { monthly: 1999 };
+  const tier = SECTOR_MONTHLY_RS[SECTOR_OF_TYPE[(CLIENT && CLIENT.client_type) || ""] || "coaching"];
+  const m = tier[key];
+  return { monthly: m, half_yearly: Math.ceil(m * 5.5 / 100) * 100 - 1, yearly: m * 10 };
+}
 const BULK_PLAN_PRICING_RS = {
   message_basic:  { monthly: 799 },
   message_growth: { monthly: 1499 },
   message_pro:    { monthly: 2499 },
 };
 const PLAN_FEATURE_LIST = {
-  starter:         ["AI FAQ bot + lead capture", "Guided registration flow", "1,000 conversations/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
-  growth:          ["Everything in Starter", "2,000 conversations/mo", "Seat booking, demo classes, reminders", "Custom quick replies, brochure & photos", "750 utility + 50 marketing bulk msgs"],
-  pro:             ["Everything in Growth", "5,000 conversations/mo", "1,500 utility + 100 marketing bulk msgs", "Priority support"],
+  starter:         ["AI FAQ bot + lead capture", "Guided registration flow", "1,000 AI-replied messages/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
+  growth:          ["Everything in Starter", "2,500 AI-replied messages/mo", "Seat booking, demo classes, reminders", "Custom quick replies, brochure & photos", "750 utility + 50 marketing bulk msgs"],
+  pro:             ["Everything in Growth", "6,000 AI-replied messages/mo", "1,500 utility + 100 marketing bulk msgs", "Priority support"],
   founding:        ["Everything in Growth", "2,000 conversations/mo", "750 utility + 50 marketing bulk msgs", "Price locked for 12 months", "First 20 institutes only"],
   message_basic:   ["Bulk messaging only", "1,500 utility / 80 marketing", "Template setup help"],
   message_growth:  ["Bulk messaging only", "3,500 utility / 200 marketing", "Template setup help"],
@@ -2700,7 +2716,7 @@ function renderPlansGrid(){
   }
 
   function cardHtml(key, label, isBulk){
-    const pricing = isBulk ? BULK_PLAN_PRICING_RS[key] : PLAN_PRICING_RS[key];
+    const pricing = isBulk ? BULK_PLAN_PRICING_RS[key] : sectorPlanPricing(key);
     const cycle = (isBulk || key === "founding") ? "monthly" : currentBillingCycle;
     const price = pricing[cycle] || pricing.monthly;
     const feats = (PLAN_FEATURE_LIST[key] || []).map(f => "<li>" + esc(f) + "</li>").join("");

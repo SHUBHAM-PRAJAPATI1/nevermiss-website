@@ -153,6 +153,9 @@ section{padding:88px 0;}
 @media (max-width:860px){.trust-grid{grid-template-columns:1fr;}.trust-item,.trust-item:nth-child(3n+2),.trust-item:nth-child(3n+3){padding:22px 0;border-left:0;}}
 
 /* ── pricing (master frame, sector wording) ─── */
+.sector-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 0 28px;}
+.sector-tabs button{font:inherit;font-weight:600;font-size:.92rem;padding:.5rem 1rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;}
+.sector-tabs button.on{background:var(--brand);border-color:var(--brand);color:#fff;}
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch;}
 .plan{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:30px 26px;display:flex;flex-direction:column;}
 .plan.pop{border:2px solid var(--brand);}
