@@ -214,13 +214,21 @@
 <section id="pricing" aria-labelledby="pricing-h">
   <div class="wrap">
     <div class="sec-head">
-      <h2 id="pricing-h">One price, nothing hidden.</h2>
-      <p class="lede">The same plans for every kind of business. Pick based on how many chats you get, not what you sell.</p>
+      <h2 id="pricing-h">Pricing built for your kind of business.</h2>
+      <p class="lede">Same features in every plan. The price follows what your sector normally spends on software. Monthly prices, excluding GST.</p>
+    </div>
+    <div class="sector-tabs" role="tablist" aria-label="Business type">
+      <button type="button" role="tab" aria-selected="true" class="on" data-sector="coaching">Coaching</button>
+      <button type="button" role="tab" aria-selected="false" data-sector="clinic">Clinics &amp; dental</button>
+      <button type="button" role="tab" aria-selected="false" data-sector="salon">Salons &amp; makeup</button>
+      <button type="button" role="tab" aria-selected="false" data-sector="gym">Gyms</button>
+      <button type="button" role="tab" aria-selected="false" data-sector="dance">Dance &amp; hobby classes</button>
+      <button type="button" role="tab" aria-selected="false" data-sector="realestate">Real estate</button>
     </div>
     <div class="plans">
-      <div class="plan"><div class="plan-top"><div class="plan-name">Starter</div></div><div class="plan-price">₹3,999<span> / month</span></div><p class="plan-desc">For a single outlet getting started</p><ul><li>AI replies to every enquiry</li><li>Lead capture and callback requests</li><li>Instant lead alerts on WhatsApp</li><li>1,000 conversations a month</li><li>300 utility + 20 marketing broadcasts a month</li></ul><button type="button" class="btn btn-line" data-checkout="starter">Choose Starter</button></div>
-      <div class="plan pop"><div class="plan-top"><div class="plan-name">Growth</div><div class="plan-badge">Recommended</div></div><div class="plan-price">₹5,999<span> / month</span></div><p class="plan-desc">For businesses that want bookings in the chat</p><ul><li>Everything in Starter</li><li>Appointment, demo or free-trial booking</li><li>Price list, brochure and photos in the chat</li><li>Custom quick replies</li><li>Automatic follow-up reminders</li><li>2,000 conversations a month</li><li>750 utility + 50 marketing broadcasts a month</li></ul><button type="button" class="btn btn-main" data-checkout="growth">Choose Growth</button></div>
-      <div class="plan"><div class="plan-top"><div class="plan-name">Pro</div></div><div class="plan-price">₹8,999<span> / month</span></div><p class="plan-desc">For busy businesses and multiple counters</p><ul><li>Everything in Growth</li><li>5,000 conversations a month</li><li>1,500 utility + 100 marketing broadcasts a month</li><li>Priority support</li></ul><button type="button" class="btn btn-line" data-checkout="pro">Choose Pro</button></div>
+      <div class="plan"><div class="plan-top"><div class="plan-name">Starter</div></div><div class="plan-price" data-plan-price="starter">₹2,499<span> / month</span></div><p class="plan-desc">For a single outlet getting started</p><ul><li>AI replies to every enquiry</li><li>Lead capture and callback requests</li><li>Instant lead alerts on WhatsApp</li><li>1,000 AI-replied messages a month</li><li>300 utility + 20 marketing broadcasts a month</li></ul><button type="button" class="btn btn-line" data-checkout="starter" data-plan-btn="starter">Choose Starter</button></div>
+      <div class="plan pop"><div class="plan-top"><div class="plan-name">Growth</div><div class="plan-badge">Recommended</div></div><div class="plan-price" data-plan-price="growth">₹3,999<span> / month</span></div><p class="plan-desc">For businesses that want bookings in the chat</p><ul><li>Everything in Starter</li><li>Appointment, demo or free-trial booking</li><li>Price list, brochure and photos in the chat</li><li>Custom quick replies</li><li>Automatic follow-up reminders</li><li>2,500 AI-replied messages a month</li><li>750 utility + 50 marketing broadcasts a month</li></ul><button type="button" class="btn btn-main" data-checkout="growth" data-plan-btn="growth">Choose Growth</button></div>
+      <div class="plan"><div class="plan-top"><div class="plan-name">Pro</div></div><div class="plan-price" data-plan-price="pro">₹6,999<span> / month</span></div><p class="plan-desc">For busy businesses and multiple counters</p><ul><li>Everything in Growth</li><li>6,000 AI-replied messages a month</li><li>1,500 utility + 100 marketing broadcasts a month</li><li>Priority support</li></ul><button type="button" class="btn btn-line" data-checkout="pro" data-plan-btn="pro">Choose Pro</button></div>
     </div>
     <div class="founding">
       <div>
@@ -230,7 +238,36 @@
       </div>
       <div><div class="fp">₹1,999<span> / month</span></div><button type="button" class="btn" id="founding-btn" data-checkout="founding">Claim a founding spot</button></div>
     </div>
-    <p class="fine">Pay monthly, or pay for 6 or 12 months and save. Every plan includes setup and support.</p>
+    <p class="fine" id="pricing-note">Prices exclude GST. Pay monthly, or pay for 6 or 12 months and save. Every plan includes setup and support. AI-replied messages are fair use.</p>
+    <script>
+    (function () {
+      var RS = {
+        coaching:   { starter: 2499, growth: 3999, pro: 6999 },
+        clinic:     { starter: 1999, growth: 3499, pro: 5999 },
+        salon:      { starter: 1499, growth: 2499, pro: 3999 },
+        gym:        { starter: 1499, growth: 2499, pro: 3999 },
+        dance:      { starter: 1499, growth: 2499, pro: 3999 },
+        realestate: { starter: 2999, growth: 4999, pro: 7999 }
+      };
+      var tabs = document.querySelectorAll(".sector-tabs button");
+      var DEFAULT_TYPE = { coaching: "coaching", clinic: "dental", salon: "salon", gym: "gym", dance: "dance" };
+      function show(sector) {
+        tabs.forEach(function (b) { var on = b.dataset.sector === sector; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
+        ["starter", "growth", "pro"].forEach(function (p) {
+          document.querySelector('[data-plan-price="' + p + '"]').innerHTML = "₹" + RS[sector][p].toLocaleString("en-IN") + "<span> / month</span>";
+          var btn = document.querySelector('[data-plan-btn="' + p + '"]');
+          if (sector === "realestate") {
+            btn.dataset.checkout = ""; btn.textContent = "Talk to us on WhatsApp";
+            btn.onclick = function () { window.open("https://wa.me/917484849508?text=" + encodeURIComponent("Hi, I'd like the NeverMiss " + p + " plan for my real estate business."), "_blank"); };
+          } else {
+            btn.dataset.checkout = p; btn.textContent = "Choose " + p.charAt(0).toUpperCase() + p.slice(1); btn.onclick = null;
+          }
+        });
+        if (window.NM_PAGE) window.NM_PAGE.defaultType = DEFAULT_TYPE[sector] || "";
+      }
+      tabs.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.sector); }); });
+    })();
+    </script>
   </div>
 </section>
 
