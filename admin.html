@@ -44,6 +44,12 @@
   .admin-tab.active { background: var(--green); color: white; border-color: var(--green); }
   .admin-page { display: none; }
   .admin-page.active { display: block; }
+  .pp-spots { font-size: 13px; color: var(--text-muted); margin: -0.8rem 0 1.2rem; }
+  .pp-badge { display: inline-block; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 10px; background: var(--green-light); color: var(--green-dark); margin-left: 6px; }
+  .pp-badge.waitlist { background: #FEF3C7; color: #92400E; } .pp-badge.rejected { background: #FEE2E2; color: #991B1B; }
+  .pp-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0.6rem; }
+  .btn.ghost { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+  .btn.ghost:hover { background: var(--bg); }
 
   /* NEW: helpline conversation thread list */
   .search-input { width: 100%; max-width: 320px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; margin-bottom: 1.25rem; }
@@ -83,6 +89,7 @@
     <div class="admin-tabs">
       <button class="admin-tab active" id="tab-pending" onclick="showAdminPage('pending')">Pending Connections</button>
       <button class="admin-tab" id="tab-conversations" onclick="showAdminPage('conversations')">Helpline Conversations</button>
+      <button class="admin-tab" id="tab-partners" onclick="showAdminPage('partners')">Partners</button>
     </div>
 
     <div class="admin-page active" id="page-pending">
@@ -95,6 +102,13 @@
       <h1>Helpline Conversations</h1>
       <input type="text" class="search-input" id="conv-search" placeholder="Search by phone number..." oninput="renderConversations()" />
       <div id="conversations-list"><div class="empty">Loading...</div></div>
+    </div>
+
+    <!-- Pilot Partner Program applications -->
+    <div class="admin-page" id="page-partners">
+      <h1>Partner applications</h1>
+      <p class="pp-spots" id="pp-spots"></p>
+      <div id="partners-list"><div class="empty">Loading...</div></div>
     </div>
   </div>
 </div>
@@ -121,6 +135,7 @@ function showAdminPage(page) {
   if (page === 'conversations' && allSupportConversations.length === 0) {
     loadSupportConversations();
   }
+  if (page === 'partners') loadPartners();
 }
 
 async function loadPending() {
@@ -295,6 +310,65 @@ function renderConversations() {
 
 function toggleThread(idx) {
   document.getElementById('thread-' + idx).classList.toggle('expanded');
+}
+
+// ── Pilot Partner applications ─────────────────────────────────────────────
+async function loadPartners() {
+  var listEl = document.getElementById('partners-list');
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/partner-applications?admin_secret=' + encodeURIComponent(adminSecret));
+    var data = await res.json();
+    if (!data.success) { listEl.innerHTML = '<div class="empty">Could not load applications.</div>'; return; }
+    document.getElementById('pp-spots').textContent = data.left + ' of ' + data.batch_spots +
+      ' spots left in this batch. To open the next batch, raise PARTNER_SPOTS in Render.';
+    if (!data.applications.length) { listEl.innerHTML = '<div class="empty">No applications yet.</div>'; return; }
+    listEl.innerHTML = data.applications.map(function (a) {
+      var st = a.status || 'new';
+      var actions = st === 'approved' ? '' :
+        '<div class="pp-actions">' +
+        '<button class="btn" onclick="approvePartner(' + a.id + ', this)"' + (data.left > 0 ? '' : ' disabled title="Batch full"') + '>Approve</button>' +
+        (st !== 'waitlist' ? '<button class="btn ghost" onclick="setPartnerStatus(' + a.id + ', \'waitlist\')">Waitlist</button>' : '') +
+        (st !== 'rejected' ? '<button class="btn ghost" onclick="setPartnerStatus(' + a.id + ', \'rejected\')">Reject</button>' : '') +
+        '</div>';
+      return '<div class="pending-item"><div class="meta">' +
+        '<strong>' + escapeHtml(a.business) + '</strong><span class="pp-badge ' + st + '">' + st + '</span><br>' +
+        escapeHtml(a.name) + ' · ' + escapeHtml(a.business_type || '') + (a.city ? ' · ' + escapeHtml(a.city) : '') + '<br>' +
+        '📱 ' + escapeHtml(a.phone) + ' · ✉️ ' + escapeHtml(a.email || '') + '<br>' +
+        '📊 Enquiries/week: ' + escapeHtml(a.weekly_enquiries || '—') + '<br>' +
+        (a.problem ? 'Problem: ' + escapeHtml(a.problem) + '<br>' : '') +
+        '<span style="font-size:12px">Applied ' + new Date(a.created_at).toLocaleDateString('en-IN') + '</span>' +
+        '</div>' + actions + '<div class="status-msg" id="pp-msg-' + a.id + '"></div></div>';
+    }).join('');
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error loading applications.</div>';
+  }
+}
+
+async function approvePartner(id, btn) {
+  if (!confirm('Approve this business? This creates their account, emails them a login link and starts their partner setup.')) return;
+  btn.disabled = true;
+  var msg = document.getElementById('pp-msg-' + id);
+  msg.className = 'status-msg'; msg.textContent = 'Approving...';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/partner-approve', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_secret: adminSecret, application_id: id })
+    });
+    var data = await res.json();
+    if (!data.success) { msg.className = 'status-msg error'; msg.textContent = data.error || 'Failed.'; btn.disabled = false; return; }
+    msg.className = 'status-msg success';
+    msg.textContent = 'Approved. ' + (data.invite_sent ? 'Login email sent. ' : '') +
+      'Next: book the 30-minute setup call and connect their number the way you normally do. Their 60 days start with the first customer message.';
+    setTimeout(loadPartners, 2500);
+  } catch (e) { msg.className = 'status-msg error'; msg.textContent = 'Network error.'; btn.disabled = false; }
+}
+
+async function setPartnerStatus(id, status) {
+  await fetch(BACKEND_URL + '/admin/partner-status', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ admin_secret: adminSecret, application_id: id, status: status })
+  });
+  loadPartners();
 }
 
 function escapeHtml(str) {

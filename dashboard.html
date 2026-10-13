@@ -246,6 +246,20 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     <div class="stat"><div class="num" id="ov-new">0</div><div class="lbl">New today</div></div>
   </div>
 
+  <!-- What the bot did for you this month: the numbers an owner weighs the
+       price against. Shown to every client, and the core of the partner
+       program's day-30 call. -->
+  <div class="card" id="month-card">
+    <div class="card-title">This month</div>
+    <div class="grid-stats" style="margin-bottom:0.6rem;">
+      <div class="stat"><div class="num" id="mo-customers">0</div><div class="lbl">Customers who messaged</div></div>
+      <div class="stat"><div class="num" id="mo-replies">0</div><div class="lbl">Replies sent by your bot</div></div>
+      <div class="stat accent"><div class="num" id="mo-night">0</div><div class="lbl">Messages after 9 PM or before 8 AM</div></div>
+      <div class="stat"><div class="num" id="mo-leads">0</div><div class="lbl">Leads captured</div></div>
+    </div>
+    <div class="muted" id="mo-note">Every late-night message here is one your bot answered while you were closed.</div>
+  </div>
+
   <!-- Placement / impact summary — NGO clients only. Vandana's own
        reporting line up to DRF, so it stays plain and screenshot-friendly. -->
   <div class="card" id="impact-card" style="display:none;">
@@ -895,10 +909,13 @@ const PLAN_FEATURES = {
   pro:     ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   founding:["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   trial:   ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
+  partner: ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"],
   custom:  ["registration","booking","demo","brochure","toppers","facilities","reminders","quick_replies"]
 };
 
-const PLAN_LABEL = { starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom", founding:"Founding", trial:"Free trial" };
+const PLAN_LABEL = { starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom", founding:"Founding", trial:"Free trial",
+  partner:"Pilot Partner", partner_monthly:"Growth · partner price", partner_annual:"Growth · 12 months, partner price",
+  topup_utility:"100 utility messages", topup_marketing:"100 marketing messages" };
 
 // One line describing the current plan, used on Overview and Plan & Billing.
 function planLineHTML(){
@@ -910,8 +927,18 @@ function planLineHTML(){
     return "<strong>Free trial</strong>" + (days !== null ? " · " + days + (days === 1 ? " day" : " days") + " left (ends " + esc(fmtDate(exp)) + ")" : "") +
       ". Includes everything in Growth, plus 10 utility and 10 marketing broadcasts.";
   }
+  if (key === "partner") {
+    if (!CLIENT.partner_live_at) return "<strong>Pilot Partner</strong> · your 60 free days start when your bot answers its first customer." +
+      " Includes everything in Growth: 2,000 AI replies a month plus your broadcast allowance.";
+    const days = exp ? Math.ceil((new Date(exp) - new Date()) / 86400000) : null;
+    if (days !== null && days <= 0) return "<strong>Pilot Partner trial ended</strong> · pick your partner price below to keep your bot replying.";
+    return "<strong>Pilot Partner</strong>" + (days !== null ? " · day " + Math.max(1, 60 - days + 1) + " of 60, " + days + (days === 1 ? " day" : " days") + " left (ends " + esc(fmtDate(exp)) + ")" : "") +
+      ". Your partner price is below; pay early and the paid period starts after your free days.";
+  }
   let line = "<strong>" + esc(PLAN_LABEL[key] || "Starter") + "</strong> plan" + (exp ? " · paid through " + esc(fmtDate(exp)) : "");
   if (key === "founding" && CLIENT.founding_until) line += " · ₹1,999 locked until " + esc(fmtDate(CLIENT.founding_until));
+  if (CLIENT.partner_until && new Date(CLIENT.partner_until) > new Date() && CLIENT.partner_rate)
+    line += " · partner price ₹" + Number(CLIENT.partner_rate).toLocaleString("en-IN") + "/mo locked until " + esc(fmtDate(CLIENT.partner_until));
   return line;
 }
 
@@ -1489,6 +1516,26 @@ function meterHTML(uUsed, uQuota, mUsed, mQuota){
     <div class="bar"><div class="fill mkt" style="width:${mp}%"></div></div>`;
 }
 
+async function loadMonthSummary(cid){
+  const start = new Date(); start.setDate(1); start.setHours(0,0,0,0);
+  const iso = start.toISOString();
+  const [inbound, replies, leads] = await Promise.all([
+    sb.from("conversations").select("phone_number,created_at").eq("client_id", cid).eq("role", "user").gte("created_at", iso).limit(5000),
+    sb.from("conversations").select("id", { count: "exact", head: true }).eq("client_id", cid).eq("role", "assistant").gte("created_at", iso),
+    sb.from("leads").select("id", { count: "exact", head: true }).eq("client_id", cid).gte("created_at", iso)
+  ]);
+  const rows = inbound.data || [];
+  const customers = new Set(rows.map(r => r.phone_number)).size;
+  const night = rows.filter(r => {
+    const h = Number(new Date(r.created_at).toLocaleString("en-US", { timeZone: "Asia/Kolkata", hour: "numeric", hour12: false })) % 24;
+    return h >= 21 || h < 8;
+  }).length;
+  document.getElementById("mo-customers").textContent = customers;
+  document.getElementById("mo-replies").textContent = replies.count || 0;
+  document.getElementById("mo-night").textContent = night;
+  document.getElementById("mo-leads").textContent = leads.count || 0;
+}
+
 async function loadOverview(){
   if (!CLIENT) return;
   const cid = CLIENT.id;
@@ -1507,6 +1554,7 @@ async function loadOverview(){
   document.getElementById("ov-convs").textContent = convsCount.count || 0;
   document.getElementById("ov-new").textContent = newToday.count || 0;
   document.getElementById("ov-botlive").textContent = CLIENT.status === "active" ? "🟢" : "⏳";
+  loadMonthSummary(cid);
 
   let done = 1;
   if (CLIENT.status === "active" || CLIENT.status === "awaiting_connection") done++;
@@ -2653,9 +2701,21 @@ const SECTOR_OF_TYPE = {
   gym: "gym", yoga: "gym", sports: "gym",
   dance: "dance", music: "dance", art: "dance",
 };
+// Pilot Partner offer (mirrors PARTNER_MONTHLY_RS / PARTNER_ANNUAL_RS in payment_handler.py).
+const PARTNER_MONTHLY_RS = { coaching: 2999, clinic: 2599, salon: 1899, gym: 1899, dance: 1899 };
+const PARTNER_ANNUAL_RS  = { coaching: 27999, clinic: 24499, salon: 17499, gym: 17499, dance: 17499 };
+function clientSector(){ return SECTOR_OF_TYPE[(CLIENT && CLIENT.client_type) || ""] || "coaching"; }
+function partnerOfferOpen(){
+  if (!CLIENT || !CLIENT.partner_approved_at) return false;
+  if (CLIENT.partner_until && new Date(CLIENT.partner_until) > new Date()) return true;
+  const exp = CLIENT.plan_expires_at;
+  return planKey() === "partner" && (!exp || new Date(exp).getTime() + 3 * 86400000 > Date.now());
+}
 function sectorPlanPricing(key){
   if (key === "founding") return { monthly: 1999 };
-  const tier = SECTOR_MONTHLY_RS[SECTOR_OF_TYPE[(CLIENT && CLIENT.client_type) || ""] || "coaching"];
+  if (key === "partner_monthly") return { monthly: PARTNER_MONTHLY_RS[clientSector()] };
+  if (key === "partner_annual") return { yearly: PARTNER_ANNUAL_RS[clientSector()] };
+  const tier = SECTOR_MONTHLY_RS[clientSector()];
   const m = tier[key];
   return { monthly: m, half_yearly: Math.ceil(m * 5.5 / 100) * 100 - 1, yearly: m * 10 };
 }
@@ -2663,6 +2723,8 @@ const BULK_PLAN_PRICING_RS = {
   message_basic:  { monthly: 799 },
   message_growth: { monthly: 1499 },
   message_pro:    { monthly: 2499 },
+  topup_utility:   { monthly: 49 },
+  topup_marketing: { monthly: 169 },
 };
 const PLAN_FEATURE_LIST = {
   starter:         ["AI FAQ bot + lead capture", "Guided registration flow", "1,000 AI-replied messages/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
@@ -2672,6 +2734,10 @@ const PLAN_FEATURE_LIST = {
   message_basic:   ["Bulk messaging only", "1,500 utility / 80 marketing", "Template setup help"],
   message_growth:  ["Bulk messaging only", "3,500 utility / 200 marketing", "Template setup help"],
   message_pro:     ["Bulk messaging only", "7,000 utility / 400 marketing", "Template setup help"],
+  partner_monthly: ["Everything in Growth", "2,500 AI replies/mo", "750 utility + 50 marketing bulk msgs", "Price locked for 12 months"],
+  partner_annual:  ["Everything in Growth", "2,500 AI replies/mo", "750 utility + 50 marketing bulk msgs", "12 months, paid once (best value)"],
+  topup_utility:   ["Prepaid, one-time", "Adds to this month's allowance", "Reminders, confirmations, fee nudges"],
+  topup_marketing: ["Prepaid, one-time", "Adds to this month's allowance", "Offers and announcements"],
 };
 const CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
 let currentBillingCycle = "monthly";
@@ -2701,9 +2767,11 @@ function renderPlansGrid(){
   if (!el) return;
   const currentPlan = CLIENT ? planKey() : null;
   const mainPlans = ["starter","growth","pro"];
-  if (isFoundingLocked() || (FOUNDING_LEFT || 0) > 0) mainPlans.unshift("founding");
-  if (FOUNDING_LEFT === null) fetchFoundingSlots().then(() => { if (FOUNDING_LEFT > 0) renderPlansGrid(); });
-  const bulkPlans = ["message_basic","message_growth","message_pro"];
+  const partner = partnerOfferOpen();
+  if (partner) mainPlans.unshift("partner_monthly", "partner_annual");
+  else if (isFoundingLocked() || (FOUNDING_LEFT || 0) > 0) mainPlans.unshift("founding");
+  if (!partner && FOUNDING_LEFT === null) fetchFoundingSlots().then(() => { if (FOUNDING_LEFT > 0) renderPlansGrid(); });
+  const bulkPlans = ["message_basic","message_growth","message_pro","topup_utility","topup_marketing"];
 
   if (currentPlan === "custom") {
     el.innerHTML = '<div class="plan-card hot" style="grid-column:1/-1;">' +
@@ -2717,18 +2785,21 @@ function renderPlansGrid(){
 
   function cardHtml(key, label, isBulk){
     const pricing = isBulk ? BULK_PLAN_PRICING_RS[key] : sectorPlanPricing(key);
-    const cycle = (isBulk || key === "founding") ? "monthly" : currentBillingCycle;
+    const cycle = (isBulk || key === "founding" || key === "partner_monthly") ? "monthly" : (key === "partner_annual" ? "yearly" : currentBillingCycle);
     const price = pricing[cycle] || pricing.monthly;
     const feats = (PLAN_FEATURE_LIST[key] || []).map(f => "<li>" + esc(f) + "</li>").join("");
     const isCurrent = !isBulk && currentPlan === key;
-    const hot = (key === "founding" || (key === "growth" && mainPlans.indexOf("founding") === -1)) ? ' hot' : '';
+    const isPartnerKey = key === "partner_monthly" || key === "partner_annual";
+    const isTopup = key.startsWith("topup_");
+    const hot = (key === "founding" || key === "partner_annual" || (key === "growth" && mainPlans.indexOf("founding") === -1 && !partner)) ? ' hot' : '';
     const tag = key === "founding"
       ? '<span class="tag">' + (isFoundingLocked() ? "YOUR LOCKED RATE" : (FOUNDING_LEFT + " OF 20 LEFT")) + '</span>'
+      : isPartnerKey ? '<span class="tag">PARTNER PRICE</span>'
       : (hot ? '<span class="tag">MOST POPULAR</span>' : '');
     const btn = isCurrent
       ? '<button class="btn sm" disabled style="width:100%;margin-top:0.8rem;opacity:0.6;">✓ Current plan</button>'
       : '<button class="btn sm" style="width:100%;margin-top:0.8rem;" onclick="choosePlan(\'' + key + '\')">' +
-        (isBulk ? "Add-on" : (currentPlan ? "Switch to this plan" : "Choose this plan")) + '</button>';
+        (isTopup ? "Buy pack" : isBulk ? "Add-on" : (currentPlan ? "Switch to this plan" : "Choose this plan")) + '</button>';
     return '<div class="plan-card' + hot + '">' + tag +
       '<h4>' + esc(label) + '</h4>' +
       '<div class="price">₹' + price.toLocaleString("en-IN") + '<span>' + CYCLE_LABEL[cycle] + '</span></div>' +
@@ -2736,7 +2807,7 @@ function renderPlansGrid(){
   }
 
   let html = mainPlans.map(k => cardHtml(k, PLAN_LABEL[k] || (k.charAt(0).toUpperCase() + k.slice(1)), false)).join("");
-  html += bulkPlans.map(k => cardHtml(k, k === "message_basic" ? "Message Basic" : k === "message_growth" ? "Message Growth" : "Message Pro", true)).join("");
+  html += bulkPlans.map(k => cardHtml(k, PLAN_LABEL[k] || (k === "message_basic" ? "Message Basic" : k === "message_growth" ? "Message Growth" : "Message Pro"), true)).join("");
   el.innerHTML = html;
   document.querySelectorAll(".cycle-btn").forEach(b => b.classList.toggle("active", b.dataset.cycle === currentBillingCycle));
 }
@@ -2744,7 +2815,7 @@ function renderPlansGrid(){
 async function choosePlan(plan){
   const msg = document.getElementById("plan-msg");
   msg.className = "msg"; msg.textContent = "";
-  const isBulk = plan.startsWith("message_");
+  const isBulk = plan.startsWith("message_") || plan.startsWith("topup_");
 
   let contactPhone = "";
   let businessName = "";
@@ -2767,7 +2838,7 @@ async function choosePlan(plan){
     contactPhone = (CLIENT && CLIENT.contact_phone) || "";
   }
 
-  const billingCycle = (isBulk || plan === "founding") ? "monthly" : currentBillingCycle;
+  const billingCycle = (isBulk || plan === "founding" || plan === "partner_monthly") ? "monthly" : (plan === "partner_annual" ? "yearly" : currentBillingCycle);
   const couponCode = (document.getElementById("coupon-code").value || "").trim();
 
   msg.textContent = "Preparing checkout…";

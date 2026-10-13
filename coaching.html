@@ -217,6 +217,10 @@ section{padding:5.5rem 0;}
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;align-items:stretch;}
 .plan{border:1.5px solid var(--line);border-radius:22px;padding:2rem 1.8rem;display:flex;flex-direction:column;background:var(--paper);}
 .plan.popular{background:var(--ink);border-color:var(--ink);color:#fff;}
+.per-day{font-size:.9rem;color:var(--muted);margin:.35rem 0 .2rem;}
+.plan.popular .per-day{color:#A9C7C0;}
+.partner-link{text-align:center;margin-top:1.4rem;color:var(--muted);}
+.partner-link a{color:var(--teal);font-weight:600;}
 .plan-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;}
 .plan-name{font-family:var(--display);font-weight:700;font-size:1.3rem;}
 .plan-badge{font-size:.8rem;font-weight:600;background:var(--marigold);color:var(--ink);padding:.25rem .7rem;border-radius:100px;}
@@ -368,6 +372,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <a href="#features">Features</a>
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
+      <a href="/partners.html">60-day pilot</a>
       <a href="bulk-messaging.html">Bulk messaging</a>
       <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">Support</a>
       <a href="login.html">Log in</a>
@@ -534,12 +539,12 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
   <div class="wrap">
     <div class="sec-head">
       <h2>Simple, transparent pricing.</h2>
-      <p class="lede">No hidden charges. Cancel anytime. One extra admission recovered per year covers the subscription many times over.</p>
+      <p class="lede">No hidden charges. Cancel anytime. One admission is worth ₹40,000 to ₹90,000 a year, more than a full year of Starter. Prices exclude GST.</p>
     </div>
     <div class="plans">
       <div class="plan">
         <div class="plan-top"><div class="plan-name">Starter</div></div>
-        <div class="plan-price">₹2,499<span> / month</span></div>
+        <div class="plan-price">₹2,499<span> / month</span></div><p class="per-day">about ₹83 a day</p>
         <p class="plan-desc">For small institutes just getting started</p>
         <ul class="plan-features">
           <li>AI FAQ bot</li>
@@ -555,7 +560,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       </div>
       <div class="plan popular">
         <div class="plan-top"><div class="plan-name">Growth</div><div class="plan-badge">Most popular</div></div>
-        <div class="plan-price">₹3,999<span> / month</span></div>
+        <div class="plan-price">₹3,999<span> / month</span></div><p class="per-day">about ₹133 a day</p>
         <p class="plan-desc">For growing institutes that want more leads</p>
         <ul class="plan-features">
           <li>Everything in Starter</li>
@@ -572,7 +577,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       </div>
       <div class="plan">
         <div class="plan-top"><div class="plan-name">Pro</div></div>
-        <div class="plan-price">₹6,999<span> / month</span></div>
+        <div class="plan-price">₹6,999<span> / month</span></div><p class="per-day">about ₹233 a day</p>
         <p class="plan-desc">For large institutes with high enquiry volume</p>
         <ul class="plan-features">
           <li>Everything in Growth</li>
@@ -597,6 +602,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
     </div>
 
     <p class="pricing-links">Not a coaching institute? <a href="/">See NeverMiss for other businesses</a></p>
+    <p class="fine partner-link">New to NeverMiss? <a href="/partners.html">Apply for the Pilot Partner Program</a>: free for 60 days from go-live, in return for honest feedback.</p>
   </div>
 </section>
 
@@ -650,6 +656,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
       <a href="bulk-messaging.html">Bulk messaging</a>
+      <a href="/partners.html">Partner program</a>
       <a href="/">Other businesses</a>
       <a href="#contact">Contact</a>
       <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">WhatsApp support</a>
