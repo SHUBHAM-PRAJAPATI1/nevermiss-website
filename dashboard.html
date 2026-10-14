@@ -177,6 +177,93 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
 .btn-fb:disabled{opacity:.55;cursor:not-allowed;}
 
 /* ── Responsive ─────────────────────────────────────────── */
+/* ── Campaigns ─────────────────────────────────────────── */
+.cm-allow{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem;}
+.cm-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.1rem;border-bottom:1px solid var(--line);}
+.cm-tab{background:none;border:0;border-bottom:2.5px solid transparent;padding:.6rem .9rem;font-family:var(--body);font-weight:600;font-size:.95rem;color:var(--muted);cursor:pointer;margin-bottom:-1px;}
+.cm-tab.active{color:var(--teal-deep);border-bottom-color:var(--teal);}
+.cm-pane{display:none;} .cm-pane.active{display:block;}
+.cm-filters{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;}
+.cm-filters input,.cm-filters select{font-family:var(--body);font-size:.95rem;padding:.55rem .75rem;border:1.5px solid var(--line);border-radius:10px;background:#FBFCFC;}
+.cm-filters input[type=search]{flex:1;min-width:180px;}
+.cm-filters .btn{margin-left:auto;}
+.cm-table{width:100%;border-collapse:collapse;font-size:.94rem;}
+.cm-table th{text-align:left;font-size:.82rem;color:var(--muted);font-weight:600;padding:.5rem .6rem;border-bottom:1px solid var(--line);}
+.cm-table td{padding:.7rem .6rem;border-bottom:1px solid #EEF3F1;vertical-align:middle;}
+.cm-table tr:last-child td{border-bottom:0;}
+.cm-table td.num{font-variant-numeric:tabular-nums;}
+.cm-name b{display:block;} .cm-name small{color:var(--muted);}
+.cm-acts{display:flex;gap:.35rem;flex-wrap:wrap;justify-content:flex-end;}
+.st{display:inline-flex;align-items:center;gap:.35rem;border-radius:100px;padding:.18rem .65rem;font-size:.8rem;font-weight:600;white-space:nowrap;}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;}
+.st.draft{background:#EEF2F1;color:#4A5F5A;} .st.scheduled{background:#E7F0FB;color:#1F4E8C;}
+.st.sending{background:var(--mint);color:var(--teal-deep);} .st.paused{background:var(--marigold-soft);color:#8A560E;}
+.st.completed{background:#E3F5EC;color:var(--ok);} .st.cancelled{background:#EEF2F1;color:#6B7C78;} .st.failed{background:#FEECEB;color:var(--danger);}
+.cm-steps{display:flex;list-style:none;gap:0;margin:0 0 1.4rem;counter-reset:cs;}
+.cm-steps li{flex:1;counter-increment:cs;font-size:.88rem;font-weight:600;color:var(--muted);padding:.5rem 0 .6rem;border-bottom:3px solid var(--line);text-align:center;}
+.cm-steps li::before{content:counter(cs);display:inline-grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:50%;background:#EEF2F1;margin-right:.4rem;font-size:.8rem;}
+.cm-steps li.on{color:var(--teal-deep);border-bottom-color:var(--teal);}
+.cm-steps li.on::before,.cm-steps li.done::before{background:var(--teal);color:#fff;}
+.cm-steps li.done{color:var(--ink);border-bottom-color:var(--teal);}
+.cm-step{display:none;} .cm-step.on{display:block;}
+.cm-h{font-weight:700;font-size:.95rem;margin-bottom:.6rem;}
+.cm-presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.7rem;margin-bottom:1.3rem;}
+.cm-preset{text-align:left;background:#FBFCFC;border:1.5px solid var(--line);border-radius:12px;padding:.8rem .9rem;cursor:pointer;font-family:var(--body);}
+.cm-preset:hover,.cm-preset.on{border-color:var(--teal);background:var(--mint-2);}
+.cm-preset b{display:block;font-size:.97rem;margin-bottom:.15rem;}
+.cm-preset small{color:var(--muted);display:block;line-height:1.4;}
+.cm-preset .tag{display:inline-block;margin-top:.45rem;font-size:.74rem;font-weight:600;padding:.1rem .5rem;border-radius:20px;background:#EEF2F1;}
+.cm-choice{display:flex;flex-direction:column;gap:.5rem;}
+.cm-choice label{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap;font-weight:400;padding:.65rem .8rem;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;}
+.cm-choice label:has(input:checked){border-color:var(--teal);background:var(--mint-2);}
+.cm-choice span{color:var(--muted);font-size:.9rem;flex-basis:100%;padding-left:1.6rem;}
+.cm-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem;}
+.cm-chip{border:1.5px solid var(--line);background:#fff;border-radius:100px;padding:.3rem .75rem;font-size:.86rem;font-family:var(--body);cursor:pointer;}
+.cm-chip.on{background:var(--teal);border-color:var(--teal);color:#fff;}
+.cm-chip small{opacity:.7;margin-left:.25rem;}
+.cm-counts{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin:.6rem 0 1rem;}
+.cm-counts div{border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem;background:#FBFCFC;}
+.cm-counts b{display:block;font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums;}
+.cm-counts span{font-size:.84rem;color:var(--muted);}
+.cm-counts .ok b{color:var(--teal);}
+.cm-two{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;align-items:start;}
+.cm-var{border:1px solid var(--line);border-radius:12px;padding:.75rem .85rem;margin-bottom:.7rem;}
+.cm-var .lbl{font-weight:700;font-size:.9rem;margin-bottom:.4rem;}
+.cm-var select,.cm-var input{width:100%;font-family:var(--body);font-size:.93rem;padding:.5rem .65rem;border:1.5px solid var(--line);border-radius:9px;margin-top:.35rem;background:#FBFCFC;}
+.cm-phone{background:#E7DED4;border-radius:14px;padding:1rem;min-height:120px;}
+.cm-bubble{background:#fff;border-radius:10px 10px 10px 2px;padding:.7rem .85rem;font-size:.95rem;line-height:1.5;max-width:92%;box-shadow:0 1px 1px rgba(0,0,0,.08);white-space:pre-wrap;}
+.cm-bubble mark{background:var(--mint);border-radius:3px;padding:0 2px;}
+.cm-nav{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.2rem;flex-wrap:wrap;}
+.cm-nav #cm-back{margin-right:auto;}
+.cm-rev{width:100%;border-collapse:collapse;margin-bottom:1rem;}
+.cm-rev td{padding:.55rem .2rem;border-bottom:1px solid #EEF3F1;font-size:.95rem;vertical-align:top;}
+.cm-rev td:first-child{color:var(--muted);width:42%;}
+.cm-warn{background:var(--marigold-soft);border-radius:10px;padding:.7rem .9rem;margin-bottom:.5rem;font-size:.92rem;color:#6B4510;}
+.cm-funnel{display:flex;flex-direction:column;gap:.55rem;margin-top:.4rem;}
+.cm-funnel .row{display:grid;grid-template-columns:110px 1fr 90px;gap:.7rem;align-items:center;font-size:.9rem;}
+.cm-funnel .track{height:14px;background:#EEF3F1;border-radius:4px;overflow:hidden;}
+.cm-funnel .fill{height:100%;background:var(--teal);border-radius:0 4px 4px 0;}
+.cm-funnel .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);}
+.cm-funnel .v small{color:var(--muted);}
+.cm-bulkbar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.8rem;padding:.6rem .8rem;background:var(--mint-2);border-radius:10px;}
+.cm-bulkbar input{font-family:var(--body);padding:.4rem .6rem;border:1.5px solid var(--line);border-radius:8px;}
+.cm-tagpill{display:inline-block;font-size:.76rem;padding:.08rem .5rem;border-radius:20px;background:#EEF2F1;margin:0 .2rem .2rem 0;}
+.cm-off{color:var(--danger);font-size:.82rem;font-weight:600;}
+@media (max-width:860px){
+  .cm-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+  .cm-tab{white-space:nowrap;flex:none;}
+  .cm-two,.cm-counts{grid-template-columns:1fr 1fr;}
+  .cm-steps li{font-size:0;padding-bottom:.5rem;} .cm-steps li::before{font-size:.8rem;margin:0;}
+  .cm-steps li.on{font-size:.82rem;}
+  .cm-table thead{display:none;}
+  .cm-table tr{display:block;border:1px solid var(--line);border-radius:12px;padding:.6rem .7rem;margin-bottom:.6rem;}
+  .cm-table td{display:flex;justify-content:space-between;gap:.8rem;border:0;padding:.3rem 0;}
+  .cm-table td::before{content:attr(data-l);color:var(--muted);font-size:.82rem;}
+  .cm-table td.cm-name::before,.cm-table td.cm-acts-td::before{display:none;}
+  .cm-acts{justify-content:flex-start;}
+  .cm-funnel .row{grid-template-columns:80px 1fr 70px;}
+}
+@media (max-width:520px){.cm-two,.cm-counts{grid-template-columns:1fr;}}
 @media (max-width:1100px){
   .grid-stats{grid-template-columns:repeat(2,1fr);}
   #sec-leads .grid-stats{grid-template-columns:repeat(3,1fr)!important;}
@@ -210,6 +297,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   <button class="nav-item" data-sec="alumni" id="nav-alumni" style="display:none;"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c2 2 10 2 12 0v-5"/></svg></span><span class="txt">Alumni</span></button>
   <button class="nav-item" data-sec="conversations"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg></span><span class="txt">Conversations</span></button>
   <button class="nav-item" data-sec="bulk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 001 1h3l6 4V6L7 10H4a1 1 0 00-1 1z"/><path d="M17 9a4 4 0 010 6"/></svg></span><span class="txt">Bulk messaging</span></button>
+  <button class="nav-item" data-sec="campaigns"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg></span><span class="txt">Campaigns</span></button>
   <button class="nav-item" data-sec="quick"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><span class="txt">Quick replies</span></button>
   <button class="nav-item" data-sec="profile"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/></svg></span><span class="txt" id="nav-profile-txt">Institute Profile</span></button>
   <button class="nav-item" data-sec="connect"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></span><span class="txt">Connect WhatsApp</span></button>
@@ -329,6 +417,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   </div>
   <div class="card" id="broadcast-card">
     <div class="card-title">Send a broadcast <button class="btn sm outline" onclick="loadBroadcast(true)">Refresh templates</button></div>
+    <div class="notice info" style="margin-bottom:1rem;">New: <b>Campaigns</b> lets you pick who gets a message by tags, personalise it per person, schedule it and see results. <a href="#" onclick="showSection('campaigns');return false;" style="color:var(--teal);font-weight:600">Open Campaigns →</a></div>
     <div class="muted" style="margin-bottom:1rem;">WhatsApp only allows messages to contacts outside a chat through templates it has approved. Pick one, fill in the blanks and send it to your opted-in contacts.</div>
     <div id="bc-blocked" class="notice warn" style="display:none;"></div>
     <div id="bc-form">
@@ -373,6 +462,162 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   <div class="card">
     <div class="card-title">Your contacts <span class="muted" id="contact-count"></span></div>
     <div id="contacts-body" class="muted">Loading…</div>
+  </div>
+</div>
+
+<!-- ══════════ CAMPAIGNS ══════════ -->
+<div class="section" id="sec-campaigns">
+  <h1>Campaigns</h1>
+  <div class="sec-sub">Send WhatsApp messages to the right people at the right time: fee reminders, appointment reminders, offers and announcements. Opted-out contacts are never messaged.</div>
+  <div class="cm-allow" id="cm-allow"></div>
+  <div class="cm-tabs" role="tablist">
+    <button class="cm-tab active" data-cm="list" role="tab">All campaigns</button>
+    <button class="cm-tab" data-cm="new" role="tab">Create campaign</button>
+    <button class="cm-tab" data-cm="scheduled" role="tab">Scheduled</button>
+    <button class="cm-tab" data-cm="reports" role="tab">Reports</button>
+    <button class="cm-tab" data-cm="contacts" role="tab">Contacts &amp; groups</button>
+  </div>
+
+  <!-- list -->
+  <div class="cm-pane active" id="cm-pane-list">
+    <div class="card">
+      <div class="cm-filters">
+        <input id="cm-q" type="search" placeholder="Search campaigns" oninput="cmRenderList()">
+        <select id="cm-status" onchange="cmRenderList()">
+          <option value="">All statuses</option><option value="draft">Draft</option><option value="scheduled">Scheduled</option>
+          <option value="sending">Sending</option><option value="paused">Paused</option><option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option><option value="failed">Failed</option>
+        </select>
+        <select id="cm-range" onchange="cmRenderList()">
+          <option value="">Any date</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option>
+        </select>
+        <button class="btn sm" onclick="cmNew()">+ New campaign</button>
+      </div>
+      <div id="cm-list" class="muted">Loading…</div>
+    </div>
+  </div>
+
+  <!-- wizard -->
+  <div class="cm-pane" id="cm-pane-new">
+    <div class="card">
+      <ol class="cm-steps" id="cm-steps">
+        <li data-step="1">Details</li><li data-step="2">Audience</li><li data-step="3">Message</li><li data-step="4">Schedule</li><li data-step="5">Review</li>
+      </ol>
+
+      <div class="cm-step" id="cm-s1">
+        <div id="cm-presets-wrap" style="display:none">
+          <div class="cm-h">Start from an idea for your business</div>
+          <div class="cm-presets" id="cm-presets"></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-row"><label for="cm-name">Campaign name</label><input id="cm-name" maxlength="120" placeholder="e.g. October fee reminder"></div>
+          <div class="form-row"><label for="cm-labels">Internal labels <span class="hint">(optional, comma separated)</span></label><input id="cm-labels" placeholder="e.g. fees, october"></div>
+        </div>
+        <div class="form-row"><label for="cm-desc">Description <span class="hint">(optional)</span></label><input id="cm-desc" maxlength="300" placeholder="What is this campaign for?"></div>
+        <div class="form-row"><label>Purpose</label>
+          <div class="cm-choice">
+            <label><input type="radio" name="cm-purpose" value="UTILITY" checked> <b>Utility</b><span>About something they already have with you: fee due, appointment, class change, report ready.</span></label>
+            <label><input type="radio" name="cm-purpose" value="MARKETING"> <b>Marketing</b><span>Offers, new batches, festivals, win-backs. Needs marketing consent; never sent 9 PM–9 AM.</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="cm-step" id="cm-s2">
+        <div class="form-row"><label>Who should get it?</label>
+          <div class="cm-choice">
+            <label><input type="radio" name="cm-src" value="all" checked onchange="cmAudienceChanged()"> <b>All subscribed contacts</b></label>
+            <label><input type="radio" name="cm-src" value="tags" onchange="cmAudienceChanged()"> <b>Contacts with these tags</b></label>
+          </div>
+        </div>
+        <div id="cm-tagbox" style="display:none">
+          <div class="cm-chips" id="cm-tags"></div>
+          <div class="form-row" style="max-width:320px"><label for="cm-match">Match</label>
+            <select id="cm-match" onchange="cmAudienceChanged()"><option value="any">Any of the selected tags</option><option value="all">All of the selected tags</option></select></div>
+        </div>
+        <div class="form-row"><label>Leave out contacts tagged <span class="hint">(optional)</span></label><div class="cm-chips" id="cm-xtags"></div></div>
+        <div class="grid-2">
+          <div class="form-row"><label for="cm-fkey">Only where detail <span class="hint">(optional)</span></label><select id="cm-fkey" onchange="cmAudienceChanged()"><option value="">Any</option></select></div>
+          <div class="form-row"><label for="cm-fval">equals</label><input id="cm-fval" placeholder="e.g. JEE 2027" oninput="cmAudienceChanged()"></div>
+        </div>
+        <div class="cm-counts" id="cm-counts"></div>
+        <div class="muted">Need to add people? <a href="#" onclick="cmTab('contacts');return false;">Upload a CSV or Excel list</a> in Contacts &amp; groups.</div>
+      </div>
+
+      <div class="cm-step" id="cm-s3">
+        <div class="form-row"><label for="cm-tpl">Approved WhatsApp template</label>
+          <select id="cm-tpl" onchange="cmTemplateChanged()"><option value="">Loading templates…</option></select>
+          <span class="hint" id="cm-tpl-note"></span></div>
+        <div id="cm-create-tpl" class="notice info" style="display:none"></div>
+        <div class="cm-two">
+          <div id="cm-vars"></div>
+          <div><div class="cm-h">Preview</div><div id="cm-preview" class="cm-phone"><div class="muted">Choose a template to see the message.</div></div></div>
+        </div>
+      </div>
+
+      <div class="cm-step" id="cm-s4">
+        <div class="form-row"><label>When</label>
+          <div class="cm-choice">
+            <label><input type="radio" name="cm-when" value="now" checked onchange="cmWhenChanged()"> <b>Send now</b></label>
+            <label><input type="radio" name="cm-when" value="schedule" onchange="cmWhenChanged()"> <b>Schedule for later</b></label>
+          </div>
+        </div>
+        <div class="grid-2" id="cm-when-box" style="display:none">
+          <div class="form-row"><label for="cm-date">Date</label><input id="cm-date" type="date"></div>
+          <div class="form-row"><label for="cm-time">Time <span class="hint">(India time, IST)</span></label><input id="cm-time" type="time" value="10:00"></div>
+        </div>
+        <div class="muted" id="cm-when-note">Times are India Standard Time (IST). Scheduled campaigns go out even when your dashboard is closed.</div>
+      </div>
+
+      <div class="cm-step" id="cm-s5">
+        <div id="cm-review"></div>
+        <label class="optin" id="cm-confirm-row"><input type="checkbox" id="cm-confirm"> I confirm these contacts agreed to receive WhatsApp messages from my business, and the message is accurate.</label>
+      </div>
+
+      <div class="msg" id="cm-msg"></div>
+      <div class="cm-nav">
+        <button class="btn outline" id="cm-back" onclick="cmStep(CM.step - 1)">Back</button>
+        <button class="btn outline" id="cm-save" onclick="cmSaveDraft(true)">Save draft</button>
+        <button class="btn" id="cm-next" onclick="cmNext()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- detail / report -->
+  <div class="cm-pane" id="cm-pane-detail"><div id="cm-detail"></div></div>
+
+  <!-- contacts -->
+  <div class="cm-pane" id="cm-pane-contacts">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Upload contacts</div>
+        <div class="muted" style="margin-bottom:.8rem">CSV or Excel. Needs a <b>phone</b> column; <b>name</b> and <b>tags</b> are optional. Any other column (course, batch, fee_amount, due_date, expiry_date…) becomes a detail you can use in messages and filters.</div>
+        <div class="form-row"><input type="file" id="cm-file" accept=".csv,.xlsx"></div>
+        <div class="form-row"><label for="cm-up-tags">Add these tags to everyone in the file <span class="hint">(optional)</span></label><input id="cm-up-tags" placeholder="e.g. jee-2027, fee-pending"></div>
+        <label class="optin"><input type="checkbox" id="cm-up-ok"> I confirm every contact agreed to receive WhatsApp messages from my business.</label>
+        <button class="btn" onclick="cmUpload()">Upload</button>
+        <div class="msg" id="cm-up-msg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Add people who chatted with your bot</div>
+        <div class="muted" style="margin-bottom:.8rem">Brings in leads your WhatsApp bot captured, tagged <b>leads</b>. Chatting is not consent for offers, so they get utility messages (reminders, updates) but not marketing until they opt in.</div>
+        <button class="btn outline" onclick="cmImportLeads()">Import bot leads</button>
+        <div class="msg" id="cm-leads-msg"></div>
+        <div class="cm-h" style="margin-top:1.2rem">Groups</div>
+        <div class="muted">A group is a tag. Click one to see who's in it; use tags in step 2 of a campaign.</div>
+        <div class="cm-chips" id="cm-groups" style="margin-top:.6rem"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>Contacts <span class="muted" id="cm-c-count"></span></span>
+        <span class="cm-filters" style="margin:0"><input id="cm-c-q" type="search" placeholder="Search name or number" oninput="cmLoadContacts()"></span></div>
+      <div class="cm-bulkbar" id="cm-bulkbar" style="display:none">
+        <span id="cm-sel-n"></span>
+        <input id="cm-tag-add" placeholder="tag to add or remove">
+        <button class="btn sm" onclick="cmBulkTag('add')">Add tag</button>
+        <button class="btn sm outline" onclick="cmBulkTag('remove')">Remove tag</button>
+      </div>
+      <div id="cm-contacts" class="muted">Loading…</div>
+    </div>
   </div>
 </div>
 
@@ -1013,6 +1258,7 @@ function showSection(id){
   // Quota meters go stale the moment anything sends. Refetch whenever the user
   // actually navigates to a screen that shows them.
   if (id === "bulk" || id === "billing") refreshBulk();
+  if (id === "campaigns") cmLoad();
 }
 document.querySelectorAll(".nav-item").forEach(n =>
   n.addEventListener("click", () => showSection(n.dataset.sec)));
@@ -2950,6 +3196,625 @@ function shareReferral(){
 
 // ── BOOT ─────────────────────────────────────────────────────────────────────
 init();
+
+// ── CAMPAIGNS ─────────────────────────────────────────────────────────────────
+// Talks to /api/campaigns* and /api/contacts* (campaigns.py). Credits shown
+// here are the same utility/marketing allowance as Bulk messaging.
+const CM = { step: 1, id: null, list: [], presets: [], group: "", preset: null, templates: [], tplLoaded: false,
+             tags: [], fields: [], sample: null, aud: { tags: [], exclude: [] }, estTimer: null, poll: null,
+             contactsSel: new Set(), contactsTag: "" };
+const CM_STATUS = { draft: "Draft", scheduled: "Scheduled", sending: "Sending", paused: "Paused", completed: "Completed",
+                    cancelled: "Cancelled", failed: "Failed" };
+
+async function cmApi(path, opts){
+  opts = opts || {};
+  const headers = Object.assign({}, await authHeaders(), opts.json ? { "Content-Type": "application/json" } : {});
+  const r = await fetch(API_BASE + path, { method: opts.method || "GET", headers,
+                                           body: opts.json ? JSON.stringify(opts.json) : opts.body });
+  let d = {};
+  try { d = await r.json(); } catch (e) { d = { success: false, error: "Unexpected response from the server." }; }
+  d._status = r.status;
+  return d;
+}
+function cmFmt(ts){
+  if (!ts) return "—";
+  return new Date(ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+}
+function cmN(n){ return Number(n || 0).toLocaleString("en-IN"); }
+function cmMsg(id, text, kind){ const el = document.getElementById(id); if (!el) return; el.className = "msg" + (kind ? " " + kind : ""); el.textContent = text || ""; }
+
+function cmTab(name){
+  document.querySelectorAll(".cm-tab").forEach(t => t.classList.toggle("active", t.dataset.cm === name));
+  const pane = name === "scheduled" || name === "reports" ? "list" : name;
+  document.querySelectorAll(".cm-pane").forEach(p => p.classList.toggle("active", p.id === "cm-pane-" + pane));
+  if (name === "scheduled") { document.getElementById("cm-status").value = "scheduled"; cmRenderList(); }
+  if (name === "reports") { document.getElementById("cm-status").value = "completed"; cmRenderList(); }
+  if (name === "list") { document.getElementById("cm-status").value = ""; cmRenderList(); }
+  if (name === "new" && !CM.id) cmNew();
+  if (name === "contacts") cmLoadContacts();
+  if (name !== "detail") cmStopPoll();
+}
+document.querySelectorAll(".cm-tab").forEach(t => t.addEventListener("click", () => {
+  if (t.dataset.cm === "new") { CM.id = null; }
+  cmTab(t.dataset.cm);
+}));
+
+async function cmLoad(){
+  const d = await cmApi("/api/campaigns");
+  if (!d.success) {
+    document.getElementById("cm-list").innerHTML = '<div class="notice warn">' + esc(d.error || "Campaigns aren't available yet.") + '</div>';
+    return;
+  }
+  CM.list = d.campaigns || [];
+  const a = d.allowance || {};
+  document.getElementById("cm-allow").innerHTML =
+    '<span class="pill teal">🔧 Utility: <b>' + cmN(a.utility_left) + '</b> of ' + cmN(a.utility_quota) + ' left</span>' +
+    '<span class="pill warn">📣 Marketing: <b>' + cmN(a.marketing_left) + '</b> of ' + cmN(a.marketing_quota) + ' left</span>' +
+    (a.renewal_date ? '<span class="pill plan">Resets ' + esc(fmtDate(a.renewal_date)) + '</span>' : '') +
+    '<a href="#" class="pill plan" onclick="showSection(\'billing\');return false;">+ Buy more messages</a>';
+  CM.allowance = a;
+  cmRenderList();
+  if (!CM.presets.length) {
+    const p = await cmApi("/api/campaigns/presets");
+    if (p.success) { CM.presets = p.presets || []; CM.group = p.group; }
+  }
+  await cmLoadMeta();
+}
+
+async function cmLoadMeta(){
+  const c = await cmApi("/api/contacts");
+  if (c.success) { CM.tags = c.tags || []; CM.fields = c.fields || []; CM.sample = (c.contacts || []).find(x => !x.opted_out_at) || null; CM.contactsTotal = c.total; }
+}
+
+function cmRenderList(){
+  const q = (document.getElementById("cm-q").value || "").toLowerCase();
+  const st = document.getElementById("cm-status").value;
+  const days = Number(document.getElementById("cm-range").value || 0);
+  const since = days ? Date.now() - days * 86400000 : 0;
+  const rows = CM.list.filter(c => (!q || (c.name || "").toLowerCase().includes(q)) && (!st || c.status === st) &&
+                                   (!since || new Date(c.created_at).getTime() >= since));
+  const el = document.getElementById("cm-list");
+  if (!CM.list.length) {
+    el.innerHTML = '<div class="empty-state" style="text-align:center;padding:1.5rem .5rem">' +
+      '<div style="font-weight:700;font-size:1.1rem;margin-bottom:.3rem">No campaigns yet</div>' +
+      '<div class="muted" style="margin-bottom:1rem">Start with a ready idea for your business, like a fee or appointment reminder.</div>' +
+      '<button class="btn" onclick="cmNew()">Create your first campaign</button></div>';
+    return;
+  }
+  if (!rows.length) { el.innerHTML = '<div class="muted">No campaigns match these filters.</div>'; return; }
+  el.innerHTML = '<table class="cm-table"><thead><tr><th>Campaign</th><th>Audience</th><th>Status</th><th>Schedule</th><th>Delivered</th><th></th></tr></thead><tbody>' +
+    rows.map(c => {
+      const s = c.stats || {};
+      const when = c.status === "scheduled" ? cmFmt(c.scheduled_at) : (c.started_at ? cmFmt(c.started_at) : (c.status === "draft" ? "—" : cmFmt(c.created_at)));
+      const act = c.status === "draft"
+        ? '<button class="btn sm" onclick="cmEdit(' + c.id + ')">Continue</button>'
+        : '<button class="btn sm outline" onclick="cmOpen(' + c.id + ')">View</button>';
+      return '<tr><td class="cm-name"><b>' + esc(c.name) + '</b><small>' + esc(c.purpose === "MARKETING" ? "Marketing" : "Utility") +
+        (c.template_name ? " · " + esc(c.template_name) : "") + '</small></td>' +
+        '<td class="num" data-l="Audience">' + (s.recipients ? cmN(s.recipients) + " people" : "—") + '</td>' +
+        '<td data-l="Status"><span class="st ' + esc(c.status) + '">' + esc(CM_STATUS[c.status] || c.status) + '</span>' +
+        (c.note && (c.status === "sending" || c.status === "paused") ? '<div class="hint" style="max-width:260px">' + esc(c.note) + '</div>' : '') + '</td>' +
+        '<td data-l="Schedule">' + esc(when) + '</td>' +
+        '<td class="num" data-l="Delivered">' + (s.recipients ? cmN(s.delivered) : "—") + '</td>' +
+        '<td class="cm-acts-td"><div class="cm-acts">' + act + '</div></td></tr>';
+    }).join("") + '</tbody></table>';
+}
+
+// ── wizard ──
+function cmNew(){
+  CM.id = null; CM.preset = null; CM.aud = { tags: [], exclude: [] }; CM.est = null;
+  ["cm-name", "cm-desc", "cm-labels", "cm-fval"].forEach(i => document.getElementById(i).value = "");
+  document.querySelector('input[name=cm-purpose][value=UTILITY]').checked = true;
+  document.querySelector('input[name=cm-src][value=all]').checked = true;
+  document.querySelector('input[name=cm-when][value=now]').checked = true;
+  document.getElementById("cm-confirm").checked = false;
+  CM.varMap = {}; CM.tpl = null;
+  document.querySelectorAll(".cm-tab").forEach(t => t.classList.toggle("active", t.dataset.cm === "new"));
+  document.querySelectorAll(".cm-pane").forEach(p => p.classList.toggle("active", p.id === "cm-pane-new"));
+  cmRenderPresets();
+  cmStep(1);
+}
+
+function cmRenderPresets(){
+  const wrap = document.getElementById("cm-presets-wrap");
+  if (!CM.presets.length) { wrap.style.display = "none"; return; }
+  wrap.style.display = "";
+  document.getElementById("cm-presets").innerHTML = CM.presets.map((p, i) =>
+    '<button type="button" class="cm-preset' + (CM.preset && CM.preset.id === p.id ? " on" : "") + '" onclick="cmPickPreset(' + i + ')">' +
+    '<b>' + esc(p.title) + '</b><small>' + esc(p.why) + '</small>' +
+    '<span class="tag">' + (p.purpose === "MARKETING" ? "Marketing" : "Utility") + ' · ' + esc(p.when.split(/[.;,]/)[0]) + '</span></button>').join("");
+}
+
+function cmPickPreset(i){
+  const p = CM.presets[i];
+  CM.preset = p;
+  const month = new Date().toLocaleString("en-IN", { month: "long" });
+  document.getElementById("cm-name").value = p.title + " · " + month;
+  document.getElementById("cm-desc").value = p.when;
+  document.querySelector('input[name=cm-purpose][value=' + p.purpose + ']').checked = true;
+  if (p.audience_tags && p.audience_tags.length) {
+    const have = new Set(CM.tags.map(t => t[0]));
+    const use = p.audience_tags.filter(t => have.has(t));
+    if (use.length) { document.querySelector('input[name=cm-src][value=tags]').checked = true; CM.aud.tags = use; }
+  }
+  cmRenderPresets();
+}
+
+function cmCollect(){
+  const purpose = document.querySelector('input[name=cm-purpose]:checked').value;
+  const src = document.querySelector('input[name=cm-src]:checked').value;
+  const fkey = document.getElementById("cm-fkey").value, fval = document.getElementById("cm-fval").value.trim();
+  const out = {
+    name: document.getElementById("cm-name").value.trim(),
+    description: document.getElementById("cm-desc").value.trim(),
+    labels: document.getElementById("cm-labels").value.split(",").map(s => s.trim()).filter(Boolean),
+    purpose, preset: CM.preset ? CM.preset.id : null,
+    audience: { source: src, tags: CM.aud.tags, match: document.getElementById("cm-match").value,
+                exclude_tags: CM.aud.exclude, field_filters: fkey && fval ? [{ key: fkey, value: fval }] : [] },
+    var_map: CM.varMap || {}
+  };
+  if (CM.tpl) { out.template_name = CM.tpl.name; out.language = CM.tpl.language; }
+  return out;
+}
+
+async function cmSaveDraft(manual){
+  const body = cmCollect();
+  if (!body.name) { cmMsg("cm-msg", "Give the campaign a name.", "err"); cmStep(1); return false; }
+  const d = CM.id ? await cmApi("/api/campaigns/" + CM.id, { method: "PATCH", json: body })
+                  : await cmApi("/api/campaigns", { method: "POST", json: body });
+  if (!d.success) { cmMsg("cm-msg", d.error || "Couldn't save.", "err"); return false; }
+  if (d.campaign) CM.id = d.campaign.id;
+  if (manual) { cmMsg("cm-msg", "Draft saved. Find it under All campaigns.", "ok"); cmLoad(); }
+  return true;
+}
+
+function cmStep(n){
+  n = Math.max(1, Math.min(5, n));
+  CM.step = n;
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById("cm-s" + i).classList.toggle("on", i === n);
+    const li = document.querySelector('#cm-steps li[data-step="' + i + '"]');
+    li.classList.toggle("on", i === n); li.classList.toggle("done", i < n);
+  }
+  document.getElementById("cm-back").style.visibility = n === 1 ? "hidden" : "visible";
+  const when = document.querySelector('input[name=cm-when]:checked').value;
+  document.getElementById("cm-next").textContent = n < 5 ? "Next" : (when === "schedule" ? "Schedule campaign" : "Send now");
+  if (n !== 5) cmMsg("cm-msg", "");
+  if (n === 2) cmRenderAudience();
+  if (n === 3) cmRenderTemplateStep();
+  if (n === 4) cmWhenChanged();
+  if (n === 5) cmReview();
+}
+
+async function cmNext(){
+  cmMsg("cm-msg", "");
+  if (CM.step === 1) {
+    if (!document.getElementById("cm-name").value.trim()) return cmMsg("cm-msg", "Give the campaign a name.", "err");
+    if (!(await cmSaveDraft(false))) return;
+  }
+  if (CM.step === 2) {
+    if (document.querySelector('input[name=cm-src]:checked').value === "tags" && !CM.aud.tags.length)
+      return cmMsg("cm-msg", "Pick at least one tag, or choose All subscribed contacts.", "err");
+    if (CM.est && !CM.est.eligible) return cmMsg("cm-msg", "Nobody in this audience can receive the message yet.", "err");
+    if (!(await cmSaveDraft(false))) return;
+  }
+  if (CM.step === 3) {
+    if (!CM.tpl) return cmMsg("cm-msg", "Choose an approved template.", "err");
+    for (let i = 1; i <= CM.tpl.params; i++) {
+      const v = CM.varMap[String(i)] || {};
+      if (v.src === "text" && !(v.value || "").trim()) return cmMsg("cm-msg", "Fill in blank {{" + i + "}}.", "err");
+      if (v.src === "field" && !v.key) return cmMsg("cm-msg", "Choose which contact detail fills blank {{" + i + "}}.", "err");
+    }
+    if (!(await cmSaveDraft(false))) return;
+  }
+  if (CM.step === 4) {
+    if (document.querySelector('input[name=cm-when]:checked').value === "schedule") {
+      const at = cmScheduledISO();
+      if (!at) return cmMsg("cm-msg", "Pick a date and time.", "err");
+      if (new Date(at).getTime() < Date.now() + 2 * 60000) return cmMsg("cm-msg", "Pick a time at least a few minutes from now.", "err");
+    }
+  }
+  if (CM.step === 5) return cmLaunch();
+  cmStep(CM.step + 1);
+}
+
+// step 2
+function cmRenderAudience(){
+  const src = document.querySelector('input[name=cm-src]:checked').value;
+  document.getElementById("cm-tagbox").style.display = src === "tags" ? "" : "none";
+  const chips = (sel, key) => CM.tags.length
+    ? CM.tags.map(t => '<button type="button" class="cm-chip' + (CM.aud[key].includes(t[0]) ? " on" : "") + '" onclick="cmToggleTag(\'' + key + '\',\'' + esc(t[0]).replace(/'/g, "") + '\')">' +
+        esc(t[0]) + '<small>' + t[1] + '</small></button>').join("")
+    : '<span class="muted">No tags yet. Add a tags column when you upload contacts, or tag people in Contacts &amp; groups.</span>';
+  document.getElementById("cm-tags").innerHTML = chips("cm-tags", "tags");
+  document.getElementById("cm-xtags").innerHTML = chips("cm-xtags", "exclude");
+  const fk = document.getElementById("cm-fkey"), cur = fk.value;
+  fk.innerHTML = '<option value="">Any</option>' + CM.fields.map(f => '<option value="' + esc(f) + '">' + esc(f.replace(/_/g, " ")) + '</option>').join("");
+  fk.value = cur;
+  cmAudienceChanged();
+}
+function cmToggleTag(key, t){
+  const a = CM.aud[key], i = a.indexOf(t);
+  if (i >= 0) a.splice(i, 1); else a.push(t);
+  cmRenderAudience();
+}
+function cmAudienceChanged(){
+  document.getElementById("cm-tagbox").style.display = document.querySelector('input[name=cm-src]:checked').value === "tags" ? "" : "none";
+  clearTimeout(CM.estTimer);
+  CM.estTimer = setTimeout(cmEstimate, 250);
+}
+async function cmEstimate(extra){
+  if (!CM.id) return null;
+  const d = await cmApi("/api/campaigns/" + CM.id + "/estimate", { method: "POST", json: Object.assign(cmCollect(), extra || {}) });
+  if (!d.success) return null;
+  CM.est = d.estimate;
+  const e = d.estimate, x = e.excluded || {};
+  const left = (x.opted_out || 0) + (x.invalid || 0) + (x.no_marketing_consent || 0) + (x.missing_details || 0);
+  const box = document.getElementById("cm-counts");
+  if (box) box.innerHTML =
+    '<div><b>' + cmN(e.selected) + '</b><span>Selected</span></div>' +
+    '<div class="ok"><b>' + cmN(e.eligible) + '</b><span>Will receive it</span></div>' +
+    '<div><b>' + cmN(left) + '</b><span>Left out (unsubscribed, invalid, no consent' + (x.missing_details ? ", missing details" : "") + ')</span></div>' +
+    '<div><b>' + cmN(x.duplicate) + '</b><span>Duplicate numbers removed</span></div>';
+  return e;
+}
+
+// step 3
+async function cmLoadTemplates(force){
+  if (CM.tplLoaded && !force) return;
+  const d = await cmApi("/api/bulk/templates");
+  CM.tplLoaded = true;
+  CM.templates = d.success ? (d.templates || []) : [];
+  CM.canCreateTpl = !!d.can_create;
+  CM.tplError = d.success ? "" : (d.error || "Templates aren't available yet.");
+}
+async function cmRenderTemplateStep(){
+  await cmLoadTemplates();
+  const sel = document.getElementById("cm-tpl"), note = document.getElementById("cm-tpl-note");
+  const ok = CM.templates.filter(t => t.status === "APPROVED" && t.supported);
+  const purpose = document.querySelector('input[name=cm-purpose]:checked').value;
+  ok.sort((a, b) => (b.category === purpose) - (a.category === purpose));
+  sel.innerHTML = ok.length ? '<option value="">Choose a template…</option>' + ok.map(t =>
+      '<option value="' + esc(t.name + "|" + t.language) + '">' + esc(t.name) + " · " + esc(t.language) + " · " +
+      (t.category === "MARKETING" ? "Marketing" : "Utility") + '</option>').join("")
+    : '<option value="">' + esc(CM.tplError || "No approved templates yet") + '</option>';
+  if (CM.tpl) sel.value = CM.tpl.name + "|" + CM.tpl.language;
+  const pending = CM.templates.filter(t => t.status === "PENDING" || t.status === "IN_APPEAL").map(t => t.name);
+  note.textContent = pending.length ? "Waiting for WhatsApp approval: " + pending.join(", ") + ". You can save this draft and come back." : "";
+  // preset: pick its template if approved, otherwise offer to create it
+  const box = document.getElementById("cm-create-tpl");
+  box.style.display = "none";
+  if (CM.preset && !CM.tpl) {
+    const pt = CM.preset.template;
+    const match = ok.find(t => t.name === pt.name);
+    if (match) { sel.value = match.name + "|" + match.language; cmTemplateChanged(true); }
+    else if (!CM.templates.some(t => t.name === pt.name)) {
+      box.style.display = "";
+      box.innerHTML = '<b>This idea needs a WhatsApp template.</b> WhatsApp approves every message format first, usually within minutes to a few hours.' +
+        '<div class="cm-bubble" style="margin:.7rem 0">' + esc(pt.body) + '</div>' +
+        (CM.canCreateTpl ? '<button class="btn sm" onclick="cmCreatePresetTemplate()">Submit "' + esc(pt.name) + '" for approval</button>'
+                         : '<span class="hint">WhatsApp us and we\'ll submit it for you.</span>') +
+        '<div class="msg" id="cm-tpl-create-msg"></div>';
+    }
+  }
+  cmRenderVars();
+}
+async function cmCreatePresetTemplate(){
+  const pt = CM.preset.template;
+  const d = await cmApi("/api/bulk/templates", { method: "POST", json: { name: pt.name, category: CM.preset.purpose, language: "en", body: pt.body, examples: pt.examples } });
+  if (d.success) {
+    cmMsg("cm-tpl-create-msg", "Submitted. WhatsApp is reviewing it; your draft is saved, so come back and pick it once it's approved.", "ok");
+    await cmLoadTemplates(true);
+  } else cmMsg("cm-tpl-create-msg", d.error || "Couldn't submit the template.", "err");
+}
+function cmTemplateChanged(fromPreset){
+  const v = document.getElementById("cm-tpl").value;
+  const t = CM.templates.find(x => x.name + "|" + x.language === v) || null;
+  const changed = !CM.tpl || !t || CM.tpl.name !== t.name;
+  CM.tpl = t;
+  if (t && changed) {
+    CM.varMap = {};
+    // use the idea's blank mapping only if this template really is that idea's wording
+    const norm = x => (x || "").replace(/\s+/g, " ").trim().toLowerCase();
+    const pv = CM.preset && norm(CM.preset.template.body) === norm(t.body) ? CM.preset.variables : null;
+    for (let i = 1; i <= t.params; i++) {
+      const p = pv && pv[i - 1];
+      CM.varMap[String(i)] = p ? { src: p.src, key: p.key || "", value: p.value || "", fallback: p.fallback || "", label: p.label || "" }
+                               : (i === 1 && /hi|hello|dear/i.test(t.body.split("{{1}}")[0] || "") ? { src: "first_name" } : { src: "text", value: "" });
+    }
+    if (t.category === "MARKETING" || t.category === "UTILITY")
+      document.querySelector('input[name=cm-purpose][value=' + t.category + ']').checked = true;
+  }
+  cmRenderVars();
+}
+function cmRenderVars(){
+  const box = document.getElementById("cm-vars"), t = CM.tpl;
+  if (!t) { box.innerHTML = ""; cmPreview(); return; }
+  if (!t.params) { box.innerHTML = '<div class="muted">This template has no blanks to fill.</div>'; cmPreview(); return; }
+  const fields = Array.from(new Set(CM.fields.concat(Object.values(CM.varMap).filter(v => v.src === "field" && v.key).map(v => v.key))));
+  box.innerHTML = '<div class="cm-h">Fill in the blanks</div>' + Array.from({ length: t.params }, (_, k) => {
+    const i = String(k + 1), v = CM.varMap[i] || { src: "text" };
+    return '<div class="cm-var"><div class="lbl">{{' + i + '}}' + (v.label ? ' · ' + esc(v.label) : '') + '</div>' +
+      '<select onchange="cmVarSet(\'' + i + '\',\'src\',this.value)">' +
+      [["first_name", "Contact's first name"], ["name", "Contact's full name"], ["field", "A detail from the contact list"], ["text", "Same text for everyone"]]
+        .map(o => '<option value="' + o[0] + '"' + (v.src === o[0] ? " selected" : "") + '>' + o[1] + '</option>').join("") + '</select>' +
+      (v.src === "field"
+        ? '<select onchange="cmVarSet(\'' + i + '\',\'key\',this.value)"><option value="">Choose a detail…</option>' +
+            fields.map(f => '<option value="' + esc(f) + '"' + (v.key === f ? " selected" : "") + '>' + esc(f.replace(/_/g, " ")) + '</option>').join("") + '</select>' +
+          '<input placeholder="If missing, use… (leave empty to skip that contact)" value="' + esc(v.fallback || "") + '" oninput="cmVarSet(\'' + i + '\',\'fallback\',this.value,true)">' +
+          (v.key && !CM.fields.includes(v.key) ? '<div class="hint">No contact has "' + esc(v.key) + '" yet. Add it as a column in your upload, or set a fallback.</div>' : '')
+        : v.src === "text"
+          ? '<input placeholder="Text for everyone, e.g. 15 Oct. Use {business} for your name." value="' + esc(v.value || "") + '" oninput="cmVarSet(\'' + i + '\',\'value\',this.value,true)">'
+          : '') + '</div>';
+  }).join("");
+  cmPreview();
+}
+function cmVarSet(i, k, val, quiet){
+  CM.varMap[i] = Object.assign({}, CM.varMap[i] || {}, { [k]: val });
+  if (quiet) cmPreview(); else cmRenderVars();
+}
+function cmRenderVar(spec, c){
+  const name = ((c && c.name) || "Riya Shah").trim(), first = name.split(/\s+/)[0];
+  if (spec.src === "first_name") return first;
+  if (spec.src === "name") return name;
+  if (spec.src === "field") return ((c && c.fields && c.fields[spec.key]) || spec.fallback || ("[" + (spec.key || "detail") + "]"));
+  return (spec.value || "").replace(/\{business\}/g, (CLIENT && CLIENT.business_name) || "your business").replace(/\{first_name\}|\{name\}/g, first) || "…";
+}
+function cmPreview(){
+  const box = document.getElementById("cm-preview"), t = CM.tpl;
+  if (!t) { box.innerHTML = '<div class="muted">Choose a template to see the message.</div>'; return; }
+  let body = esc(t.body || "");
+  for (let i = 1; i <= t.params; i++)
+    body = body.split("{{" + i + "}}").join("<mark>" + esc(cmRenderVar(CM.varMap[String(i)] || {}, CM.sample)) + "</mark>");
+  box.innerHTML = '<div class="hint" style="margin-bottom:.5rem">As ' + esc((CM.sample && CM.sample.name) || "a contact") + ' will see it</div><div class="cm-bubble">' + body + '</div>';
+}
+
+// step 4
+function cmWhenChanged(){
+  const s = document.querySelector('input[name=cm-when]:checked').value === "schedule";
+  document.getElementById("cm-when-box").style.display = s ? "" : "none";
+  const d = document.getElementById("cm-date");
+  if (s && !d.value) {
+    const t = new Date(Date.now() + 86400000);
+    d.value = t.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  }
+  d.min = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const mkt = document.querySelector('input[name=cm-purpose]:checked').value === "MARKETING";
+  document.getElementById("cm-when-note").textContent = "Times are India Standard Time (IST). Scheduled campaigns go out even when your dashboard is closed." +
+    (mkt ? " Marketing messages are never sent between 9 PM and 9 AM; anything due then starts at 9 AM." : "");
+  if (CM.step === 4 || CM.step === 5) document.getElementById("cm-next").textContent = CM.step < 5 ? "Next" : (s ? "Schedule campaign" : "Send now");
+}
+function cmScheduledISO(){
+  const d = document.getElementById("cm-date").value, t = document.getElementById("cm-time").value;
+  if (!d || !t) return null;
+  const at = new Date(d + "T" + t + ":00+05:30");
+  return isNaN(at) ? null : at.toISOString();
+}
+
+// step 5
+async function cmReview(){
+  const box = document.getElementById("cm-review");
+  box.innerHTML = '<div class="muted">Checking audience and credits…</div>';
+  const sched = document.querySelector('input[name=cm-when]:checked').value === "schedule";
+  const e = await cmEstimate(sched ? { scheduled_at: cmScheduledISO() } : {});
+  if (!e) { box.innerHTML = '<div class="notice warn">Couldn\'t check the campaign. Try again.</div>'; return; }
+  const purpose = document.querySelector('input[name=cm-purpose]:checked').value;
+  const cat = e.category === "marketing" ? "marketing" : "utility";
+  const x = e.excluded || {};
+  box.innerHTML = '<table class="cm-rev">' +
+    '<tr><td>Campaign</td><td><b>' + esc(document.getElementById("cm-name").value) + '</b></td></tr>' +
+    '<tr><td>Message template</td><td>' + esc(CM.tpl ? CM.tpl.name : "—") + ' · ' + (purpose === "MARKETING" ? "Marketing" : "Utility") + '</td></tr>' +
+    '<tr><td>Audience</td><td><b>' + cmN(e.eligible) + '</b> people' + (e.selected !== e.eligible ? ' (' + cmN(e.selected - e.eligible) + ' left out)' : '') + '</td></tr>' +
+    '<tr><td>When</td><td>' + (sched ? esc(cmFmt(cmScheduledISO())) + ' IST' : 'Now') +
+      (e.days_needed > 1 ? ' · spread over ' + e.days_needed + ' days (WhatsApp daily limit ' + cmN(e.daily_limit) + ')' : '') + '</td></tr>' +
+    '<tr><td>Messages this uses</td><td><b>' + cmN(e.credits_needed) + '</b> ' + cat + '</td></tr>' +
+    '<tr><td>Available now</td><td>' + cmN(e.credits_left) + ' ' + cat + ' (plan allowance + top-ups)</td></tr>' +
+    '<tr><td>After this campaign</td><td>' + cmN(Math.max(0, e.credits_left - e.credits_needed)) + ' ' + cat + ' left</td></tr>' +
+    '</table>' +
+    (e.warnings || []).map(w => '<div class="cm-warn">⚠️ ' + esc(w) + '</div>').join("") +
+    (!e.enough_credits ? '<div style="margin:.4rem 0 1rem"><button class="btn sm" onclick="showSection(\'billing\')">Buy ' + cat + ' top-up</button></div>' : '') +
+    '<div class="hint" style="margin:.6rem 0 1rem">A message uses a credit when WhatsApp accepts it. Failed, skipped or cancelled messages are refunded automatically.</div>';
+  document.getElementById("cm-next").disabled = !e.enough_credits || !e.eligible;
+}
+
+async function cmLaunch(){
+  if (!document.getElementById("cm-confirm").checked) return cmMsg("cm-msg", "Tick the confirmation box first.", "err");
+  const sched = document.querySelector('input[name=cm-when]:checked').value === "schedule";
+  const btn = document.getElementById("cm-next");
+  if (!confirm(sched ? "Schedule this campaign?" : "Send this campaign now to " + cmN(CM.est ? CM.est.eligible : 0) + " people?")) return;
+  btn.disabled = true; cmMsg("cm-msg", sched ? "Scheduling…" : "Starting…");
+  await cmSaveDraft(false);
+  const d = await cmApi("/api/campaigns/" + CM.id + "/launch", { method: "POST", json: { mode: sched ? "schedule" : "now", scheduled_at: sched ? cmScheduledISO() : null } });
+  btn.disabled = false;
+  if (!d.success) {
+    cmMsg("cm-msg", d.error || "Couldn't start the campaign.", "err");
+    return;
+  }
+  const id = CM.id;
+  CM.id = null;
+  await cmLoad();
+  refreshBulk();
+  cmOpen(id);
+}
+
+async function cmEdit(id){
+  const d = await cmApi("/api/campaigns/" + id);
+  if (!d.success) return;
+  const c = d.campaign;
+  cmNew();
+  CM.id = c.id;
+  document.getElementById("cm-name").value = c.name || "";
+  document.getElementById("cm-desc").value = c.description || "";
+  document.getElementById("cm-labels").value = (c.labels || []).join(", ");
+  if (c.purpose) document.querySelector('input[name=cm-purpose][value=' + c.purpose + ']').checked = true;
+  const a = c.audience || {};
+  document.querySelector('input[name=cm-src][value=' + (a.source === "tags" ? "tags" : "all") + ']').checked = true;
+  CM.aud = { tags: a.tags || [], exclude: a.exclude_tags || [] };
+  document.getElementById("cm-match").value = a.match || "any";
+  const ff = (a.field_filters || [])[0];
+  if (ff) { CM.pendingFkey = ff.key; document.getElementById("cm-fval").value = ff.value; }
+  CM.preset = CM.presets.find(p => p.id === c.preset) || null;
+  CM.varMap = c.var_map || {};
+  await cmLoadTemplates();
+  CM.tpl = CM.templates.find(t => t.name === c.template_name && t.language === c.language) || null;
+  cmRenderPresets();
+  cmStep(1);
+  if (ff) { const fk = document.getElementById("cm-fkey"); fk.innerHTML = '<option value="' + esc(ff.key) + '">' + esc(ff.key) + '</option>'; fk.value = ff.key; }
+}
+
+// ── detail / report ──
+function cmStopPoll(){ if (CM.poll) { clearInterval(CM.poll); CM.poll = null; } }
+async function cmOpen(id){
+  cmStopPoll();
+  document.querySelectorAll(".cm-pane").forEach(p => p.classList.toggle("active", p.id === "cm-pane-detail"));
+  document.querySelectorAll(".cm-tab").forEach(t => t.classList.remove("active"));
+  await cmRenderDetail(id);
+  CM.poll = setInterval(async () => {
+    if (!document.getElementById("cm-pane-detail").classList.contains("active") ||
+        !document.getElementById("sec-campaigns").classList.contains("active")) return cmStopPoll();
+    const live = await cmRenderDetail(id);
+    if (!live) cmStopPoll();
+  }, 8000);
+}
+async function cmRenderDetail(id){
+  const d = await cmApi("/api/campaigns/" + id);
+  const el = document.getElementById("cm-detail");
+  if (!d.success) { el.innerHTML = '<div class="notice warn">' + esc(d.error || "Not found") + '</div>'; return false; }
+  const c = d.campaign, s = c.stats || {};
+  const base = Math.max(1, s.recipients || 0);
+  const steps = [["Recipients", s.recipients], ["Sent", s.sent], ["Delivered", s.delivered], ["Read", s.read], ["Replied", s.replied]];
+  const acts = [];
+  if (c.status === "sending" || c.status === "scheduled") acts.push('<button class="btn sm outline" onclick="cmAction(' + c.id + ',\'pause\')">Pause</button>');
+  if (c.status === "paused") acts.push('<button class="btn sm" onclick="cmAction(' + c.id + ',\'resume\')">Resume</button>');
+  if (["scheduled", "sending", "paused"].includes(c.status)) acts.push('<button class="btn sm outline" onclick="cmAction(' + c.id + ',\'cancel\')">Cancel remaining</button>');
+  acts.push('<button class="btn sm outline" onclick="cmAction(' + c.id + ',\'duplicate\')">Duplicate</button>');
+  if (s.recipients) acts.push('<button class="btn sm outline" onclick="cmExport(' + c.id + ')">Export CSV</button>');
+  const ev = { created: "Created", launched: "Sending started", scheduled: "Scheduled", started: "Started on schedule", paused: "Paused",
+               auto_paused: "Paused automatically", resumed: "Resumed", cancelled: "Cancelled", completed: "Completed", failed: "Failed" };
+  el.innerHTML =
+    '<div class="card"><div class="card-title"><span>' + esc(c.name) + ' <span class="st ' + esc(c.status) + '">' + esc(CM_STATUS[c.status] || c.status) + '</span></span>' +
+      '<button class="btn sm outline" onclick="cmTab(\'list\')">← All campaigns</button></div>' +
+      '<div class="muted" style="margin-bottom:.8rem">' + (c.purpose === "MARKETING" ? "Marketing" : "Utility") + ' · ' + esc(c.template_name || "") +
+        (c.scheduled_at ? ' · scheduled ' + esc(cmFmt(c.scheduled_at)) : '') + (c.finished_at ? ' · finished ' + esc(cmFmt(c.finished_at)) : '') + '</div>' +
+      (c.note ? '<div class="cm-warn">' + (c.status === "paused" ? "⏸️ " : "⏳ ") + esc(c.note) + '</div>' : '') +
+      '<div class="cm-acts" style="justify-content:flex-start;margin-bottom:.4rem">' + acts.join("") + '</div></div>' +
+    '<div class="grid-stats">' +
+      '<div class="stat"><div class="num">' + cmN(s.recipients) + '</div><div class="lbl">Recipients</div></div>' +
+      '<div class="stat accent"><div class="num">' + cmN(s.delivered) + '</div><div class="lbl">Delivered</div></div>' +
+      '<div class="stat"><div class="num">' + cmN(s.replied) + '</div><div class="lbl">Replied</div></div>' +
+      '<div class="stat"><div class="num">' + cmN(s.failed) + '</div><div class="lbl">❌ Failed (refunded)</div></div>' +
+    '</div>' +
+    '<div class="grid-2"><div class="card"><div class="card-title">How far it got</div>' +
+      '<div class="cm-funnel" role="img" aria-label="Campaign funnel">' + steps.map(st =>
+        '<div class="row" title="' + st[0] + ': ' + cmN(st[1]) + ' (' + Math.round((st[1] || 0) / base * 100) + '%)"><span>' + st[0] + '</span>' +
+        '<div class="track"><div class="fill" style="width:' + Math.min(100, (st[1] || 0) / base * 100) + '%"></div></div>' +
+        '<span class="v">' + cmN(st[1]) + ' <small>' + Math.round((st[1] || 0) / base * 100) + '%</small></span></div>').join("") + '</div>' +
+      '<div class="hint" style="margin-top:.8rem">Waiting to send: ' + cmN(s.queued) + ' · Not sent (unsubscribed or cancelled): ' + cmN(s.not_sent) +
+        ' · Credits used: ' + cmN(s.credits_used) + '. "Read" depends on the person\'s read receipts.</div></div>' +
+    '<div class="card"><div class="card-title">Timeline</div>' +
+      (c.events || []).map(e => '<div style="display:flex;justify-content:space-between;gap:.6rem;padding:.35rem 0;border-bottom:1px solid #EEF3F1;font-size:.9rem"><span>' +
+        esc(ev[e.action] || e.action) + (e.detail && e.detail.reason ? ' · ' + esc(e.detail.reason) : '') + '</span><span class="muted">' + esc(cmFmt(e.at)) + '</span></div>').join("") +
+      ((c.failure_reasons || []).length ? '<div class="cm-h" style="margin-top:1rem">Why messages failed</div>' +
+        c.failure_reasons.map(f => '<div style="font-size:.88rem;padding:.2rem 0">' + cmN(f[1]) + ' × ' + esc(f[0]) + '</div>').join("") : '') +
+    '</div></div>';
+  return ["scheduled", "sending"].includes(c.status);
+}
+async function cmAction(id, act){
+  if (act === "cancel" && !confirm("Cancel all messages not sent yet? Their credits come back to you.")) return;
+  const d = await cmApi("/api/campaigns/" + id + "/" + act, { method: "POST" });
+  if (!d.success) { alert(d.error || "That didn't work."); return; }
+  await cmLoad(); refreshBulk();
+  if (act === "duplicate") return cmEdit(d.campaign.id);
+  cmRenderDetail(id);
+}
+async function cmExport(id){
+  const r = await fetch(API_BASE + "/api/campaigns/" + id + "/export.csv", { headers: await authHeaders() });
+  if (!r.ok) return alert("Couldn't export.");
+  const blob = await r.blob(), a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = ((r.headers.get("Content-Disposition") || "").match(/filename="([^"]+)"/) || [])[1] || "campaign.csv";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// ── contacts & groups ──
+async function cmLoadContacts(){
+  const q = document.getElementById("cm-c-q").value.trim();
+  const d = await cmApi("/api/contacts?q=" + encodeURIComponent(q) + "&tag=" + encodeURIComponent(CM.contactsTag || ""));
+  const el = document.getElementById("cm-contacts");
+  if (!d.success) { el.innerHTML = '<div class="muted">' + esc(d.error || "Couldn't load contacts.") + '</div>'; return; }
+  CM.tags = d.tags || []; CM.fields = d.fields || [];
+  document.getElementById("cm-c-count").textContent = "(" + cmN(d.subscribed) + " subscribed · " + cmN(d.unsubscribed) + " unsubscribed)";
+  document.getElementById("cm-groups").innerHTML = CM.tags.length
+    ? '<button class="cm-chip' + (!CM.contactsTag ? " on" : "") + '" onclick="cmGroup(\'\')">Everyone</button>' +
+      CM.tags.map(t => '<button class="cm-chip' + (CM.contactsTag === t[0] ? " on" : "") + '" onclick="cmGroup(\'' + esc(t[0]).replace(/'/g, "") + '\')">' + esc(t[0]) + '<small>' + t[1] + '</small></button>').join("")
+    : '<span class="muted">No groups yet.</span>';
+  CM.contactsSel = new Set();
+  cmSelUpdate();
+  if (!d.contacts.length) { el.innerHTML = '<div class="muted">' + (d.total ? "No contacts match." : "No contacts yet. Upload a CSV or Excel file above.") + '</div>'; return; }
+  const keys = CM.fields.slice(0, 3);
+  el.innerHTML = '<table class="cm-table"><thead><tr><th><input type="checkbox" onchange="cmSelAll(this.checked)" aria-label="Select all"></th><th>Name</th><th>Number</th><th>Tags</th>' +
+    keys.map(k => '<th>' + esc(k.replace(/_/g, " ")) + '</th>').join("") + '<th></th></tr></thead><tbody>' +
+    d.contacts.map(c => {
+      const off = c.opted_in === false || c.opted_out_at;
+      return '<tr><td><input type="checkbox" class="cm-sel" value="' + esc(c.id) + '" onchange="cmSel(this)"></td>' +
+        '<td class="cm-name" data-l="Name"><b>' + esc(c.name || "—") + '</b>' + (off ? '<span class="cm-off">Unsubscribed</span>' :
+           (c.consent_source === "chatbot_lead" ? '<small>Bot lead · utility only</small>' : '')) + '</td>' +
+        '<td data-l="Number">+' + esc(c.phone) + '</td>' +
+        '<td data-l="Tags">' + (c.tags || []).map(t => '<span class="cm-tagpill">' + esc(t) + '</span>').join("") + '</td>' +
+        keys.map(k => '<td data-l="' + esc(k) + '">' + esc((c.fields || {})[k] || "") + '</td>').join("") +
+        '<td class="cm-acts-td"><div class="cm-acts">' + (off ? "" : '<button class="btn sm outline" onclick="cmUnsub(\'' + esc(c.id) + '\')">Unsubscribe</button>') +
+        (off ? "" : '<button class="btn sm outline" onclick="cmDelContact(\'' + esc(c.id) + '\')">Delete</button>') + '</div></td></tr>';
+    }).join("") + '</tbody></table>' + (d.shown > d.contacts.length ? '<div class="hint">Showing first ' + d.contacts.length + ' of ' + cmN(d.shown) + '. Search to narrow down.</div>' : '');
+}
+function cmGroup(t){ CM.contactsTag = t; cmLoadContacts(); }
+function cmSel(cb){ if (cb.checked) CM.contactsSel.add(cb.value); else CM.contactsSel.delete(cb.value); cmSelUpdate(); }
+function cmSelAll(on){ document.querySelectorAll(".cm-sel").forEach(cb => { cb.checked = on; if (on) CM.contactsSel.add(cb.value); else CM.contactsSel.delete(cb.value); }); cmSelUpdate(); }
+function cmSelUpdate(){
+  const n = CM.contactsSel.size;
+  document.getElementById("cm-bulkbar").style.display = n ? "" : "none";
+  document.getElementById("cm-sel-n").textContent = n + " selected";
+}
+async function cmBulkTag(mode){
+  const tag = document.getElementById("cm-tag-add").value.trim();
+  if (!tag) return;
+  await cmApi("/api/contacts/bulk-tag", { method: "POST", json: { ids: Array.from(CM.contactsSel), [mode]: [tag] } });
+  document.getElementById("cm-tag-add").value = "";
+  cmLoadContacts();
+}
+async function cmUnsub(id){
+  if (!confirm("Unsubscribe this person? They won't get any campaign messages until they reply START.")) return;
+  await cmApi("/api/contacts/" + encodeURIComponent(id), { method: "PATCH", json: { unsubscribe: true } });
+  cmLoadContacts();
+}
+async function cmDelContact(id){
+  if (!confirm("Delete this contact?")) return;
+  const d = await cmApi("/api/contacts/" + encodeURIComponent(id), { method: "DELETE" });
+  if (!d.success) alert(d.error || "Couldn't delete.");
+  cmLoadContacts();
+}
+async function cmUpload(){
+  const f = document.getElementById("cm-file");
+  if (!f.files.length) return cmMsg("cm-up-msg", "Choose a CSV or Excel file first.", "err");
+  if (!document.getElementById("cm-up-ok").checked) return cmMsg("cm-up-msg", "Confirm these contacts agreed to receive WhatsApp messages from you.", "err");
+  const fd = new FormData();
+  fd.append("file", f.files[0]); fd.append("opted_in_confirmed", "true"); fd.append("tags", document.getElementById("cm-up-tags").value);
+  cmMsg("cm-up-msg", "Uploading…");
+  const d = await cmApi("/api/contacts/upload", { method: "POST", body: fd });
+  if (!d.success) return cmMsg("cm-up-msg", d.error || "Upload failed.", "err");
+  cmMsg("cm-up-msg", "✅ Saved " + cmN(d.saved) + " contacts" + (d.invalid ? " · " + d.invalid + " invalid numbers skipped" : "") +
+    (d.duplicates ? " · " + d.duplicates + " duplicates removed" : "") + (d.kept_unsubscribed ? " · " + d.kept_unsubscribed + " stay unsubscribed" : "") +
+    (d.columns && d.columns.length ? ". Details you can use: " + d.columns.join(", ") : ""), "ok");
+  f.value = "";
+  cmLoadContacts(); cmLoadMeta();
+}
+async function cmImportLeads(){
+  cmMsg("cm-leads-msg", "Importing…");
+  const d = await cmApi("/api/contacts/import-leads", { method: "POST" });
+  if (!d.success) return cmMsg("cm-leads-msg", d.error || "Couldn't import.", "err");
+  cmMsg("cm-leads-msg", "✅ Added " + cmN(d.added) + " new, updated " + cmN(d.updated) + ".", "ok");
+  cmLoadContacts(); cmLoadMeta();
+}
+
 </script>
 </body>
 </html>
