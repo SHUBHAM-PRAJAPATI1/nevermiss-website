@@ -12,6 +12,8 @@
  *                       so it never sits on top of the demo chat button)
  *   data-lift="88"      on phones, raise the button this many px (for pages
  *                       with a bottom nav bar, like the dashboard)
+ *   data-mode="account" existing customers: account questions instead of the
+ *                       "what kind of business" sales opener
  * A page can set window.NM_HELP_VISITOR = function () { return {name, email, business}; }
  * (plus optional phone) to tell the team who is chatting (the dashboard does this).
  *
@@ -26,11 +28,42 @@
   var API = "https://my-saas-bot.onrender.com";
   var WA = "917004020840";
   var MAX_LEN = 600;
-  var KEY_SID = "nm_help_sid", KEY_LOG = "nm_help_log";
+  var KEY_SID = "nm_help_sid", KEY_LOG = "nm_help_log", KEY_SEC = "nm_help_sector";
+
+  // Opening buttons: pick a business type, then the questions that show
+  // what NeverMiss is worth to that business. The bot answers these with
+  // sector-specific money math (see NEVERMISS_WEBSITE_NOTE in ai_brain.py).
+  var SECTORS = [
+    { k: "salon", e: "💇", l: "Salon / makeup", n: "salon owners", qs: [
+      "Is NeverMiss worth it for my salon?", "A bride messages at 11 PM. What happens?",
+      "Can it book appointments for me?", "Will it reply in Hindi?", "How does the 7-day free trial work?"] },
+    { k: "coaching", e: "🎓", l: "Coaching institute", n: "coaching institutes", qs: [
+      "Is NeverMiss worth it for my institute?", "Parents message late at night. What happens?",
+      "Can it book demo classes?", "Can it send fee reminders?", "How does the 7-day free trial work?"] },
+    { k: "clinic", e: "🦷", l: "Clinic / dental", n: "clinics", qs: [
+      "Is NeverMiss worth it for my clinic?", "Can patients book appointments on WhatsApp?",
+      "Can it send appointment reminders?", "Will it reply on Sundays?", "How does the 7-day free trial work?"] },
+    { k: "fitness", e: "🏋️", l: "Gym / yoga", n: "gyms and studios", qs: [
+      "Is NeverMiss worth it for my gym?", "Can it book free trial sessions?",
+      "Can it remind members to renew?", "Will it reply in Hindi?", "How does the 7-day free trial work?"] },
+    { k: "classes", e: "💃", l: "Dance / music / art", n: "classes", qs: [
+      "Is NeverMiss worth it for my classes?", "Can parents book a trial class?",
+      "Can it send monthly fee reminders?", "How does the 7-day free trial work?"] },
+    { k: "realestate", e: "🏠", l: "Real estate", n: "brokers", qs: [
+      "Is NeverMiss worth it for a broker?", "Buyers enquire on many listings. How does this help?",
+      "Can it book site visits?", "How does the 7-day free trial work?"] },
+    { k: "other", e: "✨", l: "Something else", n: "businesses", qs: [
+      "Will NeverMiss work for my business?", "What does it cost?",
+      "How does the 7-day free trial work?", "Can I see a live demo?"] }
+  ];
+  var ACCOUNT_QS = ["How do I connect my WhatsApp number?", "How do I send a campaign?",
+                    "How do I change my bot's replies?", "How do I upgrade my plan?", "Something isn't working"];
+  function sectorBy(k) { for (var i = 0; i < SECTORS.length; i++) if (SECTORS[i].k === k) return SECTORS[i]; return null; }
 
   var me = document.currentScript;
   var side = (me && me.getAttribute("data-side")) === "right" ? "right" : "left";
   var lift = parseInt((me && me.getAttribute("data-lift")) || "0", 10) || 0;
+  var accountMode = (me && me.getAttribute("data-mode")) === "account";
 
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
   function esc(s) {
@@ -79,6 +112,13 @@
     ".nmh-m.bot{background:#fff;border:1px solid var(--ln);align-self:flex-start;border-bottom-left-radius:4px;}",
     ".nmh-m.me{background:var(--t);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}",
     ".nmh-m.sys{align-self:center;background:var(--soft);color:var(--td);font-size:13.5px;text-align:center;}",
+    ".nmh-chips{display:flex;flex-direction:column;align-items:flex-start;gap:6px;}",
+    ".nmh-chips p{margin:2px 0 0;color:var(--mut);font-size:13px;}",
+    ".nmh-chips .nmh-wrap{display:flex;flex-wrap:wrap;gap:6px;}",
+    ".nmh-chip{background:#fff;color:var(--td);border:1px solid #9FD3C7;border-radius:999px;padding:7px 12px;font-size:14px !important;line-height:1.25;cursor:pointer;text-align:left;}",
+    ".nmh-chip:hover{background:var(--soft);border-color:var(--t);}",
+    ".nmh-chip.q{border-radius:12px;}",
+    ".nmh-link{background:none;border:0;padding:0;color:var(--mut);font-size:12.5px !important;text-decoration:underline;cursor:pointer;}",
     ".nmh-typing{align-self:flex-start;color:var(--mut);font-size:13.5px;padding:4px 2px;}",
     ".nmh-form{background:#fff;border:1px solid var(--ln);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;}",
     ".nmh-form b{font-size:15px;}.nmh-form p{margin:0;color:var(--mut);font-size:13.5px;}",
@@ -132,6 +172,10 @@
   var history = [];
   try { history = JSON.parse(store(KEY_LOG) || "[]") || []; } catch (e) { history = []; }
   var busy = false, formOpen = false, lastQuestion = "";
+  var PAGE_SECTOR = { salons: "salon", fitness: "fitness", clinics: "clinic", coaching: "coaching" };
+  var sector = store(KEY_SEC) || PAGE_SECTOR[(window.NM_PAGE || {}).sector] ||
+               (/coaching/.test(location.pathname) ? "coaching" : "");
+  if (!sectorBy(sector)) sector = "";
 
   function saveLog() { store(KEY_LOG, JSON.stringify(history.slice(-40))); }
   function add(role, text, keep) {
@@ -145,9 +189,63 @@
   }
   function render() {
     log.innerHTML = "";
-    add("bot", "Hi! I'm the NeverMiss assistant. Ask me anything about plans, pricing, setup or your account. If I can't help, I'll pass it to our team.", false);
+    add("bot", accountMode
+      ? "Hi! Ask me anything about your NeverMiss account, setup, campaigns or billing. If I can't sort it out, I'll pass it to our team."
+      : "Hi! I'm the NeverMiss assistant. I can show you what NeverMiss is worth to your business, and answer anything about plans, setup or your account.", false);
     history.forEach(function (m) { add(m.r, m.t, false); });
+    if (history.some(function (m) { return m.r === "me"; })) suggest(2); else chips();
   }
+
+  function clearChips() { [].slice.call(log.querySelectorAll(".nmh-chips")).forEach(function (c) { c.remove(); }); }
+  function chipBox(note) {
+    var box = document.createElement("div");
+    box.className = "nmh-chips";
+    if (note) { var p = document.createElement("p"); p.textContent = note; box.appendChild(p); }
+    var w = document.createElement("div"); w.className = "nmh-wrap"; box.appendChild(w);
+    log.appendChild(box);
+    return w;
+  }
+  function askBtn(w, q) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "nmh-chip q"; b.textContent = q;
+    b.addEventListener("click", function () { submit(null, q); track("help_suggested"); });
+    w.appendChild(b);
+  }
+  // Opening state: business type first, then that business's questions.
+  function chips() {
+    clearChips();
+    if (accountMode) { var a = chipBox("Common questions"); ACCOUNT_QS.forEach(function (q) { askBtn(a, q); }); return scrollEnd(); }
+    var s = sectorBy(sector);
+    if (!s) {
+      var w = chipBox("What kind of business do you run? I'll show you what NeverMiss is worth to it.");
+      SECTORS.forEach(function (x) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "nmh-chip"; b.textContent = x.e + " " + x.l;
+        b.addEventListener("click", function () { sector = x.k; store(KEY_SEC, x.k); track("help_sector_" + x.k); chips(); });
+        w.appendChild(b);
+      });
+      return scrollEnd();
+    }
+    var q = chipBox("What " + s.n + " ask us most");
+    s.qs.forEach(function (x) { askBtn(q, x); });
+    var ch = document.createElement("button");
+    ch.type = "button"; ch.className = "nmh-link"; ch.textContent = s.k === "other" ? "Change business type" : "Not a " + s.l.toLowerCase() + "? Change";
+    ch.addEventListener("click", function () { sector = ""; store(KEY_SEC, ""); chips(); });
+    q.parentNode.appendChild(ch);
+    scrollEnd();
+  }
+  // After each answer, nudge towards the next question we want them to ask.
+  function suggest(n) {
+    clearChips();
+    var list = accountMode ? ACCOUNT_QS : (sectorBy(sector) || sectorBy("other")).qs;
+    var asked = history.map(function (m) { return m.t; });
+    var left = list.filter(function (q) { return asked.indexOf(q) === -1; }).slice(0, n);
+    if (!left.length) return;
+    var w = chipBox("");
+    left.forEach(function (q) { askBtn(w, q); });
+    scrollEnd();
+  }
+  function scrollEnd() { log.scrollTop = log.scrollHeight; }
 
   function open() {
     if (!log.childElementCount) render();
@@ -183,18 +281,20 @@
       .then(function (r) { return r.json().catch(function () { return { success: false }; }); });
   }
 
-  function submit(e) {
+  function submit(e, preset) {
     if (e) e.preventDefault();
-    var text = input.value.trim().slice(0, MAX_LEN);
+    var text = (preset || input.value).trim().slice(0, MAX_LEN);
     if (!text || busy) return;
     busy = true; send.disabled = true;
-    input.value = ""; input.style.height = "44px";
+    if (!preset) { input.value = ""; input.style.height = "44px"; }
+    clearChips();
     add("me", text);
     lastQuestion = text;
     var typing = document.createElement("div");
     typing.className = "nmh-typing"; typing.textContent = "Typing…";
     log.appendChild(typing); log.scrollTop = log.scrollHeight;
-    post("/api/support-chat", { session_id: sid(), message: text, page: location.pathname, visitor: visitor() })
+    post("/api/support-chat", { session_id: sid(), message: text, page: location.pathname, visitor: visitor(),
+                                    sector: accountMode ? "" : sector })
       .then(function (d) {
         typing.remove();
         if (!d.success) {
@@ -202,7 +302,7 @@
           return;
         }
         add("bot", d.reply);
-        if (d.needs_ticket) showForm(lastQuestion);
+        if (d.needs_ticket) showForm(lastQuestion); else suggest(2);
       })
       .catch(function () {
         typing.remove();
