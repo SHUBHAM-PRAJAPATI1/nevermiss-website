@@ -126,7 +126,7 @@ footer{background:#040710;padding:3rem;}
     <div id="form-error" style="display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#C00;"></div>
 
     <button class="form-submit" id="submit-btn" onclick="submitCustomRequest()">Send my requirement →</button>
-    <p style="text-align:center;font-size:0.8rem;color:var(--muted);">We reply within 24 hours. Prefer to talk? <a href="https://wa.me/917484849508?text=Hi%2C%20we%20need%20a%20custom%20WhatsApp%20bot%20setup" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a></p>
+    <p style="text-align:center;font-size:0.8rem;color:var(--muted);">We reply within 24 hours. Prefer to talk? <a href="https://wa.me/917004020840?text=Hi%2C%20we%20need%20a%20custom%20WhatsApp%20bot%20setup" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a></p>
   </div>
 </div>
 
@@ -137,7 +137,7 @@ footer{background:#040710;padding:3rem;}
       <a href="index.html">Home</a>
       <a href="index.html#pricing">Pricing</a>
       <a href="bulk-messaging.html">Bulk Messaging</a>
-      <a href="https://wa.me/917484849508" target="_blank" rel="noopener">💬 WhatsApp Support</a>
+      <a href="https://wa.me/917004020840" target="_blank" rel="noopener">💬 WhatsApp Support</a>
       <a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a>
     </div>
     <div class="footer-copy">© 2026 NeverMiss. All rights reserved.</div>
@@ -203,7 +203,7 @@ async function submitCustomRequest() {
   } catch (err) {
     console.error(err);
     const text = `Hi, I'm ${name} from ${business}. We need a custom WhatsApp bot setup.\nEmail: ${email}\nPhone: ${phone}\nWhat we do: ${sector}`;
-    window.open("https://wa.me/917484849508?text=" + encodeURIComponent(text), "_blank");
+    window.open("https://wa.me/917004020840?text=" + encodeURIComponent(text), "_blank");
     showSuccess(name);
   }
 }
@@ -217,5 +217,6 @@ function showSuccess(name) {
     </div>`;
 }
 </script>
+<script src="/nm-help.js" defer></script>
 </body>
 </html>

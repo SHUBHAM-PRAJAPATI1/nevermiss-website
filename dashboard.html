@@ -303,7 +303,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   <button class="nav-item" data-sec="connect"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></span><span class="txt">Connect WhatsApp</span></button>
   <button class="nav-item" data-sec="billing"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg></span><span class="txt">Plan &amp; Billing</span></button>
   <div class="side-foot">
-    <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20help%20with%20NeverMiss" target="_blank">Need help? Chat with us</a>
+    <a href="https://wa.me/917004020840?text=Hi%2C%20I%20need%20help%20with%20NeverMiss" target="_blank">Need help? Chat with us</a>
     <a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a>
   </div>
 </div>
@@ -403,7 +403,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     <div class="bar"><div class="fill" id="util-bar" style="width:0%"></div></div>
     <div class="meter-label"><span>📣 Marketing messages (announcements, promos)</span><span id="mkt-text">0 / 0</span></div>
     <div class="bar"><div class="fill mkt" id="mkt-bar" style="width:0%"></div></div>
-    <div class="muted">Need more this month? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
+    <div class="muted">Need more this month? <a href="https://wa.me/917004020840?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
   </div>
   <div class="card">
     <div class="card-title">Upload contacts (CSV or Excel)</div>
@@ -956,7 +956,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
       <div class="bar"><div class="fill" id="b-util-bar" style="width:0%"></div></div>
       <div class="meter-label"><span>📣 Marketing bulk messages (included)</span><span id="b-mkt-text">0 / 0</span></div>
       <div class="bar"><div class="fill mkt" id="b-mkt-bar" style="width:0%"></div></div>
-      <div class="muted">Need more this month? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
+      <div class="muted">Need more this month? <a href="https://wa.me/917004020840?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
     </div>
   </div>
 
@@ -995,7 +995,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     <h3>⏳ Your plan has expired</h3>
     <p>Your NeverMiss plan needs renewal. Renew now to keep your bot active and keep receiving leads from your students.</p>
     <a class="btn" style="text-decoration:none;display:inline-block;" href="https://nevermiss.co.in/#pricing" target="_blank">View Plans &amp; Renew</a>
-    <div class="muted" style="margin-top:0.8rem;"><a href="https://wa.me/917484849508?text=Hi%2C%20I%27d%20like%20to%20renew%20my%20NeverMiss%20plan" target="_blank" style="color:var(--blue);">Or message us on WhatsApp</a></div>
+    <div class="muted" style="margin-top:0.8rem;"><a href="https://wa.me/917004020840?text=Hi%2C%20I%27d%20like%20to%20renew%20my%20NeverMiss%20plan" target="_blank" style="color:var(--blue);">Or message us on WhatsApp</a></div>
   </div>
 </div>
 
@@ -3058,7 +3058,7 @@ function renderPlansGrid(){
       '<h4>Your custom plan</h4>' +
       '<div class="muted" style="margin-bottom:0.6rem;">Priced and configured for your organisation, with the full feature set enabled.</div>' +
       '<ul><li>Registration, slot booking and reminders</li><li>Quick replies and media</li><li>Alumni tracking and job alerts</li></ul>' +
-      '<a class="btn sm" style="text-decoration:none;display:inline-block;margin-top:0.8rem;" href="https://wa.me/917484849508?text=Hi%2C%20a%20question%20about%20our%20NeverMiss%20plan" target="_blank">Talk to us about changes</a>' +
+      '<a class="btn sm" style="text-decoration:none;display:inline-block;margin-top:0.8rem;" href="https://wa.me/917004020840?text=Hi%2C%20a%20question%20about%20our%20NeverMiss%20plan" target="_blank">Talk to us about changes</a>' +
       '</div>';
     return;
   }
@@ -3850,5 +3850,13 @@ async function cmImportLeads(){
 }
 
 </script>
+<script>
+// Tells the help chat who is asking, so the team knows the account.
+window.NM_HELP_VISITOR = function(){
+  return { name: "", email: EMAIL || "", business: (CLIENT && CLIENT.business_name) || "",
+           phone: (CLIENT && CLIENT.contact_phone) || "" };
+};
+</script>
+<script src="/nm-help.js" data-side="right" data-lift="76" defer></script>
 </body>
 </html>

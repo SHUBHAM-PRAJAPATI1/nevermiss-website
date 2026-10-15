@@ -69,6 +69,47 @@
   .msg-row.user .msg-bubble { background: var(--bg); color: var(--text); }
   .msg-row.assistant .msg-bubble { background: var(--green-light); color: var(--green-dark); }
   .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+  .msg-row.assistant .msg-time { text-align: right; }
+  .msg-row > div { max-width: 75%; }
+  .msg-row > div .msg-bubble { max-width: 100%; display: inline-block; }
+  .msg-row.assistant > div { text-align: right; }
+  .msg-row.assistant .msg-bubble { text-align: left; }
+  .msg-row.user .msg-bubble { border: 1px solid var(--border); }
+
+  /* helpline chats + tickets */
+  .admin-tabs { flex-wrap: wrap; }
+  .tab-count:not(:empty) { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 9px; background: #DC2626; color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+  .hl-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+  .hl-bar .search-input { margin: 0; flex: 1; min-width: 200px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--white); }
+  .seg button { border: 0; background: none; padding: 7px 12px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--text-muted); }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .seg button.on { background: var(--green-light); color: var(--green-dark); font-weight: 500; }
+  .btn.sm { padding: 7px 12px; font-size: 13px; }
+  .ch { display: inline-block; font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 9px; margin-right: 6px; vertical-align: 1px; }
+  .ch.website { background: #E0E7FF; color: #3730A3; } .ch.whatsapp { background: var(--green-light); color: var(--green-dark); }
+  .tk { display: inline-block; font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 9px; margin-left: 4px; }
+  .tk.open { background: #FEE2E2; color: #991B1B; } .tk.in_progress { background: #FEF3C7; color: #92400E; } .tk.resolved { background: #E5E7EB; color: #374151; }
+  .thread-who { font-weight: 500; }
+  .thread-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .thread-head { gap: 12px; }
+  .thread-head > div:first-child { min-width: 0; }
+  .thread-time { text-align: right; line-height: 1.5; }
+  .thread-body { max-height: 480px; }
+  .day-sep { text-align: center; font-size: 11px; color: var(--text-muted); margin: 6px 0 10px; }
+  .ticket { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; background: var(--white); }
+  .ticket-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .ticket-top b { font-size: 15px; font-weight: 500; }
+  .ticket .meta { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+  .ticket .meta a { color: var(--green-dark); }
+  .ticket .issue { font-size: 14px; white-space: pre-wrap; margin: 8px 0; padding: 10px 12px; background: var(--bg); border-radius: 8px; }
+  .ticket textarea { width: 100%; min-height: 54px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; margin-top: 4px; }
+  @media (max-width: 600px) {
+    body { padding: 1rem; }
+    .thread-head { flex-direction: column; align-items: flex-start; }
+    .thread-time { text-align: left; }
+    .thread-preview { max-width: 100%; }
+  }
 </style>
 </head>
 <body>
@@ -88,7 +129,8 @@
     <!-- NEW: tab bar switching between the two admin pages -->
     <div class="admin-tabs">
       <button class="admin-tab active" id="tab-pending" onclick="showAdminPage('pending')">Pending Connections</button>
-      <button class="admin-tab" id="tab-conversations" onclick="showAdminPage('conversations')">Helpline Conversations</button>
+      <button class="admin-tab" id="tab-conversations" onclick="showAdminPage('conversations')">Helpline chats</button>
+      <button class="admin-tab" id="tab-tickets" onclick="showAdminPage('tickets')">Tickets <span class="tab-count" id="tk-count"></span></button>
       <button class="admin-tab" id="tab-partners" onclick="showAdminPage('partners')">Partners</button>
       <button class="admin-tab" id="tab-templates" onclick="showAdminPage('templates')">Templates</button>
     </div>
@@ -98,11 +140,35 @@
       <div id="pending-list"><div class="empty">Loading...</div></div>
     </div>
 
-    <!-- NEW: helpline conversations page -->
+    <!-- Every helpline chat: WhatsApp helpline number + website Help chat -->
     <div class="admin-page" id="page-conversations">
-      <h1>Helpline Conversations</h1>
-      <input type="text" class="search-input" id="conv-search" placeholder="Search by phone number..." oninput="renderConversations()" />
+      <h1>Helpline chats</h1>
+      <div class="hl-bar">
+        <div class="seg" role="group" aria-label="Channel">
+          <button class="on" data-ch="" onclick="setChatChannel(this)">All</button>
+          <button data-ch="website" onclick="setChatChannel(this)">Website</button>
+          <button data-ch="whatsapp" onclick="setChatChannel(this)">WhatsApp</button>
+        </div>
+        <input type="text" class="search-input" id="conv-search" placeholder="Search name, number, email or message…" oninput="renderConversations()" />
+        <button class="btn ghost sm" onclick="loadSupportConversations()">Refresh</button>
+      </div>
+      <p class="pp-spots" id="conv-summary"></p>
       <div id="conversations-list"><div class="empty">Loading...</div></div>
+    </div>
+
+    <!-- Support tickets raised from the website chat or the WhatsApp helpline -->
+    <div class="admin-page" id="page-tickets">
+      <h1>Support tickets</h1>
+      <div class="hl-bar">
+        <div class="seg" role="group" aria-label="Status">
+          <button class="on" data-st="open" onclick="setTicketStatus(this)">Open</button>
+          <button data-st="in_progress" onclick="setTicketStatus(this)">In progress</button>
+          <button data-st="resolved" onclick="setTicketStatus(this)">Resolved</button>
+          <button data-st="" onclick="setTicketStatus(this)">All</button>
+        </div>
+        <button class="btn ghost sm" onclick="loadTickets()">Refresh</button>
+      </div>
+      <div id="tickets-list"><div class="empty">Loading...</div></div>
     </div>
 
     <!-- Pilot Partner Program applications -->
@@ -133,7 +199,8 @@
 <script>
 const BACKEND_URL = 'https://my-saas-bot.onrender.com';
 let adminSecret = '';
-let allSupportConversations = []; // flat list from the API, grouped client-side
+let allSupportConversations = []; // chats from /admin/helpline/chats (already grouped)
+let chatsLoaded = false, chatChannel = '', ticketStatus = 'open', openChats = {};
 
 function unlock() {
   adminSecret = document.getElementById('admin-secret-input').value.trim();
@@ -149,9 +216,10 @@ function showAdminPage(page) {
   document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('page-' + page).classList.add('active');
   document.getElementById('tab-' + page).classList.add('active');
-  if (page === 'conversations' && allSupportConversations.length === 0) {
+  if (page === 'conversations' && !chatsLoaded) {
     loadSupportConversations();
   }
+  if (page === 'tickets') loadTickets();
   if (page === 'partners') loadPartners();
 }
 
@@ -166,6 +234,7 @@ async function loadPending() {
     }
     document.getElementById('login-card').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
+    refreshOpenCount();
     sessionStorage.setItem('nm_admin_secret', adminSecret);
     renderPending(data.pending);
   } catch (e) {
@@ -246,87 +315,226 @@ async function activate(i, userEmail, businessName) {
   }
 }
 
-// NEW: fetches all helpline conversation history (flat list, most
-// recent first) and stores it for client-side grouping/rendering.
+// ── Helpline chats (website + WhatsApp) ─────────────────────────────
+function fmtWhen(iso, withDate) {
+  if (!iso) return '—';
+  var d = new Date(iso), now = new Date();
+  var time = d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+  if (!withDate && d.toDateString() === now.toDateString()) return 'Today ' + time;
+  var y = new Date(now); y.setDate(now.getDate() - 1);
+  if (!withDate && d.toDateString() === y.toDateString()) return 'Yesterday ' + time;
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' }) + ', ' + time;
+}
+function prettyPhone(p) {
+  p = String(p || '').replace(/\D/g, '');
+  if (p.length === 12 && p.indexOf('91') === 0) return '+91 ' + p.slice(2, 7) + ' ' + p.slice(7);
+  if (p.length === 10) return '+91 ' + p.slice(0, 5) + ' ' + p.slice(5);
+  return p;
+}
+function ticketBadges(list) {
+  return (list || []).map(function(t) {
+    return '<span class="tk ' + t.status + '">#' + t.id + ' ' + t.status.replace('_', ' ') + '</span>';
+  }).join('');
+}
+
+function setChatChannel(btn) {
+  btn.parentNode.querySelectorAll('button').forEach(function(b) { b.classList.toggle('on', b === btn); });
+  chatChannel = btn.dataset.ch;
+  loadSupportConversations();
+}
+
 async function loadSupportConversations() {
   var listEl = document.getElementById('conversations-list');
   listEl.innerHTML = '<div class="empty">Loading...</div>';
   try {
-    var res = await fetch(BACKEND_URL + '/admin/support-conversations?admin_secret=' + encodeURIComponent(adminSecret));
+    var res = await fetch(BACKEND_URL + '/admin/helpline/chats?admin_secret=' + encodeURIComponent(adminSecret) +
+                          (chatChannel ? '&channel=' + chatChannel : ''));
     var data = await res.json();
     if (!data.success) {
-      listEl.innerHTML = '<div class="empty">Failed to load conversations.</div>';
+      listEl.innerHTML = '<div class="empty">Failed to load chats.</div>';
       return;
     }
-    allSupportConversations = data.conversations || [];
+    allSupportConversations = data.chats || [];
+    chatsLoaded = true;
     renderConversations();
   } catch (e) {
-    listEl.innerHTML = '<div class="empty">Network error loading conversations.</div>';
+    listEl.innerHTML = '<div class="empty">Network error loading chats.</div>';
   }
 }
 
-// NEW: groups the flat message list into per-phone-number threads,
-// sorted by most recent activity, filtered by the search box if a
-// phone number substring is typed in. Each thread starts collapsed,
-// showing just the phone number and a preview of the latest message --
-// clicking expands the full back-and-forth.
+// One row per chat (a website visitor's session, or a WhatsApp number),
+// newest activity first. Clicking a row loads the full conversation.
 function renderConversations() {
   var listEl = document.getElementById('conversations-list');
-  var query = (document.getElementById('conv-search').value || '').trim();
-
-  var grouped = {};
-  allSupportConversations.forEach(function(m) {
-    if (!grouped[m.phone_number]) grouped[m.phone_number] = [];
-    grouped[m.phone_number].push(m);
+  var query = (document.getElementById('conv-search').value || '').trim().toLowerCase();
+  var chats = allSupportConversations.filter(function(c) {
+    if (!query) return true;
+    return [c.contact, c.visitor, c.page, c.last_message, c.key].join(' ').toLowerCase().indexOf(query) !== -1;
   });
+  var today = new Date().toDateString();
+  var todayCount = allSupportConversations.filter(function(c) { return new Date(c.last_at).toDateString() === today; }).length;
+  document.getElementById('conv-summary').textContent =
+    allSupportConversations.length + ' chats · ' + todayCount + ' active today' + (query ? ' · ' + chats.length + ' match' : '');
 
-  var phones = Object.keys(grouped);
-  if (query) {
-    phones = phones.filter(function(p) { return p.includes(query); });
-  }
-
-  if (!phones.length) {
-    listEl.innerHTML = '<div class="empty">No conversations found.</div>';
+  if (!chats.length) {
+    listEl.innerHTML = '<div class="empty">No chats found.</div>';
     return;
   }
-
-  // Sort threads by their most recent message, newest first. Messages
-  // within each thread come back created_at DESC from the API, so
-  // index 0 is already the latest for that phone number.
-  phones.sort(function(a, b) {
-    return new Date(grouped[b][0].created_at) - new Date(grouped[a][0].created_at);
-  });
-
-  listEl.innerHTML = phones.map(function(phone, idx) {
-    var messages = grouped[phone].slice().reverse(); // oldest first for display
-    var latest = grouped[phone][0];
-    var latestTime = latest.created_at ? new Date(latest.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
-    var preview = (latest.content || '').slice(0, 60);
-
-    var bubbles = messages.map(function(m) {
-      var t = m.created_at ? new Date(m.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '';
-      return (
-        '<div class="msg-row ' + m.role + '">' +
-          '<div><div class="msg-bubble">' + escapeHtml(m.content) + '</div>' +
-          '<div class="msg-time">' + t + '</div></div>' +
-        '</div>'
-      );
-    }).join('');
-
+  listEl.innerHTML = chats.map(function(c, idx) {
+    var web = c.channel === 'website';
+    var who = web ? (c.visitor || 'Website visitor') : prettyPhone(c.contact);
+    var sub = [web ? (c.page ? 'on ' + c.page : '') : (c.visitor || ''),
+               c.messages + ' message' + (c.messages === 1 ? '' : 's')].filter(Boolean).join(' · ');
     return (
-      '<div class="thread" id="thread-' + idx + '">' +
-        '<div class="thread-head" onclick="toggleThread(' + idx + ')">' +
-          '<div><div class="thread-phone">' + phone + '</div><div class="thread-preview">' + escapeHtml(preview) + '</div></div>' +
-          '<div class="thread-time">' + latestTime + '</div>' +
+      '<div class="thread' + (openChats[c.key] ? ' expanded' : '') + '" id="thread-' + idx + '" data-key="' + escapeHtml(c.key) + '">' +
+        '<div class="thread-head" role="button" tabindex="0" onclick="toggleThread(' + idx + ')" onkeydown="if(event.key===\'Enter\')toggleThread(' + idx + ')">' +
+          '<div><div class="thread-who"><span class="ch ' + (web ? 'website' : 'whatsapp') + '">' + (web ? 'Website' : 'WhatsApp') + '</span>' +
+            escapeHtml(who) + ticketBadges(c.tickets) + '</div>' +
+            '<div class="thread-sub">' + escapeHtml(sub) + '</div>' +
+            '<div class="thread-preview">' + escapeHtml(c.last_message || '') + '</div></div>' +
+          '<div class="thread-time">Last: ' + fmtWhen(c.last_at) + '<br>Started: ' + fmtWhen(c.started_at) + '</div>' +
         '</div>' +
-        '<div class="thread-body">' + bubbles + '</div>' +
+        '<div class="thread-body" id="thread-body-' + idx + '">' + (openChats[c.key] || '<div class="empty">Loading...</div>') + '</div>' +
       '</div>'
     );
   }).join('');
 }
 
-function toggleThread(idx) {
-  document.getElementById('thread-' + idx).classList.toggle('expanded');
+async function toggleThread(idx) {
+  var el = document.getElementById('thread-' + idx);
+  var key = el.dataset.key;
+  if (el.classList.toggle('expanded') === false) { delete openChats[key]; return; }
+  var body = document.getElementById('thread-body-' + idx);
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/chat?admin_secret=' + encodeURIComponent(adminSecret) + '&key=' + encodeURIComponent(key));
+    var data = await res.json();
+    if (!data.success) { body.innerHTML = '<div class="empty">Failed to load this chat.</div>'; return; }
+    var lastDay = '';
+    var html = (data.messages || []).map(function(m) {
+      var d = m.created_at ? new Date(m.created_at) : null;
+      var day = d ? d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      var sep = day && day !== lastDay ? '<div class="day-sep">' + day + '</div>' : '';
+      lastDay = day || lastDay;
+      var t = d ? d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', second: '2-digit' }) : '';
+      return sep + '<div class="msg-row ' + (m.role === 'user' ? 'user' : 'assistant') + '">' +
+        '<div><div class="msg-bubble">' + escapeHtml(m.content) + '</div>' +
+        '<div class="msg-time">' + (m.role === 'user' ? 'Customer' : 'Bot') + ' · ' + t + '</div></div></div>';
+    }).join('') || '<div class="empty">No messages.</div>';
+    openChats[key] = html;
+    body.innerHTML = html;
+    body.scrollTop = body.scrollHeight;
+  } catch (e) {
+    body.innerHTML = '<div class="empty">Network error loading this chat.</div>';
+  }
+}
+
+// Opens the chat a ticket came from.
+function openChatFor(key) {
+  showAdminPage('conversations');
+  var tryOpen = function() {
+    var el = document.querySelector('.thread[data-key="' + CSS.escape(key) + '"]');
+    if (!el) return false;
+    if (!el.classList.contains('expanded')) toggleThread(el.id.replace('thread-', ''));
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return true;
+  };
+  if (!tryOpen()) {
+    var n = 0, iv = setInterval(function() { if (tryOpen() || ++n > 20) clearInterval(iv); }, 300);
+  }
+}
+
+// ── Support tickets ─────────────────────────────────────────────────
+let allTickets = [];
+function setTicketStatus(btn) {
+  btn.parentNode.querySelectorAll('button').forEach(function(b) { b.classList.toggle('on', b === btn); });
+  ticketStatus = btn.dataset.st;
+  loadTickets();
+}
+
+async function loadTickets() {
+  var listEl = document.getElementById('tickets-list');
+  listEl.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/tickets?admin_secret=' + encodeURIComponent(adminSecret) +
+                          (ticketStatus ? '&status=' + ticketStatus : ''));
+    var data = await res.json();
+    if (!data.success) { listEl.innerHTML = '<div class="empty">Failed to load tickets.</div>'; return; }
+    allTickets = data.tickets || [];
+    if (ticketStatus === 'open') document.getElementById('tk-count').textContent = allTickets.length || '';
+    renderTickets();
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error loading tickets.</div>';
+  }
+}
+
+async function refreshOpenCount() {
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/tickets?admin_secret=' + encodeURIComponent(adminSecret) + '&status=open');
+    var data = await res.json();
+    if (data.success) document.getElementById('tk-count').textContent = (data.tickets || []).length || '';
+  } catch (e) {}
+}
+
+function renderTickets() {
+  var listEl = document.getElementById('tickets-list');
+  if (!allTickets.length) {
+    listEl.innerHTML = '<div class="empty">No ' + (ticketStatus ? ticketStatus.replace('_', ' ') + ' ' : '') + 'tickets.</div>';
+    return;
+  }
+  listEl.innerHTML = allTickets.map(function(t) {
+    var phone = String(t.phone || '').replace(/\D/g, '');
+    var wa = phone ? 'https://wa.me/' + (phone.length === 10 ? '91' + phone : phone) +
+      '?text=' + encodeURIComponent('Hi ' + (t.name || '') + ', this is NeverMiss support about your ticket #' + t.id + '.') : '';
+    var actions = [];
+    if (t.status !== 'in_progress' && t.status !== 'resolved') actions.push('<button class="btn ghost sm" onclick="updateTicket(' + t.id + ',\'in_progress\')">Mark in progress</button>');
+    if (t.status !== 'resolved') actions.push('<button class="btn sm" onclick="updateTicket(' + t.id + ',\'resolved\')">Resolve</button>');
+    else actions.push('<button class="btn ghost sm" onclick="updateTicket(' + t.id + ',\'open\')">Reopen</button>');
+    actions.push('<button class="btn ghost sm" onclick="updateTicket(' + t.id + ',null)">Save note</button>');
+    if (t.session_id) actions.push('<button class="btn ghost sm" onclick="openChatFor(\'' + escapeHtml(String(t.session_id).replace(/[^a-zA-Z0-9\-]/g, '')) + '\')">Open chat</button>');
+    return (
+      '<div class="ticket" id="ticket-' + t.id + '">' +
+        '<div class="ticket-top"><div><span class="ch ' + (t.source === 'whatsapp' ? 'whatsapp' : 'website') + '">' + (t.source === 'whatsapp' ? 'WhatsApp' : 'Website') + '</span>' +
+          '<b>#' + t.id + ' · ' + escapeHtml(t.name || 'No name') + '</b><span class="tk ' + t.status + '">' + t.status.replace('_', ' ') + '</span></div>' +
+          '<div class="thread-time">Raised: ' + fmtWhen(t.created_at, true) + (t.resolved_at ? '<br>Resolved: ' + fmtWhen(t.resolved_at, true) : '') + '</div></div>' +
+        '<div class="meta">' +
+          (phone ? '📱 ' + escapeHtml(prettyPhone(phone)) + ' · <a href="' + wa + '" target="_blank" rel="noopener">Reply on WhatsApp</a>' : '') +
+          (t.email ? '<br>✉️ <a href="mailto:' + escapeHtml(t.email) + '">' + escapeHtml(t.email) + '</a>' : '') +
+          (t.page ? '<br>Page: ' + escapeHtml(t.page) : '') +
+        '</div>' +
+        '<div class="issue">' + escapeHtml(t.issue || '') + '</div>' +
+        '<label style="font-size:12px;color:var(--text-muted)">Internal note<textarea id="tk-note-' + t.id + '">' + escapeHtml(t.notes || '') + '</textarea></label>' +
+        '<div class="pp-actions">' + actions.join('') + '</div>' +
+        '<div class="status-msg" id="tk-msg-' + t.id + '"></div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+async function updateTicket(id, status) {
+  var msg = document.getElementById('tk-msg-' + id);
+  var body = { admin_secret: adminSecret, notes: document.getElementById('tk-note-' + id).value };
+  if (status) body.status = status;
+  msg.className = 'status-msg'; msg.textContent = 'Saving…';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/tickets/' + id, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed');
+    if (status && ticketStatus && status !== ticketStatus) {
+      allTickets = allTickets.filter(function(t) { return t.id !== id; });
+      renderTickets();
+    } else {
+      allTickets = allTickets.map(function(t) { return t.id === id ? data.ticket : t; });
+      renderTickets();
+      var m2 = document.getElementById('tk-msg-' + id);
+      if (m2) { m2.className = 'status-msg success'; m2.textContent = 'Saved.'; }
+    }
+    refreshOpenCount();
+    chatsLoaded = false; openChats = {};
+  } catch (e) {
+    msg.className = 'status-msg error'; msg.textContent = 'Could not save: ' + e.message;
+  }
 }
 
 // ── Pilot Partner applications ─────────────────────────────────────────────
@@ -425,9 +633,10 @@ async function tpRun(dry) {
 }
 
 function escapeHtml(str) {
-  var div = document.createElement('div');
-  div.textContent = str || '';
-  return div.innerHTML;
+  // Escapes quotes too, so it is safe inside attributes (href, data-key).
+  return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
 }
 
 // Auto-unlock if secret was already entered this session
