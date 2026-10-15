@@ -2,321 +2,394 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WhatsApp Bulk Messaging Plans — NeverMiss</title>
-<meta name="description" content="Send batch reminders, fee nudges and admission announcements to your opted-in WhatsApp contacts. Standalone bulk messaging plans from ₹799/month.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp bulk messaging and campaigns for local businesses | NeverMiss</title>
+<meta name="description" content="Send appointment reminders, fee and renewal reminders, report-ready notices and offers to opted-in WhatsApp contacts. For coaching, clinics, salons, gyms, classes and more. Included with every NeverMiss plan, or from ₹799/month on its own.">
 <link rel="canonical" href="https://nevermiss.co.in/bulk-messaging.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevermiss.co.in/bulk-messaging.html">
+<meta property="og:title" content="WhatsApp bulk messaging and campaigns for local businesses">
+<meta property="og:description" content="Send appointment reminders, fee and renewal reminders, report-ready notices and offers to opted-in WhatsApp contacts. For coaching, clinics, salons, gyms, classes and more. Included with every NeverMiss plan, or from ₹799/month on its own.">
+<meta property="og:image" content="https://nevermiss.co.in/nevermiss-og-image.png">
+<meta property="og:locale" content="en_IN">
+<meta property="og:site_name" content="NeverMiss">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0F766E">
 <link rel="icon" type="image/png" sizes="32x32" href="/nevermiss-favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/nevermiss-favicon-16.png">
 <link rel="apple-touch-icon" href="/nevermiss-apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hind:wght@400;500;600;700&family=Cormorant+Garamond:wght@600&family=Archivo:wdth,wght@125,800&family=IBM+Plex+Sans:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+<script src="/nm-track.js" data-endpoint="https://my-saas-bot.onrender.com/api/track" data-product="nevermiss" defer></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{--blue:#1B4FFF;--blue-dark:#0A2ECC;--blue-light:#EEF2FF;--black:#080C1A;--white:#FAFBFF;--gray:#F0F2FA;--gray2:#E2E6F3;--text:#0D1226;--muted:#5A6380;--accent:#FF4D00;}
-html{scroll-behavior:smooth;}
-body{font-family:'Instrument Sans',sans-serif;background:var(--white);color:var(--text);}
-nav{position:sticky;top:0;z-index:100;padding:1.1rem 3rem;display:flex;align-items:center;justify-content:space-between;background:rgba(250,251,255,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--gray2);}
-.logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.5rem;color:var(--black);display:flex;align-items:center;gap:0.5rem;text-decoration:none;}
-.logo img{width:32px;height:32px;border-radius:8px;object-fit:cover;}
-.nav-links{display:flex;align-items:center;gap:2rem;}
-.nav-links a{text-decoration:none;color:var(--muted);font-size:0.9rem;font-weight:500;}
-.nav-links a:hover{color:var(--blue);}
-.head{background:var(--black);padding:5rem 3rem 4rem;text-align:center;}
-.kicker{font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7B9FFF;margin-bottom:0.8rem;}
-.head h1{font-family:'Clash Display',sans-serif;font-size:2.6rem;font-weight:700;color:white;line-height:1.15;margin-bottom:1rem;}
-.head p{color:rgba(255,255,255,0.55);font-size:1rem;line-height:1.75;max-width:620px;margin:0 auto;}
-.wrap{max-width:1100px;margin:0 auto;padding:4rem 1.5rem 5rem;}
-.sub-title{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:var(--black);margin:0 0 1.2rem;display:flex;align-items:center;gap:0.6rem;}
-.sub-title::before{content:'';width:4px;height:18px;background:var(--blue);border-radius:2px;}
-.msg-types{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:3rem;}
-.msg-type{border-radius:16px;padding:1.6rem 1.8rem;border:1.5px solid;}
-.msg-type.utility{background:#E9F9F6;border-color:#14B8A6;}
-.msg-type.marketing{background:#FFF3EA;border-color:#FB923C;}
-.msg-type-title{font-size:0.8rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.6rem;}
-.msg-type.utility .msg-type-title{color:#0F766E;}
-.msg-type.marketing .msg-type-title{color:#C2410C;}
-.msg-type p{font-size:0.88rem;line-height:1.65;color:var(--muted);}
-.table-wrap{background:white;border:1px solid var(--gray2);border-radius:16px;overflow:hidden;margin-bottom:3rem;}
-.quota-table{width:100%;border-collapse:collapse;}
-.quota-table th{background:var(--black);color:white;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-align:left;padding:0.9rem 1.4rem;}
-.quota-table td{padding:0.9rem 1.4rem;font-size:0.88rem;border-top:1px solid var(--gray2);}
-.quota-table td strong{color:var(--blue);}
-.addon{background:#E9F9F6;border:2px solid #14B8A6;border-radius:20px;padding:1.8rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;margin-bottom:3rem;}
-.addon-title{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:#0F766E;margin-bottom:0.4rem;}
-.addon-desc{font-size:0.9rem;color:var(--muted);line-height:1.6;max-width:520px;}
-.addon-price{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--black);text-align:right;}
-.addon-price span{display:block;font-family:'Instrument Sans',sans-serif;font-size:0.75rem;font-weight:400;color:var(--muted);}
-.custom-btn{background:var(--blue);color:white;border:none;padding:0.85rem 1.6rem;border-radius:100px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;}
-.custom-btn:hover{background:var(--blue-dark);}
-.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1.2rem;}
-.plan{background:var(--gray);border:1px solid var(--gray2);border-radius:24px;padding:2.2rem;position:relative;}
-.plan.popular{background:var(--blue);border-color:var(--blue);}
-.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;font-size:0.7rem;font-weight:700;padding:0.3rem 1rem;border-radius:100px;white-space:nowrap;}
-.plan-name{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:600;color:var(--black);margin-bottom:0.5rem;}
-.plan.popular .plan-name{color:white;}
-.plan-price{font-family:'Clash Display',sans-serif;font-size:2.8rem;font-weight:700;color:var(--black);line-height:1;margin-bottom:0.3rem;}
-.plan.popular .plan-price{color:white;}
-.plan-price span{font-size:1rem;font-weight:400;color:var(--muted);}
-.plan.popular .plan-price span{color:rgba(255,255,255,0.6);}
-.plan-desc{font-size:0.82rem;color:var(--muted);margin-bottom:1.5rem;}
-.plan.popular .plan-desc{color:rgba(255,255,255,0.6);}
-.plan-features{list-style:none;margin-bottom:2rem;display:flex;flex-direction:column;gap:0.7rem;}
-.plan-features li{font-size:0.85rem;display:flex;align-items:center;gap:0.6rem;}
-.plan.popular .plan-features li{color:rgba(255,255,255,0.85);}
-.plan-features li::before{content:'✓';color:var(--blue);font-weight:700;}
-.plan.popular .plan-features li::before{color:rgba(255,255,255,0.7);}
-.plan-btn{width:100%;padding:0.85rem;border-radius:100px;font-weight:600;font-size:0.9rem;cursor:pointer;border:none;font-family:'Instrument Sans',sans-serif;}
-.plan-btn.outline{background:transparent;border:1.5px solid var(--gray2);color:var(--black);}
-.plan-btn.outline:hover{border-color:var(--blue);color:var(--blue);}
-.plan-btn.solid{background:white;color:var(--blue);}
-.bulk-note{font-size:0.8rem;color:var(--muted);text-align:center;margin-bottom:2rem;}
-.compliance{background:var(--gray);border-left:4px solid var(--blue);border-radius:12px;padding:1.2rem 1.5rem;font-size:0.82rem;color:var(--muted);line-height:1.7;}
-.buy{max-width:520px;margin:3rem auto 0;background:white;border:1px solid var(--gray2);border-radius:24px;padding:2.2rem;display:none;flex-direction:column;gap:1.1rem;}
-.buy h3{font-family:'Clash Display',sans-serif;font-size:1.2rem;}
-.form-group{display:flex;flex-direction:column;gap:0.4rem;}
-.form-group label{font-size:0.82rem;font-weight:600;}
-.form-group input{padding:0.75rem 1rem;border:1.5px solid var(--gray2);border-radius:10px;font-family:'Instrument Sans',sans-serif;font-size:0.9rem;background:var(--gray);outline:none;}
-.form-group input:focus{border-color:var(--blue);background:white;}
-.form-submit{background:var(--blue);color:white;padding:0.9rem;border:none;border-radius:100px;font-weight:600;font-size:0.95rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;}
-footer{background:#040710;padding:3rem;}
-.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-.footer-logo{font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.2rem;color:white;}
-.footer-links{display:flex;gap:2rem;flex-wrap:wrap;}
-.footer-links a{color:rgba(255,255,255,0.3);font-size:0.82rem;text-decoration:none;}
-.footer-links a:hover{color:white;}
-.footer-copy{color:rgba(255,255,255,0.2);font-size:0.78rem;}
-@media(max-width:768px){nav{padding:1rem 1.2rem;}.nav-links a:not(.nav-back){display:none;}.head{padding:3.5rem 1.5rem 3rem;}.head h1{font-size:1.9rem;}.msg-types,.plans{grid-template-columns:1fr;}.addon{flex-direction:column;align-items:flex-start;}.addon-price{text-align:left;}}
+.band{background:var(--surface);}
+.b-hero{padding:72px 0 64px;background:linear-gradient(180deg,#fff 0,#F5F8F7 100%);}
+.b-hero h1{max-width:18ch;}
+.b-hero .lede{margin-top:20px;}
+.eyebrow{font-weight:600;color:var(--brand-deep);letter-spacing:.02em;margin-bottom:14px;}
+.ex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:12px;}
+.ex-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ex-top b{font-family:var(--display);font-size:1.08rem;}
+.ex-chat{background:#E7DED4;border-radius:12px;padding:12px;flex:1;}
+.ex-bubble{background:#fff;border-radius:10px 10px 10px 2px;padding:10px 12px;font-size:.94rem;line-height:1.5;box-shadow:0 1px 1px rgba(0,0,0,.08);}
+.ex-when{font-size:.86rem;color:var(--muted);}
+.k-tag{display:inline-block;font-size:.78rem;font-weight:600;padding:.15rem .6rem;border-radius:20px;}
+.k-tag.u{background:var(--soft);color:var(--brand-deep);}
+.k-tag.m{background:#FFF1DB;color:#8A560E;}
+.kinds{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.kind{border:1px solid var(--line);border-radius:var(--radius);padding:24px;background:var(--bg);}
+.kind h3{margin:10px 0 8px;}
+.kind p{color:var(--muted);}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+.feat h3{margin-bottom:6px;}
+.feat p{color:var(--muted);font-size:.97rem;}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);}
+.qtbl{width:100%;border-collapse:collapse;}
+.qtbl th,.qtbl td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--line);}
+.qtbl tr:last-child td{border-bottom:0;}
+.qtbl th{font-size:.9rem;color:var(--muted);font-weight:600;}
+.fine a{color:var(--brand-deep);font-weight:600;}
+.sub{margin:40px 0 16px;}
+.more{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.more-card{border:1px solid var(--line);border-radius:var(--radius);padding:24px;background:var(--bg);display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+.more-card h4{font-family:var(--display);font-size:1.25rem;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;}
+.more-card .price{font-size:1.1rem;color:var(--brand-deep);}
+.more-card .price small{font-size:.8rem;color:var(--muted);font-weight:500;}
+.more-card p{color:var(--muted);}
+.more-card .ticks{margin-top:4px;}
+.buy{max-width:520px;margin:32px auto 0;}
+.buy h3{font-size:1.3rem;}
+.opt{font-weight:400;color:var(--muted);}
+@media (max-width:900px){.ex-grid,.feat{grid-template-columns:1fr 1fr;}}
+@media (max-width:640px){.ex-grid,.feat,.kinds,.more{grid-template-columns:1fr;}.b-hero{padding:48px 0 44px;}}
 </style>
-<script src="nm-track.js" data-endpoint="https://my-saas-bot.onrender.com/api/track" data-product="nevermiss" defer></script>
 </head>
 <body>
-
-<nav>
-  <a href="index.html" class="logo"><img src="/nevermiss-logo.svg" alt="NeverMiss">NeverMiss</a>
-  <div class="nav-links">
-    <a href="index.html#features">Features</a>
-    <a href="index.html#pricing">Pricing</a>
-    <a href="custom.html">Custom Plans</a>
-    <a href="index.html" class="nav-back">← Back to home</a>
+<nav class="nav" aria-label="Main">
+  <div class="wrap nav-in">
+    <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span><span class="sr-only">home</span></a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="nav-links">
+      <div class="nav-for" data-open="false">
+        <button type="button" aria-expanded="false" aria-haspopup="true">Who it's for<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="nav-menu"><a href="/coaching.html"><span class="sw" style="background:#0F766E"></span><span><b>Coaching institutes</b><small>JEE, NEET, CET, board, MPSC and tuition classes</small></span></a><a href="/salons.html"><span class="sw" style="background:#6B2D4A"></span><span><b>Salons &amp; beauty</b><small>Salons, parlours, makeup and bridal studios</small></span></a><a href="/fitness.html"><span class="sw" style="background:#2438A8"></span><span><b>Gyms &amp; studios</b><small>Gyms, yoga, dance, music and sports academies</small></span></a><a href="/clinics.html"><span class="sw" style="background:#1F5F8B"></span><span><b>Clinics &amp; labs</b><small>Dental, skin, physio, eye, diagnostic and pet clinics</small></span></a></div>
+      </div>
+      <a href="/#pricing">Pricing</a>
+      <a href="/partners.html">60-day pilot</a>
+      <a href="/bulk-messaging.html" aria-current="page">Bulk messaging</a>
+      <a href="https://wa.me/917484849508?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">Support</a>
+      <a href="/login.html">Log in</a>
+      <a href="#plans" class="nav-cta">See plans</a>
+    </div>
   </div>
 </nav>
+<header class="b-hero">
+  <div class="wrap">
+    <p class="eyebrow">Bulk messaging &amp; campaigns</p>
+    <h1>Send the right WhatsApp message to the right customers.</h1>
+    <p class="lede">Reminders, renewals, appointment confirmations and offers, sent through the official WhatsApp Business API to people who agreed to hear from you. Every NeverMiss plan includes a monthly allowance, or you can use bulk messaging on its own.</p>
+    <div class="btn-row"><a href="#plans" class="btn btn-main">See plans</a><a href="#examples" class="btn btn-line">What businesses send</a></div>
+  </div>
+</header>
 
-<section class="head">
-  <div class="kicker">Bulk Messaging</div>
-  <h1>Reach every student — safely</h1>
-  <p>Send reminders, fee nudges and admission announcements to your opted-in contact list. Every NeverMiss plan already includes a monthly allowance; these plans are for messaging on its own.</p>
+<section id="examples" aria-labelledby="ex-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="ex-h">What businesses like yours send</h2>
+      <p class="lede">Pick your business to see real examples. Each one is a ready idea inside your dashboard, with the message written for you.</p>
+    </div>
+    <div class="sector-tabs" role="tablist" aria-label="Business type" id="ex-tabs">
+      <button type="button" role="tab" class="on" data-ex="coaching">Coaching</button>
+      <button type="button" role="tab" data-ex="clinic">Clinics &amp; labs</button>
+      <button type="button" role="tab" data-ex="salon">Salons &amp; makeup</button>
+      <button type="button" role="tab" data-ex="fitness">Gyms &amp; yoga</button>
+      <button type="button" role="tab" data-ex="classes">Dance, music &amp; art</button>
+      <button type="button" role="tab" data-ex="realestate">Real estate</button>
+      <button type="button" role="tab" data-ex="other">Other businesses</button>
+    </div>
+    <div class="ex-grid" id="ex-grid"></div>
+  </div>
 </section>
 
-<div class="wrap">
-
-  <div class="sub-title">Two kinds of messages</div>
-  <div class="msg-types">
-    <div class="msg-type utility">
-      <div class="msg-type-title">Utility Messages</div>
-      <p>Batch reminders, fee-due nudges, registration confirmations — everyday updates for students already engaging with your institute. Generously included every month.</p>
+<section class="band" aria-labelledby="kinds-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="kinds-h">Two kinds of messages</h2>
+      <p class="lede">WhatsApp prices and treats them differently, so your allowance counts them separately.</p>
     </div>
-    <div class="msg-type marketing">
-      <div class="msg-type-title">Marketing Messages</div>
-      <p>Admission-open announcements, promotional pushes, new batch launches — messages aimed at bringing in new enquiries and enrolments. Meta charges more for these, so allowances are smaller.</p>
-    </div>
-  </div>
-
-  <div class="sub-title">Included with every NeverMiss plan</div>
-  <div class="table-wrap">
-    <table class="quota-table">
-      <tr><th>Plan</th><th>Utility Messages</th><th>Marketing Messages</th></tr>
-      <tr><td>Starter</td><td><strong>300 / month</strong></td><td><strong>20 / month</strong></td></tr>
-      <tr><td>Growth</td><td><strong>750 / month</strong></td><td><strong>50 / month</strong></td></tr>
-      <tr><td>Pro</td><td><strong>1,500 / month</strong></td><td><strong>100 / month</strong></td></tr>
-    </table>
-  </div>
-
-  <div class="sub-title">Need more reach?</div>
-  <div class="addon">
-    <div>
-      <div class="addon-title">Bulk Messaging Plus</div>
-      <p class="addon-desc">1,500 extra utility messages + 300 extra marketing messages every month — for admission season pushes and larger batches.</p>
-    </div>
-    <div class="addon-price">₹999<span>+ GST, billed monthly</span></div>
-    <button class="custom-btn" onclick="selectPlan('bulk_plus')">Add Plus →</button>
-  </div>
-
-  <div class="sub-title">Just want bulk messaging? Standalone plans</div>
-  <div class="plans">
-    <div class="plan">
-      <div class="plan-name">Message Basic</div>
-      <div class="plan-price">₹799<span>/mo</span></div>
-      <p class="plan-desc">No AI bot or dashboard — messaging only</p>
-      <ul class="plan-features">
-        <li>1,500 utility messages/mo</li>
-        <li>80 marketing messages/mo</li>
-        <li>Template setup &amp; approval help</li>
-      </ul>
-      <button class="plan-btn outline" onclick="selectPlan('message_basic')">Get Started</button>
-    </div>
-    <div class="plan popular">
-      <div class="plan-badge">Best Value</div>
-      <div class="plan-name">Message Growth</div>
-      <div class="plan-price">₹1,499<span>/mo</span></div>
-      <p class="plan-desc">No AI bot or dashboard — messaging only</p>
-      <ul class="plan-features">
-        <li>3,500 utility messages/mo</li>
-        <li>200 marketing messages/mo</li>
-        <li>Template setup &amp; approval help</li>
-      </ul>
-      <button class="plan-btn solid" onclick="selectPlan('message_growth')">Get Started</button>
-    </div>
-    <div class="plan">
-      <div class="plan-name">Message Pro</div>
-      <div class="plan-price">₹2,499<span>/mo</span></div>
-      <p class="plan-desc">No AI bot or dashboard — messaging only</p>
-      <ul class="plan-features">
-        <li>7,000 utility messages/mo</li>
-        <li>400 marketing messages/mo</li>
-        <li>Template setup &amp; approval help</li>
-      </ul>
-      <button class="plan-btn outline" onclick="selectPlan('message_pro')">Get Started</button>
+    <div class="kinds">
+      <div class="kind">
+        <span class="k-tag u">Utility</span>
+        <h3>About something they already have with you</h3>
+        <p>Appointment and booking reminders, fee or payment due, membership renewal, report ready, timing changes, confirmations. Lower cost, so plans include plenty.</p>
+      </div>
+      <div class="kind">
+        <span class="k-tag m">Marketing</span>
+        <h3>Bringing people back or bringing new ones in</h3>
+        <p>Offers, festive and wedding-season deals, new batches and workshops, launches, "we miss you" messages. Only to people who agreed to promotions, and never sent between 9 PM and 9 AM.</p>
+      </div>
     </div>
   </div>
-  <p class="bulk-note">All standalone plans priced +GST. Upgrade anytime to a full NeverMiss plan with the AI bot and leads dashboard.</p>
+</section>
 
-  <div class="buy" id="buy-box">
-    <h3 id="buy-title">Message Basic — ₹799/month</h3>
-    <div class="form-group"><label>Your Name *</label><input id="f-name" type="text" placeholder="e.g. Rajesh Kumar" autocomplete="name"></div>
-    <div class="form-group"><label>Business Name *</label><input id="f-business" type="text" placeholder="e.g. Sharma Classes" autocomplete="organization"></div>
-    <div class="form-group"><label>Email Address *</label><input id="f-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
-    <div class="form-group"><label>WhatsApp Number *</label><input id="f-phone" type="tel" placeholder="e.g. 9876543210" autocomplete="tel"></div>
-    <div class="form-group"><label>Coupon Code <span style="color:var(--muted);font-weight:400;">(optional)</span></label><input id="f-coupon" type="text" placeholder="Referral or promo code"></div>
-    <div id="form-error" style="display:none;background:#FEE;border:1px solid #FCC;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#C00;"></div>
-    <button class="form-submit" id="pay-btn" onclick="startPayment()">Pay &amp; Activate →</button>
-    <p style="text-align:center;font-size:0.75rem;color:var(--muted);">🔒 Secured by Razorpay | Login invite sent to your email</p>
-  </div>
-
-  <div class="compliance">
-    Messages sent outside these limits, or larger one-time campaigns, can be added on request. All bulk messages go only to contacts who have <strong>opted in</strong> — this keeps your WhatsApp number in good standing with Meta and protects long-term deliverability.
-  </div>
-</div>
-
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">NeverMiss</div>
-    <div class="footer-links">
-      <a href="index.html">Home</a>
-      <a href="index.html#pricing">Pricing</a>
-      <a href="custom.html">Custom Plans</a>
-      <a href="https://wa.me/917484849508" target="_blank" rel="noopener">💬 WhatsApp Support</a>
-      <a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a>
+<section aria-labelledby="how-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="how-h">More than a blast</h2>
+      <p class="lede">Your dashboard's Campaigns screen does the careful work for you.</p>
     </div>
-    <div class="footer-copy">© 2026 NeverMiss. All rights reserved.</div>
+    <div class="feat">
+      <div><h3>Your list, your way</h3><p>Upload a CSV or Excel sheet. Extra columns like due date, service or plan become details you can use in messages. Group people with tags.</p></div>
+      <div><h3>Personal to each person</h3><p>Every message uses that person's own name, amount, date or appointment time. You see a preview before anything goes out.</p></div>
+      <div><h3>Send now or schedule</h3><p>Pick a time in IST. Scheduled messages go out even when your dashboard is closed.</p></div>
+      <div><h3>See what happened</h3><p>Sent, delivered, read and replied for every campaign, with reasons for anything that failed. Export to Excel.</p></div>
+      <div><h3>Opt-outs handled for you</h3><p>Anyone who replies STOP is never messaged again until they reply START. Uploading the list again doesn't undo it.</p></div>
+      <div><h3>Pay only for what's delivered</h3><p>Messages that fail, or that you cancel, are returned to your allowance automatically.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="plans" aria-labelledby="inc-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="inc-h">Included with every NeverMiss plan</h2>
+      <p class="lede">Your AI front desk plan already comes with a monthly allowance. It resets every month.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table class="qtbl">
+        <thead><tr><th>Plan</th><th>Utility messages</th><th>Marketing messages</th></tr></thead>
+        <tbody>
+          <tr><td>Starter</td><td><b>300</b> / month</td><td><b>20</b> / month</td></tr>
+          <tr><td>Growth</td><td><b>750</b> / month</td><td><b>50</b> / month</td></tr>
+          <tr><td>Pro</td><td><b>1,500</b> / month</td><td><b>100</b> / month</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Plan prices depend on your type of business. <a href="/#pricing">See plans and prices</a>.</p>
+
+    <h3 class="sub">Need more in a busy month?</h3>
+    <div class="more">
+      <div class="more-card">
+        <h4>Top-up packs</h4>
+        <p>One-time and prepaid, added to your allowance straight away. Buy them in your dashboard under Plan &amp; Billing.</p>
+        <ul class="ticks"><li><span><b>₹49</b> for 100 utility messages</span></li><li><span><b>₹169</b> for 100 marketing messages</span></li></ul>
+      </div>
+      <div class="more-card">
+        <h4>Bulk Messaging Plus <span class="price">₹999<small>/month</small></span></h4>
+        <p>1,500 extra utility and 300 extra marketing messages every month, for your busiest seasons and bigger lists.</p>
+        <button type="button" class="btn btn-line" onclick="selectPlan('bulk_plus')">Add Plus</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="solo-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="solo-h">Just want bulk messaging?</h2>
+      <p class="lede">Messaging plans without the AI front desk. You still get the Campaigns screen, contact lists, scheduling and reports.</p>
+    </div>
+    <div class="plans">
+      <div class="plan"><div class="plan-top"><div class="plan-name">Message Basic</div></div><div class="plan-price">₹799<span> / month</span></div><p class="plan-desc">For a small list and regular reminders</p>
+        <ul><li>1,500 utility messages a month</li><li>80 marketing messages a month</li><li>Help getting your templates approved</li></ul>
+        <button type="button" class="btn btn-line" onclick="selectPlan('message_basic')">Choose Basic</button></div>
+      <div class="plan pop"><div class="plan-top"><div class="plan-name">Message Growth</div><div class="plan-badge">Best value</div></div><div class="plan-price">₹1,499<span> / month</span></div><p class="plan-desc">For growing businesses with regular offers</p>
+        <ul><li>3,500 utility messages a month</li><li>200 marketing messages a month</li><li>Help getting your templates approved</li></ul>
+        <button type="button" class="btn btn-main" onclick="selectPlan('message_growth')">Choose Growth</button></div>
+      <div class="plan"><div class="plan-top"><div class="plan-name">Message Pro</div></div><div class="plan-price">₹2,499<span> / month</span></div><p class="plan-desc">For large lists and multiple branches</p>
+        <ul><li>7,000 utility messages a month</li><li>400 marketing messages a month</li><li>Help getting your templates approved</li></ul>
+        <button type="button" class="btn btn-line" onclick="selectPlan('message_pro')">Choose Pro</button></div>
+    </div>
+    <p class="fine" style="text-align:center">Prices exclude GST. Upgrade to a full NeverMiss plan with the AI front desk anytime.</p>
+
+    <div class="buy form" id="buy-box" hidden>
+      <h3 id="buy-title">Message Basic — ₹799/month</h3>
+      <div class="form-group"><label for="f-name">Your name</label><input id="f-name" autocomplete="name" placeholder="e.g. Priya Shah"></div>
+      <div class="form-group"><label for="f-business">Business name</label><input id="f-business" autocomplete="organization" placeholder="e.g. Glow Studio, Baner"></div>
+      <div class="form-group"><label for="f-email">Email</label><input id="f-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+      <div class="form-group"><label for="f-phone">WhatsApp number</label><input id="f-phone" type="tel" autocomplete="tel" placeholder="e.g. 9876543210"></div>
+      <div class="form-group"><label for="f-coupon">Coupon code <span class="opt">(optional)</span></label><input id="f-coupon" placeholder="Referral or promo code"></div>
+      <div class="form-error" id="form-error" role="alert"></div>
+      <button type="button" class="form-submit" id="pay-btn" onclick="startPayment()">Pay and activate</button>
+      <p class="form-note">Secured by Razorpay. Your dashboard login link is emailed right after payment.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="faq-h">
+  <div class="wrap">
+    <h2 id="faq-h" style="margin-bottom:24px">Questions</h2>
+    <div class="faq">
+      <details><summary>Who can I send messages to?</summary><p>Only people who agreed to receive WhatsApp messages from your business: your customers, members, patients or students who shared their number with you for updates. Promotions need their agreement to marketing too. This keeps your number in good standing with WhatsApp.</p></details>
+      <details><summary>What is a template, and do I need one?</summary><p>WhatsApp lets businesses message people outside an open chat only through message formats it has approved, called templates. You write it once, with blanks for things like name and date, and WhatsApp usually approves it within minutes to a few hours. Our ready ideas include the wording, and we help you get it approved.</p></details>
+      <details><summary>What happens if someone replies STOP?</summary><p>They're unsubscribed straight away and get a confirmation. They won't receive any campaign from you until they reply START. They can still chat with your business normally.</p></details>
+      <details><summary>Do unused messages carry over?</summary><p>Your plan's allowance renews every month, and unused messages from it don't carry over.</p></details>
+      <details><summary>Can I send images or documents?</summary><p>Text messages with buttons work today. Templates with an image, video or document at the top are coming soon.</p></details>
+      <details><summary>Is there a limit on how many people I can message in a day?</summary><p>WhatsApp sets a daily limit for each number, starting around 250 people and rising as your number builds a good record. NeverMiss respects it automatically and sends the rest the next day.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span></a>
+        <p>An AI front desk on WhatsApp for local businesses in India. Built in Pune.</p>
+      </div>
+      <div><h4>Who it's for</h4><ul><li><a href="/coaching.html">Coaching institutes</a></li><li><a href="/salons.html">Salons &amp; beauty</a></li><li><a href="/fitness.html">Gyms &amp; studios</a></li><li><a href="/clinics.html">Clinics &amp; labs</a></li><li><a href="/custom.html">Something else</a></li></ul></div>
+      <div><h4>Product</h4><ul><li><a href="/#pricing">Pricing</a></li><li><a href="/bulk-messaging.html">Bulk messaging</a></li><li><a href="/partners.html">Partner program</a></li><li><a href="/login.html">Log in</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="https://wa.me/917484849508" target="_blank" rel="noopener">WhatsApp support</a></li><li><a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a></li><li><a href="/privacy-policy.html">Privacy</a></li><li><a href="/terms-of-service.html">Terms</a></li></ul></div>
+    </div>
+    <div class="foot-base"><span>© 2026 NeverMiss · Pune, Maharashtra</span><span>Udyam-registered MSME</span></div>
   </div>
 </footer>
-
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>window.NM_PAGE = { sector: "bulk", defaultType: "" };</script>
+<script src="/nm-site.js" defer></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <script>
-const API_BASE = "https://my-saas-bot.onrender.com";
-const PLAN_LABELS = {
+(function () {
+  // Examples per sector: same ideas as the dashboard's campaign presets.
+  var EX = {
+    coaching: [
+      ["Utility", "Fee reminder", "3 days before the due date, 10 AM", "Hi Riya, this is a reminder from Vidyaan Classes that the fee of Rs 8,500 for JEE 2027 is due on 15 Oct. Please ignore this message if already paid."],
+      ["Utility", "Test notice", "2 days before, 6 PM", "Hi Riya, your JEE Physics test is on Sunday 20 Oct at 9 AM. Please reach 15 minutes early. – Vidyaan Classes"],
+      ["Marketing", "Admissions open", "Start of the season, weekend 11 AM", "Hi Riya! Admissions for NEET 2027 are now open at Vidyaan Classes. The new batch starts on 1 Nov. Reply YES to book a free demo class."]
+    ],
+    clinic: [
+      ["Utility", "Appointment reminder", "The day before, 6 PM", "Hi Rahul, this is a reminder of your appointment at SmileCare Dental on Tue 15 Oct at 5:30 PM. Reply here if you need to reschedule."],
+      ["Utility", "Report ready", "As soon as it's ready", "Hi Anita, your blood test report from City Diagnostics is ready. Reply REPORT to get it here, or collect it at the centre."],
+      ["Marketing", "Check-up camp", "A week before, Sunday 11 AM", "Hi Rahul! SmileCare Dental is holding a free dental check-up camp on Sunday 27 Oct. Reply YES to reserve a slot."]
+    ],
+    salon: [
+      ["Utility", "Appointment reminder", "The day before, 7 PM", "Hi Priya, see you at Glow Studio on Sat 19 Oct at 4 PM for your hair spa. Reply here to change the time."],
+      ["Marketing", "Festive offer", "10–14 days before the festival", "Hi Priya! Diwali special at Glow Studio: 20% off on facials and hair spa. Valid till 31 Oct. Reply BOOK to grab your slot."],
+      ["Marketing", "We miss you", "Clients who haven't visited in 45+ days", "Hi Priya, it's been a while since your last visit to Glow Studio! Here's 15% off on your next visit, valid till 15 Nov. Reply BOOK to pick a time."]
+    ],
+    fitness: [
+      ["Utility", "Membership renewal", "7 days and 1 day before expiry", "Hi Arjun, your quarterly membership at IronEdge Fitness ends on 20 Oct. Reply RENEW to continue without a break."],
+      ["Utility", "Timing change", "The evening before", "Hi Arjun, IronEdge Fitness will be open 7 AM to 12 PM only on Sunday. See you soon!"],
+      ["Marketing", "New challenge", "Sunday evening", "Hi Arjun! IronEdge Fitness is starting a 30-day fat-loss challenge on 1 Nov. Limited spots. Reply YES to join."]
+    ],
+    classes: [
+      ["Utility", "Monthly fee", "1st–3rd of the month", "Hi Sana, the October fee of Rs 2,000 for Kids Kathak, Sat 5 PM at Rhythm Nation is due. Please ignore if already paid."],
+      ["Utility", "Class change", "As soon as you know", "Hi Sana, the Kids Kathak class on Saturday is moved to 6 PM. – Rhythm Nation"],
+      ["Marketing", "Summer camp", "2–3 weeks before", "Hi Sana! Rhythm Nation presents a Bollywood dance summer camp from 1 May. Fee Rs 3,500. Reply YES to reserve a spot."]
+    ],
+    realestate: [
+      ["Utility", "Site visit reminder", "Evening before, and 2 hours before", "Hi Mehul, this is a reminder of your site visit to Green Heights, Wakad on Sat 19 Oct at 11 AM. Our executive Rohit will meet you there."],
+      ["Marketing", "Project launch", "Launch day, 11 AM", "Hi Mehul! Prime Realty just launched 2 and 3 BHK homes in Baner, starting at Rs 85 lakh. Reply VISIT to book a site visit."]
+    ],
+    other: [
+      ["Utility", "Appointment reminder", "The day before", "Hi Riya, a reminder of your appointment with our team on Tue 15 Oct at 5 PM. Reply here to reschedule."],
+      ["Utility", "Announcement", "Daytime", "Hi Riya, an update from our team: we have moved to a new address near the station."],
+      ["Marketing", "Offer", "Weekend 11 AM", "Hi Riya! We have a special offer till 31 Oct. Reply YES to know more."]
+    ]
+  };
+  var grid = document.getElementById("ex-grid"), tabs = document.querySelectorAll("#ex-tabs button");
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function show(k) {
+    tabs.forEach(function (b) { var on = b.dataset.ex === k; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
+    grid.innerHTML = EX[k].map(function (e) {
+      return '<div class="ex"><div class="ex-top"><span class="k-tag ' + (e[0] === "Utility" ? "u" : "m") + '">' + e[0] + '</span><b>' + esc(e[1]) + '</b></div>' +
+        '<div class="ex-chat"><div class="ex-bubble">' + esc(e[3]) + '</div></div><div class="ex-when">When: ' + esc(e[2]) + '</div></div>';
+    }).join("");
+  }
+  tabs.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.ex); }); });
+  var pre = { coaching: "coaching", clinics: "clinic", salons: "salon", fitness: "fitness" }[(new URLSearchParams(location.search).get("for") || "")];
+  show(pre || "coaching");
+})();
+
+// ── checkout (standalone plans and Bulk Plus) ──
+var API_BASE = "https://my-saas-bot.onrender.com";
+var PLAN_LABELS = {
   message_basic:  "Message Basic — ₹799/month",
   message_growth: "Message Growth — ₹1,499/month",
   message_pro:    "Message Pro — ₹2,499/month",
-  bulk_plus:      "Bulk Messaging Plus — ₹999/month",
+  bulk_plus:      "Bulk Messaging Plus — ₹999/month"
 };
-let selectedPlan = "";
+var selectedPlan = "";
 
 function selectPlan(plan) {
   selectedPlan = plan;
   document.getElementById("buy-title").textContent = PLAN_LABELS[plan];
-  const box = document.getElementById("buy-box");
-  box.style.display = "flex";
+  var box = document.getElementById("buy-box");
+  box.hidden = false;
   box.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(function () { var el = document.getElementById("f-name"); if (el) el.focus(); }, 400);
 }
-
 function showError(msg) {
-  const el = document.getElementById("form-error");
-  el.textContent = msg;
-  el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 6000);
+  var el = document.getElementById("form-error");
+  el.textContent = msg; el.style.display = "block";
 }
-
-function setLoading(loading) {
-  const btn = document.getElementById("pay-btn");
-  btn.disabled = loading;
-  btn.textContent = loading ? "Creating order…" : "Pay & Activate →";
-  btn.style.opacity = loading ? "0.7" : "1";
+function setLoading(on) {
+  var btn = document.getElementById("pay-btn");
+  btn.disabled = on; btn.textContent = on ? "Preparing checkout…" : "Pay and activate";
 }
-
 async function startPayment() {
-  const name     = document.getElementById("f-name").value.trim();
-  const business = document.getElementById("f-business").value.trim();
-  const email    = document.getElementById("f-email").value.trim();
-  const phone    = document.getElementById("f-phone").value.trim().replace(/\D/g, "");
-  const coupon   = document.getElementById("f-coupon").value.trim();
-
-  if (!name)     return showError("Please enter your name.");
-  if (!business) return showError("Please enter your business name.");
-  if (!email || !email.includes("@")) return showError("Please enter a valid email address.");
-  if (phone.length < 10) return showError("Please enter a valid 10-digit WhatsApp number.");
-  if (!selectedPlan) return showError("Please pick a plan above.");
-
+  var name = document.getElementById("f-name").value.trim();
+  var business = document.getElementById("f-business").value.trim();
+  var email = document.getElementById("f-email").value.trim();
+  var phone = document.getElementById("f-phone").value.replace(/\D/g, "").slice(-10);
+  var coupon = document.getElementById("f-coupon").value.trim();
+  document.getElementById("form-error").style.display = "none";
+  if (!name) return showError("Enter your name.");
+  if (!business) return showError("Enter your business name.");
+  if (!email || email.indexOf("@") === -1) return showError("Enter a valid email. Your login link goes there.");
+  if (phone.length < 10) return showError("Enter a valid 10-digit WhatsApp number.");
+  if (!selectedPlan) return showError("Pick a plan above.");
   setLoading(true);
-  if (window.nmTrack) nmTrack.identify({ name, phone, email, business, form: "bulk-checkout" });
+  if (window.nmTrack) nmTrack.identify({ name: name, phone: phone, email: email, business: business, form: "bulk-checkout" });
   try {
-    // The server computes the amount from the plan and stores plan + buyer
-    // against the order id. Nothing about price or tier is trusted from here.
-    const orderRes = await fetch(`${API_BASE}/api/create-order`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan: selectedPlan, name, business, phone, email, coupon_code: coupon }),
+    // The server sets the amount from the plan; nothing about price is trusted from here.
+    var orderRes = await fetch(API_BASE + "/api/create-order", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: selectedPlan, name: name, business: business, phone: phone, email: email, coupon_code: coupon })
     });
-    const order = await orderRes.json();
-
-    if (order.coupon_error) { showError("Coupon: " + order.coupon_error); setLoading(false); return; }
-    if (!order.id) { showError("Could not create order. Please try again."); setLoading(false); return; }
+    var order = await orderRes.json();
     setLoading(false);
-
-    const options = {
-      key: order.key_id,
-      amount: order.amount,
-      currency: "INR",
-      name: "NeverMiss",
-      description: PLAN_LABELS[selectedPlan],
-      order_id: order.id,
-      prefill: { name, contact: phone, email },
-      theme: { color: "#1B4FFF" },
+    if (order.coupon_error) return showError("Coupon: " + order.coupon_error);
+    if (!order.id) return showError(order.error || "Couldn't start checkout. Please try again.");
+    if (!window.Razorpay) return showError("Payment window didn't load. Refresh the page and try again.");
+    var rzp = new Razorpay({
+      key: order.key_id, amount: order.amount, currency: "INR", name: "NeverMiss",
+      description: PLAN_LABELS[selectedPlan], order_id: order.id,
+      prefill: { name: name, contact: phone, email: email }, theme: { color: "#0F766E" },
       handler: async function (response) {
-        const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            razorpay_order_id:   response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature:  response.razorpay_signature,
-          }),
-        });
-        const result = await verifyRes.json();
-        if (result.success) {
-          document.getElementById("buy-box").innerHTML = `
-            <div style="text-align:center;padding:2rem 1rem;">
-              <div style="font-size:3.5rem;margin-bottom:1rem;">🎉</div>
-              <h3 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;margin-bottom:0.75rem;">You're in, ${name}!</h3>
-              <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;">
-                Your <strong>${PLAN_LABELS[selectedPlan]}</strong> is active. Check your email (${email}) for your dashboard login invite — log in to upload contacts and start sending.
-              </p>
-              <div style="background:var(--blue-light);border-radius:12px;padding:1rem;font-size:0.82rem;color:var(--blue);font-weight:600;">Payment ID: ${response.razorpay_payment_id}</div>
-            </div>`;
-        } else {
-          showError("Payment received but verification failed. Please WhatsApp us with payment ID: " + response.razorpay_payment_id);
+        setLoading(true); document.getElementById("pay-btn").textContent = "Confirming payment…";
+        try {
+          var v = await fetch(API_BASE + "/api/verify-payment", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            // customer details are needed to create the account and email the login link
+            body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id,
+                                   razorpay_signature: response.razorpay_signature,
+                                   customer: { name: name, business: business, phone: phone, email: email } })
+          });
+          var result = await v.json();
+          if (!result.success) throw new Error("verify");
+          document.getElementById("buy-box").innerHTML =
+            '<div class="form-done" role="status"><h3>You\'re in, ' + name.replace(/[<>&"']/g, "") + '.</h3>' +
+            '<p>Your <b>' + PLAN_LABELS[selectedPlan] + '</b> is active. Check <b>' + email.replace(/[<>&"']/g, "") + '</b> for your dashboard login link, then upload your contacts and send your first campaign.</p>' +
+            '<p class="fine">Payment ID: ' + response.razorpay_payment_id + '</p></div>';
+        } catch (e) {
+          setLoading(false);
+          showError("Payment received but confirming it failed. Please WhatsApp us with payment ID " + response.razorpay_payment_id + ".");
         }
       },
       modal: { ondismiss: function () { setLoading(false); } }
-    };
-    const rzp = new Razorpay(options);
-    rzp.on("payment.failed", resp => showError("Payment failed: " + resp.error.description));
+    });
+    rzp.on("payment.failed", function (r) { showError("Payment failed: " + ((r.error && r.error.description) || "please try again.")); });
     rzp.open();
   } catch (err) {
     console.error(err);
-    showError("Something went wrong. Please try again or WhatsApp us.");
     setLoading(false);
+    showError("Something went wrong. Please try again or WhatsApp us.");
   }
 }
+
 </script>
 </body>
 </html>

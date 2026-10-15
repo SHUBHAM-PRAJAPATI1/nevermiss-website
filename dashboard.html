@@ -406,10 +406,10 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     <div class="muted">Need more this month? <a href="https://wa.me/917484849508?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
   </div>
   <div class="card">
-    <div class="card-title">Upload contacts (CSV)</div>
+    <div class="card-title">Upload contacts (CSV or Excel)</div>
     <div class="file-box">
-      CSV with columns <strong>phone,name</strong> — numbers like 919876543210<br>
-      <input type="file" id="csv-file" accept=".csv" style="margin-top:0.5rem;">
+      A sheet with a <strong>phone</strong> column (numbers like 9876543210); <strong>name</strong> and <strong>tags</strong> are optional. Other columns, like a due date or appointment time, can be used in messages.<br>
+      <input type="file" id="csv-file" accept=".csv,.xlsx" style="margin-top:0.5rem;">
     </div>
     <label class="optin"><input type="checkbox" id="optin"> I confirm every contact has <strong>opted in</strong> to receive WhatsApp messages from my business. (Required — protects your number.)</label>
     <button class="btn" onclick="uploadBulkCSV()">Upload contacts</button>
@@ -441,8 +441,8 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
       <div class="form-row"><label for="tpl-name">Template name</label><input id="tpl-name" placeholder="e.g. fee_reminder_oct" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'_')"></div>
       <div class="form-row"><label for="tpl-category">Type</label>
         <select id="tpl-category">
-          <option value="UTILITY">Utility: fee reminders, class updates, confirmations</option>
-          <option value="MARKETING">Marketing: admissions open, offers, new batches</option>
+          <option value="UTILITY" id="tpl-opt-u">Utility: reminders, confirmations, updates</option>
+          <option value="MARKETING" id="tpl-opt-m">Marketing: offers, announcements</option>
         </select></div>
       <div class="form-row"><label for="tpl-lang">Language</label>
         <select id="tpl-lang"><option value="en">English</option><option value="hi">Hindi</option><option value="mr">Marathi</option></select></div>
@@ -2232,7 +2232,7 @@ async function uploadBulkCSV(){
   const msg = document.getElementById("upload-msg");
   msg.className = "msg";
 
-  if (!fileInput.files.length) { msg.className = "msg err"; msg.textContent = "Please choose a CSV file first."; return; }
+  if (!fileInput.files.length) { msg.className = "msg err"; msg.textContent = "Please choose a CSV or Excel file first."; return; }
   if (!optIn.checked) { msg.className = "msg err"; msg.textContent = "You must confirm these contacts opted in before uploading."; return; }
 
   const fd = new FormData();
@@ -2289,7 +2289,41 @@ function bcSelected(){
   return BC_TEMPLATES.find(t => t.name + "|" + t.language === v) || null;
 }
 
+// Template examples in the words of the client's own business.
+const TPL_HINTS = {
+  coaching: { name: "fee_reminder_oct", u: "fee reminders, class updates, test notices", m: "admissions open, new batches, offers",
+              body: "Hi {{1}}, this is a reminder that the fee for {{2}} is due on {{3}}. Reply here if you have any questions." },
+  clinic:   { name: "appointment_reminder", u: "appointment reminders, follow-up visits, timing changes", m: "check-up camps, health offers",
+              body: "Hi {{1}}, this is a reminder of your appointment on {{2}} at {{3}}. Reply here if you need to reschedule." },
+  lab:      { name: "report_ready", u: "report ready, sample collection reminders", m: "health packages, offers",
+              body: "Hi {{1}}, your {{2}} report is ready. Reply REPORT to get it here, or collect it at the centre." },
+  salon:    { name: "appointment_reminder", u: "appointment reminders, booking confirmations", m: "festive offers, wedding-season deals, win-backs",
+              body: "Hi {{1}}, see you on {{2}} at {{3}} for your {{4}}. Reply here to change the time." },
+  fitness:  { name: "membership_renewal", u: "membership renewals, timing changes", m: "new batches, challenges, joining offers",
+              body: "Hi {{1}}, your {{2}} membership ends on {{3}}. Reply RENEW to continue without a break." },
+  classes:  { name: "monthly_fee", u: "fee reminders, class schedule changes", m: "workshops, summer camps, events",
+              body: "Hi {{1}}, the fee of Rs {{2}} for {{3}} is due this week. Please ignore if already paid." },
+  realestate: { name: "site_visit_reminder", u: "site visit reminders, payment milestones", m: "project launches, price updates",
+              body: "Hi {{1}}, this is a reminder of your site visit to {{2}} on {{3}}. Our executive will meet you there." },
+  other:    { name: "appointment_reminder", u: "reminders, confirmations, updates", m: "offers, announcements",
+              body: "Hi {{1}}, a reminder of your appointment on {{2}} at {{3}}. Reply here to reschedule." }
+};
+const TPL_GROUP = { coaching: "coaching", skilling: "coaching", dental: "clinic", clinic: "clinic", skin_clinic: "clinic", physio: "clinic", pet: "clinic",
+  diagnostic: "lab", salon: "salon", makeup: "salon", gym: "fitness", yoga: "fitness", sports: "fitness",
+  dance: "classes", music: "classes", art: "classes", real_estate: "realestate", realestate: "realestate" };
+function applyTemplateHints(){
+  const t = (CLIENT && CLIENT.client_type) || "coaching";
+  const h = TPL_HINTS[TPL_GROUP[t] || (t ? "other" : "coaching")];
+  const n = document.getElementById("tpl-name"), b = document.getElementById("tpl-body");
+  if (n) n.placeholder = "e.g. " + h.name;
+  if (b) b.placeholder = h.body;
+  const u = document.getElementById("tpl-opt-u"), m = document.getElementById("tpl-opt-m");
+  if (u) u.textContent = "Utility: " + h.u;
+  if (m) m.textContent = "Marketing: " + h.m;
+}
+
 async function loadBroadcast(force){
+  applyTemplateHints();
   const sel = document.getElementById("bc-template");
   const blocked = document.getElementById("bc-blocked");
   const note = document.getElementById("bc-template-note");
@@ -2976,7 +3010,7 @@ const PLAN_FEATURE_LIST = {
   starter:         ["AI FAQ bot + lead capture", "Guided registration flow", "1,000 AI-replied messages/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
   growth:          ["Everything in Starter", "2,500 AI-replied messages/mo", "Seat booking, demo classes, reminders", "Custom quick replies, brochure & photos", "750 utility + 50 marketing bulk msgs"],
   pro:             ["Everything in Growth", "6,000 AI-replied messages/mo", "1,500 utility + 100 marketing bulk msgs", "Priority support"],
-  founding:        ["Everything in Growth", "2,000 conversations/mo", "750 utility + 50 marketing bulk msgs", "Price locked for 12 months", "First 20 institutes only"],
+  founding:        ["Everything in Growth", "2,000 conversations/mo", "750 utility + 50 marketing bulk msgs", "Price locked for 12 months", "First 20 businesses only"],
   message_basic:   ["Bulk messaging only", "1,500 utility / 80 marketing", "Template setup help"],
   message_growth:  ["Bulk messaging only", "3,500 utility / 200 marketing", "Template setup help"],
   message_pro:     ["Bulk messaging only", "7,000 utility / 400 marketing", "Template setup help"],
