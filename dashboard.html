@@ -53,6 +53,7 @@ a{color:var(--teal);}
 .pill.plan{background:var(--mint);color:var(--teal-deep);}
 .pill.ok{background:#E3F5EC;color:var(--ok);}
 .pill.warn{background:var(--marigold-soft);color:#8A560E;}
+.pill.bad{background:#FEE4E2;color:#B42318;}
 .pill.teal{background:var(--mint);color:var(--teal-deep);}
 .tb-right{display:flex;align-items:center;gap:1rem;}
 .tb-right a{color:var(--muted);font-size:.9rem;text-decoration:none;}
@@ -296,7 +297,6 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   <button class="nav-item" data-sec="leads"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1.2-3.4 3.6-5 6.5-5s5.3 1.6 6.5 5"/><path d="M16 4.5a3.5 3.5 0 010 7M18 15c1.8.6 3 2.2 3.5 5"/></svg></span><span class="txt">Leads</span></button>
   <button class="nav-item" data-sec="alumni" id="nav-alumni" style="display:none;"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c2 2 10 2 12 0v-5"/></svg></span><span class="txt">Alumni</span></button>
   <button class="nav-item" data-sec="conversations"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg></span><span class="txt">Conversations</span></button>
-  <button class="nav-item" data-sec="bulk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 001 1h3l6 4V6L7 10H4a1 1 0 00-1 1z"/><path d="M17 9a4 4 0 010 6"/></svg></span><span class="txt">Bulk messaging</span></button>
   <button class="nav-item" data-sec="campaigns"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg></span><span class="txt">Campaigns</span></button>
   <button class="nav-item" data-sec="quick"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><span class="txt">Quick replies</span></button>
   <button class="nav-item" data-sec="profile"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/></svg></span><span class="txt" id="nav-profile-txt">Institute Profile</span></button>
@@ -388,83 +388,6 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   </div>
 </div>
 
-<!-- ══════════ BULK MESSAGING ══════════ -->
-<div class="section" id="sec-bulk">
-  <h1>Bulk messaging</h1>
-  <div class="sec-sub">Send utility &amp; marketing broadcasts to your opted-in contacts. Your plan includes a monthly allowance.</div>
-  <div class="card">
-    <div class="card-title">Your bulk account <button class="btn sm outline" onclick="refreshBulk()">Refresh</button></div>
-    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.2rem;">
-      <span class="pill plan" id="bulk-plan">—</span>
-      <span class="pill ok" id="bulk-status">—</span>
-      <span class="pill warn" id="bulk-renewal">—</span>
-    </div>
-    <div class="meter-label"><span>🔧 Utility messages (reminders, confirmations)</span><span id="util-text">0 / 0</span></div>
-    <div class="bar"><div class="fill" id="util-bar" style="width:0%"></div></div>
-    <div class="meter-label"><span>📣 Marketing messages (announcements, promos)</span><span id="mkt-text">0 / 0</span></div>
-    <div class="bar"><div class="fill mkt" id="mkt-bar" style="width:0%"></div></div>
-    <div class="muted">Need more this month? <a href="https://wa.me/917004020840?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
-  </div>
-  <div class="card">
-    <div class="card-title">Upload contacts (CSV or Excel)</div>
-    <div class="file-box">
-      A sheet with a <strong>phone</strong> column (numbers like 9876543210); <strong>name</strong> and <strong>tags</strong> are optional. Other columns, like a due date or appointment time, can be used in messages.<br>
-      <input type="file" id="csv-file" accept=".csv,.xlsx" style="margin-top:0.5rem;">
-    </div>
-    <label class="optin"><input type="checkbox" id="optin"> I confirm every contact has <strong>opted in</strong> to receive WhatsApp messages from my business. (Required — protects your number.)</label>
-    <button class="btn" onclick="uploadBulkCSV()">Upload contacts</button>
-    <div class="msg" id="upload-msg"></div>
-  </div>
-  <div class="card" id="broadcast-card">
-    <div class="card-title">Send a broadcast <button class="btn sm outline" onclick="loadBroadcast(true)">Refresh templates</button></div>
-    <div class="notice info" style="margin-bottom:1rem;">New: <b>Campaigns</b> lets you pick who gets a message by tags, personalise it per person, schedule it and see results. <a href="#" onclick="showSection('campaigns');return false;" style="color:var(--teal);font-weight:600">Open Campaigns →</a></div>
-    <div class="muted" style="margin-bottom:1rem;">WhatsApp only allows messages to contacts outside a chat through templates it has approved. Pick one, fill in the blanks and send it to your opted-in contacts.</div>
-    <div id="bc-blocked" class="notice warn" style="display:none;"></div>
-    <div id="bc-form">
-      <div class="form-row">
-        <label for="bc-template">Template</label>
-        <select id="bc-template" onchange="bcRenderTemplate()"><option value="">Loading templates…</option></select>
-        <div class="muted" id="bc-template-note" style="font-size:.86rem;"></div>
-      </div>
-      <div id="bc-preview" class="bc-preview" style="display:none;"></div>
-      <div id="bc-params"></div>
-      <div class="bc-summary" id="bc-summary"></div>
-      <button class="btn" id="bc-send-btn" onclick="sendBroadcast()" disabled>Send broadcast</button>
-      <div class="msg" id="bc-msg"></div>
-    </div>
-  </div>
-
-  <div class="card" id="tpl-card">
-    <div class="card-title">Create a template</div>
-    <div class="muted" style="margin-bottom:1rem;">WhatsApp reviews every new template, usually within a few minutes to a few hours. Use <strong>{{1}}</strong>, <strong>{{2}}</strong> for parts that change, like a name or date.</div>
-    <div class="bc-grid">
-      <div class="form-row"><label for="tpl-name">Template name</label><input id="tpl-name" placeholder="e.g. fee_reminder_oct" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'_')"></div>
-      <div class="form-row"><label for="tpl-category">Type</label>
-        <select id="tpl-category">
-          <option value="UTILITY" id="tpl-opt-u">Utility: reminders, confirmations, updates</option>
-          <option value="MARKETING" id="tpl-opt-m">Marketing: offers, announcements</option>
-        </select></div>
-      <div class="form-row"><label for="tpl-lang">Language</label>
-        <select id="tpl-lang"><option value="en">English</option><option value="hi">Hindi</option><option value="mr">Marathi</option></select></div>
-    </div>
-    <div class="form-row"><label for="tpl-body">Message</label>
-      <textarea id="tpl-body" maxlength="1024" oninput="tplRenderExamples()" placeholder="Hi {{1}}, this is a reminder that the fee for {{2}} is due on {{3}}. Reply here if you have any questions."></textarea></div>
-    <div id="tpl-examples"></div>
-    <button class="btn" onclick="createTemplate()">Submit for approval</button>
-    <div class="msg" id="tpl-msg"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Recent broadcasts <button class="btn sm outline" onclick="loadCampaigns()">Refresh</button></div>
-    <div id="bc-history" class="muted">No broadcasts yet.</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Your contacts <span class="muted" id="contact-count"></span></div>
-    <div id="contacts-body" class="muted">Loading…</div>
-  </div>
-</div>
-
 <!-- ══════════ CAMPAIGNS ══════════ -->
 <div class="section" id="sec-campaigns">
   <h1>Campaigns</h1>
@@ -476,6 +399,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     <button class="cm-tab" data-cm="scheduled" role="tab">Scheduled</button>
     <button class="cm-tab" data-cm="reports" role="tab">Reports</button>
     <button class="cm-tab" data-cm="contacts" role="tab">Contacts &amp; groups</button>
+    <button class="cm-tab" data-cm="templates" role="tab">Templates</button>
   </div>
 
   <!-- list -->
@@ -586,6 +510,34 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   <div class="cm-pane" id="cm-pane-detail"><div id="cm-detail"></div></div>
 
   <!-- contacts -->
+  <!-- templates: WhatsApp-approved message formats -->
+  <div class="cm-pane" id="cm-pane-templates">
+    <div class="card">
+      <div class="card-title">Your templates <button class="btn sm outline" onclick="cmRenderTemplatesTab(true)">Refresh</button></div>
+      <div class="muted" style="margin-bottom:1rem;">WhatsApp only lets you message people outside a chat with formats it has approved. Approved templates appear when you create a campaign.</div>
+      <div id="cm-tpl-list" class="muted">Loading…</div>
+    </div>
+  <div class="card" id="tpl-card">
+    <div class="card-title">Create a new template</div>
+    <div class="muted" style="margin-bottom:1rem;">WhatsApp reviews every new template, usually within a few minutes to a few hours. Use <strong>{{1}}</strong>, <strong>{{2}}</strong> for parts that change, like a name or date.</div>
+    <div class="bc-grid">
+      <div class="form-row"><label for="tpl-name">Template name</label><input id="tpl-name" placeholder="e.g. fee_reminder_oct" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'_')"></div>
+      <div class="form-row"><label for="tpl-category">Type</label>
+        <select id="tpl-category">
+          <option value="UTILITY" id="tpl-opt-u">Utility: reminders, confirmations, updates</option>
+          <option value="MARKETING" id="tpl-opt-m">Marketing: offers, announcements</option>
+        </select></div>
+      <div class="form-row"><label for="tpl-lang">Language</label>
+        <select id="tpl-lang"><option value="en">English</option><option value="hi">Hindi</option><option value="mr">Marathi</option></select></div>
+    </div>
+    <div class="form-row"><label for="tpl-body">Message</label>
+      <textarea id="tpl-body" maxlength="1024" oninput="tplRenderExamples()" placeholder="Hi {{1}}, this is a reminder that the fee for {{2}} is due on {{3}}. Reply here if you have any questions."></textarea></div>
+    <div id="tpl-examples"></div>
+    <button class="btn" onclick="createTemplate()">Submit for approval</button>
+    <div class="msg" id="tpl-msg"></div>
+  </div>
+  </div>
+
   <div class="cm-pane" id="cm-pane-contacts">
     <div class="grid-2">
       <div class="card">
@@ -1249,6 +1201,7 @@ function normalisePhone(raw){
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 function showSection(id){
+  if (id === "bulk") id = "campaigns";   // the old Bulk messaging screen now lives in Campaigns
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
   const sec = document.getElementById("sec-" + id);
@@ -1257,7 +1210,7 @@ function showSection(id){
   if (nav) nav.classList.add("active");
   // Quota meters go stale the moment anything sends. Refetch whenever the user
   // actually navigates to a screen that shows them.
-  if (id === "bulk" || id === "billing") refreshBulk();
+  if (id === "billing") refreshBulk();
   if (id === "campaigns") cmLoad();
 }
 document.querySelectorAll(".nav-item").forEach(n =>
@@ -1708,7 +1661,7 @@ async function loadClient(){
       applyClientTypeUI();
       applyPlanGating();
       loadOverview(); loadLeads(); loadConversations(); loadQuick();
-      loadProfile(); loadConnect(); loadBilling(); loadBulk(); loadBroadcast();
+      loadProfile(); loadConnect(); loadBilling(); applyTemplateHints();
       if (isNGO()) loadAlumni();
       return;
     }
@@ -1720,8 +1673,7 @@ async function loadClient(){
     const nav = document.querySelector('.nav-item[data-sec="' + sec + '"]');
     if (nav) nav.style.display = "none";
   });
-  showSection("bulk");
-  loadBulk();
+  showSection("campaigns");
   loadBilling();
 }
 
@@ -1748,7 +1700,6 @@ async function fetchBulk(force){
 async function refreshBulk(){
   BULK = null;
   await fetchBulk(true);
-  loadBulk();
   paintBillingMeters();
 }
 
@@ -2195,100 +2146,7 @@ async function loadConversations(){
   document.getElementById("conv-body").innerHTML = html;
 }
 
-async function loadBulk(){
-  const bulk = await fetchBulk();
-  if (!bulk) {
-    document.getElementById("bulk-plan").textContent = "No bulk account yet";
-    document.getElementById("bulk-status").textContent = "—";
-    document.getElementById("bulk-renewal").textContent = "";
-    document.getElementById("contacts-body").innerHTML =
-      '<div class="muted">No bulk messaging account yet. Pick a plan on the website and it activates automatically after payment.</div>';
-    return;
-  }
-  const names = {
-    starter: "Starter (included allowance)", growth: "Growth (included allowance)", pro: "Pro (included allowance)",
-    message_basic: "Message Basic", message_growth: "Message Growth", message_pro: "Message Pro",
-    plus_only: "Bulk Plus", founding: "Founding (included allowance)", trial: "Free trial allowance"
-  };
-  document.getElementById("bulk-plan").textContent = "📦 " + (names[bulk.plan] || bulk.plan);
-  document.getElementById("bulk-status").textContent = bulk.status === "active" ? "🟢 Active" : (bulk.status || "—");
-  const renew = bulk.renewal_date ? new Date(bulk.renewal_date) : null;
-  document.getElementById("bulk-renewal").textContent = renew
-    ? "🔄 Renews " + renew.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "";
-
-  const uq = bulk.utility_quota || 0, uu = bulk.utility_used || 0;
-  const mq = bulk.marketing_quota || 0, mu = bulk.marketing_used || 0;
-  document.getElementById("util-text").textContent = uu + " / " + uq + " used";
-  document.getElementById("mkt-text").textContent = mu + " / " + mq + " used";
-  document.getElementById("util-bar").style.width = (uq ? Math.min(100, (uu / uq) * 100) : 0) + "%";
-  document.getElementById("mkt-bar").style.width = (mq ? Math.min(100, (mu / mq) * 100) : 0) + "%";
-  loadContacts();
-  bcSummary();
-}
-
-async function uploadBulkCSV(){
-  const fileInput = document.getElementById("csv-file");
-  const optIn = document.getElementById("optin");
-  const msg = document.getElementById("upload-msg");
-  msg.className = "msg";
-
-  if (!fileInput.files.length) { msg.className = "msg err"; msg.textContent = "Please choose a CSV or Excel file first."; return; }
-  if (!optIn.checked) { msg.className = "msg err"; msg.textContent = "You must confirm these contacts opted in before uploading."; return; }
-
-  const fd = new FormData();
-  fd.append("file", fileInput.files[0]);
-  fd.append("opted_in_confirmed", "true");
-
-  msg.textContent = "Uploading…";
-  try {
-    const r = await fetch(API_BASE + "/api/bulk/contacts/upload", { method: "POST", headers: await authHeaders(), body: fd });
-    const d = await r.json();
-    if (d.success) {
-      msg.className = "msg ok";
-      msg.textContent = "✅ Uploaded " + d.uploaded + " contacts (" + d.skipped_invalid + " invalid skipped).";
-      fileInput.value = "";
-      loadContacts();
-    } else {
-      msg.className = "msg err";
-      msg.textContent = "❌ " + (d.error || "Upload failed.");
-    }
-  } catch (e) {
-    console.error(e);
-    msg.className = "msg err";
-    msg.textContent = "❌ Connection error. Try again.";
-  }
-}
-
-async function loadContacts(){
-  const body = document.getElementById("contacts-body");
-  try {
-    const r = await fetch(API_BASE + "/api/bulk/contacts", { headers: await authHeaders() });
-    const d = await r.json();
-    if (!d.contacts || !d.contacts.length) {
-      body.innerHTML = '<div class="muted">No contacts yet — upload your first CSV above.</div>';
-      document.getElementById("contact-count").textContent = "";
-      return;
-    }
-    document.getElementById("contact-count").textContent = "(" + d.contacts.length + ")";
-    const rows = d.contacts.slice(0, 100).map(c =>
-      "<tr><td>+" + esc(c.phone) + "</td><td>" + esc(c.name || "—") + "</td><td>" + esc(c.source || "csv") + "</td><td class='muted'>" + fmtDate(c.created_at) + "</td></tr>"
-    ).join("");
-    body.innerHTML = "<table><tr><th>Phone</th><th>Name</th><th>Source</th><th>Added</th></tr>" + rows + "</table>";
-  } catch (e) {
-    body.innerHTML = '<div class="muted">Could not load contacts.</div>';
-  }
-}
-
 // ── BROADCASTS ────────────────────────────────────────────────────────────────
-let BC_TEMPLATES = [];
-let BC_CONTACT_COUNT = 0;
-let BC_POLL = null;
-
-function bcSelected(){
-  const v = document.getElementById("bc-template").value;
-  return BC_TEMPLATES.find(t => t.name + "|" + t.language === v) || null;
-}
-
 // Template examples in the words of the client's own business.
 const TPL_HINTS = {
   coaching: { name: "fee_reminder_oct", u: "fee reminders, class updates, test notices", m: "admissions open, new batches, offers",
@@ -2322,151 +2180,26 @@ function applyTemplateHints(){
   if (m) m.textContent = "Marketing: " + h.m;
 }
 
-async function loadBroadcast(force){
+// Templates tab in Campaigns: every template with its WhatsApp status,
+// plus the form to submit a new one.
+async function cmRenderTemplatesTab(force){
   applyTemplateHints();
-  const sel = document.getElementById("bc-template");
-  const blocked = document.getElementById("bc-blocked");
-  const note = document.getElementById("bc-template-note");
-  if (!sel) return;
-  try {
-    const r = await fetch(API_BASE + "/api/bulk/templates", { headers: await authHeaders() });
-    const d = await r.json();
-    if (!d.success) {
-      blocked.style.display = ""; blocked.textContent = d.error || "Broadcasts aren't available yet.";
-      document.getElementById("bc-form").style.display = "none";
-      document.getElementById("tpl-card").style.display = "none";
-      loadCampaigns();
-      return;
-    }
-    blocked.style.display = "none";
-    document.getElementById("bc-form").style.display = "";
-    document.getElementById("tpl-card").style.display = d.can_create ? "" : "none";
-    const all = d.templates || [];
-    BC_TEMPLATES = all.filter(t => t.status === "APPROVED" && t.supported);
-    const pending = all.filter(t => t.status === "PENDING" || t.status === "IN_APPEAL").length;
-    const rejected = all.filter(t => t.status === "REJECTED").map(t => t.name);
-    sel.innerHTML = BC_TEMPLATES.length
-      ? '<option value="">Choose a template…</option>' + BC_TEMPLATES.map(t =>
-          '<option value="' + esc(t.name + "|" + t.language) + '">' + esc(t.name) + " · " + esc(t.language) + " · " +
-          (t.category === "MARKETING" ? "Marketing" : "Utility") + '</option>').join("")
-      : '<option value="">No approved templates yet — create one below</option>';
-    const bits = [];
-    if (pending) bits.push(pending + (pending === 1 ? " template is" : " templates are") + " waiting for WhatsApp's approval.");
-    if (rejected.length) bits.push("Rejected: " + rejected.join(", ") + ". Edit the wording and submit again under a new name.");
-    note.textContent = bits.join(" ");
-  } catch (e) {
-    console.error(e);
-    sel.innerHTML = '<option value="">Couldn\'t load templates</option>';
-  }
-  try {
-    const r2 = await fetch(API_BASE + "/api/bulk/contacts", { headers: await authHeaders() });
-    const d2 = await r2.json();
-    BC_CONTACT_COUNT = (d2.contacts || []).filter(c => c.opted_in !== false).length;
-  } catch (e) { BC_CONTACT_COUNT = 0; }
-  await fetchBulk();
-  bcRenderTemplate();
-  loadCampaigns();
-}
-
-function bcRenderTemplate(){
-  const t = bcSelected();
-  const prev = document.getElementById("bc-preview");
-  const params = document.getElementById("bc-params");
-  const btn = document.getElementById("bc-send-btn");
-  if (!t) { prev.style.display = "none"; params.innerHTML = ""; btn.disabled = true; bcSummary(); return; }
-  const old = Array.from(params.querySelectorAll("input")).map(i => i.value);
-  params.innerHTML = Array.from({ length: t.params }, (_, i) =>
-    '<div class="form-row"><label for="bc-p' + (i + 1) + '">Blank {{' + (i + 1) + '}}</label>' +
-    '<input id="bc-p' + (i + 1) + '" value="' + esc(old[i] || (i === 0 ? "{name}" : "")) + '" oninput="bcPreview()" placeholder="Text for {{' + (i + 1) + '}}"></div>'
-  ).join("") + (t.params ? '<div class="muted" style="font-size:.86rem;margin:-.4rem 0 1rem;">Type <strong>{name}</strong> to use each contact\'s first name.</div>' : "");
-  prev.style.display = "";
-  btn.disabled = false;
-  bcPreview();
-}
-
-function bcPreview(){
-  const t = bcSelected();
-  if (!t) return;
-  let body = esc(t.body || "");
-  for (let i = 1; i <= t.params; i++) {
-    const el = document.getElementById("bc-p" + i);
-    const v = el && el.value.trim() ? el.value.replace("{name}", "Riya") : "{{" + i + "}}";
-    body = body.split("{{" + i + "}}").join("<mark>" + esc(v) + "</mark>");
-  }
-  document.getElementById("bc-preview").innerHTML =
-    '<div class="muted" style="font-size:.82rem;margin-bottom:.45rem;">Preview (for a contact named Riya)</div><div class="bubble">' + body + "</div>";
-  bcSummary();
-}
-
-function bcSummary(){
-  const el = document.getElementById("bc-summary");
-  const t = bcSelected();
-  if (!t) { el.innerHTML = BC_CONTACT_COUNT ? "<strong>" + BC_CONTACT_COUNT + "</strong> opted-in contacts ready." : "Upload contacts above to get started."; return; }
-  const mkt = t.category === "MARKETING";
-  const left = BULK ? (mkt ? (BULK.marketing_quota || 0) - (BULK.marketing_used || 0) : (BULK.utility_quota || 0) - (BULK.utility_used || 0)) : 0;
-  const enough = BC_CONTACT_COUNT > 0 && BC_CONTACT_COUNT <= left;
-  el.innerHTML = "Sends to <strong>" + BC_CONTACT_COUNT + "</strong> opted-in contacts · uses <strong>" + BC_CONTACT_COUNT + " " +
-    (mkt ? "marketing" : "utility") + "</strong> messages · <strong>" + Math.max(0, left) + "</strong> left this month" +
-    (BC_CONTACT_COUNT && !enough ? ' · <span style="color:#B42318;font-weight:600;">not enough left</span>' : "");
-  document.getElementById("bc-send-btn").disabled = !enough;
-}
-
-async function sendBroadcast(){
-  const t = bcSelected();
-  const msg = document.getElementById("bc-msg");
-  const btn = document.getElementById("bc-send-btn");
-  if (!t) return;
-  const params = Array.from({ length: t.params }, (_, i) => (document.getElementById("bc-p" + (i + 1)).value || "").trim());
-  if (params.some(p => !p)) { msg.className = "msg err"; msg.textContent = "Fill in every blank first."; return; }
-  if (!confirm("Send \"" + t.name + "\" to " + BC_CONTACT_COUNT + " contacts now?")) return;
-  btn.disabled = true; msg.className = "msg"; msg.textContent = "Starting broadcast…";
-  try {
-    const r = await fetch(API_BASE + "/api/bulk/send", {
-      method: "POST",
-      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
-      body: JSON.stringify({ template_name: t.name, language: t.language, params })
-    });
-    const d = await r.json();
-    if (!d.success) { msg.className = "msg err"; msg.textContent = d.error || "Couldn't send."; btn.disabled = false; return; }
-    msg.className = "msg ok";
-    msg.textContent = "Sending to " + d.total + " contacts. Progress shows under Recent broadcasts.";
-    await refreshBulk();
-    bcSummary();
-    loadCampaigns();
-    clearInterval(BC_POLL);
-    let ticks = 0;
-    BC_POLL = setInterval(async () => {
-      ticks++;
-      const still = await loadCampaigns();
-      if (!still || ticks > 40) { clearInterval(BC_POLL); refreshBulk(); }
-    }, 5000);
-  } catch (e) {
-    console.error(e);
-    msg.className = "msg err"; msg.textContent = "Connection error. Check Recent broadcasts before trying again.";
-    btn.disabled = false;
-  }
-}
-
-// Returns true while any campaign is still sending (used for polling).
-async function loadCampaigns(){
-  const box = document.getElementById("bc-history");
-  if (!box) return false;
-  try {
-    const r = await fetch(API_BASE + "/api/bulk/campaigns", { headers: await authHeaders() });
-    const d = await r.json();
-    const rows = d.campaigns || [];
-    if (!rows.length) { box.innerHTML = '<div class="muted">No broadcasts yet.</div>'; return false; }
-    box.innerHTML = "<div style='overflow-x:auto;'><table><tr><th>Sent on</th><th>Template</th><th>Contacts</th><th>Sent</th><th>Delivered</th><th>Read</th><th>Failed</th><th>Status</th></tr>" +
-      rows.map(c => "<tr><td class='muted'>" + fmtDate(c.created_at) + "</td><td><strong>" + esc(c.template_name) + "</strong><div class='muted' style='font-size:.8rem;'>" +
-        (c.category === "MARKETING" ? "Marketing" : "Utility") + "</div></td><td>" + (c.total || 0) + "</td><td>" + (c.sent_count || 0) +
-        "</td><td>" + (c.delivered_count || 0) + "</td><td>" + (c.read_count || 0) + "</td><td>" + (c.failed_count || 0) +
-        "</td><td><span class='st-pill" + (c.status === "sending" ? " sending" : "") + "'>" + (c.status === "sending" ? "Sending" : "Done") + "</span></td></tr>").join("") +
-      "</table></div>";
-    return rows.some(c => c.status === "sending");
-  } catch (e) {
-    box.innerHTML = '<div class="muted">Couldn\'t load broadcasts.</div>';
-    return false;
-  }
+  const box = document.getElementById("cm-tpl-list");
+  if (!box) return;
+  await cmLoadTemplates(force);
+  document.getElementById("tpl-card").style.display = CM.canCreateTpl ? "" : "none";
+  if (CM.tplError) { box.innerHTML = '<div class="notice warn">' + esc(CM.tplError) + '</div>'; return; }
+  if (!CM.templates.length) { box.innerHTML = '<div class="muted">No templates yet. Create one below, or pick an idea in Create campaign and we\'ll submit its template for you.</div>'; return; }
+  const ST = { APPROVED: ["Approved", "ok"], PENDING: ["Waiting for approval", "warn"], IN_APPEAL: ["In appeal", "warn"],
+               REJECTED: ["Rejected", "bad"], PAUSED: ["Paused", "warn"], DISABLED: ["Disabled", "bad"] };
+  box.innerHTML = "<div style='overflow-x:auto;'><table><tr><th>Name</th><th>Type</th><th>Language</th><th>Status</th></tr>" +
+    CM.templates.map(t => {
+      const st = ST[t.status] || [String(t.status || "—").toLowerCase(), "warn"];
+      return "<tr><td><strong>" + esc(t.name) + "</strong>" + (t.body ? "<div class='muted' style='font-size:.82rem;max-width:420px;'>" + esc(t.body.slice(0, 140)) + (t.body.length > 140 ? "…" : "") + "</div>" : "") +
+        "</td><td>" + (t.category === "MARKETING" ? "Marketing" : "Utility") + "</td><td>" + esc(t.language || "") +
+        "</td><td><span class='pill " + st[1] + "'>" + esc(st[0]) + "</span>" +
+        (t.status === "REJECTED" ? "<div class='muted' style='font-size:.8rem;'>Change the wording and submit again under a new name.</div>" : "") + "</td></tr>";
+    }).join("") + "</table></div>";
 }
 
 function tplRenderExamples(){
@@ -2502,7 +2235,7 @@ async function createTemplate(){
       (d.category && d.category !== document.getElementById("tpl-category").value ? " (WhatsApp classed it as " + d.category.toLowerCase() + ")" : "") +
       ". It appears in the template list once approved.";
     document.getElementById("tpl-name").value = ""; document.getElementById("tpl-body").value = ""; tplRenderExamples();
-    loadBroadcast(true);
+    cmRenderTemplatesTab(true);
   } catch (e) {
     msg.className = "msg err"; msg.textContent = "Connection error. Try again.";
   }
@@ -3266,6 +2999,7 @@ function cmTab(name){
   if (name === "list") { document.getElementById("cm-status").value = ""; cmRenderList(); }
   if (name === "new" && !CM.id) cmNew();
   if (name === "contacts") cmLoadContacts();
+  if (name === "templates") cmRenderTemplatesTab();
   if (name !== "detail") cmStopPoll();
 }
 document.querySelectorAll(".cm-tab").forEach(t => t.addEventListener("click", () => {
