@@ -90,6 +90,7 @@
       <button class="admin-tab active" id="tab-pending" onclick="showAdminPage('pending')">Pending Connections</button>
       <button class="admin-tab" id="tab-conversations" onclick="showAdminPage('conversations')">Helpline Conversations</button>
       <button class="admin-tab" id="tab-partners" onclick="showAdminPage('partners')">Partners</button>
+      <button class="admin-tab" id="tab-templates" onclick="showAdminPage('templates')">Templates</button>
     </div>
 
     <div class="admin-page active" id="page-pending">
@@ -109,6 +110,22 @@
       <h1>Partner applications</h1>
       <p class="pp-spots" id="pp-spots"></p>
       <div id="partners-list"><div class="empty">Loading...</div></div>
+    </div>
+
+    <!-- WhatsApp templates for a business (Meta or Gupshup) -->
+    <div class="admin-page" id="page-templates">
+      <h1>WhatsApp templates</h1>
+      <div class="card">
+        <p class="pp-spots" style="margin:0 0 1rem">Submits the ready-made campaign templates for a business's type to WhatsApp, on that business's own number. Works for Meta and Gupshup numbers. Templates that already exist are skipped. WhatsApp usually approves within minutes to a few hours.</p>
+        <div class="field"><label for="tp-email">Business login email</label><input id="tp-email" type="email" placeholder="owner@business.com"></div>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:1rem"><input type="checkbox" id="tp-all"> Include every idea for their business type, not just the recommended 2–3</label>
+        <div class="pp-actions">
+          <button class="btn ghost" onclick="tpRun(true)">Check</button>
+          <button class="btn" id="tp-create" onclick="tpRun(false)">Create templates</button>
+        </div>
+        <div class="status-msg" id="tp-msg"></div>
+      </div>
+      <div id="tp-results"></div>
     </div>
   </div>
 </div>
@@ -369,6 +386,42 @@ async function setPartnerStatus(id, status) {
     body: JSON.stringify({ admin_secret: adminSecret, application_id: id, status: status })
   });
   loadPartners();
+}
+
+// ── WhatsApp templates ─────────────────────────────────────────────────────
+async function tpRun(dry) {
+  var email = document.getElementById('tp-email').value.trim();
+  var msg = document.getElementById('tp-msg'), out = document.getElementById('tp-results');
+  if (!email) { msg.className = 'status-msg error'; msg.textContent = 'Enter the business email.'; return; }
+  if (!dry && !confirm('Submit the missing templates for ' + email + ' to WhatsApp for approval?')) return;
+  msg.className = 'status-msg'; msg.textContent = dry ? 'Checking...' : 'Submitting...';
+  document.getElementById('tp-create').disabled = true;
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/templates/recommended', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_secret: adminSecret, user_email: email, dry_run: dry, include_all: document.getElementById('tp-all').checked })
+    });
+    var d = await res.json();
+    document.getElementById('tp-create').disabled = false;
+    if (!d.success) { msg.className = 'status-msg error'; msg.textContent = d.error || 'Failed.'; out.innerHTML = ''; return; }
+    var label = { exists: 'Already on the number', will_create: 'Will be created', submitted: 'Submitted for approval', failed: 'Failed' };
+    var counts = {};
+    d.results.forEach(function (r) { counts[r.result] = (counts[r.result] || 0) + 1; });
+    msg.className = 'status-msg success';
+    msg.textContent = (d.business || email) + ' · ' + d.client_type + ' · via ' + (d.provider === 'gupshup' ? 'Gupshup' : 'Meta') + ' — ' +
+      Object.keys(counts).map(function (k) { return counts[k] + ' ' + (label[k] || k).toLowerCase(); }).join(', ');
+    out.innerHTML = d.results.map(function (r) {
+      var cls = r.result === 'failed' ? 'rejected' : (r.result === 'exists' || r.result === 'submitted') ? '' : 'waitlist';
+      return '<div class="pending-item"><div class="meta"><strong>' + escapeHtml(r.idea) + '</strong> · <code>' + escapeHtml(r.name) + '</code> · ' +
+        escapeHtml(r.category) + '<span class="pp-badge ' + cls + '">' + escapeHtml(label[r.result] || r.result) +
+        (r.status ? ' (' + escapeHtml(String(r.status).toLowerCase()) + ')' : '') + '</span><br>' +
+        '<span style="color:var(--text)">' + escapeHtml(r.body) + '</span>' +
+        (r.error ? '<br><span style="color:#C00">' + escapeHtml(r.error) + '</span>' : '') + '</div></div>';
+    }).join('');
+  } catch (e) {
+    document.getElementById('tp-create').disabled = false;
+    msg.className = 'status-msg error'; msg.textContent = 'Network error.';
+  }
 }
 
 function escapeHtml(str) {
