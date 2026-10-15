@@ -131,6 +131,7 @@
       <button class="admin-tab active" id="tab-pending" onclick="showAdminPage('pending')">Pending Connections</button>
       <button class="admin-tab" id="tab-conversations" onclick="showAdminPage('conversations')">Helpline chats</button>
       <button class="admin-tab" id="tab-tickets" onclick="showAdminPage('tickets')">Tickets <span class="tab-count" id="tk-count"></span></button>
+      <button class="admin-tab" id="tab-health" onclick="showAdminPage('health')">WhatsApp health</button>
       <button class="admin-tab" id="tab-partners" onclick="showAdminPage('partners')">Partners</button>
       <button class="admin-tab" id="tab-templates" onclick="showAdminPage('templates')">Templates</button>
     </div>
@@ -169,6 +170,14 @@
         <button class="btn ghost sm" onclick="loadTickets()">Refresh</button>
       </div>
       <div id="tickets-list"><div class="empty">Loading...</div></div>
+    </div>
+
+    <!-- Is every WhatsApp number able to receive and reply? -->
+    <div class="admin-page" id="page-health">
+      <h1>WhatsApp health</h1>
+      <p class="pp-spots" style="margin-top:-0.8rem">Asks Meta and Gupshup about the helpline and every client number: is the token valid, is the number registered, and do customer messages reach the bot.</p>
+      <div class="hl-bar"><button class="btn sm" onclick="loadHealth()">Check all numbers</button></div>
+      <div id="health-list"><div class="empty">Click "Check all numbers".</div></div>
     </div>
 
     <!-- Pilot Partner Program applications -->
@@ -220,6 +229,7 @@ function showAdminPage(page) {
     loadSupportConversations();
   }
   if (page === 'tickets') loadTickets();
+  if (page === 'health' && !document.querySelector('#health-list .ticket')) loadHealth();
   if (page === 'partners') loadPartners();
 }
 
@@ -440,6 +450,48 @@ function openChatFor(key) {
   };
   if (!tryOpen()) {
     var n = 0, iv = setInterval(function() { if (tryOpen() || ++n > 20) clearInterval(iv); }, 300);
+  }
+}
+
+// ── WhatsApp health ─────────────────────────────────────────────────
+async function loadHealth() {
+  var listEl = document.getElementById('health-list');
+  listEl.innerHTML = '<div class="empty">Checking with Meta and Gupshup…</div>';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/whatsapp-health?admin_secret=' + encodeURIComponent(adminSecret));
+    var data = await res.json();
+    if (!data.success) { listEl.innerHTML = '<div class="empty">Check failed: ' + escapeHtml(data.error || '') + '</div>'; return; }
+    listEl.innerHTML = (data.numbers || []).map(function(n) {
+      var bad = (n.problems || []).length;
+      return '<div class="ticket" id="health-' + (n.id || 'helpline') + '">' +
+        '<div class="ticket-top"><div><span class="ch ' + (n.provider === 'gupshup' ? 'website' : 'whatsapp') + '">' + (n.provider === 'gupshup' ? 'Gupshup' : 'Meta') + '</span>' +
+          '<b>' + escapeHtml(n.name) + '</b> <span class="tk ' + (bad ? 'open' : 'resolved') + '">' + (bad ? bad + ' problem' + (bad > 1 ? 's' : '') : 'All good') + '</span></div>' +
+          '<div class="thread-time">' + escapeHtml(n.number || n.phone_number_id || '') + (n.email ? '<br>' + escapeHtml(n.email) : '') + '</div></div>' +
+        '<div class="meta">' + (n.ok || []).map(function(x) { return '✅ ' + escapeHtml(x); }).join('<br>') + '</div>' +
+        (bad ? '<div class="issue">' + n.problems.map(function(x) { return '⚠️ ' + escapeHtml(x); }).join('\n') + '</div>' : '') +
+        (n.fixable && n.id ? '<div class="pp-actions"><button class="btn sm" onclick="fixNumber(' + n.id + ')">Fix</button></div>' : '') +
+        '<div class="status-msg" id="health-msg-' + (n.id || 'helpline') + '"></div>' +
+      '</div>';
+    }).join('') || '<div class="empty">No numbers found.</div>';
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error. Please try again.</div>';
+  }
+}
+
+async function fixNumber(id) {
+  var msg = document.getElementById('health-msg-' + id);
+  msg.className = 'status-msg'; msg.textContent = 'Fixing…';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/whatsapp-fix', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_secret: adminSecret, client_id: id })
+    });
+    var data = await res.json();
+    msg.className = 'status-msg ' + (data.success ? 'success' : 'error');
+    msg.textContent = (data.steps || [data.error || 'Failed']).join(' ') + (data.success ? ' Checking again…' : '');
+    if (data.success) setTimeout(loadHealth, 1500);
+  } catch (e) {
+    msg.className = 'status-msg error'; msg.textContent = 'Network error. Please try again.';
   }
 }
 
