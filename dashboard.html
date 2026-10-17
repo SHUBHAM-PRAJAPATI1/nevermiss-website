@@ -819,9 +819,9 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     </div>
 
     <div id="conn-embedded">
-      <p class="muted" style="margin-bottom:0.9rem;">🔵 Fastest way: connect straight through Facebook. Fill in your notification number above first, then click below.</p>
+      <p class="muted" style="margin-bottom:0.9rem;">🟢 Fastest way: connect your number online in a few minutes. You'll log in with Facebook on WhatsApp's official signup page. Fill in your notification number above first, then click below.</p>
       <button class="btn-fb" id="fb-connect-btn" onclick="launchEmbeddedSignup()">
-        <span>📘</span> Connect via Facebook
+        <span>💬</span> Connect WhatsApp
       </button>
       <div class="msg" id="fb-connect-msg"></div>
     </div>
@@ -1009,7 +1009,81 @@ window.addEventListener("message", (event) => {
   }
 });
 
-function launchEmbeddedSignup(){
+// ── Connect through Gupshup (joint solution) ─────────────────────────────────
+// Clients sign up on Gupshup's own WhatsApp signup page. Only that path gives
+// the number a Gupshup app that forwards messages to NeverMiss AND puts Meta
+// charges on Gupshup's credit line. The old Facebook popup below
+// (launchFacebookSignup) is kept but no longer wired to the button.
+let GS_POLL = null;
+
+async function launchEmbeddedSignup(){
+  const msg = document.getElementById("fb-connect-msg");
+  const btn = document.getElementById("fb-connect-btn");
+  const own = document.getElementById("cw-owner").value.trim();
+  if (!own || own.length < 10) {
+    msg.className = "msg err";
+    msg.textContent = "Please enter your notification number above first.";
+    return;
+  }
+  // Open the tab now, inside the click, so the browser doesn't block it.
+  const win = window.open("", "_blank");
+  btn.disabled = true;
+  msg.className = "msg"; msg.textContent = "Preparing your WhatsApp signup…";
+  try {
+    const r = await fetch(API_BASE + "/api/gupshup/connect-start", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+      body: JSON.stringify({ owner_whatsapp_number: own })
+    });
+    const d = await r.json();
+    if (!d.success || !d.link) throw new Error(d.error || "Couldn't start the signup.");
+    if (win && !win.closed) win.location.href = d.link; else window.open(d.link, "_blank");
+    msg.className = "msg ok";
+    msg.innerHTML = "A new tab opened with WhatsApp's signup. Finish it there and keep this page open. "
+      + "We'll detect it automatically. <a href=\"" + d.link + "\" target=\"_blank\" rel=\"noopener\">Tab didn't open? Click here.</a>";
+    pollGupshupConnection();
+  } catch (e) {
+    if (win && !win.closed) win.close();
+    msg.className = "msg err";
+    msg.textContent = "❌ " + (e.message || "Couldn't start the signup.") ;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function pollGupshupConnection(){
+  const msg = document.getElementById("fb-connect-msg");
+  if (GS_POLL) clearInterval(GS_POLL);
+  const started = Date.now();
+  GS_POLL = setInterval(async () => {
+    if (Date.now() - started > 20 * 60 * 1000) {   // stop after 20 minutes
+      clearInterval(GS_POLL); GS_POLL = null;
+      msg.className = "msg err";
+      msg.textContent = "Still not finished. If you completed the signup, refresh this page in a few minutes, or contact support.";
+      return;
+    }
+    try {
+      const r = await fetch(API_BASE + "/api/gupshup/connect-status", {
+        method: "POST",
+        headers: Object.assign({ "Content-Type": "application/json" }, await authHeaders()),
+        body: "{}"
+      });
+      const d = await r.json();
+      if (d.success && d.live) {
+        clearInterval(GS_POLL); GS_POLL = null;
+        msg.className = d.subscribed ? "msg ok" : "msg err";
+        msg.textContent = d.subscribed
+          ? "✅ WhatsApp connected! Loading your dashboard…"
+          : "⚠️ Your number is connected, but we couldn't finish activating the bot. Our team has been notified.";
+        loadClient();
+      }
+    } catch (e) { /* network blip: keep polling */ }
+  }, 6000);
+}
+
+// Previous direct-to-Meta Embedded Signup. Not used by the button any more
+// (see launchEmbeddedSignup above); kept for reference / fallback.
+function launchFacebookSignup(){
   const msg = document.getElementById("fb-connect-msg");
   const btn = document.getElementById("fb-connect-btn");
   const own = document.getElementById("cw-owner").value.trim();
