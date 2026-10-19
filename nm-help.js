@@ -25,7 +25,7 @@
   if (window.__nmHelpLoaded) return;
   window.__nmHelpLoaded = true;
 
-  var API = "https://my-saas-bot.onrender.com";
+  var API = "https://nevermiss-api-05de8a834ac4.herokuapp.com";
   var WA = "917004020840";
   var MAX_LEN = 600;
   var KEY_SID = "nm_help_sid", KEY_LOG = "nm_help_log", KEY_SEC = "nm_help_sector";

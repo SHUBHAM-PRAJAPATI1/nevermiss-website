@@ -1,7 +1,7 @@
 /*
  * nm-track.js — tiny first-party visitor tracker for the NeverMiss master dashboard.
  *
- * <script src="nm-track.js" data-endpoint="https://my-saas-bot.onrender.com/api/track"
+ * <script src="nm-track.js" data-endpoint="https://nevermiss-api-05de8a834ac4.herokuapp.com/api/track"
  *         data-product="nevermiss" defer></script>
  *
  * Sends: a page view on load, time-on-page when the tab is closed/hidden,

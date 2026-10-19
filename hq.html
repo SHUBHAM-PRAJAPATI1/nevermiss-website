@@ -263,7 +263,7 @@ tr.click:hover td{background:var(--chip)}
 <div id="drawer"><div class="bk" onclick="closeDrawer()"></div><div class="pn" id="drawer-pn"></div></div>
 
 <script>
-const NM_API = "https://my-saas-bot.onrender.com";
+const NM_API = "https://nevermiss-api-05de8a834ac4.herokuapp.com";
 const store = (() => { try { return localStorage; } catch (e) { return null; } })();
 const sstore = (() => { try { return sessionStorage; } catch (e) { return null; } })();
 const sget = k => { try { return (sstore && sstore.getItem(k)) || (store && store.getItem(k)) || ""; } catch (e) { return ""; } };

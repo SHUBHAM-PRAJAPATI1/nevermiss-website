@@ -18,7 +18,7 @@
   if (window.__nmDemoLoaded) return;
   window.__nmDemoLoaded = true;
 
-  var API = "https://my-saas-bot.onrender.com";
+  var API = "https://nevermiss-api-05de8a834ac4.herokuapp.com";
   var WA = "917004020840";
   var MAX_LEN = 500;
 

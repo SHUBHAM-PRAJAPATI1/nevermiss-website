@@ -6,7 +6,7 @@
  */
 (function () {
   "use strict";
-  var API = "https://my-saas-bot.onrender.com";
+  var API = "https://nevermiss-api-05de8a834ac4.herokuapp.com";
   var WA = "917004020840";
   var PAGE = window.NM_PAGE || { sector: "home", defaultType: "" };
 
