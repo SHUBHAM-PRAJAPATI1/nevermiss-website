@@ -470,7 +470,7 @@ async function loadHealth() {
         '<div class="meta">' + (n.ok || []).map(function(x) { return '✅ ' + escapeHtml(x); }).join('<br>') +
           (n.waba_id ? '<br>WhatsApp account ID: <b>' + escapeHtml(n.waba_id) + '</b>' : '') + '</div>' +
         (bad ? '<div class="issue">' + n.problems.map(function(x) { return '⚠️ ' + escapeHtml(x); }).join('\n') + '</div>' : '') +
-        (n.fixable && n.id ? '<div class="pp-actions"><button class="btn sm" onclick="fixNumber(' + n.id + ')">Fix</button></div>' : '') +
+        (n.fixable && n.id ? '<div class="pp-actions"><button class="btn sm" onclick="fixNumber(\'' + n.id + '\')">Fix</button></div>' : '') +
         '<div class="status-msg" id="health-msg-' + (n.id || 'helpline') + '"></div>' +
       '</div>';
     }).join('') || '<div class="empty">No numbers found.</div>';
@@ -481,7 +481,7 @@ async function loadHealth() {
 
 async function fixNumber(id) {
   var msg = document.getElementById('health-msg-' + id);
-  msg.className = 'status-msg'; msg.textContent = 'Fixing… asking Meta, this can take up to a minute.';
+  msg.className = 'status-msg'; msg.textContent = 'Fixing… this can take up to a minute.';
   try {
     var res = await fetch(BACKEND_URL + '/admin/whatsapp-fix', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
