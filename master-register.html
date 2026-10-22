@@ -142,6 +142,12 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .btn.danger{color:var(--warn);background:transparent;border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
 .btn.ghost{background:transparent}
 .btn.sm{padding:6px 11px;font-size:.84rem;border-radius:10px}
+.selbox{flex:none;width:22px;height:22px;margin-top:1px;border-radius:7px;border:1.5px solid var(--line);background:var(--glass-2);display:grid;place-items:center;transition:background .2s,border-color .2s}
+.selbox.on{background:var(--accent);border-color:var(--accent)}
+.selbox.on::after{content:"";width:6px;height:11px;border:solid var(--accent-ink);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.row.picked{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--glass-2))}
+#selbar{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;max-width:calc(100vw - 24px);padding:10px 14px;border-radius:16px;background:var(--panel-solid);border:1px solid var(--line);box-shadow:0 20px 40px -16px rgba(0,0,0,.5);font-size:.88rem}
+#selbar b{margin-right:4px}
 .btn svg.i{width:16px;height:16px}
 
 .page{padding:18px 4px 90px}
@@ -860,8 +866,8 @@ function rowHTML(e,i,showWork=true){
   if(!du&&e.entry_date)bits.push(`<span class="mono">${esc(fmtDate(e.entry_date))}</span>`);
   if(stale(e))bits.push(`<span class="flag">quiet ${esc(ago(ts(e)))}</span>`);
   if(e.link)bits.push(`<span>↗ link</span>`);
-  return `<div class="row${e.status==="done"?" is-done":""}" data-entry="${esc(e.id)}" style="--hc:${hc(s.color)};--n:${Math.min(i,14)}" tabindex="0">
-    <button class="tick" data-tick="${esc(e.id)}" aria-label="${e.status==="done"?"Mark as not done":"Mark as done"}"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></button>
+  return `<div class="row${e.status==="done"?" is-done":""}${selMode&&sel.has(e.id)?" picked":""}" data-entry="${esc(e.id)}" style="--hc:${hc(s.color)};--n:${Math.min(i,14)}" tabindex="0">
+    ${selMode?`<span class="selbox${sel.has(e.id)?" on":""}"></span>`:`<button class="tick" data-tick="${esc(e.id)}" aria-label="${e.status==="done"?"Mark as not done":"Mark as done"}"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></button>`}
     <div class="rb"><div class="t">${esc(e.title)}</div>${bits.length?`<div class="m">${bits.join("")}</div>`:""}${e.notes?`<div class="n">${esc(e.notes)}</div>`:""}</div>
     <span class="pill" style="--sc:var(--s-${esc(e.status)})">${esc(SLABEL[e.status]||e.status)}</span>
   </div>`;
@@ -907,10 +913,12 @@ function stepTarget(id,d,card){
 function crumb(parts){$("#crumb").innerHTML=parts.map((p,i)=>i===parts.length-1?`<b>${esc(p)}</b>`:`<span>${esc(p)}</span><span class="sep">/</span>`).join("")}
 function renderPage(animate){
   const page=$("#page");syncScene();
+  if(selMode&&(S.q||S.route.t!=="sec"||selKey!==S.route.sec+"|"+(S.route.sub||""))){selOff()}
   if(!S.loaded){page.innerHTML=`<div class="bento"><div class="tile glass c12 hero"><div class="eyebrow">Opening</div><h1>Pulling your <em class="serif">register</em>…</h1></div></div>`;return}
   const html=S.q?pSearch():S.route.t==="sec"?pSec():({home:pHome,targets:pTargets,now:pNow,ideas:pIdeas,nudge:pNudge,log:pLog,done:pDone}[S.route.v]||pHome)();
   const paint=()=>{page.innerHTML=html;if(animate){page.classList.remove("enter");void page.offsetWidth;page.classList.add("enter")}else page.classList.remove("enter")};
   if(animate&&document.startViewTransition&&!REDUCED&&page.childElementCount)document.startViewTransition(paint);else paint();
+  selBar();
 }
 const greeting=()=>{const h=new Date().getHours();return h<5?"Still up":h<12?"Good morning":h<17?"Good afternoon":"Good evening"};
 const tile=(cls,inner,d,extra="")=>`<section class="tile glass spot ${cls}" style="--d:${d};${extra}">${inner}</section>`;
@@ -984,12 +992,55 @@ function pDone(){const a=S.entries.filter(e=>!isOpen(e)).sort((x,y)=>ts(y)-ts(x)
 function pSearch(){const q=S.q.toLowerCase();
   const a=S.entries.filter(e=>[e.title,e.notes,e.sub,secById(e.section_id)?.name].join(" ").toLowerCase().includes(q));
   return simplePage(`“${esc(S.q)}”`,`${a.length} match${a.length===1?"":"es"}`,"",a.length?listHTML(sortE(a)):emptyHTML("No entries match.","Try a shorter word."),["Search"])}
+/* ===== bulk select & delete (works page) ===== */
+let selMode=false,selKey="",shownIds=[],delTimer=null,delArmedBulk=false;
+const sel=new Set();
+const selVisible=()=>shownIds.filter(id=>sel.has(id));
+function selOff(){selMode=false;sel.clear();delArmedBulk=false;clearTimeout(delTimer);const b=document.getElementById("selbar");if(b)b.remove()}
+function selBar(){
+  let b=document.getElementById("selbar");
+  if(!selMode){if(b)b.remove();return}
+  if(!b){b=document.createElement("div");b.id="selbar";document.body.appendChild(b)}
+  const n=selVisible().length;
+  b.innerHTML=`<b>${n} selected</b><button class="btn sm" data-sb="all">Select all ${shownIds.length}</button><button class="btn sm" data-sb="none">Clear</button><button class="btn sm danger" data-sb="del"${n?"":" disabled"}>${delArmedBulk?`Tap again to delete ${n}`:"Delete selected"}</button><button class="btn sm" data-sb="cancel">Cancel</button>`;
+}
+function toggleSel(id,rowEl){
+  sel.has(id)?sel.delete(id):sel.add(id);delArmedBulk=false;
+  if(rowEl){rowEl.classList.toggle("picked",sel.has(id));const bx=rowEl.querySelector(".selbox");if(bx)bx.classList.toggle("on",sel.has(id))}
+  selBar();
+}
+async function bulkDelete(){
+  const ids=selVisible();if(!ids.length)return;
+  if(!delArmedBulk){delArmedBulk=true;selBar();clearTimeout(delTimer);delTimer=setTimeout(()=>{delArmedBulk=false;selBar()},5000);return}
+  clearTimeout(delTimer);delArmedBulk=false;
+  const b=document.getElementById("selbar");if(b)b.querySelectorAll("button").forEach(x=>x.disabled=true);
+  const done=[];let err=null;
+  for(let i=0;i<ids.length;i+=40){
+    const chunk=ids.slice(i,i+40);
+    const {error}=await sb.from("register_entries").delete().in("id",chunk);
+    if(error){err=error;break}
+    done.push(...chunk);
+  }
+  if(done.length){const gone=new Set(done);S.entries=S.entries.filter(v=>!gone.has(v.id));done.forEach(id=>sel.delete(id))}
+  if(err)toast(`Deleted ${done.length} of ${ids.length}. ${errMsg(err)}`);else toast(`${done.length} entr${done.length===1?"y":"ies"} deleted`);
+  if(!err)selOff();
+  renderSide();renderPage(false);selBar();
+}
+document.addEventListener("click",ev=>{
+  const t=ev.target.closest("#selbar [data-sb]");if(!t)return;
+  const a=t.dataset.sb;
+  if(a==="all"){shownIds.forEach(id=>sel.add(id));delArmedBulk=false;renderPage(false);selBar()}
+  else if(a==="none"){sel.clear();delArmedBulk=false;renderPage(false);selBar()}
+  else if(a==="cancel"){selOff();renderPage(false)}
+  else if(a==="del")bulkDelete();
+});
 function pSec(){
   const s=secById(S.route.sec),sub=S.route.sub||"";
   crumb(sub?[s.name,sub]:[isOwner()?"My works":"Shared",s.name]);
   const es=S.entries.filter(e=>e.section_id===s.id),a=sub?es.filter(e=>e.sub===sub):es;
   const counts={open:a.filter(isOpen).length,idea:a.filter(e=>e.status==="idea").length,closed:a.filter(e=>!isOpen(e)).length,all:a.length};
   const shown=S.stat==="open"?a.filter(isOpen):S.stat==="idea"?a.filter(e=>e.status==="idea"):S.stat==="closed"?a.filter(e=>!isOpen(e)):a;
+  shownIds=shown.map(e=>e.id);
   const done=a.filter(e=>e.status==="done").length,pct=a.length?Math.round(done/a.length*100):0;
   const parts=[...(s.subs||[]),...new Set(es.map(e=>e.sub).filter(v=>v&&!(s.subs||[]).includes(v)))];
   const tg=S.targets.filter(t=>t.section_id===s.id&&(!sub||t.sub===sub||!t.sub));
@@ -1009,16 +1060,20 @@ function pSec(){
         ${isOwner()?`<button class="part add" data-addpart="${esc(s.id)}">+ Part</button>`:""}</div>
       <div class="tools" style="margin:14px 0">
         <div class="seg" role="group" aria-label="Filter">${[["open","Open"],["idea","Ideas"],["closed","Closed"],["all","All"]].map(([k,l])=>`<button data-stat="${k}" aria-pressed="${S.stat===k}">${l}<span class="c">${counts[k]}</span></button>`).join("")}</div>
-        <span class="grow"></span>${layoutSeg()}</div>
+        <span class="grow"></span><button class="btn sm" data-selmode aria-pressed="${selMode}">${selMode?"Stop selecting":"Select"}</button>${layoutSeg()}</div>
       ${shown.length?(S.layout==="board"?boardHTML(shown,false):groupsHTML(shown,false)):emptyHTML(`Nothing ${S.stat==="all"?"":S.stat==="closed"?"closed":S.stat==="idea"?"in ideas":"open"} here yet.`,`Add the first entry to ${sub||s.name}.`)}`,3)}
   </div>`;
 }
 
 /* page clicks */
 $("#page").addEventListener("click",ev=>{
+  const sm=ev.target.closest("[data-selmode]");
+  if(sm){if(selMode)selOff();else{selMode=true;selKey=S.route.sec+"|"+(S.route.sub||"")}renderPage(false);selBar();return}
+  if(selMode){const r=ev.target.closest(".row");if(r){ev.stopPropagation();toggleSel(r.dataset.entry,r);return}}
   const tk=ev.target.closest("[data-tick]");if(tk){ev.stopPropagation();return toggleDone(tk.dataset.tick,tk.closest(".row"))}
   const ts_=ev.target.closest("[data-tstep]");if(ts_){ev.stopPropagation();const c=ts_.closest(".tg");return stepTarget(c.dataset.target,+ts_.dataset.tstep,c)}
   const t=ev.target.closest("[data-entry],[data-target],[data-newtarget],[data-gosec],[data-stat],[data-layout],[data-view],[data-editwork],[data-addhere],[data-newwork],[data-newidea],[data-part],[data-addpart]");if(!t)return;
+  if(t.dataset.stat||t.dataset.layout){sel.clear();delArmedBulk=false}
   if(t.dataset.entry)openEntry(S.entries.find(e=>e.id===t.dataset.entry));
   else if(t.dataset.target)openTarget(S.targets.find(v=>v.id===t.dataset.target));
   else if(t.dataset.newtarget)openTarget(null,{cadence:t.dataset.newtarget,section_id:t.dataset.sec||(S.route.t==="sec"?S.route.sec:null),sub:S.route.t==="sec"?S.route.sub||"":""});
@@ -1033,7 +1088,7 @@ $("#page").addEventListener("click",ev=>{
   else if(t.hasAttribute("data-newwork"))openSec(null);
   else if(t.hasAttribute("data-newidea"))openEntry(null,{status:"idea",section_id:secById("idea-vault")?"idea-vault":undefined});
 });
-$("#page").addEventListener("keydown",ev=>{if(ev.key!=="Enter")return;if(ev.target.matches(".row"))openEntry(S.entries.find(e=>e.id===ev.target.dataset.entry));else if(ev.target.matches(".tg"))openTarget(S.targets.find(v=>v.id===ev.target.dataset.target))});
+$("#page").addEventListener("keydown",ev=>{if(ev.key!=="Enter")return;if(selMode&&ev.target.matches(".row")){toggleSel(ev.target.dataset.entry,ev.target);return}if(ev.target.matches(".row"))openEntry(S.entries.find(e=>e.id===ev.target.dataset.entry));else if(ev.target.matches(".tg"))openTarget(S.targets.find(v=>v.id===ev.target.dataset.target))});
 async function toggleDone(id,rowEl){
   const e=S.entries.find(v=>v.id===id);if(!e)return;
   const status=e.status==="done"?"active":"done";
