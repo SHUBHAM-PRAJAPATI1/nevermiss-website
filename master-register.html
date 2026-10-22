@@ -142,6 +142,10 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .btn.danger{color:var(--warn);background:transparent;border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
 .btn.ghost{background:transparent}
 .btn.sm{padding:6px 11px;font-size:.84rem;border-radius:10px}
+.sheet.reader{width:min(820px,calc(100% - 24px))}
+.script-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:1.02rem;line-height:1.75;max-width:68ch;margin:0 auto;padding:6px 0 24px}
+.rd-meta{color:var(--muted);font-size:.84rem;text-align:center;margin:2px 0 4px}
+.snum{flex:none;min-width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:.8rem;font-weight:600;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);margin-top:1px}
 .selbox{flex:none;width:22px;height:22px;margin-top:1px;border-radius:7px;border:1.5px solid var(--line);background:var(--glass-2);display:grid;place-items:center;transition:background .2s,border-color .2s}
 .selbox.on{background:var(--accent);border-color:var(--accent)}
 .selbox.on::after{content:"";width:6px;height:11px;border:solid var(--accent-ink);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
@@ -468,6 +472,18 @@ dialog::backdrop{backdrop-filter:none!important;-webkit-backdrop-filter:none!imp
     <button type="submit" class="btn primary" id="e_save">Save</button>
   </div>
 </form></dialog>
+
+<!-- script reader -->
+<dialog id="readDlg"><div class="sheet reader" id="readSheet">
+  <div class="sheet-h"><h2 id="rd_title">Script</h2><button type="button" class="icon-btn" data-close aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="sheet-b"><div class="rd-meta" id="rd_meta"></div><div class="script-text" id="rd_text"></div></div>
+  <div class="sheet-f">
+    <button type="button" class="btn ghost" id="rd_copy">Copy script</button>
+    <span class="grow"></span>
+    <button type="button" class="btn" id="rd_edit">Edit</button>
+    <button type="button" class="btn primary" data-close>Close</button>
+  </div>
+</div></dialog>
 
 <!-- work sheet -->
 <dialog id="secDlg"><form class="sheet" id="secForm" method="dialog">
@@ -856,19 +872,25 @@ $("#scrim").addEventListener("click",closeDrawer);
 function closeDrawer(){shell.classList.remove("drawer")}
 
 /* ================= rows ================= */
+const isScript=e=>/script/i.test((e&&e.sub)||"");
+const scriptNums=new Map();
+const wordCount=t=>(String(t||"").trim().match(/\S+/g)||[]).length;
+const scriptExcerpt=t=>String(t||"").replace(/\s+/g," ").trim().slice(0,220);
 function rowHTML(e,i,showWork=true){
+  const num=scriptNums.get(e.id)||0;
   const s=secById(e.section_id)||{name:"Unfiled",color:0};
   const where=[showWork?s.name:null,e.sub].filter(Boolean).join(" · ");
   const bits=[],du=dueInfo(e);
   if(where)bits.push(`<span class="where">${esc(where)}</span>`);
+  if(isScript(e)&&e.notes)bits.push(`<span class="mono">${wordCount(e.notes)} words</span>`);
   if(du)bits.push(`<span class="due ${du.cls}">${esc(du.txt)}</span>`);
   if(e.prio==="high")bits.push(`<span class="flag">High priority</span>`);
   if(!du&&e.entry_date)bits.push(`<span class="mono">${esc(fmtDate(e.entry_date))}</span>`);
   if(stale(e))bits.push(`<span class="flag">quiet ${esc(ago(ts(e)))}</span>`);
   if(e.link)bits.push(`<span>↗ link</span>`);
   return `<div class="row${e.status==="done"?" is-done":""}${selMode&&sel.has(e.id)?" picked":""}" data-entry="${esc(e.id)}" style="--hc:${hc(s.color)};--n:${Math.min(i,14)}" tabindex="0">
-    ${selMode?`<span class="selbox${sel.has(e.id)?" on":""}"></span>`:`<button class="tick" data-tick="${esc(e.id)}" aria-label="${e.status==="done"?"Mark as not done":"Mark as done"}"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></button>`}
-    <div class="rb"><div class="t">${esc(e.title)}</div>${bits.length?`<div class="m">${bits.join("")}</div>`:""}${e.notes?`<div class="n">${esc(e.notes)}</div>`:""}</div>
+    ${num?`<span class="snum">${num}</span>`:""}${selMode?`<span class="selbox${sel.has(e.id)?" on":""}"></span>`:`<button class="tick" data-tick="${esc(e.id)}" aria-label="${e.status==="done"?"Mark as not done":"Mark as done"}"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></button>`}
+    <div class="rb"><div class="t">${esc(e.title)}</div>${bits.length?`<div class="m">${bits.join("")}</div>`:""}${e.notes?`<div class="n">${esc(isScript(e)?scriptExcerpt(e.notes):e.notes)}</div>`:""}</div>
     <span class="pill" style="--sc:var(--s-${esc(e.status)})">${esc(SLABEL[e.status]||e.status)}</span>
   </div>`;
 }
@@ -992,6 +1014,20 @@ function pDone(){const a=S.entries.filter(e=>!isOpen(e)).sort((x,y)=>ts(y)-ts(x)
 function pSearch(){const q=S.q.toLowerCase();
   const a=S.entries.filter(e=>[e.title,e.notes,e.sub,secById(e.section_id)?.name].join(" ").toLowerCase().includes(q));
   return simplePage(`“${esc(S.q)}”`,`${a.length} match${a.length===1?"":"es"}`,"",a.length?listHTML(sortE(a)):emptyHTML("No entries match.","Try a shorter word."),["Search"])}
+/* ===== script reader ===== */
+const rdDlg=$("#readDlg");let rdEntry=null;
+function openReader(e){
+  if(!e)return;rdEntry=e;
+  $("#rd_title").textContent=e.title||"Script";
+  const sc=secById(e.section_id),w=wordCount(e.notes),mins=Math.max(1,Math.round(w/130));
+  $("#rd_meta").textContent=[sc?sc.name:"",e.sub||"",w?`${w} words · about ${mins} min spoken`:"",`updated ${ago(ts(e))}`].filter(Boolean).join(" · ");
+  $("#rd_text").textContent=e.notes||"No script text yet. Tap Edit and paste it into Notes.";
+  tintSheet($("#readSheet"),e.section_id);
+  rdDlg.showModal();$("#readSheet").querySelector(".sheet-b").scrollTop=0;
+}
+$("#rd_edit").addEventListener("click",()=>{const e=rdEntry;rdDlg.close();if(e)openEntry(e)});
+$("#rd_copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText((rdEntry&&rdEntry.notes)||"");toast("Script copied")}catch(_){toast("Couldn't copy. Select the text and copy it.")}});
+
 /* ===== bulk select & delete (works page) ===== */
 let selMode=false,selKey="",shownIds=[],delTimer=null,delArmedBulk=false;
 const sel=new Set();
@@ -1039,7 +1075,9 @@ function pSec(){
   crumb(sub?[s.name,sub]:[isOwner()?"My works":"Shared",s.name]);
   const es=S.entries.filter(e=>e.section_id===s.id),a=sub?es.filter(e=>e.sub===sub):es;
   const counts={open:a.filter(isOpen).length,idea:a.filter(e=>e.status==="idea").length,closed:a.filter(e=>!isOpen(e)).length,all:a.length};
-  const shown=S.stat==="open"?a.filter(isOpen):S.stat==="idea"?a.filter(e=>e.status==="idea"):S.stat==="closed"?a.filter(e=>!isOpen(e)):a;
+  let shown=S.stat==="open"?a.filter(isOpen):S.stat==="idea"?a.filter(e=>e.status==="idea"):S.stat==="closed"?a.filter(e=>!isOpen(e)):a;
+  const scriptPart=!!sub&&/script/i.test(sub);
+  if(scriptPart){shown=a.slice().sort((x,y)=>Date.parse(x.created_at||0)-Date.parse(y.created_at||0)||String(x.title).localeCompare(String(y.title)));scriptNums.clear();shown.forEach((e,k)=>scriptNums.set(e.id,k+1))}else scriptNums.clear();
   shownIds=shown.map(e=>e.id);
   const done=a.filter(e=>e.status==="done").length,pct=a.length?Math.round(done/a.length*100):0;
   const parts=[...(s.subs||[]),...new Set(es.map(e=>e.sub).filter(v=>v&&!(s.subs||[]).includes(v)))];
@@ -1059,9 +1097,9 @@ function pSec(){
         ${parts.map(v=>`<button class="part" data-part="${esc(v)}" aria-pressed="${sub===v}">${esc(v)}<span class="c">${es.filter(e=>e.sub===v).length}</span></button>`).join("")}
         ${isOwner()?`<button class="part add" data-addpart="${esc(s.id)}">+ Part</button>`:""}</div>
       <div class="tools" style="margin:14px 0">
-        <div class="seg" role="group" aria-label="Filter">${[["open","Open"],["idea","Ideas"],["closed","Closed"],["all","All"]].map(([k,l])=>`<button data-stat="${k}" aria-pressed="${S.stat===k}">${l}<span class="c">${counts[k]}</span></button>`).join("")}</div>
-        <span class="grow"></span><button class="btn sm" data-selmode aria-pressed="${selMode}">${selMode?"Stop selecting":"Select"}</button>${layoutSeg()}</div>
-      ${shown.length?(S.layout==="board"?boardHTML(shown,false):groupsHTML(shown,false)):emptyHTML(`Nothing ${S.stat==="all"?"":S.stat==="closed"?"closed":S.stat==="idea"?"in ideas":"open"} here yet.`,`Add the first entry to ${sub||s.name}.`)}`,3)}
+        <div class="seg" role="group" aria-label="Filter"${scriptPart?" hidden":""}>${[["open","Open"],["idea","Ideas"],["closed","Closed"],["all","All"]].map(([k,l])=>`<button data-stat="${k}" aria-pressed="${S.stat===k}">${l}<span class="c">${counts[k]}</span></button>`).join("")}</div>
+        <span class="grow"></span><button class="btn sm" data-selmode aria-pressed="${selMode}">${selMode?"Stop selecting":"Select"}</button>${scriptPart?"":layoutSeg()}</div>
+      ${shown.length?(scriptPart?listHTML(shown,false):S.layout==="board"?boardHTML(shown,false):groupsHTML(shown,false)):emptyHTML(`Nothing ${S.stat==="all"?"":S.stat==="closed"?"closed":S.stat==="idea"?"in ideas":"open"} here yet.`,`Add the first entry to ${sub||s.name}.`)}`,3)}
   </div>`;
 }
 
@@ -1074,7 +1112,7 @@ $("#page").addEventListener("click",ev=>{
   const ts_=ev.target.closest("[data-tstep]");if(ts_){ev.stopPropagation();const c=ts_.closest(".tg");return stepTarget(c.dataset.target,+ts_.dataset.tstep,c)}
   const t=ev.target.closest("[data-entry],[data-target],[data-newtarget],[data-gosec],[data-stat],[data-layout],[data-view],[data-editwork],[data-addhere],[data-newwork],[data-newidea],[data-part],[data-addpart]");if(!t)return;
   if(t.dataset.stat||t.dataset.layout){sel.clear();delArmedBulk=false}
-  if(t.dataset.entry)openEntry(S.entries.find(e=>e.id===t.dataset.entry));
+  if(t.dataset.entry){const en=S.entries.find(e=>e.id===t.dataset.entry);isScript(en)?openReader(en):openEntry(en)}
   else if(t.dataset.target)openTarget(S.targets.find(v=>v.id===t.dataset.target));
   else if(t.dataset.newtarget)openTarget(null,{cadence:t.dataset.newtarget,section_id:t.dataset.sec||(S.route.t==="sec"?S.route.sec:null),sub:S.route.t==="sec"?S.route.sub||"":""});
   else if(t.dataset.gosec)go({t:"sec",sec:t.dataset.gosec,sub:""});
@@ -1088,7 +1126,7 @@ $("#page").addEventListener("click",ev=>{
   else if(t.hasAttribute("data-newwork"))openSec(null);
   else if(t.hasAttribute("data-newidea"))openEntry(null,{status:"idea",section_id:secById("idea-vault")?"idea-vault":undefined});
 });
-$("#page").addEventListener("keydown",ev=>{if(ev.key!=="Enter")return;if(selMode&&ev.target.matches(".row")){toggleSel(ev.target.dataset.entry,ev.target);return}if(ev.target.matches(".row"))openEntry(S.entries.find(e=>e.id===ev.target.dataset.entry));else if(ev.target.matches(".tg"))openTarget(S.targets.find(v=>v.id===ev.target.dataset.target))});
+$("#page").addEventListener("keydown",ev=>{if(ev.key!=="Enter")return;if(selMode&&ev.target.matches(".row")){toggleSel(ev.target.dataset.entry,ev.target);return}if(ev.target.matches(".row")){const en=S.entries.find(e=>e.id===ev.target.dataset.entry);isScript(en)?openReader(en):openEntry(en)}else if(ev.target.matches(".tg"))openTarget(S.targets.find(v=>v.id===ev.target.dataset.target))});
 async function toggleDone(id,rowEl){
   const e=S.entries.find(v=>v.id===id);if(!e)return;
   const status=e.status==="done"?"active":"done";
