@@ -393,6 +393,30 @@ dialog::backdrop{backdrop-filter:none!important;-webkit-backdrop-filter:none!imp
 .wtile:hover,.row:hover,.btn:hover,.addtile:hover,.tick:hover,.btn:active,.tg-btns button:active{transform:none!important}
 .sheet{background:var(--panel-solid,var(--glass))}
 #bg{transition:none!important}
+
+/* ===== calm mode: flat, quiet, easy to scan ===== */
+#bg,.grain,.vignette{display:none!important}
+*{animation:none!important}
+.glass{background:var(--panel-solid)!important;box-shadow:none!important;border:1px solid var(--line)!important;border-radius:16px!important}
+.glass::after{display:none!important}
+.hero h1{font-size:clamp(1.5rem,2.6vw,2rem)!important}
+.row{border-radius:12px;padding:10px 12px;background:transparent}
+.row:hover{background:var(--glass-2)}
+.row:not(.is-script) .n{display:none}
+.grp-h{margin-top:14px}
+.wlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.wrow{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;text-align:left;background:transparent}
+.wrow:hover{background:var(--glass-2)}
+.wrow .orb{width:10px;height:10px;border-radius:50%;background:var(--hc,var(--accent));flex:none}
+.wrow b{flex:1;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wrow span.c{color:var(--muted);font-size:.84rem}
+.moreb{display:block;width:100%;margin-top:6px;padding:9px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.88rem}
+.moreb:hover{color:var(--ink);background:var(--glass-2)}
+.sumline{color:var(--muted);margin:4px 0 0}
+.whero h1,.hero h1{font-size:clamp(1.5rem,2.6vw,2rem)!important}
+.whero h1 em.serif,.hero h1 em.serif{font-family:inherit;font-style:normal;color:inherit}
+.btn,.btn.accent,.btn.primary,.ring .fg,.orb{box-shadow:none!important;filter:none!important}
+.ring .fg{filter:none!important}
 </style>
 </head>
 <body>
@@ -553,7 +577,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 const STATUSES=[["idea","Idea"],["planned","Planned"],["active","Active"],["waiting","Waiting"],["paused","Paused"],["done","Done"],["dropped","Dropped"]];
 const SLABEL=Object.fromEntries(STATUSES);
 const PRIOS=[["","None"],["high","High"],["med","Medium"],["low","Low"]];
-const VIEWS={home:"Overview",targets:"Targets",now:"Working on",ideas:"Idea vault",nudge:"Needs a nudge",log:"Recent",done:"Done"};
+const VIEWS={home:"Today",targets:"Targets",now:"Working on",ideas:"Idea vault",nudge:"Needs a nudge",log:"Recent",done:"Done"};
 const ICON={
   home:'<path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z"/>',
   targets:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/>',
@@ -768,7 +792,7 @@ const BG=(()=>{
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",e=>{dark=e.matches});
   document.addEventListener("visibilitychange",()=>{if(document.hidden)cancelAnimationFrame(raf);else if(!REDUCED){last=performance.now();raf=requestAnimationFrame(frame)}});
   if(!REDUCED)raf=requestAnimationFrame(frame);else{t=12;scenes.aurora(0)}
-  return{set};
+  return{set(){}};
 })();
 function syncScene(){
   const r=S.route;
@@ -807,19 +831,23 @@ addEventListener("online",()=>S.loaded&&reloadSoon());
 /* ================= navigation ================= */
 function go(route){
   S.route=route;ls.set("route",route);S.q="";$("#q").value="";
-  if(route.t==="sec"&&!S.open.has(route.sec)){S.open.add(route.sec);ls.set("open",[...S.open])}
+  if(route.t==="sec"){S.open=new Set([route.sec]);ls.set("open",[...S.open])}
   closeDrawer();renderSide();renderPage(true);scrollTo({top:0,behavior:REDUCED?"auto":"smooth"});
 }
-function toggleOpen(id){S.open.has(id)?S.open.delete(id):S.open.add(id);ls.set("open",[...S.open]);
-  const w=document.querySelector(`.work[data-id="${CSS.escape(id)}"]`);if(w){w.classList.toggle("open",S.open.has(id));w.querySelector(".chev")?.setAttribute("aria-expanded",S.open.has(id))}}
+function toggleOpen(id){const was=S.open.has(id);S.open=new Set(was?[]:[id]);ls.set("open",[...S.open]);renderSide()}
+const PIN=/^(nevermiss|thinkframe|beyond maya)$/i;
+const isPinned=sec=>PIN.test(String(sec.name||"").trim());
 
 /* ================= sidebar ================= */
 function renderSide(){
   const E=S.entries,r=S.route;
   const behind=S.targets.filter(t=>tState(t).state==="behind").length;
   const counts={home:"",targets:behind?behind+" behind":"",now:E.filter(e=>["active","waiting","planned"].includes(e.status)).length,ideas:E.filter(e=>e.status==="idea").length,nudge:E.filter(stale).length,log:"",done:E.filter(e=>!isOpen(e)).length};
-  const navs=Object.keys(VIEWS).filter(k=>k!=="targets"||S.v2).map(k=>`<button class="nav" data-view="${k}" title="${VIEWS[k]}" aria-current="${r.t==="view"&&r.v===k&&!S.q}">${ico(k)}<span class="lbl">${VIEWS[k]}</span><span class="cnt"${k==="targets"&&behind?' style="color:var(--warn)"':""}>${counts[k]||""}</span></button>`).join("");
-  const works=sortedSecs().map(s=>{
+  const primary=["home","now","targets","ideas"],more=["nudge","log","done"];
+  const navBtn=k=>`<button class="nav" data-view="${k}" title="${VIEWS[k]}" aria-current="${r.t==="view"&&r.v===k&&!S.q}">${ico(k)}<span class="lbl">${VIEWS[k]}</span><span class="cnt"${k==="targets"&&behind?' style="color:var(--warn)"':""}>${counts[k]||""}</span></button>`;
+  const mvOpen=S.mv||(r.t==="view"&&more.includes(r.v));
+  const navs=primary.filter(k=>k!=="targets"||S.v2).map(navBtn).join("")+`<button class="nav" data-mv title="More views">${ico("log")}<span class="lbl">${mvOpen?"Fewer views":"More views"}</span></button>`+(mvOpen?more.map(navBtn).join(""):"");
+  const workHTML=s=>{
     const es=E.filter(e=>e.section_id===s.id),open=S.open.has(s.id);
     const subs=[...(s.subs||[]),...new Set(es.map(e=>e.sub).filter(v=>v&&!(s.subs||[]).includes(v)))];
     const subHTML=subs.map(v=>{const c=es.filter(e=>e.sub===v&&isOpen(e)).length;
@@ -830,7 +858,10 @@ function renderSide(){
         <button class="chev" data-toggle="${esc(s.id)}" aria-label="Show parts of ${esc(s.name)}" aria-expanded="${open}"><svg viewBox="0 0 24 24" class="i"><path d="M9 6l6 6-6 6"/></svg></button>
       </div>
       <div class="subs"><div class="subs-in"><div>${subHTML}${isOwner()?`<button class="sub add" data-addsub="${esc(s.id)}">+ Add part</button>`:""}</div></div></div>
-    </div>`}).join("");
+    </div>`};
+  const allSecs=sortedSecs(),pinned=allSecs.filter(isPinned),rest=pinned.length?allSecs.filter(x=>!isPinned(x)):[];
+  const mwOpen=S.mw||rest.some(x=>r.t==="sec"&&r.sec===x.id);
+  const works=(pinned.length?pinned:allSecs).map(workHTML).join("")+(rest.length?`<button class="nav" data-mw title="Other works"><span class="orb" style="opacity:.35"></span><span class="lbl">${mwOpen?"Hide other works":`Other works (${rest.length})`}</span></button>`+(mwOpen?rest.map(workHTML).join(""):""):"");
   $("#sideNav").innerHTML=`
     <div class="s-label"><span>Overview</span></div>${navs}
     <div class="s-label"><span>${isOwner()?"My works":"Shared with you"}</span>${isOwner()?`<button class="icon-btn" id="addWork" title="Add a work" aria-label="Add a work">${PLUS}</button>`:""}</div>
@@ -840,6 +871,8 @@ function renderSide(){
 $("#sideNav").addEventListener("click",ev=>{
   const t=ev.target.closest("button");if(!t)return;
   if(t.dataset.view)go({t:"view",v:t.dataset.view});
+  else if(t.hasAttribute("data-mv")){S.mv=!S.mv;renderSide()}
+  else if(t.hasAttribute("data-mw")){S.mw=!S.mw;renderSide()}
   else if(t.dataset.toggle)toggleOpen(t.dataset.toggle);
   else if(t.dataset.addsub)startAddSub(t);
   else if(t.dataset.sub!==undefined&&t.dataset.sec)go({t:"sec",sec:t.dataset.sec,sub:t.dataset.sub});
@@ -888,7 +921,7 @@ function rowHTML(e,i,showWork=true){
   if(!du&&e.entry_date)bits.push(`<span class="mono">${esc(fmtDate(e.entry_date))}</span>`);
   if(stale(e))bits.push(`<span class="flag">quiet ${esc(ago(ts(e)))}</span>`);
   if(e.link)bits.push(`<span>↗ link</span>`);
-  return `<div class="row${e.status==="done"?" is-done":""}${selMode&&sel.has(e.id)?" picked":""}" data-entry="${esc(e.id)}" style="--hc:${hc(s.color)};--n:${Math.min(i,14)}" tabindex="0">
+  return `<div class="row${e.status==="done"?" is-done":""}${selMode&&sel.has(e.id)?" picked":""}${isScript(e)?" is-script":""}" data-entry="${esc(e.id)}" style="--hc:${hc(s.color)};--n:${Math.min(i,14)}" tabindex="0">
     ${num?`<span class="snum">${num}</span>`:""}${selMode?`<span class="selbox${sel.has(e.id)?" on":""}"></span>`:`<button class="tick" data-tick="${esc(e.id)}" aria-label="${e.status==="done"?"Mark as not done":"Mark as done"}"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></button>`}
     <div class="rb"><div class="t">${esc(e.title)}</div>${bits.length?`<div class="m">${bits.join("")}</div>`:""}${e.notes?`<div class="n">${esc(isScript(e)?scriptExcerpt(e.notes):e.notes)}</div>`:""}</div>
     <span class="pill" style="--sc:var(--s-${esc(e.status)})">${esc(SLABEL[e.status]||e.status)}</span>
@@ -896,7 +929,13 @@ function rowHTML(e,i,showWork=true){
 }
 const listHTML=(a,showWork=true)=>`<div class="list">${a.map((e,i)=>rowHTML(e,i,showWork)).join("")}</div>`;
 const emptyHTML=(t,s)=>`<div class="empty"><b>${esc(t)}</b>${esc(s||"")}</div>`;
-function groupsHTML(a,showWork){return `<div class="groups">${STATUSES.map(([k,l])=>{const v=sortE(a.filter(e=>e.status===k));return v.length?`<section><div class="grp-h" style="--sc:var(--s-${k})">${l} <span>${v.length}</span></div>${listHTML(v,showWork)}</section>`:""}).join("")}</div>`}
+const moreSet=new Set();
+function capList(v,key,showWork,n=8){
+  const k=JSON.stringify(S.route)+"|"+key;
+  if(v.length<=n+2||moreSet.has(k))return listHTML(v,showWork);
+  return listHTML(v.slice(0,n),showWork)+`<button class="moreb" data-more="${esc(k)}">Show ${v.length-n} more</button>`;
+}
+function groupsHTML(a,showWork){return `<div class="groups">${STATUSES.map(([k,l])=>{const v=sortE(a.filter(e=>e.status===k));return v.length?`<section><div class="grp-h" style="--sc:var(--s-${k})">${l} <span>${v.length}</span></div>${capList(v,k,showWork)}</section>`:""}).join("")}</div>`}
 function boardHTML(a,showWork){const cols=STATUSES.filter(([k])=>a.some(e=>e.status===k));
   return `<div class="board">${cols.map(([k,l])=>{const v=sortE(a.filter(e=>e.status===k));return `<div class="col"><div class="grp-h" style="--sc:var(--s-${k})">${l} <span>${v.length}</span></div>${listHTML(v,showWork)}</div>`}).join("")}</div>`}
 function ringHTML(pct,label,sub){const R=52,L=2*Math.PI*R;return `<div class="ring"><svg viewBox="0 0 120 120"><circle class="bgc" cx="60" cy="60" r="${R}"/><circle class="fg" cx="60" cy="60" r="${R}" style="--len:${L.toFixed(1)};--off:${(L*(1-pct/100)).toFixed(1)}"/></svg><div class="val"><div><b>${label}</b><span>${esc(sub)}</span></div></div></div>`}
@@ -946,42 +985,25 @@ const greeting=()=>{const h=new Date().getHours();return h<5?"Still up":h<12?"Go
 const tile=(cls,inner,d,extra="")=>`<section class="tile glass spot ${cls}" style="--d:${d};${extra}">${inner}</section>`;
 function dueSoonList(){return S.entries.filter(e=>{const d=dueInfo(e);return d&&d.d<=7}).sort((a,b)=>dueInfo(a).d-dueInfo(b).d)}
 function pHome(){
-  crumb(["Overview"]);
+  crumb(["Today"]);
   const E=S.entries,secs=sortedSecs();
-  const focus=sortE(E.filter(e=>isOpen(e)&&e.status!=="idea"&&(e.prio==="high"||(dueInfo(e)?.d??99)<=2))).slice(0,5);
-  const due=dueSoonList().slice(0,5),quiet=E.filter(stale).sort((a,b)=>ts(a)-ts(b)).slice(0,4),waiting=sortE(E.filter(e=>e.status==="waiting")).slice(0,4);
-  const active=E.filter(e=>e.status==="active").length,done=E.filter(e=>e.status==="done").length;
-  const pct=E.length?Math.round(done/E.length*100):0;
+  const urgent=sortE(E.filter(e=>isOpen(e)&&e.status!=="idea"&&(e.prio==="high"||(dueInfo(e)?.d??99)<=2))).slice(0,6);
+  const todo=urgent.length?urgent:sortE(E.filter(e=>e.status==="active")).slice(0,6);
+  const due=dueSoonList().filter(e=>!todo.includes(e)).slice(0,5);
+  const active=E.filter(e=>e.status==="active").length,waiting=E.filter(e=>e.status==="waiting").length,overdue=E.filter(e=>(dueInfo(e)?.d??1)<0).length;
   const dateStr=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});
-  const side=due.length?["Due <em class='serif'>soon</em>","Deadlines in the next 7 days",due,""]:quiet.length?["Needs a <em class='serif'>nudge</em>","Untouched for a week",quiet,"nudge"]:["Waiting on <em class='serif'>others</em>","Follow up at the right time",waiting,""];
-  const wk=S.targets.filter(t=>t.cadence==="weekly"),mo=S.targets.filter(t=>t.cadence==="monthly");
-  const [ws,we]=periodRange("weekly"),[ms,me]=periodRange("monthly");
-  const wLeft=Math.ceil((we-Date.now())/DAY),mLeft=Math.ceil((me-Date.now())/DAY);
-  const hitOf=a=>a.filter(t=>tState(t).state==="hit").length;
   const name=(S.me.name||"").split(" ")[0]||"there";
-  let d=0;
-  const works=secs.map(s=>{const es=E.filter(e=>e.section_id===s.id),dn=es.filter(e=>e.status==="done").length,p=es.length?Math.round(dn/es.length*100):0;
-    return `<button class="tile glass spot wtile c4" data-gosec="${esc(s.id)}" style="--hc:${hc(s.color)};--d:${8+d++}">
-      <span class="wm">${esc(s.code||s.name.slice(0,2))}</span>
-      <div class="top"><span class="sc">${sico(sceneOf(s))}</span><span class="kind">${esc(s.kind||"")}</span></div>
-      <h3>${esc(s.name)}</h3>${s.tagline?`<p>${esc(s.tagline)}</p>`:""}
-      <div class="foot"><div class="bar"><i style="width:${p}%"></i></div><div class="meta"><span>${es.filter(e=>e.status==="active").length} active</span><span>${es.filter(e=>e.status==="idea").length} ideas</span><span>${dn}/${es.length}</span></div></div>
-    </button>`}).join("");
-  const tTile=(title,list,leftDays,cad,dd)=>tile("c6",`<div class="t-head"><div><h2>${title}</h2><p>${list.length?`${hitOf(list)} of ${list.length} hit · ${leftDays} day${leftDays===1?"":"s"} left`:`${leftDays} day${leftDays===1?"":"s"} left`}</p></div><button class="btn sm" data-newtarget="${cad}">${PLUS}Target</button></div>${targetsBlock(list,true,cad==="weekly"?"No weekly targets yet.":"No monthly targets yet.")}`,dd);
+  const wk=S.targets.filter(t=>t.cadence==="weekly"),[,we]=periodRange("weekly"),wLeft=Math.ceil((we-Date.now())/DAY);
+  const hit=wk.filter(t=>tState(t).state==="hit").length;
+  const pinned=secs.filter(isPinned),others=pinned.length?secs.filter(x=>!isPinned(x)):[];
+  const wrow=x=>`<button class="wrow" data-gosec="${esc(x.id)}" style="--hc:${hc(x.color)}"><span class="orb"></span><b>${esc(x.name)}</b><span class="c">${E.filter(e=>e.section_id===x.id&&isOpen(e)).length} open</span></button>`;
   return `<div class="bento">
-    ${tile("c8 hero",`<div class="eyebrow">${esc(dateStr)}</div><h1>${greeting()},<br><em class="serif">${esc(name)}.</em></h1>
-      <p>${active} things in motion across ${secs.length} works.${focus.length?` ${focus.length===1?"One needs":focus.length+" need"} you most today.`:" Nothing urgent. A good day to build."}</p>
-      <div class="chips">${secs.slice(0,7).map(s=>`<button class="tag" data-gosec="${esc(s.id)}" style="--sc:${hc(s.color)}"><i></i>${esc(s.name)}</button>`).join("")}</div>`,0)}
-    ${tile("c4",`<div class="ringbox">${ringHTML(pct,pct+"%","closed")}<div class="mini">
-      <div><b style="color:var(--s-active)">${active}</b><span>active</span></div>
-      <div><b style="color:var(--s-waiting)">${E.filter(e=>e.status==="waiting").length}</b><span>waiting</span></div>
-      <div><b style="color:var(--warn)">${E.filter(e=>(dueInfo(e)?.d??1)<0).length}</b><span>overdue</span></div>
-      <div><b style="color:var(--s-done)">${done}</b><span>done</span></div></div></div>`,1)}
-    ${S.v2?tTile("This <em class='serif'>week</em>",wk,wLeft,"weekly",2)+tTile("This <em class='serif'>month</em>",mo,mLeft,"monthly",3):""}
-    ${tile("c7",`<div class="t-head"><div><h2>Today's <em class="serif">focus</em></h2><p>High priority, or due in 2 days</p></div></div>${focus.length?listHTML(focus):emptyHTML("Nothing urgent.","Mark an entry High priority or give it a deadline.")}`,4)}
-    ${tile("c5",`<div class="t-head"><div><h2>${side[0]}</h2><p>${side[1]}</p></div>${side[3]?`<button class="btn sm ghost" data-view="nudge">All</button>`:""}</div>${side[2].length?listHTML(side[2]):emptyHTML("All clear.","")}`,5)}
-    ${works}
-    ${isOwner()?`<button class="tile glass addtile c4" data-newwork style="--d:${8+d}"><span>${PLUS.replace('class="i"','class="i" style="width:26px;height:26px"')}Add a new work</span></button>`:""}
+    ${tile("c12 hero",`<div class="eyebrow">${esc(dateStr)}</div><h1>${greeting()}, ${esc(name)}.</h1>
+      <p class="sumline">${active} active · ${waiting} waiting${overdue?` · <span style="color:var(--warn)">${overdue} overdue</span>`:""}</p>`,0)}
+    ${tile(S.v2?"c7":"c12",`<div class="t-head"><div><h2>Do today</h2><p>${urgent.length?"High priority, or due within 2 days":"Your active entries"}</p></div><button class="btn sm" data-addhere>${PLUS}New entry</button></div>${todo.length?listHTML(todo):emptyHTML("Nothing to do today.","Add an entry, or give one a deadline.")}`,1)}
+    ${S.v2?tile("c5",`<div class="t-head"><div><h2>This week</h2><p>${wk.length?`${hit} of ${wk.length} hit · ${wLeft} day${wLeft===1?"":"s"} left`:`${wLeft} day${wLeft===1?"":"s"} left`}</p></div><button class="btn sm" data-newtarget="weekly">${PLUS}Target</button></div>${targetsBlock(wk,true,"No weekly targets yet")}`,2):""}
+    ${due.length?tile("c12",`<div class="t-head"><div><h2>Due soon</h2><p>Deadlines in the next 7 days</p></div></div>${listHTML(due)}`,3):""}
+    ${tile("c12",`<div class="t-head"><div><h2>Your works</h2><p>${secs.length} in total</p></div>${isOwner()?`<button class="btn sm" data-newwork>${PLUS}Add a work</button>`:""}</div><div class="wlist">${(pinned.length?pinned:secs).map(wrow).join("")}</div>${others.length?`<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--muted);font-size:.9rem">Other works (${others.length})</summary><div class="wlist" style="margin-top:8px">${others.map(wrow).join("")}</div></details>`:""}`,4)}
   </div>`;
 }
 function simplePage(title,eyebrow,sub,body,crumbs,heroExtra=""){crumb(crumbs);return `<div class="bento">${tile("c12 hero",`<div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${sub?`<p>${sub}</p>`:""}${heroExtra}`,0)}${tile("c12",body,1)}</div>`}
@@ -1110,7 +1132,8 @@ $("#page").addEventListener("click",ev=>{
   if(selMode){const r=ev.target.closest(".row");if(r){ev.stopPropagation();toggleSel(r.dataset.entry,r);return}}
   const tk=ev.target.closest("[data-tick]");if(tk){ev.stopPropagation();return toggleDone(tk.dataset.tick,tk.closest(".row"))}
   const ts_=ev.target.closest("[data-tstep]");if(ts_){ev.stopPropagation();const c=ts_.closest(".tg");return stepTarget(c.dataset.target,+ts_.dataset.tstep,c)}
-  const t=ev.target.closest("[data-entry],[data-target],[data-newtarget],[data-gosec],[data-stat],[data-layout],[data-view],[data-editwork],[data-addhere],[data-newwork],[data-newidea],[data-part],[data-addpart]");if(!t)return;
+  const t=ev.target.closest("[data-entry],[data-target],[data-newtarget],[data-gosec],[data-stat],[data-layout],[data-view],[data-editwork],[data-addhere],[data-newwork],[data-newidea],[data-part],[data-addpart],[data-more]");if(!t)return;
+  if(t.dataset.more){moreSet.add(t.dataset.more);renderPage(false);return}
   if(t.dataset.stat||t.dataset.layout){sel.clear();delArmedBulk=false}
   if(t.dataset.entry){const en=S.entries.find(e=>e.id===t.dataset.entry);isScript(en)?openReader(en):openEntry(en)}
   else if(t.dataset.target)openTarget(S.targets.find(v=>v.id===t.dataset.target));
