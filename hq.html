@@ -134,6 +134,113 @@ tr.click:hover td{background:var(--chip)}
 .status{font-size:12px;color:var(--muted)}
 .spin{display:inline-block;width:10px;height:10px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:s .8s linear infinite;vertical-align:-1px}
 @keyframes s{to{transform:rotate(360deg)}}
+/* ===== admin tools (merged from admin.html) ===== */
+.adm{--green:var(--teal);--green-light:var(--teal-soft);--green-dark:var(--teal);--text-muted:var(--muted);--border:var(--line);--white:var(--card);--radius:12px}
+.adm h1{font-size:18px;font-weight:600;margin-bottom:1rem}
+.adm .card{padding:1.2rem}
+nav.tabs .tabsep{flex:none;width:1px;background:var(--line);margin:4px 6px}
+nav.tabs .tab-count:not(:empty){display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:#DC2626;color:#fff;font-size:11px;line-height:18px;text-align:center}
+.adm h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; }
+.adm .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+.adm .card h2 { font-size: 15px; font-weight: 500; margin-bottom: 0.75rem; }
+.adm .field { margin-bottom: 1rem; }
+.adm .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.adm .field input, .adm .field textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; }
+.adm .field input:focus, .adm .field textarea:focus { border-color: var(--green); }
+.adm .btn { background: var(--green); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+.adm .btn:hover { background: var(--green-dark); }
+.adm .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+.adm .pending-item { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+.adm .pending-item .meta { font-size: 13px; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.7; }
+.adm .pending-item .meta strong { color: var(--text); }
+.adm .pending-item .connect-form { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.adm .pending-item .connect-form .full { grid-column: 1 / -1; }
+.adm .empty { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
+.adm .status-msg { font-size: 13px; margin-top: 0.5rem; }
+.adm .status-msg.success { color: var(--green-dark); }
+.adm .status-msg.error { color: #C00; }
+.adm .pp-spots { font-size: 13px; color: var(--text-muted); margin: -0.8rem 0 1.2rem; }
+.adm .pp-badge { display: inline-block; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 10px; background: var(--green-light); color: var(--green-dark); margin-left: 6px; }
+.adm .pp-badge.waitlist { background: #FEF3C7; color: #92400E; }
+.adm .pp-badge.rejected { background: #FEE2E2; color: #991B1B; }
+.adm .pp-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0.6rem; }
+.adm .btn.ghost { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+.adm .btn.ghost:hover { background: var(--bg); }
+.adm .ct-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start; }
+@media (max-width: 800px) { .adm .ct-wrap { grid-template-columns: 1fr; } }
+.adm .ct-phone { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #E5DDD5; display: flex; flex-direction: column; height: 560px; }
+.adm .ct-head { background: #075E54; color: #fff; padding: 10px 14px; font-size: 14px; font-weight: 500; }
+.adm .ct-head small { display: block; font-weight: 400; opacity: .8; font-size: 11px; }
+.adm .ct-msgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.adm .ct-b { max-width: 82%; padding: 7px 10px; border-radius: 8px; font-size: 13.5px; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,.12); }
+.adm .ct-b.me { align-self: flex-end; background: #DCF8C6; }
+.adm .ct-b.bot { align-self: flex-start; background: #fff; }
+.adm .ct-b.sys { align-self: center; background: #FFF3C4; font-size: 12px; color: #6b5b00; }
+.adm .ct-chips { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.adm .ct-chip { border: 1px solid #cfd8dc; background: #fff; color: #0a7cff; border-radius: 6px; padding: 6px 8px; font-size: 13px; text-align: center; cursor: pointer; font-family: inherit; }
+.adm .ct-chip:hover { background: #eef6ff; }
+.adm .ct-flag { display: block; margin-top: 4px; font-size: 11px; color: #9ca3af; cursor: pointer; text-align: right; background: none; border: none; font-family: inherit; }
+.adm .ct-flag:hover { color: #C00; }
+.adm .ct-input { display: flex; gap: 6px; padding: 8px; background: #F0F0F0; }
+.adm .ct-input input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: 20px; font-family: inherit; font-size: 14px; outline: none; }
+.adm .ct-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+.adm .ct-bar select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; min-width: 240px; }
+.adm .ct-meta { font-size: 12px; color: var(--text-muted); margin: 0 0 .75rem; }
+.adm .search-input { width: 100%; max-width: 320px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; margin-bottom: 1.25rem; }
+.adm .search-input:focus { border-color: var(--green); }
+.adm .thread { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1rem; overflow: hidden; }
+.adm .thread-head { padding: 12px 16px; background: var(--bg); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.adm .thread-head:hover { background: var(--green-light); }
+.adm .thread-phone { font-family: 'DM Mono', monospace; font-weight: 500; }
+.adm .thread-preview { font-size: 12px; color: var(--text-muted); margin-top: 2px; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm .thread-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.adm .thread-body { display: none; padding: 1rem; max-height: 400px; overflow-y: auto; }
+.adm .thread.expanded .thread-body { display: block; }
+.adm .msg-row { margin-bottom: 10px; display: flex; }
+.adm .msg-row.user { justify-content: flex-start; }
+.adm .msg-row.assistant { justify-content: flex-end; }
+.adm .msg-bubble { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+.adm .msg-row.user .msg-bubble { background: var(--bg); color: var(--text); }
+.adm .msg-row.assistant .msg-bubble { background: var(--green-light); color: var(--green-dark); }
+.adm .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+.adm .msg-row.assistant .msg-time { text-align: right; }
+.adm .msg-row > div { max-width: 75%; }
+.adm .msg-row > div .msg-bubble { max-width: 100%; display: inline-block; }
+.adm .msg-row.assistant > div { text-align: right; }
+.adm .msg-row.assistant .msg-bubble { text-align: left; }
+.adm .msg-row.user .msg-bubble { border: 1px solid var(--border); }
+.adm .tab-count:not(:empty) { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 9px; background: #DC2626; color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+.adm .hl-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+.adm .hl-bar .search-input { margin: 0; flex: 1; min-width: 200px; }
+.adm .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--white); }
+.adm .seg button { border: 0; background: none; padding: 7px 12px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--text-muted); }
+.adm .seg button + button { border-left: 1px solid var(--border); }
+.adm .seg button.on { background: var(--green-light); color: var(--green-dark); font-weight: 500; }
+.adm .btn.sm { padding: 7px 12px; font-size: 13px; }
+.adm .ch { display: inline-block; font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 9px; margin-right: 6px; vertical-align: 1px; }
+.adm .ch.website { background: #E0E7FF; color: #3730A3; }
+.adm .ch.whatsapp { background: var(--green-light); color: var(--green-dark); }
+.adm .tk { display: inline-block; font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 9px; margin-left: 4px; }
+.adm .tk.open { background: #FEE2E2; color: #991B1B; }
+.adm .tk.in_progress { background: #FEF3C7; color: #92400E; }
+.adm .tk.resolved { background: #E5E7EB; color: #374151; }
+.adm .thread-who { font-weight: 500; }
+.adm .thread-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.adm .thread-head { gap: 12px; }
+.adm .thread-head > div:first-child { min-width: 0; }
+.adm .thread-time { text-align: right; line-height: 1.5; }
+.adm .thread-body { max-height: 480px; }
+.adm .day-sep { text-align: center; font-size: 11px; color: var(--text-muted); margin: 6px 0 10px; }
+.adm .ticket { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; background: var(--white); }
+.adm .ticket-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.adm .ticket-top b { font-size: 15px; font-weight: 500; }
+.adm .ticket .meta { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+.adm .ticket .meta a { color: var(--green-dark); }
+.adm .ticket .issue { font-size: 14px; white-space: pre-wrap; margin: 8px 0; padding: 10px 12px; background: var(--bg); border-radius: 8px; }
+.adm .ticket textarea { width: 100%; min-height: 54px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; margin-top: 4px; }
+@media (max-width: 600px) { .adm .thread-head { flex-direction: column; align-items: flex-start; }
+.adm .thread-time { text-align: left; }
+.adm .thread-preview { max-width: 100%; } }
 </style>
 </head>
 <body>
@@ -181,6 +288,14 @@ tr.click:hover td{background:var(--chip)}
     <button data-t="dkshops">Docket shops</button>
     <button data-t="helpline">Helpline</button>
     <button data-t="uptime">Uptime</button>
+    <span class="tabsep"></span>
+    <button data-t="adm-pending">Connections</button>
+    <button data-t="adm-conversations">Chats</button>
+    <button data-t="adm-tickets">Tickets <span class="tab-count" id="tk-count"></span></button>
+    <button data-t="adm-health">WhatsApp health</button>
+    <button data-t="adm-partners">Partners</button>
+    <button data-t="adm-templates">Templates</button>
+    <button data-t="adm-chattest">Chat tester</button>
   </nav>
 </header>
 
@@ -257,6 +372,97 @@ tr.click:hover td{background:var(--chip)}
   <section data-p="helpline" class="hide">
     <div class="card sec"><h2>People messaging the NeverMiss number <span class="c" id="hl-count"></span></h2><div id="helpline"></div></div>
   </section>
+
+<section data-p="adm-pending" class="adm hide">
+      <h1>Pending WhatsApp Connections</h1>
+      <div id="pending-list"><div class="empty">Loading...</div></div>
+</section>
+
+<section data-p="adm-conversations" class="adm hide">
+      <h1>Helpline chats</h1>
+      <div class="hl-bar">
+        <div class="seg" role="group" aria-label="Channel">
+          <button class="on" data-ch="" onclick="setChatChannel(this)">All</button>
+          <button data-ch="website" onclick="setChatChannel(this)">Website</button>
+          <button data-ch="whatsapp" onclick="setChatChannel(this)">WhatsApp</button>
+        </div>
+        <input type="text" class="search-input" id="conv-search" placeholder="Search name, number, email or message…" oninput="renderConversations()" />
+        <button class="btn ghost sm" onclick="loadSupportConversations()">Refresh</button>
+      </div>
+      <p class="pp-spots" id="conv-summary"></p>
+      <div id="conversations-list"><div class="empty">Loading...</div></div>
+</section>
+
+<section data-p="adm-tickets" class="adm hide">
+      <h1>Support tickets</h1>
+      <div class="hl-bar">
+        <div class="seg" role="group" aria-label="Status">
+          <button class="on" data-st="open" onclick="setTicketStatus(this)">Open</button>
+          <button data-st="in_progress" onclick="setTicketStatus(this)">In progress</button>
+          <button data-st="resolved" onclick="setTicketStatus(this)">Resolved</button>
+          <button data-st="" onclick="setTicketStatus(this)">All</button>
+        </div>
+        <button class="btn ghost sm" onclick="loadTickets()">Refresh</button>
+      </div>
+      <div id="tickets-list"><div class="empty">Loading...</div></div>
+</section>
+
+<section data-p="adm-health" class="adm hide">
+      <h1>WhatsApp health</h1>
+      <p class="pp-spots" style="margin-top:-0.8rem">Asks Meta and Gupshup about the helpline and every client number: is the token valid, is the number registered, and do customer messages reach the bot.</p>
+      <div class="hl-bar"><button class="btn sm" onclick="loadHealth()">Check all numbers</button></div>
+      <div id="health-list"><div class="empty">Click "Check all numbers".</div></div>
+</section>
+
+<section data-p="adm-partners" class="adm hide">
+      <h1>Partner applications</h1>
+      <p class="pp-spots" id="pp-spots"></p>
+      <div id="partners-list"><div class="empty">Loading...</div></div>
+</section>
+
+<section data-p="adm-templates" class="adm hide">
+      <h1>WhatsApp templates</h1>
+      <div class="card">
+        <p class="pp-spots" style="margin:0 0 1rem">Submits the ready-made campaign templates for a business's type to WhatsApp, on that business's own number. Works for Meta and Gupshup numbers. Templates that already exist are skipped. WhatsApp usually approves within minutes to a few hours.</p>
+        <div class="field"><label for="tp-email">Business login email</label><input id="tp-email" type="email" placeholder="owner@business.com"></div>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:1rem"><input type="checkbox" id="tp-all"> Include every idea for their business type, not just the recommended 2–3</label>
+        <div class="pp-actions">
+          <button class="btn ghost" onclick="tpRun(true)">Check</button>
+          <button class="btn" id="tp-create" onclick="tpRun(false)">Create templates</button>
+        </div>
+        <div class="status-msg" id="tp-msg"></div>
+      </div>
+      <div id="tp-results"></div>
+</section>
+
+<section data-p="adm-chattest" class="adm hide">
+      <h1>Chat tester</h1>
+      <p class="pp-spots" style="margin-top:-0.8rem">Pick a business and chat with its real bot: same menus, buttons, flows and AI as on WhatsApp. Nothing is sent to WhatsApp. Owner alerts show on the right instead of reaching the owner's phone. Chats and leads made here use a test number and are removed by Reset.</p>
+      <div class="ct-bar">
+        <select id="ct-client" onchange="ctReset(true)"><option value="">Loading businesses…</option></select>
+        <button class="btn ghost sm" onclick="ctReset(false)">Reset chat</button>
+        <button class="btn ghost sm" onclick="ctCopyAll()">Copy whole chat</button>
+        <span class="status-msg" id="ct-status"></span>
+      </div>
+      <div class="ct-wrap">
+        <div>
+          <div class="ct-phone">
+            <div class="ct-head"><span id="ct-title">Pick a business</span><small>Customer's WhatsApp</small></div>
+            <div class="ct-msgs" id="ct-msgs"></div>
+            <form class="ct-input" onsubmit="return ctSubmit(event)">
+              <input id="ct-text" type="text" autocomplete="off" placeholder="Type a message, e.g. Hi" />
+              <button class="btn" type="submit" id="ct-send">Send</button>
+            </form>
+          </div>
+        </div>
+        <div>
+          <div class="ct-phone">
+            <div class="ct-head"><span>Owner's WhatsApp</span><small>Alerts the owner would receive (not actually sent)</small></div>
+            <div class="ct-msgs" id="ct-owner"></div>
+          </div>
+        </div>
+      </div>
+</section>
 </div>
 </div>
 
@@ -352,7 +558,11 @@ function logout() { clearToken(); location.reload(); }
 function start() {
   $("login").classList.add("hide");
   $("app").classList.remove("hide");
+  adminSecret = TOKEN;
+  refreshOpenCount();
   load();
+  const h = (location.hash || "").slice(1);
+  if (h && document.querySelector('#tabs [data-t="' + h + '"]')) showTab(h);
   clearInterval(timer);
   timer = setInterval(() => { if (document.visibilityState === "visible") load(true); }, 60000);
 }
@@ -739,6 +949,10 @@ function showTab(t) {
   [...$("tabs").children].forEach(x => x.classList.toggle("on", x.dataset.t === t));
   const on = [...$("tabs").children].find(x => x.dataset.t === t); if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest", inline: "center" });
   document.querySelectorAll("section[data-p]").forEach(s => s.classList.toggle("hide", s.dataset.p !== t));
+  const isAdm = String(t).indexOf("adm-") === 0;
+  ["prod-seg", "days-seg"].forEach(id => { const el = $(id); if (el) el.classList.toggle("hide", isAdm); });
+  if (isAdm) admOnShow(t.slice(4));
+  try { history.replaceState(null, "", "#" + t); } catch (e) {}
   window.scrollTo({ top: 0 });
 }
 
@@ -803,6 +1017,620 @@ $("tabs").addEventListener("click", e => {
 });
 ["people-q", "people-stage"].forEach(id => $(id).addEventListener("input", renderPeople));
 ["vis-q", "vis-only"].forEach(id => $(id).addEventListener("input", renderVisitors));
+
+/* ================= admin tools (merged from admin.html) ================= */
+
+const BACKEND_URL = 'https://nevermiss-api-05de8a834ac4.herokuapp.com';
+let adminSecret = '';
+let allSupportConversations = []; // chats from /admin/helpline/chats (already grouped)
+let chatsLoaded = false, chatChannel = '', ticketStatus = 'open', openChats = {};
+
+
+// Opens an admin tab inside HQ; the tab's data loads lazily on first visit.
+function showAdminPage(page) { showTab('adm-' + page); }
+function admOnShow(page) {
+  if (page === 'pending') loadPending();
+  if (page === 'conversations' && !chatsLoaded) loadSupportConversations();
+  if (page === 'tickets') loadTickets();
+  if (page === 'health' && !document.querySelector('#health-list .ticket')) loadHealth();
+  if (page === 'partners') loadPartners();
+  if (page === 'chattest' && !ctLoaded) ctLoadClients();
+}
+
+async function loadPending() {
+  var listEl = document.getElementById('pending-list');
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/pending-connections?admin_secret=' + encodeURIComponent(adminSecret));
+    var data = await res.json();
+    if (!data.success) {
+      listEl.innerHTML = '<div class="empty">Could not load. Lock and log in again.</div>';
+      return;
+    }
+    refreshOpenCount();
+    renderPending(data.pending);
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error. Try Refresh in a moment.</div>';
+  }
+}
+
+function renderPending(pending) {
+  var listEl = document.getElementById('pending-list');
+  if (!pending || !pending.length) {
+    listEl.innerHTML = '<div class="empty">No pending connections right now.</div>';
+    return;
+  }
+  listEl.innerHTML = pending.map(function(p, i) {
+    var created = p.created_at ? new Date(p.created_at).toLocaleString('en-IN') : '—';
+    return (
+      '<div class="pending-item" id="pending-' + i + '">' +
+        '<div class="meta">' +
+          '<div><strong>Business:</strong> ' + (p.business_name || '—') + '</div>' +
+          '<div><strong>Email:</strong> ' + (p.user_email || '—') + '</div>' +
+          '<div><strong>Number to connect:</strong> ' + (p.requested_business_number || '—') + '</div>' +
+          '<div><strong>Notification number:</strong> ' + (p.owner_whatsapp || '—') + '</div>' +
+          '<div><strong>Requested:</strong> ' + created + '</div>' +
+        '</div>' +
+        '<div class="connect-form">' +
+          '<div class="field full"><label>Access Token (System User)</label><textarea rows="2" id="token-' + i + '" placeholder="Paste access token"></textarea></div>' +
+          '<div class="field"><label>WABA ID</label><input type="text" id="waba-' + i + '" placeholder="e.g. 1015988340769375" /></div>' +
+          '<div class="field"><label>Phone Number ID</label><input type="text" id="phoneid-' + i + '" placeholder="e.g. 1166327266571546" /></div>' +
+        '</div>' +
+        '<button class="btn" onclick="activate(' + i + ', \'' + (p.user_email || '').replace(/'/g, "\\'") + '\', \'' + (p.business_name || '').replace(/'/g, "\\'") + '\')">Activate</button>' +
+        '<div class="status-msg" id="status-' + i + '"></div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+async function activate(i, userEmail, businessName) {
+  var token = document.getElementById('token-' + i).value.trim();
+  var wabaId = document.getElementById('waba-' + i).value.trim();
+  var phoneId = document.getElementById('phoneid-' + i).value.trim();
+  var statusEl = document.getElementById('status-' + i);
+
+  if (!token || !wabaId || !phoneId) {
+    statusEl.className = 'status-msg error';
+    statusEl.textContent = 'Please fill in all three fields.';
+    return;
+  }
+
+  statusEl.className = 'status-msg';
+  statusEl.textContent = 'Activating...';
+
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/manual-connect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        admin_secret: adminSecret,
+        user_email: userEmail,
+        access_token: token,
+        waba_id: wabaId,
+        phone_number_id: phoneId,
+        business_name: businessName
+      })
+    });
+    var data = await res.json();
+    if (data.success) {
+      statusEl.className = 'status-msg success';
+      statusEl.textContent = '✅ Connected! This client is now active.';
+      setTimeout(function() { loadPending(); }, 1500);
+    } else {
+      statusEl.className = 'status-msg error';
+      statusEl.textContent = 'Failed: ' + (data.error || 'Unknown error');
+    }
+  } catch (e) {
+    statusEl.className = 'status-msg error';
+    statusEl.textContent = 'Network error. Please try again.';
+  }
+}
+
+// ── Helpline chats (website + WhatsApp) ─────────────────────────────
+function fmtWhen(iso, withDate) {
+  if (!iso) return '—';
+  var d = new Date(iso), now = new Date();
+  var time = d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+  if (!withDate && d.toDateString() === now.toDateString()) return 'Today ' + time;
+  var y = new Date(now); y.setDate(now.getDate() - 1);
+  if (!withDate && d.toDateString() === y.toDateString()) return 'Yesterday ' + time;
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' }) + ', ' + time;
+}
+function prettyPhone(p) {
+  p = String(p || '').replace(/\D/g, '');
+  if (p.length === 12 && p.indexOf('91') === 0) return '+91 ' + p.slice(2, 7) + ' ' + p.slice(7);
+  if (p.length === 10) return '+91 ' + p.slice(0, 5) + ' ' + p.slice(5);
+  return p;
+}
+function ticketBadges(list) {
+  return (list || []).map(function(t) {
+    return '<span class="tk ' + t.status + '">#' + t.id + ' ' + t.status.replace('_', ' ') + '</span>';
+  }).join('');
+}
+
+function setChatChannel(btn) {
+  btn.parentNode.querySelectorAll('button').forEach(function(b) { b.classList.toggle('on', b === btn); });
+  chatChannel = btn.dataset.ch;
+  loadSupportConversations();
+}
+
+async function loadSupportConversations() {
+  var listEl = document.getElementById('conversations-list');
+  listEl.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/chats?admin_secret=' + encodeURIComponent(adminSecret) +
+                          (chatChannel ? '&channel=' + chatChannel : ''));
+    var data = await res.json();
+    if (!data.success) {
+      listEl.innerHTML = '<div class="empty">Failed to load chats.</div>';
+      return;
+    }
+    allSupportConversations = data.chats || [];
+    chatsLoaded = true;
+    renderConversations();
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error loading chats.</div>';
+  }
+}
+
+// One row per chat (a website visitor's session, or a WhatsApp number),
+// newest activity first. Clicking a row loads the full conversation.
+function renderConversations() {
+  var listEl = document.getElementById('conversations-list');
+  var query = (document.getElementById('conv-search').value || '').trim().toLowerCase();
+  var chats = allSupportConversations.filter(function(c) {
+    if (!query) return true;
+    return [c.contact, c.visitor, c.page, c.last_message, c.key].join(' ').toLowerCase().indexOf(query) !== -1;
+  });
+  var today = new Date().toDateString();
+  var todayCount = allSupportConversations.filter(function(c) { return new Date(c.last_at).toDateString() === today; }).length;
+  document.getElementById('conv-summary').textContent =
+    allSupportConversations.length + ' chats · ' + todayCount + ' active today' + (query ? ' · ' + chats.length + ' match' : '');
+
+  if (!chats.length) {
+    listEl.innerHTML = '<div class="empty">No chats found.</div>';
+    return;
+  }
+  listEl.innerHTML = chats.map(function(c, idx) {
+    var web = c.channel === 'website';
+    var who = web ? (c.visitor || 'Website visitor') : prettyPhone(c.contact);
+    var sub = [web ? (c.page ? 'on ' + c.page : '') : (c.visitor || ''),
+               c.messages + ' message' + (c.messages === 1 ? '' : 's')].filter(Boolean).join(' · ');
+    return (
+      '<div class="thread' + (openChats[c.key] ? ' expanded' : '') + '" id="thread-' + idx + '" data-key="' + escapeHtml(c.key) + '">' +
+        '<div class="thread-head" role="button" tabindex="0" onclick="toggleThread(' + idx + ')" onkeydown="if(event.key===\'Enter\')toggleThread(' + idx + ')">' +
+          '<div><div class="thread-who"><span class="ch ' + (web ? 'website' : 'whatsapp') + '">' + (web ? 'Website' : 'WhatsApp') + '</span>' +
+            escapeHtml(who) + ticketBadges(c.tickets) + '</div>' +
+            '<div class="thread-sub">' + escapeHtml(sub) + '</div>' +
+            '<div class="thread-preview">' + escapeHtml(c.last_message || '') + '</div></div>' +
+          '<div class="thread-time">Last: ' + fmtWhen(c.last_at) + '<br>Started: ' + fmtWhen(c.started_at) + '</div>' +
+        '</div>' +
+        '<div class="thread-body" id="thread-body-' + idx + '">' + (openChats[c.key] || '<div class="empty">Loading...</div>') + '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+async function toggleThread(idx) {
+  var el = document.getElementById('thread-' + idx);
+  var key = el.dataset.key;
+  if (el.classList.toggle('expanded') === false) { delete openChats[key]; return; }
+  var body = document.getElementById('thread-body-' + idx);
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/chat?admin_secret=' + encodeURIComponent(adminSecret) + '&key=' + encodeURIComponent(key));
+    var data = await res.json();
+    if (!data.success) { body.innerHTML = '<div class="empty">Failed to load this chat.</div>'; return; }
+    var lastDay = '';
+    var html = (data.messages || []).map(function(m) {
+      var d = m.created_at ? new Date(m.created_at) : null;
+      var day = d ? d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      var sep = day && day !== lastDay ? '<div class="day-sep">' + day + '</div>' : '';
+      lastDay = day || lastDay;
+      var t = d ? d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', second: '2-digit' }) : '';
+      return sep + '<div class="msg-row ' + (m.role === 'user' ? 'user' : 'assistant') + '">' +
+        '<div><div class="msg-bubble">' + escapeHtml(m.content) + '</div>' +
+        '<div class="msg-time">' + (m.role === 'user' ? 'Customer' : 'Bot') + ' · ' + t + '</div></div></div>';
+    }).join('') || '<div class="empty">No messages.</div>';
+    openChats[key] = html;
+    body.innerHTML = html;
+    body.scrollTop = body.scrollHeight;
+  } catch (e) {
+    body.innerHTML = '<div class="empty">Network error loading this chat.</div>';
+  }
+}
+
+// Opens the chat a ticket came from.
+function openChatFor(key) {
+  showAdminPage('conversations');
+  var tryOpen = function() {
+    var el = document.querySelector('.thread[data-key="' + CSS.escape(key) + '"]');
+    if (!el) return false;
+    if (!el.classList.contains('expanded')) toggleThread(el.id.replace('thread-', ''));
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return true;
+  };
+  if (!tryOpen()) {
+    var n = 0, iv = setInterval(function() { if (tryOpen() || ++n > 20) clearInterval(iv); }, 300);
+  }
+}
+
+// ── WhatsApp health ─────────────────────────────────────────────────
+async function loadHealth() {
+  var listEl = document.getElementById('health-list');
+  listEl.innerHTML = '<div class="empty">Checking with Meta and Gupshup…</div>';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/whatsapp-health?admin_secret=' + encodeURIComponent(adminSecret));
+    var data = await res.json();
+    if (!data.success) { listEl.innerHTML = '<div class="empty">Check failed: ' + escapeHtml(data.error || '') + '</div>'; return; }
+    listEl.innerHTML = (data.numbers || []).map(function(n) {
+      var bad = (n.problems || []).length;
+      return '<div class="ticket" id="health-' + (n.id || 'helpline') + '">' +
+        '<div class="ticket-top"><div><span class="ch ' + (n.provider === 'gupshup' ? 'website' : 'whatsapp') + '">' + (n.provider === 'gupshup' ? 'Gupshup' : 'Meta') + '</span>' +
+          '<b>' + escapeHtml(n.name) + '</b> <span class="tk ' + (bad ? 'open' : 'resolved') + '">' + (bad ? bad + ' problem' + (bad > 1 ? 's' : '') : 'All good') + '</span></div>' +
+          '<div class="thread-time">' + escapeHtml(n.number || n.phone_number_id || '') + (n.email ? '<br>' + escapeHtml(n.email) : '') + '</div></div>' +
+        '<div class="meta">' + (n.ok || []).map(function(x) { return '✅ ' + escapeHtml(x); }).join('<br>') +
+          (n.waba_id ? '<br>WhatsApp account ID: <b>' + escapeHtml(n.waba_id) + '</b>' : '') + '</div>' +
+        (bad ? '<div class="issue">' + n.problems.map(function(x) { return '⚠️ ' + escapeHtml(x); }).join('\n') + '</div>' : '') +
+        (n.fixable && n.id ? '<div class="pp-actions"><button class="btn sm" onclick="fixNumber(\'' + n.id + '\')">Fix</button></div>' : '') +
+        '<div class="status-msg" id="health-msg-' + (n.id || 'helpline') + '"></div>' +
+      '</div>';
+    }).join('') || '<div class="empty">No numbers found.</div>';
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error. Please try again.</div>';
+  }
+}
+
+async function fixNumber(id) {
+  var msg = document.getElementById('health-msg-' + id);
+  msg.className = 'status-msg'; msg.textContent = 'Fixing… this can take up to a minute.';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/whatsapp-fix', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_secret: adminSecret, client_id: id })
+    });
+    var data = await res.json();
+    msg.className = 'status-msg ' + (data.success ? 'success' : 'error');
+    msg.textContent = (data.steps || [data.error || 'Failed']).join(' ') + (data.success ? ' Checking again…' : '');
+    if (data.success) setTimeout(loadHealth, 1500);
+  } catch (e) {
+    msg.className = 'status-msg error'; msg.textContent = 'Network error. Please try again.';
+  }
+}
+
+// ── Support tickets ─────────────────────────────────────────────────
+let allTickets = [];
+function setTicketStatus(btn) {
+  btn.parentNode.querySelectorAll('button').forEach(function(b) { b.classList.toggle('on', b === btn); });
+  ticketStatus = btn.dataset.st;
+  loadTickets();
+}
+
+async function loadTickets() {
+  var listEl = document.getElementById('tickets-list');
+  listEl.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/tickets?admin_secret=' + encodeURIComponent(adminSecret) +
+                          (ticketStatus ? '&status=' + ticketStatus : ''));
+    var data = await res.json();
+    if (!data.success) { listEl.innerHTML = '<div class="empty">Failed to load tickets.</div>'; return; }
+    allTickets = data.tickets || [];
+    if (ticketStatus === 'open') document.getElementById('tk-count').textContent = allTickets.length || '';
+    renderTickets();
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error loading tickets.</div>';
+  }
+}
+
+async function refreshOpenCount() {
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/tickets?admin_secret=' + encodeURIComponent(adminSecret) + '&status=open');
+    var data = await res.json();
+    if (data.success) document.getElementById('tk-count').textContent = (data.tickets || []).length || '';
+  } catch (e) {}
+}
+
+function renderTickets() {
+  var listEl = document.getElementById('tickets-list');
+  if (!allTickets.length) {
+    listEl.innerHTML = '<div class="empty">No ' + (ticketStatus ? ticketStatus.replace('_', ' ') + ' ' : '') + 'tickets.</div>';
+    return;
+  }
+  listEl.innerHTML = allTickets.map(function(t) {
+    var phone = String(t.phone || '').replace(/\D/g, '');
+    var wa = phone ? 'https://wa.me/' + (phone.length === 10 ? '91' + phone : phone) +
+      '?text=' + encodeURIComponent('Hi ' + (t.name || '') + ', this is NeverMiss support about your ticket #' + t.id + '.') : '';
+    var actions = [];
+    if (t.status !== 'in_progress' && t.status !== 'resolved') actions.push('<button class="btn ghost sm" onclick="updateTicket(' + t.id + ',\'in_progress\')">Mark in progress</button>');
+    if (t.status !== 'resolved') actions.push('<button class="btn sm" onclick="updateTicket(' + t.id + ',\'resolved\')">Resolve</button>');
+    else actions.push('<button class="btn ghost sm" onclick="updateTicket(' + t.id + ',\'open\')">Reopen</button>');
+    actions.push('<button class="btn ghost sm" onclick="updateTicket(' + t.id + ',null)">Save note</button>');
+    if (t.session_id) actions.push('<button class="btn ghost sm" onclick="openChatFor(\'' + escapeHtml(String(t.session_id).replace(/[^a-zA-Z0-9\-]/g, '')) + '\')">Open chat</button>');
+    return (
+      '<div class="ticket" id="ticket-' + t.id + '">' +
+        '<div class="ticket-top"><div><span class="ch ' + (t.source === 'whatsapp' ? 'whatsapp' : 'website') + '">' + (t.source === 'whatsapp' ? 'WhatsApp' : 'Website') + '</span>' +
+          '<b>#' + t.id + ' · ' + escapeHtml(t.name || 'No name') + '</b><span class="tk ' + t.status + '">' + t.status.replace('_', ' ') + '</span></div>' +
+          '<div class="thread-time">Raised: ' + fmtWhen(t.created_at, true) + (t.resolved_at ? '<br>Resolved: ' + fmtWhen(t.resolved_at, true) : '') + '</div></div>' +
+        '<div class="meta">' +
+          (phone ? '📱 ' + escapeHtml(prettyPhone(phone)) + ' · <a href="' + wa + '" target="_blank" rel="noopener">Reply on WhatsApp</a>' : '') +
+          (t.email ? '<br>✉️ <a href="mailto:' + escapeHtml(t.email) + '">' + escapeHtml(t.email) + '</a>' : '') +
+          (t.page ? '<br>Page: ' + escapeHtml(t.page) : '') +
+        '</div>' +
+        '<div class="issue">' + escapeHtml(t.issue || '') + '</div>' +
+        '<label style="font-size:12px;color:var(--text-muted)">Internal note<textarea id="tk-note-' + t.id + '">' + escapeHtml(t.notes || '') + '</textarea></label>' +
+        '<div class="pp-actions">' + actions.join('') + '</div>' +
+        '<div class="status-msg" id="tk-msg-' + t.id + '"></div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+async function updateTicket(id, status) {
+  var msg = document.getElementById('tk-msg-' + id);
+  var body = { admin_secret: adminSecret, notes: document.getElementById('tk-note-' + id).value };
+  if (status) body.status = status;
+  msg.className = 'status-msg'; msg.textContent = 'Saving…';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/helpline/tickets/' + id, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed');
+    if (status && ticketStatus && status !== ticketStatus) {
+      allTickets = allTickets.filter(function(t) { return t.id !== id; });
+      renderTickets();
+    } else {
+      allTickets = allTickets.map(function(t) { return t.id === id ? data.ticket : t; });
+      renderTickets();
+      var m2 = document.getElementById('tk-msg-' + id);
+      if (m2) { m2.className = 'status-msg success'; m2.textContent = 'Saved.'; }
+    }
+    refreshOpenCount();
+    chatsLoaded = false; openChats = {};
+  } catch (e) {
+    msg.className = 'status-msg error'; msg.textContent = 'Could not save: ' + e.message;
+  }
+}
+
+// ── Pilot Partner applications ─────────────────────────────────────────────
+async function loadPartners() {
+  var listEl = document.getElementById('partners-list');
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/partner-applications?admin_secret=' + encodeURIComponent(adminSecret));
+    var data = await res.json();
+    if (!data.success) { listEl.innerHTML = '<div class="empty">Could not load applications.</div>'; return; }
+    document.getElementById('pp-spots').textContent = data.left + ' of ' + data.batch_spots +
+      ' spots left in this batch. To open the next batch, raise PARTNER_SPOTS in Render.';
+    if (!data.applications.length) { listEl.innerHTML = '<div class="empty">No applications yet.</div>'; return; }
+    listEl.innerHTML = data.applications.map(function (a) {
+      var st = a.status || 'new';
+      var actions = st === 'approved' ? '' :
+        '<div class="pp-actions">' +
+        '<button class="btn" onclick="approvePartner(' + a.id + ', this)"' + (data.left > 0 ? '' : ' disabled title="Batch full"') + '>Approve</button>' +
+        (st !== 'waitlist' ? '<button class="btn ghost" onclick="setPartnerStatus(' + a.id + ', \'waitlist\')">Waitlist</button>' : '') +
+        (st !== 'rejected' ? '<button class="btn ghost" onclick="setPartnerStatus(' + a.id + ', \'rejected\')">Reject</button>' : '') +
+        '</div>';
+      return '<div class="pending-item"><div class="meta">' +
+        '<strong>' + escapeHtml(a.business) + '</strong><span class="pp-badge ' + st + '">' + st + '</span><br>' +
+        escapeHtml(a.name) + ' · ' + escapeHtml(a.business_type || '') + (a.city ? ' · ' + escapeHtml(a.city) : '') + '<br>' +
+        '📱 ' + escapeHtml(a.phone) + ' · ✉️ ' + escapeHtml(a.email || '') + '<br>' +
+        '📊 Enquiries/week: ' + escapeHtml(a.weekly_enquiries || '—') + '<br>' +
+        (a.problem ? 'Problem: ' + escapeHtml(a.problem) + '<br>' : '') +
+        '<span style="font-size:12px">Applied ' + new Date(a.created_at).toLocaleDateString('en-IN') + '</span>' +
+        '</div>' + actions + '<div class="status-msg" id="pp-msg-' + a.id + '"></div></div>';
+    }).join('');
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty">Network error loading applications.</div>';
+  }
+}
+
+async function approvePartner(id, btn) {
+  if (!confirm('Approve this business? This creates their account, emails them a login link and starts their partner setup.')) return;
+  btn.disabled = true;
+  var msg = document.getElementById('pp-msg-' + id);
+  msg.className = 'status-msg'; msg.textContent = 'Approving...';
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/partner-approve', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_secret: adminSecret, application_id: id })
+    });
+    var data = await res.json();
+    if (!data.success) { msg.className = 'status-msg error'; msg.textContent = data.error || 'Failed.'; btn.disabled = false; return; }
+    msg.className = 'status-msg success';
+    msg.textContent = 'Approved. ' + (data.invite_sent ? 'Login email sent. ' : '') +
+      'Next: book the 30-minute setup call and connect their number the way you normally do. Their 60 days start with the first customer message.';
+    setTimeout(loadPartners, 2500);
+  } catch (e) { msg.className = 'status-msg error'; msg.textContent = 'Network error.'; btn.disabled = false; }
+}
+
+async function setPartnerStatus(id, status) {
+  await fetch(BACKEND_URL + '/admin/partner-status', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ admin_secret: adminSecret, application_id: id, status: status })
+  });
+  loadPartners();
+}
+
+// ── WhatsApp templates ─────────────────────────────────────────────────────
+async function tpRun(dry) {
+  var email = document.getElementById('tp-email').value.trim();
+  var msg = document.getElementById('tp-msg'), out = document.getElementById('tp-results');
+  if (!email) { msg.className = 'status-msg error'; msg.textContent = 'Enter the business email.'; return; }
+  if (!dry && !confirm('Submit the missing templates for ' + email + ' to WhatsApp for approval?')) return;
+  msg.className = 'status-msg'; msg.textContent = dry ? 'Checking...' : 'Submitting...';
+  document.getElementById('tp-create').disabled = true;
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/templates/recommended', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_secret: adminSecret, user_email: email, dry_run: dry, include_all: document.getElementById('tp-all').checked })
+    });
+    var d = await res.json();
+    document.getElementById('tp-create').disabled = false;
+    if (!d.success) { msg.className = 'status-msg error'; msg.textContent = d.error || 'Failed.'; out.innerHTML = ''; return; }
+    var label = { exists: 'Already on the number', will_create: 'Will be created', submitted: 'Submitted for approval', failed: 'Failed' };
+    var counts = {};
+    d.results.forEach(function (r) { counts[r.result] = (counts[r.result] || 0) + 1; });
+    msg.className = 'status-msg success';
+    msg.textContent = (d.business || email) + ' · ' + d.client_type + ' · via ' + (d.provider === 'gupshup' ? 'Gupshup' : 'Meta') + ' — ' +
+      Object.keys(counts).map(function (k) { return counts[k] + ' ' + (label[k] || k).toLowerCase(); }).join(', ');
+    out.innerHTML = d.results.map(function (r) {
+      var cls = r.result === 'failed' ? 'rejected' : (r.result === 'exists' || r.result === 'submitted') ? '' : 'waitlist';
+      return '<div class="pending-item"><div class="meta"><strong>' + escapeHtml(r.idea) + '</strong> · <code>' + escapeHtml(r.name) + '</code> · ' +
+        escapeHtml(r.category) + '<span class="pp-badge ' + cls + '">' + escapeHtml(label[r.result] || r.result) +
+        (r.status ? ' (' + escapeHtml(String(r.status).toLowerCase()) + ')' : '') + '</span><br>' +
+        '<span style="color:var(--text)">' + escapeHtml(r.body) + '</span>' +
+        (r.error ? '<br><span style="color:#C00">' + escapeHtml(r.error) + '</span>' : '') + '</div></div>';
+    }).join('');
+  } catch (e) {
+    document.getElementById('tp-create').disabled = false;
+    msg.className = 'status-msg error'; msg.textContent = 'Network error.';
+  }
+}
+
+function escapeHtml(str) {
+  // Escapes quotes too, so it is safe inside attributes (href, data-key).
+  return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+
+// ---------- Chat tester ----------
+var ctLog = [], ctBusy = false, ctLoaded = false;
+
+async function ctLoadClients() {
+  var sel = document.getElementById('ct-client');
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/chat-test/clients?admin_secret=' + encodeURIComponent(adminSecret));
+    var d = await res.json();
+    if (!d.success) { sel.innerHTML = '<option value="">Could not load</option>'; return; }
+    var groups = {};
+    d.clients.forEach(function(c) {
+      var g = (c.client_type || c.sector || c.business_type || 'other') + '';
+      (groups[g] = groups[g] || []).push(c);
+    });
+    var html = '<option value="">Select a business…</option>';
+    Object.keys(groups).sort().forEach(function(g) {
+      html += '<optgroup label="' + escapeHtml(g) + '">';
+      groups[g].forEach(function(c) {
+        html += '<option value="' + escapeHtml(c.id) + '" data-name="' + escapeHtml(c.business_name || '') + '">' +
+          escapeHtml(c.business_name || c.id) + (c.status && c.status !== 'active' ? ' (' + escapeHtml(c.status) + ')' : '') + '</option>';
+      });
+      html += '</optgroup>';
+    });
+    sel.innerHTML = html;
+    ctLoaded = true;
+  } catch (e) { sel.innerHTML = '<option value="">Network error</option>'; }
+}
+
+function ctClientId() { return document.getElementById('ct-client').value; }
+
+function ctAdd(side, who, text, extra) {
+  var box = document.getElementById(side === 'owner' ? 'ct-owner' : 'ct-msgs');
+  var b = document.createElement('div');
+  b.className = 'ct-b ' + who;
+  var t = document.createElement('div');
+  t.textContent = text || '';
+  b.appendChild(t);
+  if (extra && extra.chips && extra.chips.length) {
+    var w = document.createElement('div'); w.className = 'ct-chips';
+    extra.chips.forEach(function(c) {
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'ct-chip'; btn.textContent = c.title;
+      btn.onclick = function() { ctSend(c.id, c.title); };
+      w.appendChild(btn);
+    });
+    b.appendChild(w);
+  }
+  if (extra && extra.flag) {
+    var f = document.createElement('button');
+    f.type = 'button'; f.className = 'ct-flag'; f.textContent = '⚑ Copy as wrong reply';
+    f.onclick = function() { ctCopyReport(extra.flag, text); };
+    b.appendChild(f);
+  }
+  box.appendChild(b);
+  box.scrollTop = box.scrollHeight;
+}
+
+function ctStatus(msg, ok) {
+  var el = document.getElementById('ct-status');
+  el.textContent = msg || '';
+  el.className = 'status-msg ' + (ok ? 'success' : 'error');
+}
+
+async function ctReset(silent) {
+  document.getElementById('ct-msgs').innerHTML = '';
+  document.getElementById('ct-owner').innerHTML = '';
+  ctLog = [];
+  var id = ctClientId();
+  var sel = document.getElementById('ct-client');
+  var name = id ? sel.options[sel.selectedIndex].getAttribute('data-name') : '';
+  document.getElementById('ct-title').textContent = name || 'Pick a business';
+  if (!id) return;
+  try {
+    await fetch(BACKEND_URL + '/admin/chat-test/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_secret: adminSecret, client_id: id }) });
+    ctStatus(silent ? '' : 'Chat reset', true);
+  } catch (e) { ctStatus('Reset failed', false); }
+}
+
+function ctSubmit(ev) {
+  ev.preventDefault();
+  var inp = document.getElementById('ct-text');
+  var v = inp.value.trim();
+  if (v) { inp.value = ''; ctSend(v, v); }
+  return false;
+}
+
+async function ctSend(sendText, shownText) {
+  var id = ctClientId();
+  if (!id) { ctStatus('Pick a business first', false); return; }
+  if (ctBusy) return;
+  ctBusy = true; document.getElementById('ct-send').disabled = true;
+  ctAdd('cust', 'me', shownText);
+  ctLog.push('Customer: ' + shownText);
+  ctStatus('Bot is typing…', true);
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/chat-test/send', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_secret: adminSecret, client_id: id, message: sendText }) });
+    var d = await res.json();
+    if (!d.success) { ctAdd('cust', 'sys', 'Error: ' + (d.error || res.status)); ctStatus('', true); }
+    else {
+      if (!d.messages.length) ctAdd('cust', 'sys', 'The bot sent no reply.');
+      d.messages.forEach(function(m) {
+        var side = m.to === 'owner' ? 'owner' : 'cust';
+        var text = m.text || '';
+        var chips = [];
+        if (m.kind === 'buttons') chips = m.buttons;
+        if (m.kind === 'list') { chips = m.rows; text = (text ? text + '\n\n' : '') + '[' + (m.list_button || 'Menu') + ' list]'; }
+        if (m.kind === 'image' || m.kind === 'document') text = '[' + m.kind + (m.filename ? ': ' + m.filename : '') + '] ' + (m.url || '') + (text ? '\n' + text : '');
+        if (m.kind === 'template') text = '[template ' + m.template + '] ' + text;
+        ctAdd(side, 'bot', text, { chips: chips, flag: side === 'cust' ? shownText : null });
+        ctLog.push((side === 'owner' ? 'Owner alert: ' : 'Bot: ') + text + (chips.length ? ' [' + chips.map(function(c){return c.title;}).join(' | ') + ']' : ''));
+      });
+      ctStatus(d.ms + ' ms' + (d.flow ? ' · in ' + d.flow + ' flow' : ''), true);
+    }
+  } catch (e) { ctAdd('cust', 'sys', 'Network error'); ctStatus('', true); }
+  ctBusy = false; document.getElementById('ct-send').disabled = false;
+  document.getElementById('ct-text').focus();
+}
+
+function ctCopy(text, okMsg) {
+  var done = function() { ctStatus(okMsg, true); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function() { prompt('Copy:', text); });
+  else prompt('Copy:', text);
+}
+
+function ctCopyReport(question, reply) {
+  var sel = document.getElementById('ct-client');
+  var name = sel.options[sel.selectedIndex].getAttribute('data-name');
+  ctCopy('WRONG REPLY\nBusiness: ' + name + '\nCustomer said: ' + question + '\nBot replied: ' + reply + '\nWhat it should say: ', 'Copied. Paste it to Claude with the correct answer.');
+}
+
+function ctCopyAll() {
+  if (!ctLog.length) return;
+  var sel = document.getElementById('ct-client');
+  ctCopy('Business: ' + sel.options[sel.selectedIndex].getAttribute('data-name') + '\n\n' + ctLog.join('\n'), 'Chat copied');
+}
+
 
 /* ---------- boot ---------- */
 (function boot() {

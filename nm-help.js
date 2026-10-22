@@ -1,9 +1,9 @@
 /* NeverMiss — website helpline chat ("Help" button).
  *
  * The same AI that answers the NeverMiss WhatsApp helpline, inside the website.
- * Every chat is saved and shows up in admin.html → Helpline chats; the owner
+ * Every chat is saved and shows up in HQ → Chats; the owner
  * gets a WhatsApp alert for each new chat. When the AI can't help, a short
- * form raises a support ticket (admin.html → Tickets).
+ * form raises a support ticket (HQ → Tickets).
  *
  * Add one line before </body>:
  *   <script src="/nm-help.js" defer></script>
