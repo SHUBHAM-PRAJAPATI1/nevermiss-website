@@ -475,11 +475,12 @@ dialog::backdrop{backdrop-filter:none!important;-webkit-backdrop-filter:none!imp
     <input class="title-in" id="e_title" required maxlength="160" placeholder="What are you working on?">
     <div class="two">
       <div class="field"><label for="e_section">Work</label><select id="e_section"></select></div>
-      <div class="field"><label for="e_sub">Part</label><select id="e_sub"></select></div>
+      <div class="field" id="e_sub_f"><label for="e_sub">Part</label><select id="e_sub"></select></div>
     </div>
     <div class="field" id="e_talk_f" hidden><span class="flabel">Talk status</span><div class="chips" id="e_talk"></div></div>
     <div class="field"><span class="flabel">Status</span><div class="chips" id="e_status"></div></div>
-    <div class="field"><span class="flabel">Priority</span><div class="chips" id="e_prio"></div></div>
+    <div class="field" id="e_fmt_f" hidden><span class="flabel">Format</span><div class="chips" id="e_fmt"></div></div>
+    <div class="field" id="e_prio_f"><span class="flabel">Priority</span><div class="chips" id="e_prio"></div></div>
     <div class="two">
       <div class="field"><label for="e_due">Deadline</label><input id="e_due" type="date"></div>
       <div class="field"><label for="e_link">Link</label><input id="e_link" type="url" placeholder="https://"></div>
@@ -576,6 +577,14 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 /* ================= constants & state ================= */
 const STATUSES=[["idea","Idea"],["planned","Planned"],["active","Active"],["waiting","Waiting"],["paused","Paused"],["done","Done"],["dropped","Dropped"]];
 const SLABEL=Object.fromEntries(STATUSES);
+/* Script pipeline: a work whose only part is "Scripts" (Beyond Maya). Reuses 4 stored statuses so no DB change is needed for them. */
+const PIPE_PART="Scripts";
+const PIPE_STATUSES=[["planned","Script ready"],["active","Recorded"],["waiting","Ready to upload"],["done","Uploaded"]];
+const PIPE_LABEL=Object.fromEntries(PIPE_STATUSES);
+const FORMATS=[["long","Long"],["short","Short"]];
+const isPipe=s=>!!s&&(s.subs||[]).length===1&&s.subs[0]===PIPE_PART;
+const stList=s=>isPipe(s)?PIPE_STATUSES:STATUSES;
+const stLabel=(s,k)=>(isPipe(s)?PIPE_LABEL[k]:SLABEL[k])||SLABEL[k]||k;
 const PRIOS=[["","None"],["high","High"],["med","Medium"],["low","Low"]];
 const VIEWS={home:"Today",targets:"Targets",now:"Working on",ideas:"Idea vault",nudge:"Needs a nudge",log:"Recent",done:"Done"};
 const ICON={
@@ -810,7 +819,7 @@ async function load(){
   const first=!S.loaded;
   S.sections=r[0].data;S.entries=r[1].data;S.targets=S.v2?r[2].data:[];
   if(S.v2&&isOwner()){S.members=r[3].data;S.access=r[4].data}
-  S.loaded=true;S.hasScene=!!(S.sections[0]&&("scene" in S.sections[0]));
+  S.loaded=true;S.fmt=S.fmt||"";S.pstat=S.pstat||"";S.hasScene=!!(S.sections[0]&&("scene" in S.sections[0]));
   if(S.route.t==="sec"&&!secById(S.route.sec))S.route={t:"view",v:"home"};
   if(S.route.v==="targets"&&!S.v2)S.route={t:"view",v:"home"};
   renderSide();renderPage(first);
@@ -850,14 +859,15 @@ function renderSide(){
   const workHTML=s=>{
     const es=E.filter(e=>e.section_id===s.id),open=S.open.has(s.id);
     const subs=[...(s.subs||[]),...new Set(es.map(e=>e.sub).filter(v=>v&&!(s.subs||[]).includes(v)))];
-    const subHTML=subs.map(v=>{const c=es.filter(e=>e.sub===v&&isOpen(e)).length;
+    const pipeS=isPipe(s);
+    const subHTML=pipeS?"":subs.map(v=>{const c=es.filter(e=>e.sub===v&&isOpen(e)).length;
       return `<button class="sub" data-sec="${esc(s.id)}" data-sub="${esc(v)}" aria-current="${r.t==="sec"&&r.sec===s.id&&r.sub===v}"><span class="lbl">${esc(v)}</span><span class="cnt">${c||""}</span></button>`}).join("");
     return `<div class="work${open?" open":""}" data-id="${esc(s.id)}" style="--hc:${hc(s.color)}">
       <div class="work-head">
         <button class="nav" data-sec="${esc(s.id)}" title="${esc(s.name)}" aria-current="${r.t==="sec"&&r.sec===s.id&&!r.sub}"><span class="orb"></span><span class="lbl">${esc(s.name)}</span><span class="cnt">${es.filter(isOpen).length||""}</span></button>
-        <button class="chev" data-toggle="${esc(s.id)}" aria-label="Show parts of ${esc(s.name)}" aria-expanded="${open}"><svg viewBox="0 0 24 24" class="i"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="chev" ${pipeS?"hidden ":""}data-toggle="${esc(s.id)}" aria-label="Show parts of ${esc(s.name)}" aria-expanded="${open}"><svg viewBox="0 0 24 24" class="i"><path d="M9 6l6 6-6 6"/></svg></button>
       </div>
-      <div class="subs"><div class="subs-in"><div>${subHTML}${isOwner()?`<button class="sub add" data-addsub="${esc(s.id)}">+ Add part</button>`:""}</div></div></div>
+      <div class="subs"><div class="subs-in"><div>${subHTML}${isOwner()&&!pipeS?`<button class="sub add" data-addsub="${esc(s.id)}">+ Add part</button>`:""}</div></div></div>
     </div>`};
   const allSecs=sortedSecs(),pinned=allSecs.filter(isPinned),rest=pinned.length?allSecs.filter(x=>!isPinned(x)):[];
   const mwOpen=S.mw||rest.some(x=>r.t==="sec"&&r.sec===x.id);
@@ -914,7 +924,9 @@ function rowHTML(e,i,showWork=true){
   const s=secById(e.section_id)||{name:"Unfiled",color:0};
   const where=[showWork?s.name:null,e.sub].filter(Boolean).join(" · ");
   const bits=[],du=dueInfo(e);
-  if(where)bits.push(`<span class="where">${esc(where)}</span>`);
+  const pipe=isPipe(s);
+  if(pipe){if(e.format)bits.push(`<span class="where">${e.format==="long"?"Long":"Short"}</span>`);if(showWork)bits.push(`<span class="where">${esc(s.name)}</span>`)}
+  else if(where)bits.push(`<span class="where">${esc(where)}</span>`);
   if(isScript(e)&&e.notes)bits.push(`<span class="mono">${wordCount(e.notes)} words</span>`);
   if(du)bits.push(`<span class="due ${du.cls}">${esc(du.txt)}</span>`);
   if(e.prio==="high")bits.push(`<span class="flag">High priority</span>`);
@@ -922,9 +934,9 @@ function rowHTML(e,i,showWork=true){
   if(stale(e))bits.push(`<span class="flag">quiet ${esc(ago(ts(e)))}</span>`);
   if(e.link)bits.push(`<span>↗ link</span>`);
   return `<div class="row${e.status==="done"?" is-done":""}${selMode&&sel.has(e.id)?" picked":""}${isScript(e)?" is-script":""}" data-entry="${esc(e.id)}" style="--hc:${hc(s.color)};--n:${Math.min(i,14)}" tabindex="0">
-    ${num?`<span class="snum">${num}</span>`:""}${selMode?`<span class="selbox${sel.has(e.id)?" on":""}"></span>`:`<button class="tick" data-tick="${esc(e.id)}" aria-label="${e.status==="done"?"Mark as not done":"Mark as done"}"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></button>`}
+    ${num?`<span class="snum">${num}</span>`:""}${selMode?`<span class="selbox${sel.has(e.id)?" on":""}"></span>`:`<button class="tick" data-tick="${esc(e.id)}" aria-label="${e.status==="done"?(pipe?"Mark as not uploaded":"Mark as not done"):(pipe?"Mark as uploaded":"Mark as done")}"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></button>`}
     <div class="rb"><div class="t">${esc(e.title)}</div>${bits.length?`<div class="m">${bits.join("")}</div>`:""}${e.notes?`<div class="n">${esc(isScript(e)?scriptExcerpt(e.notes):e.notes)}</div>`:""}</div>
-    <span class="pill" style="--sc:var(--s-${esc(e.status)})">${esc(SLABEL[e.status]||e.status)}</span>
+    <span class="pill" style="--sc:var(--s-${esc(e.status)})">${esc(stLabel(s,e.status))}</span>
   </div>`;
 }
 const listHTML=(a,showWork=true)=>`<div class="list">${a.map((e,i)=>rowHTML(e,i,showWork)).join("")}</div>`;
@@ -1042,7 +1054,7 @@ function openReader(e){
   if(!e)return;rdEntry=e;
   $("#rd_title").textContent=e.title||"Script";
   const sc=secById(e.section_id),w=wordCount(e.notes),mins=Math.max(1,Math.round(w/130));
-  $("#rd_meta").textContent=[sc?sc.name:"",e.sub||"",w?`${w} words · about ${mins} min spoken`:"",`updated ${ago(ts(e))}`].filter(Boolean).join(" · ");
+  $("#rd_meta").textContent=[sc?sc.name:"",e.format==="long"?"Long":e.format==="short"?"Short":"",e.sub||"",w?`${w} words · about ${mins} min spoken`:"",`updated ${ago(ts(e))}`].filter(Boolean).join(" · ");
   $("#rd_text").textContent=e.notes||"No script text yet. Tap Edit and paste it into Notes.";
   tintSheet($("#readSheet"),e.section_id);
   rdDlg.showModal();$("#readSheet").querySelector(".sheet-b").scrollTop=0;
@@ -1098,8 +1110,8 @@ function pSec(){
   const es=S.entries.filter(e=>e.section_id===s.id),a=sub?es.filter(e=>e.sub===sub):es;
   const counts={open:a.filter(isOpen).length,idea:a.filter(e=>e.status==="idea").length,closed:a.filter(e=>!isOpen(e)).length,all:a.length};
   let shown=S.stat==="open"?a.filter(isOpen):S.stat==="idea"?a.filter(e=>e.status==="idea"):S.stat==="closed"?a.filter(e=>!isOpen(e)):a;
-  const scriptPart=!!sub&&/script/i.test(sub);
-  if(scriptPart){shown=a.slice().sort((x,y)=>Date.parse(x.created_at||0)-Date.parse(y.created_at||0)||String(x.title).localeCompare(String(y.title)));scriptNums.clear();shown.forEach((e,k)=>scriptNums.set(e.id,k+1))}else scriptNums.clear();
+  const pipe=isPipe(s),scriptPart=pipe||(!!sub&&/script/i.test(sub));
+  if(scriptPart){const ord=a.slice().sort((x,y)=>Date.parse(x.created_at||0)-Date.parse(y.created_at||0)||String(x.title).localeCompare(String(y.title)));scriptNums.clear();ord.forEach((e,k)=>scriptNums.set(e.id,k+1));shown=pipe?ord.filter(e=>(!S.fmt||e.format===S.fmt)&&(!S.pstat||e.status===S.pstat)):ord}else scriptNums.clear();
   shownIds=shown.map(e=>e.id);
   const done=a.filter(e=>e.status==="done").length,pct=a.length?Math.round(done/a.length*100):0;
   const parts=[...(s.subs||[]),...new Set(es.map(e=>e.sub).filter(v=>v&&!(s.subs||[]).includes(v)))];
@@ -1109,19 +1121,23 @@ function pSec(){
   return `<div class="bento" style="--hc:${hc(s.color)}">
     ${tile("c8 whero",`<div class="eyebrow">${esc(s.code||"")} · ${esc(s.kind||"")}${sub?` · ${esc(s.name)}`:""}${sharedWith.length?` · shared with ${esc(sharedWith.join(", "))}`:""}</div><h1>${title}</h1>${!sub&&s.tagline?`<p>${esc(s.tagline)}</p>`:""}
       <div class="acts"><button class="btn accent sm" data-addhere>${PLUS}New entry</button>${S.v2?`<button class="btn sm" data-newtarget="weekly" data-sec="${esc(s.id)}">${ico("targets")}Target</button>`:""}${isOwner()?`<button class="btn sm" data-editwork>Edit work</button>`:""}</div>`,0)}
-    ${tile("c4",`<div class="wstats">${ringHTML(pct,pct+"%",`${done} of ${a.length}`)}<div class="mini">
-      <div><b style="color:var(--s-active)">${a.filter(e=>e.status==="active").length}</b><span>active</span></div>
+    ${tile("c4",`<div class="wstats">${ringHTML(pct,pct+"%",`${done} ${pipe?"uploaded of":"of"} ${a.length}`)}<div class="mini">
+      ${pipe?`<div><b style="color:var(--s-planned)">${a.filter(e=>e.status==="planned").length}</b><span>script ready</span></div>
+      <div><b style="color:var(--s-active)">${a.filter(e=>e.status==="active").length}</b><span>recorded</span></div>
+      <div><b style="color:var(--s-waiting)">${a.filter(e=>e.status==="waiting").length}</b><span>to upload</span></div>`:`<div><b style="color:var(--s-active)">${a.filter(e=>e.status==="active").length}</b><span>active</span></div>
       <div><b style="color:var(--warn)">${a.filter(e=>(dueInfo(e)?.d??1)<0).length}</b><span>overdue</span></div>
-      <div><b style="color:var(--s-idea)">${counts.idea}</b><span>ideas</span></div></div></div>`,1)}
+      <div><b style="color:var(--s-idea)">${counts.idea}</b><span>ideas</span></div>`}</div></div>`,1)}
     ${tg.length?tile("c12",`<div class="t-head"><div><h2>Targets</h2><p>${tg.filter(t=>tState(t).state==="hit").length} of ${tg.length} hit</p></div></div><div data-showwork="0">${targetsBlock(tg,false,"")}</div>`,2):""}
-    ${tile("c12",`<div class="parts">
+    ${tile("c12",`${pipe?`<div class="parts">
+        <button class="part" data-fmt="" aria-pressed="${!S.fmt}">All<span class="c">${a.length}</span></button>
+        ${FORMATS.map(([k,l])=>`<button class="part" data-fmt="${k}" aria-pressed="${S.fmt===k}">${l}<span class="c">${a.filter(e=>e.format===k).length}</span></button>`).join("")}</div>`:`<div class="parts">
         <button class="part" data-part="" aria-pressed="${!sub}">All<span class="c">${es.length}</span></button>
         ${parts.map(v=>`<button class="part" data-part="${esc(v)}" aria-pressed="${sub===v}">${esc(v)}<span class="c">${es.filter(e=>e.sub===v).length}</span></button>`).join("")}
-        ${isOwner()?`<button class="part add" data-addpart="${esc(s.id)}">+ Part</button>`:""}</div>
+        ${isOwner()?`<button class="part add" data-addpart="${esc(s.id)}">+ Part</button>`:""}</div>`}
       <div class="tools" style="margin:14px 0">
-        <div class="seg" role="group" aria-label="Filter"${scriptPart?" hidden":""}>${[["open","Open"],["idea","Ideas"],["closed","Closed"],["all","All"]].map(([k,l])=>`<button data-stat="${k}" aria-pressed="${S.stat===k}">${l}<span class="c">${counts[k]}</span></button>`).join("")}</div>
+        ${pipe?`<div class="seg" role="group" aria-label="Stage"><button data-pstat="" aria-pressed="${!S.pstat}">All</button>${PIPE_STATUSES.map(([k,l])=>`<button data-pstat="${k}" aria-pressed="${S.pstat===k}">${l}<span class="c">${a.filter(e=>e.status===k).length}</span></button>`).join("")}</div>`:""}<div class="seg" role="group" aria-label="Filter"${scriptPart?" hidden":""}>${[["open","Open"],["idea","Ideas"],["closed","Closed"],["all","All"]].map(([k,l])=>`<button data-stat="${k}" aria-pressed="${S.stat===k}">${l}<span class="c">${counts[k]}</span></button>`).join("")}</div>
         <span class="grow"></span><button class="btn sm" data-selmode aria-pressed="${selMode}">${selMode?"Stop selecting":"Select"}</button>${scriptPart?"":layoutSeg()}</div>
-      ${shown.length?(scriptPart?listHTML(shown,false):S.layout==="board"?boardHTML(shown,false):groupsHTML(shown,false)):emptyHTML(`Nothing ${S.stat==="all"?"":S.stat==="closed"?"closed":S.stat==="idea"?"in ideas":"open"} here yet.`,`Add the first entry to ${sub||s.name}.`)}`,3)}
+      ${shown.length?(scriptPart?listHTML(shown,false):S.layout==="board"?boardHTML(shown,false):groupsHTML(shown,false)):emptyHTML(pipe?"No scripts here.":`Nothing ${S.stat==="all"?"":S.stat==="closed"?"closed":S.stat==="idea"?"in ideas":"open"} here yet.`,pipe?"Add a script, or change the Long / Short / stage filter.":`Add the first entry to ${sub||s.name}.`)}`,3)}
   </div>`;
 }
 
@@ -1132,13 +1148,15 @@ $("#page").addEventListener("click",ev=>{
   if(selMode){const r=ev.target.closest(".row");if(r){ev.stopPropagation();toggleSel(r.dataset.entry,r);return}}
   const tk=ev.target.closest("[data-tick]");if(tk){ev.stopPropagation();return toggleDone(tk.dataset.tick,tk.closest(".row"))}
   const ts_=ev.target.closest("[data-tstep]");if(ts_){ev.stopPropagation();const c=ts_.closest(".tg");return stepTarget(c.dataset.target,+ts_.dataset.tstep,c)}
-  const t=ev.target.closest("[data-entry],[data-target],[data-newtarget],[data-gosec],[data-stat],[data-layout],[data-view],[data-editwork],[data-addhere],[data-newwork],[data-newidea],[data-part],[data-addpart],[data-more]");if(!t)return;
+  const t=ev.target.closest("[data-entry],[data-target],[data-newtarget],[data-gosec],[data-stat],[data-layout],[data-view],[data-editwork],[data-addhere],[data-newwork],[data-newidea],[data-part],[data-addpart],[data-more],[data-fmt],[data-pstat]");if(!t)return;
   if(t.dataset.more){moreSet.add(t.dataset.more);renderPage(false);return}
   if(t.dataset.stat||t.dataset.layout){sel.clear();delArmedBulk=false}
   if(t.dataset.entry){const en=S.entries.find(e=>e.id===t.dataset.entry);isScript(en)?openReader(en):openEntry(en)}
   else if(t.dataset.target)openTarget(S.targets.find(v=>v.id===t.dataset.target));
   else if(t.dataset.newtarget)openTarget(null,{cadence:t.dataset.newtarget,section_id:t.dataset.sec||(S.route.t==="sec"?S.route.sec:null),sub:S.route.t==="sec"?S.route.sub||"":""});
   else if(t.dataset.gosec)go({t:"sec",sec:t.dataset.gosec,sub:""});
+  else if(t.dataset.fmt!==undefined){S.fmt=t.dataset.fmt;sel.clear();renderPage(false)}
+  else if(t.dataset.pstat!==undefined){S.pstat=t.dataset.pstat;sel.clear();renderPage(false)}
   else if(t.dataset.addpart)startAddSub(t);
   else if(t.dataset.part!==undefined)go({t:"sec",sec:S.route.sec,sub:t.dataset.part});
   else if(t.dataset.stat){S.stat=t.dataset.stat;renderPage(false)}
@@ -1152,13 +1170,13 @@ $("#page").addEventListener("click",ev=>{
 $("#page").addEventListener("keydown",ev=>{if(ev.key!=="Enter")return;if(selMode&&ev.target.matches(".row")){toggleSel(ev.target.dataset.entry,ev.target);return}if(ev.target.matches(".row")){const en=S.entries.find(e=>e.id===ev.target.dataset.entry);isScript(en)?openReader(en):openEntry(en)}else if(ev.target.matches(".tg"))openTarget(S.targets.find(v=>v.id===ev.target.dataset.target))});
 async function toggleDone(id,rowEl){
   const e=S.entries.find(v=>v.id===id);if(!e)return;
-  const status=e.status==="done"?"active":"done";
+  const pp=isPipe(secById(e.section_id)),status=e.status==="done"?(pp?"waiting":"active"):"done";
   rowEl?.classList.toggle("is-done",status==="done");rowEl?.classList.remove("pop");void rowEl?.offsetWidth;rowEl?.classList.add("pop");
   const {data,error}=await sb.from("register_entries").update({status}).eq("id",id).select().single();
   if(error){toast(errMsg(error));rowEl?.classList.toggle("is-done");return}
   Object.assign(e,data);if(status==="done"&&!e.done_at)e.done_at=new Date().toISOString();
   const autoHit=S.targets.find(t=>t.mode==="auto"&&t.section_id===e.section_id&&(!t.sub||t.sub===e.sub)&&tState(t).done===t.goal&&status==="done");
-  toast(autoHit?`Target hit: ${autoHit.title}`:status==="done"?"Nice. Marked done":"Moved back to active");
+  toast(autoHit?`Target hit: ${autoHit.title}`:status==="done"?(pp?"Marked uploaded":"Nice. Marked done"):(pp?"Moved back to ready to upload":"Moved back to active"));
   setTimeout(()=>{renderSide();renderPage(false)},700);
 }
 let qt;$("#q").addEventListener("input",e=>{clearTimeout(qt);qt=setTimeout(()=>{S.q=e.target.value.trim();renderSide();renderPage(true)},180)});
@@ -1175,15 +1193,19 @@ function secOptions(sel,allowGeneral){
 function subOptions(secId,cur){const s=secById(secId);const subs=[...(s?.subs||[])];if(cur&&!subs.includes(cur))subs.push(cur);return `<option value="">${secId?"Any part":"—"}</option>`+subs.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("")}
 
 /* ================= entry sheet ================= */
-const ed=$("#entryDlg");let editing=null,delArmed=false,eStatus="active",ePrio="";
+const ed=$("#entryDlg");let editing=null,delArmed=false,eStatus="active",ePrio="",eFmt="";
 function paintChips(){
-  $("#e_status").innerHTML=chipsHTML(STATUSES,eStatus,"st",k=>`var(--s-${k})`);
+  const ps=secById($("#e_section").value),pp=isPipe(ps);
+  $("#e_status").innerHTML=chipsHTML(stList(ps),eStatus,"st",k=>`var(--s-${k})`);
+  $("#e_fmt_f").hidden=!pp;$("#e_prio_f").hidden=pp;$("#e_sub_f").hidden=pp;
+  $("#e_fmt").innerHTML=chipsHTML(FORMATS,eFmt,"fm");
   $("#e_prio").innerHTML=chipsHTML(PRIOS,ePrio,"pr",k=>k==="high"?"var(--warn)":"var(--ink-2)");
   const [,we]=periodRange("weekly"),[,me]=periodRange("monthly");
   const q=[["t","Today",today()],["w","End of week",ymd(addDays(we,-1))],["m","End of month",ymd(addDays(me,-1))],["c","No deadline",""]];
   $("#e_due_quick").innerHTML=q.map(([k,l,v])=>`<button type="button" class="chip" data-due="${v}" aria-pressed="${$("#e_due").value===v&&(v||k==="c")}">${l}</button>`).join("");
 }
 $("#e_status").addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(b){eStatus=b.dataset.st;paintChips()}});
+$("#e_fmt").addEventListener("click",e=>{const b=e.target.closest("[data-fm]");if(b){eFmt=b.dataset.fm;paintChips()}});
 $("#e_prio").addEventListener("click",e=>{const b=e.target.closest("[data-pr]");if(b){ePrio=b.dataset.pr;paintChips()}});
 $("#e_due_quick").addEventListener("click",e=>{const b=e.target.closest("[data-due]");if(b){$("#e_due").value=b.dataset.due;paintChips()}});
 $("#e_due").addEventListener("change",paintChips);
@@ -1200,18 +1222,19 @@ function paintTalk(){
 $("#e_talk").addEventListener("click",e=>{const b=e.target.closest("[data-talk]");if(b){$("#e_sub").value=b.dataset.talk;paintTalk()}});
 $("#e_sub").addEventListener("change",paintTalk);
 $("#e_section").addEventListener("change",paintTalk);
+$("#e_section").addEventListener("change",()=>{const ps=secById($("#e_section").value);if(isPipe(ps)){$("#e_sub").value=PIPE_PART;if(!PIPE_LABEL[eStatus])eStatus="planned";if(!eFmt)eFmt="short"}paintChips()});
 $("#e_link").addEventListener("input",e=>{const ok=/^https?:\/\//i.test(e.target.value);$("#e_open").hidden=!ok;if(ok)$("#e_open").href=e.target.value});
 function openEntry(e,pre={}){
   if(!S.sections.length){toast(isOwner()?"Add a work first":"Nothing is shared with you yet");return}
   editing=e||null;delArmed=false;$("#e_del").textContent="Delete";
   $("#entryTitle").textContent=e?"Edit entry":"New entry";
   const first=sortedSecs()[0].id;
-  const d=e||{title:"",section_id:pre.section_id||first,sub:pre.sub||"",status:pre.status||"active",prio:"",due_date:"",link:"",notes:""};
+  const d=e||{title:"",section_id:pre.section_id||first,sub:pre.sub||"",status:pre.status||(isPipe(secById(pre.section_id||first))?"planned":"active"),prio:"",due_date:"",link:"",notes:"",format:""};
   const sid=secById(d.section_id)?d.section_id:first;
   $("#e_section").innerHTML=secOptions(sid,false);$("#e_section").value=sid;
   $("#e_sub").innerHTML=subOptions(sid,d.sub).replace(">Any part<",">General<");$("#e_sub").value=d.sub||"";
   tintSheet($("#entryForm"),sid);
-  eStatus=d.status;ePrio=d.prio||"";$("#e_due").value=d.due_date||"";paintChips();
+  eStatus=d.status;ePrio=d.prio||"";eFmt=d.format||"";if(isPipe(secById(sid))){$("#e_sub").value=PIPE_PART;if(!PIPE_LABEL[eStatus])eStatus="planned"}$("#e_due").value=d.due_date||"";paintChips();
   $("#e_title").value=d.title;$("#e_link").value=d.link||"";$("#e_notes").value=d.notes||"";
   const ok=/^https?:\/\//i.test(d.link||"");$("#e_open").hidden=!ok;if(ok)$("#e_open").href=d.link;
   $("#e_stamp").textContent=e?`Last updated ${ago(ts(e))}${e.done_at?` · done ${ago(Date.parse(e.done_at))}`:""}`:"";
@@ -1229,6 +1252,7 @@ $("#entryForm").addEventListener("submit",async ev=>{
   ev.preventDefault();
   const body={title:$("#e_title").value.trim(),section_id:$("#e_section").value,sub:$("#e_sub").value,status:eStatus,prio:ePrio,link:$("#e_link").value.trim(),notes:$("#e_notes").value.trim()};
   if(S.v2)body.due_date=$("#e_due").value||null;
+  if(isPipe(secById(body.section_id))){body.sub=PIPE_PART;body.format=eFmt||"short";body.prio=""}
   if(!body.title){$("#e_title").focus();return}
   const btn=$("#e_save");btn.disabled=true;
   const q=editing?sb.from("register_entries").update(body).eq("id",editing.id).select().single():sb.from("register_entries").insert(body).select().single();
