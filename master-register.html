@@ -1111,7 +1111,7 @@ function pSec(){
   const counts={open:a.filter(isOpen).length,idea:a.filter(e=>e.status==="idea").length,closed:a.filter(e=>!isOpen(e)).length,all:a.length};
   let shown=S.stat==="open"?a.filter(isOpen):S.stat==="idea"?a.filter(e=>e.status==="idea"):S.stat==="closed"?a.filter(e=>!isOpen(e)):a;
   const pipe=isPipe(s),scriptPart=pipe||(!!sub&&/script/i.test(sub));
-  if(scriptPart){const ord=a.slice().sort((x,y)=>Date.parse(x.created_at||0)-Date.parse(y.created_at||0)||String(x.title).localeCompare(String(y.title)));scriptNums.clear();ord.forEach((e,k)=>scriptNums.set(e.id,k+1));shown=pipe?ord.filter(e=>(!S.fmt||e.format===S.fmt)&&(!S.pstat||e.status===S.pstat)):ord}else scriptNums.clear();
+  if(scriptPart){const ord=a.slice().sort((x,y)=>(pipe?(x.status==="done")-(y.status==="done"):0)||Date.parse(x.created_at||0)-Date.parse(y.created_at||0)||String(x.title).localeCompare(String(y.title)));scriptNums.clear();ord.forEach((e,k)=>scriptNums.set(e.id,k+1));shown=pipe?ord.filter(e=>(!S.fmt||e.format===S.fmt)&&(!S.pstat||e.status===S.pstat)):ord}else scriptNums.clear();
   shownIds=shown.map(e=>e.id);
   const done=a.filter(e=>e.status==="done").length,pct=a.length?Math.round(done/a.length*100):0;
   const parts=[...(s.subs||[]),...new Set(es.map(e=>e.sub).filter(v=>v&&!(s.subs||[]).includes(v)))];
