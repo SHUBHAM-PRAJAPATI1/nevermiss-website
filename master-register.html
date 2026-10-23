@@ -251,6 +251,9 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .part .c{font-family:var(--f-mono);font-size:.72rem;opacity:.7;margin-left:5px}
 .part.add{border-style:dashed;color:var(--hc)}
 .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sbox{position:relative;margin-top:12px}.sbox svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.55;pointer-events:none}
+.sbox input{width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;border-radius:12px;border:1px solid var(--line);background:var(--glass-2);color:inherit;font:inherit;outline:none}
+.sbox input:focus{border-color:var(--hc,var(--accent))}
 .seg{display:inline-flex;background:var(--glass-2);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
 .seg button{padding:5px 11px;border-radius:9px;font-size:.84rem;color:var(--muted);transition:background .25s,color .25s;white-space:nowrap}
 .seg button[aria-pressed="true"]{background:var(--glass-hi);color:var(--ink);box-shadow:0 1px 0 var(--edge) inset,0 2px 8px -4px rgba(0,0,0,.3)}
@@ -819,7 +822,7 @@ async function load(){
   const first=!S.loaded;
   S.sections=r[0].data;S.entries=r[1].data;S.targets=S.v2?r[2].data:[];
   if(S.v2&&isOwner()){S.members=r[3].data;S.access=r[4].data}
-  S.loaded=true;S.fmt=S.fmt||"";S.pstat=S.pstat||"";S.hasScene=!!(S.sections[0]&&("scene" in S.sections[0]));
+  S.loaded=true;S.fmt=S.fmt||"";S.sq=S.sq||"";S.pstat=S.pstat||"";S.hasScene=!!(S.sections[0]&&("scene" in S.sections[0]));
   if(S.route.t==="sec"&&!secById(S.route.sec))S.route={t:"view",v:"home"};
   if(S.route.v==="targets"&&!S.v2)S.route={t:"view",v:"home"};
   renderSide();renderPage(first);
@@ -1111,7 +1114,7 @@ function pSec(){
   const counts={open:a.filter(isOpen).length,idea:a.filter(e=>e.status==="idea").length,closed:a.filter(e=>!isOpen(e)).length,all:a.length};
   let shown=S.stat==="open"?a.filter(isOpen):S.stat==="idea"?a.filter(e=>e.status==="idea"):S.stat==="closed"?a.filter(e=>!isOpen(e)):a;
   const pipe=isPipe(s),scriptPart=pipe||(!!sub&&/script/i.test(sub));
-  if(scriptPart){const ord=a.slice().sort((x,y)=>(pipe?(x.status==="done")-(y.status==="done"):0)||Date.parse(x.created_at||0)-Date.parse(y.created_at||0)||String(x.title).localeCompare(String(y.title)));scriptNums.clear();ord.forEach((e,k)=>scriptNums.set(e.id,k+1));shown=pipe?ord.filter(e=>(!S.fmt||e.format===S.fmt)&&(!S.pstat||e.status===S.pstat)):ord}else scriptNums.clear();
+  if(scriptPart){const ord=a.slice().sort((x,y)=>(pipe?(x.status==="done")-(y.status==="done"):0)||Date.parse(x.created_at||0)-Date.parse(y.created_at||0)||String(x.title).localeCompare(String(y.title)));scriptNums.clear();ord.forEach((e,k)=>scriptNums.set(e.id,k+1));shown=pipe?ord.filter(e=>(!S.fmt||e.format===S.fmt)&&(!S.pstat||e.status===S.pstat)&&(!S.sq||[e.title,e.notes].join(" ").toLowerCase().includes(S.sq.toLowerCase()))):ord}else scriptNums.clear();
   shownIds=shown.map(e=>e.id);
   const done=a.filter(e=>e.status==="done").length,pct=a.length?Math.round(done/a.length*100):0;
   const parts=[...(s.subs||[]),...new Set(es.map(e=>e.sub).filter(v=>v&&!(s.subs||[]).includes(v)))];
@@ -1134,13 +1137,16 @@ function pSec(){
         <button class="part" data-part="" aria-pressed="${!sub}">All<span class="c">${es.length}</span></button>
         ${parts.map(v=>`<button class="part" data-part="${esc(v)}" aria-pressed="${sub===v}">${esc(v)}<span class="c">${es.filter(e=>e.sub===v).length}</span></button>`).join("")}
         ${isOwner()?`<button class="part add" data-addpart="${esc(s.id)}">+ Part</button>`:""}</div>`}
+      ${pipe?`<div class="sbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="scriptQ" type="search" placeholder="Search scripts by title or any line" value="${esc(S.sq)}" autocomplete="off"></div>`:""}
       <div class="tools" style="margin:14px 0">
         ${pipe?`<div class="seg" role="group" aria-label="Stage"><button data-pstat="" aria-pressed="${!S.pstat}">All</button>${PIPE_STATUSES.map(([k,l])=>`<button data-pstat="${k}" aria-pressed="${S.pstat===k}">${l}<span class="c">${a.filter(e=>e.status===k).length}</span></button>`).join("")}</div>`:""}<div class="seg" role="group" aria-label="Filter"${scriptPart?" hidden":""}>${[["open","Open"],["idea","Ideas"],["closed","Closed"],["all","All"]].map(([k,l])=>`<button data-stat="${k}" aria-pressed="${S.stat===k}">${l}<span class="c">${counts[k]}</span></button>`).join("")}</div>
         <span class="grow"></span><button class="btn sm" data-selmode aria-pressed="${selMode}">${selMode?"Stop selecting":"Select"}</button>${scriptPart?"":layoutSeg()}</div>
-      ${shown.length?(scriptPart?listHTML(shown,false):S.layout==="board"?boardHTML(shown,false):groupsHTML(shown,false)):emptyHTML(pipe?"No scripts here.":`Nothing ${S.stat==="all"?"":S.stat==="closed"?"closed":S.stat==="idea"?"in ideas":"open"} here yet.`,pipe?"Add a script, or change the Long / Short / stage filter.":`Add the first entry to ${sub||s.name}.`)}`,3)}
+      ${shown.length?(scriptPart?listHTML(shown,false):S.layout==="board"?boardHTML(shown,false):groupsHTML(shown,false)):emptyHTML(pipe?(S.sq?`No script matches “${S.sq}”.`:"No scripts here."):`Nothing ${S.stat==="all"?"":S.stat==="closed"?"closed":S.stat==="idea"?"in ideas":"open"} here yet.`,pipe?"Add a script, or change the Long / Short / stage filter.":`Add the first entry to ${sub||s.name}.`)}`,3)}
   </div>`;
 }
 
+/* script search box */
+$("#page").addEventListener("input",ev=>{if(ev.target.id!=="scriptQ")return;S.sq=ev.target.value;const p=ev.target.selectionStart;sel.clear();renderPage(false);const n=document.getElementById("scriptQ");if(n){n.focus();try{n.setSelectionRange(p,p)}catch(_){}}});
 /* page clicks */
 $("#page").addEventListener("click",ev=>{
   const sm=ev.target.closest("[data-selmode]");
