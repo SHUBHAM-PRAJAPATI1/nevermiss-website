@@ -904,11 +904,16 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
     <div class="card-title">Current plan <a class="btn sm" style="text-decoration:none;" href="https://nevermiss.co.in/#pricing" target="_blank">Renew / Upgrade</a></div>
     <div id="bill-current" class="muted">Loading…</div>
     <div style="margin-top:1.2rem;">
-      <div class="meter-label"><span>🔧 Utility bulk messages (included)</span><span id="b-util-text">0 / 0</span></div>
+      <div id="pilot-box" style="display:none;">
+        <div class="meter-label"><span>🤖 AI replies to customers <span class="muted">(60-day pilot)</span></span><span id="b-reply-text">0 / 0</span></div>
+        <div class="bar"><div class="fill" id="b-reply-bar" style="width:0%"></div></div>
+        <div class="notice info" id="pilot-note" style="display:none;margin:0.4rem 0 0.8rem;"></div>
+      </div>
+      <div class="meter-label"><span>🔧 Utility bulk messages <span class="muted" id="b-scope-u">(included)</span></span><span id="b-util-text">0 / 0</span></div>
       <div class="bar"><div class="fill" id="b-util-bar" style="width:0%"></div></div>
-      <div class="meter-label"><span>📣 Marketing bulk messages (included)</span><span id="b-mkt-text">0 / 0</span></div>
+      <div class="meter-label"><span>📣 Marketing bulk messages <span class="muted" id="b-scope-m">(included)</span></span><span id="b-mkt-text">0 / 0</span></div>
       <div class="bar"><div class="fill mkt" id="b-mkt-bar" style="width:0%"></div></div>
-      <div class="muted">Need more this month? <a href="https://wa.me/917004020840?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
+      <div class="muted" id="b-more-line">Need more this month? <a href="https://wa.me/917004020840?text=Hi%2C%20I%20need%20more%20message%20capacity" target="_blank" style="color:var(--blue);font-weight:600;">Message us</a> and we'll top you up.</div>
     </div>
   </div>
 
@@ -976,7 +981,7 @@ const GRAPH_VERSION = "v20.0";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { detectSessionInUrl: false }
 });
-let TOKEN = null, EMAIL = null, CLIENT = null, BULK = null;
+let TOKEN = null, EMAIL = null, CLIENT = null, BULK = null, PILOT = null;
 let ALUMNI = [];   // cached alumni rows, so the status filter re-renders without refetching
 
 // ── Embedded Signup (real, multi-client) ───────────────────────────────────
@@ -1186,7 +1191,7 @@ const PLAN_FEATURES = {
 
 const PLAN_LABEL = { starter:"Starter", growth:"Growth", pro:"Pro", custom:"Custom", founding:"Founding", trial:"Free trial",
   partner:"Pilot Partner", partner_monthly:"Growth · partner price", partner_annual:"Growth · 12 months, partner price",
-  topup_utility:"100 utility messages", topup_marketing:"100 marketing messages" };
+  topup_utility:"100 utility messages", topup_marketing:"100 marketing messages", topup_replies:"500 AI replies" };
 
 // One line describing the current plan, used on Overview and Plan & Billing.
 function planLineHTML(){
@@ -1200,11 +1205,12 @@ function planLineHTML(){
   }
   if (key === "partner") {
     if (!CLIENT.partner_live_at) return "<strong>Pilot Partner</strong> · your 60 free days start when your bot answers its first customer." +
-      " Includes everything in Growth: 2,000 AI replies a month plus your broadcast allowance.";
+      " Includes everything in Growth, with one allowance for the full 60 days: AI replies plus broadcasts.";
     const days = exp ? Math.ceil((new Date(exp) - new Date()) / 86400000) : null;
     if (days !== null && days <= 0) return "<strong>Pilot Partner trial ended</strong> · pick your partner price below to keep your bot replying.";
     return "<strong>Pilot Partner</strong>" + (days !== null ? " · day " + Math.max(1, 60 - days + 1) + " of 60, " + days + (days === 1 ? " day" : " days") + " left (ends " + esc(fmtDate(exp)) + ")" : "") +
-      ". Your partner price is below; pay early and the paid period starts after your free days.";
+      ". Your partner price is below; pay early and the paid period starts after your free days." +
+      " Your AI replies and broadcasts are one allowance for the whole pilot.";
   }
   let line = "<strong>" + esc(PLAN_LABEL[key] || "Starter") + "</strong> plan" + (exp ? " · paid through " + esc(fmtDate(exp)) : "");
   if (key === "founding" && CLIENT.founding_until) line += " · ₹1,999 locked until " + esc(fmtDate(CLIENT.founding_until));
@@ -1770,10 +1776,36 @@ async function fetchBulk(force){
   return BULK;
 }
 
+// Pilot Partner allowance (AI replies for the whole 60 days). Null for
+// every other plan, so nothing pilot-specific is shown to them.
+async function fetchPilot(force){
+  if (planKey() !== "partner") { PILOT = null; return null; }
+  if (PILOT && !force) return PILOT;
+  try {
+    const r = await fetch(API_BASE + "/api/pilot-usage", { headers: await authHeaders() });
+    if (r.status === 200) {
+      const d = await r.json();
+      PILOT = (d.success && d.pilot) ? d : null;
+      if (PILOT && PILOT.reply_pack) BULK_PLAN_PRICING_RS.topup_replies = { monthly: PILOT.reply_pack.price_rs };
+    }
+  } catch (e) { console.error(e); }
+  return PILOT;
+}
+
+function pilotNoteText(p){
+  if (!p) return "";
+  if (!p.live) return "Your 60 days, and this allowance, start when your bot answers its first customer.";
+  if (p.paused) return "Your pilot AI replies are used up and the bot has paused. Add an AI reply pack below to switch it back on.";
+  if (p.replies_used >= p.replies_limit) return "All pilot AI replies are used. The bot keeps answering for a short buffer of " + p.grace + " replies; add a pack below so it doesn't stop.";
+  if (p.replies_used >= p.replies_limit * 0.8) return "You've used over 80% of your pilot AI replies. Add a pack below, or start your partner plan early.";
+  return "";
+}
+
 // Drops the cache and repaints every meter that reads it.
 async function refreshBulk(){
   BULK = null;
   await fetchBulk(true);
+  await fetchPilot(true);
   paintBillingMeters();
 }
 
@@ -1837,12 +1869,22 @@ async function loadOverview(){
     if (i < done) document.getElementById(id).classList.add("done");
   });
 
-  const bulk = await fetchBulk();
+  const [bulk, pilot] = await Promise.all([fetchBulk(), fetchPilot()]);
   document.getElementById("billing-line").innerHTML = planLineHTML();
-  if (bulk) {
-    document.getElementById("ov-bulk-meters").innerHTML =
-      '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.5rem;">📢 Bulk allowance this month</div>' +
-      meterHTML(bulk.utility_used || 0, bulk.utility_quota || 0, bulk.marketing_used || 0, bulk.marketing_quota || 0);
+  if (bulk || pilot) {
+    let html = "";
+    if (pilot) {
+      const rl = pilot.replies_limit || 0, ru = pilot.replies_used || 0;
+      html += '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.5rem;">🎁 Pilot allowance (whole 60 days)</div>' +
+        '<div class="meter-label"><span>🤖 AI replies</span><span>' + ru.toLocaleString("en-IN") + ' / ' + rl.toLocaleString("en-IN") + '</span></div>' +
+        '<div class="bar"><div class="fill" style="width:' + (rl ? Math.min(100, ru / rl * 100) : 0) + '%"></div></div>';
+      const note = pilotNoteText(pilot);
+      if (note) html += '<div class="muted" style="margin:0.3rem 0 0.6rem;">' + esc(note) + ' <a href="#" onclick="showSection(\'billing\');return false;" style="color:var(--blue);font-weight:600;">Plan &amp; Billing</a></div>';
+    } else {
+      html += '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.5rem;">📢 Bulk allowance this month</div>';
+    }
+    if (bulk) html += meterHTML(bulk.utility_used || 0, bulk.utility_quota || 0, bulk.marketing_used || 0, bulk.marketing_quota || 0);
+    document.getElementById("ov-bulk-meters").innerHTML = html;
   }
 
   if (recentLeads.data && recentLeads.data.length) {
@@ -2812,6 +2854,7 @@ const BULK_PLAN_PRICING_RS = {
   message_pro:    { monthly: 2499 },
   topup_utility:   { monthly: 49 },
   topup_marketing: { monthly: 169 },
+  topup_replies:   { monthly: 99 },   // replaced by the server's price once /api/pilot-usage loads
 };
 const PLAN_FEATURE_LIST = {
   starter:         ["AI FAQ bot + lead capture", "Guided registration flow", "1,000 AI-replied messages/mo", "300 utility + 20 marketing bulk msgs", "Email support"],
@@ -2825,6 +2868,7 @@ const PLAN_FEATURE_LIST = {
   partner_annual:  ["Everything in Growth", "2,500 AI replies/mo", "750 utility + 50 marketing bulk msgs", "12 months, paid once (best value)"],
   topup_utility:   ["Prepaid, one-time", "Adds to this month's allowance", "Reminders, confirmations, fee nudges"],
   topup_marketing: ["Prepaid, one-time", "Adds to this month's allowance", "Offers and announcements"],
+  topup_replies:   ["Prepaid, one-time", "Adds 500 AI replies to your pilot", "Bot keeps answering customers"],
 };
 const CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
 let currentBillingCycle = "monthly";
@@ -2858,7 +2902,9 @@ function renderPlansGrid(){
   if (partner) mainPlans.unshift("partner_monthly", "partner_annual");
   else if (isFoundingLocked() || (FOUNDING_LEFT || 0) > 0) mainPlans.unshift("founding");
   if (!partner && FOUNDING_LEFT === null) fetchFoundingSlots().then(() => { if (FOUNDING_LEFT > 0) renderPlansGrid(); });
-  const bulkPlans = ["message_basic","message_growth","message_pro","topup_utility","topup_marketing"];
+  const bulkPlans = currentPlan === "partner"
+    ? ["topup_replies","topup_utility","topup_marketing"]
+    : ["message_basic","message_growth","message_pro","topup_utility","topup_marketing"];
 
   if (currentPlan === "custom") {
     el.innerHTML = '<div class="plan-card hot" style="grid-column:1/-1;">' +
@@ -2874,7 +2920,7 @@ function renderPlansGrid(){
     const pricing = isBulk ? BULK_PLAN_PRICING_RS[key] : sectorPlanPricing(key);
     const cycle = (isBulk || key === "founding" || key === "partner_monthly") ? "monthly" : (key === "partner_annual" ? "yearly" : currentBillingCycle);
     const price = pricing[cycle] || pricing.monthly;
-    const feats = (PLAN_FEATURE_LIST[key] || []).map(f => "<li>" + esc(f) + "</li>").join("");
+    const feats = (PLAN_FEATURE_LIST[key] || []).map(f => "<li>" + esc(currentPlan === "partner" ? f.replace("this month's allowance", "your pilot allowance") : f) + "</li>").join("");
     const isCurrent = !isBulk && currentPlan === key;
     const isPartnerKey = key === "partner_monthly" || key === "partner_annual";
     const isTopup = key.startsWith("topup_");
@@ -2889,7 +2935,7 @@ function renderPlansGrid(){
         (isTopup ? "Buy pack" : isBulk ? "Add-on" : (currentPlan ? "Switch to this plan" : "Choose this plan")) + '</button>';
     return '<div class="plan-card' + hot + '">' + tag +
       '<h4>' + esc(label) + '</h4>' +
-      '<div class="price">₹' + price.toLocaleString("en-IN") + '<span>' + CYCLE_LABEL[cycle] + '</span></div>' +
+      '<div class="price">₹' + price.toLocaleString("en-IN") + '<span>' + (isTopup ? " one-time" : CYCLE_LABEL[cycle]) + '</span></div>' +
       '<ul>' + feats + '</ul>' + btn + '</div>';
   }
 
@@ -2978,7 +3024,8 @@ async function choosePlan(plan){
         const result = await verifyRes.json();
         if (result.success) {
           msg.className = "msg ok";
-          msg.textContent = "✅ Payment confirmed — your plan is updated.";
+          msg.textContent = plan.startsWith("topup_") ? "✅ Payment confirmed — added to your allowance." : "✅ Payment confirmed — your plan is updated.";
+          if (plan.startsWith("topup_")) refreshBulk();
           loadClient();
         } else {
           msg.className = "msg err";
@@ -2996,6 +3043,22 @@ async function choosePlan(plan){
 }
 
 function paintBillingMeters(){
+  const pilot = planKey() === "partner";
+  show("pilot-box", !!PILOT);
+  if (PILOT) {
+    const rl = PILOT.replies_limit || 0, ru = PILOT.replies_used || 0;
+    setText("b-reply-text", ru.toLocaleString("en-IN") + " / " + rl.toLocaleString("en-IN") +
+      (PILOT.replies_bonus ? " (incl. " + PILOT.replies_bonus.toLocaleString("en-IN") + " added)" : ""));
+    const rb = document.getElementById("b-reply-bar");
+    if (rb) { rb.style.width = (rl ? Math.min(100, (ru / rl) * 100) : 0) + "%"; rb.style.background = ru >= rl ? "#dc2626" : (ru >= rl * 0.8 ? "#d97706" : ""); }
+    const note = pilotNoteText(PILOT);
+    const ne = document.getElementById("pilot-note");
+    if (ne) { ne.textContent = note; ne.style.display = note ? "" : "none"; }
+  }
+  setText("b-scope-u", pilot ? "(60-day pilot)" : "(included)");
+  setText("b-scope-m", pilot ? "(60-day pilot)" : "(included)");
+  const more = document.getElementById("b-more-line");
+  if (more && pilot) more.textContent = "Need more? Prepaid packs are below — nothing is ever charged automatically.";
   if (!BULK) return;
   const uq = BULK.utility_quota || 0, uu = BULK.utility_used || 0;
   const mq = BULK.marketing_quota || 0, mu = BULK.marketing_used || 0;
@@ -3015,8 +3078,8 @@ async function loadBilling(){
     document.getElementById("bill-current").innerHTML = "<strong>Bulk-only account</strong> — no coaching bot subscription.";
     show("ref-founding-note", false);
   }
+  await Promise.all([fetchBulk(), fetchPilot()]);
   renderPlansGrid();
-  await fetchBulk();
   paintBillingMeters();
   if (CLIENT) {
     try {

@@ -418,6 +418,9 @@ nav.tabs .tab-count:not(:empty){display:inline-block;min-width:18px;padding:0 5p
       <h1>Partner applications</h1>
       <p class="pp-spots" id="pp-spots"></p>
       <div id="partners-list"><div class="empty">Loading...</div></div>
+      <h1 style="margin-top:28px">Pilot usage</h1>
+      <p class="pp-spots">One allowance per partner for the whole 60 days. Grant adds AI replies or broadcasts by hand.</p>
+      <div class="tw"><table><thead><tr><th>Business</th><th>Days left</th><th class="num">AI replies</th><th class="num">Utility</th><th class="num">Marketing</th><th>State</th><th></th></tr></thead><tbody id="pilot-usage"></tbody></table></div>
 </section>
 
 <section data-p="adm-templates" class="adm hide">
@@ -1033,7 +1036,7 @@ function admOnShow(page) {
   if (page === 'conversations' && !chatsLoaded) loadSupportConversations();
   if (page === 'tickets') loadTickets();
   if (page === 'health' && !document.querySelector('#health-list .ticket')) loadHealth();
-  if (page === 'partners') loadPartners();
+  if (page === 'partners') { loadPartners(); loadPilotUsage(); }
   if (page === 'chattest' && !ctLoaded) ctLoadClients();
 }
 
@@ -1420,6 +1423,42 @@ async function loadPartners() {
   } catch (e) {
     listEl.innerHTML = '<div class="empty">Network error loading applications.</div>';
   }
+}
+
+async function loadPilotUsage() {
+  var body = document.getElementById('pilot-usage');
+  if (!body) return;
+  try {
+    var res = await fetch(BACKEND_URL + '/admin/partner-usage?admin_secret=' + encodeURIComponent(adminSecret));
+    var data = await res.json();
+    if (!data.success) { body.innerHTML = '<tr><td colspan="7">Could not load usage.</td></tr>'; return; }
+    if (!data.partners.length) { body.innerHTML = '<tr><td colspan="7">No partners on the free pilot.</td></tr>'; return; }
+    body.innerHTML = data.partners.map(function (p) {
+      var b = p.bulk || {};
+      var pct = p.replies_limit ? Math.round(p.replies_used / p.replies_limit * 100) : 0;
+      var state = !p.live ? 'not live yet' : p.paused ? '⛔ paused' : pct >= 100 ? '🟠 in buffer' : pct >= 80 ? '🟡 ' + pct + '%' : '🟢 ' + pct + '%';
+      return '<tr><td><strong>' + escapeHtml(p.business_name || '') + '</strong><br><span style="font-size:12px">' + escapeHtml(p.user_email || '') + '</span></td>' +
+        '<td>' + (p.days_left == null ? '—' : p.days_left) + '</td>' +
+        '<td class="num">' + p.replies_used + ' / ' + p.replies_limit + (p.replies_bonus ? ' (+' + p.replies_bonus + ')' : '') + '</td>' +
+        '<td class="num">' + (b.utility_used || 0) + ' / ' + (b.utility_quota || 0) + '</td>' +
+        '<td class="num">' + (b.marketing_used || 0) + ' / ' + (b.marketing_quota || 0) + '</td>' +
+        '<td>' + state + '</td>' +
+        '<td><button class="btn ghost" onclick="grantPilot(\'' + p.client_id + '\', \'' + escapeHtml((p.business_name || '').replace(/'/g, '')) + '\')">Grant</button></td></tr>';
+    }).join('');
+  } catch (e) { body.innerHTML = '<tr><td colspan="7">Network error loading usage.</td></tr>'; }
+}
+
+async function grantPilot(clientId, name) {
+  var input = prompt('Add to ' + name + ' as: replies, utility, marketing\n(e.g. 500,0,0)', '500,0,0');
+  if (!input) return;
+  var n = input.split(',').map(function (x) { return parseInt(x, 10) || 0; });
+  var res = await fetch(BACKEND_URL + '/admin/partner-grant', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ admin_secret: adminSecret, client_id: clientId, replies: n[0] || 0, utility: n[1] || 0, marketing: n[2] || 0 })
+  });
+  var data = await res.json().catch(function () { return {}; });
+  if (!data.success) { alert(data.error || 'Grant failed.'); return; }
+  loadPilotUsage();
 }
 
 async function approvePartner(id, btn) {
