@@ -372,7 +372,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <a href="#features">Features</a>
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
-      <a href="/partners.html">60-day pilot</a>
+      <a href="/partners.html">Pilot program</a>
       <a href="bulk-messaging.html">Bulk messaging</a>
       <a href="https://wa.me/917004020840?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss" target="_blank" rel="noopener">Support</a>
       <a href="login.html">Log in</a>
@@ -388,11 +388,11 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <h1>Never miss an admission enquiry again.</h1>
       <p class="lede">NeverMiss replies to every WhatsApp enquiry within a second, captures the student's details, and handles registration and seat booking — at 10 PM, on Sundays, whenever a parent messages.</p>
       <div class="hero-btns">
-        <button type="button" class="btn btn-teal" onclick="openCheckout('trial')">Start your 7-day free trial</button>
+        <button type="button" class="btn btn-teal" onclick="openCheckout('trial')">Start your 14-day free trial</button>
         <a href="#contact" class="btn btn-line">Book a free demo</a>
         <button type="button" class="btn btn-line" data-demo-open>Chat with it as a customer</button>
       </div>
-      <p class="hero-note">Free for 7 days, no card needed. Everything in Growth, plus 10 reminders and 10 announcements to try.</p>
+      <p class="hero-note">₹0 for 14 days. Everything in Growth, plus 10 reminders and 10 announcements to try. Cancel any time before it ends.</p>
       <dl class="hero-facts">
         <div><dt>24/7</dt><dd>Always answering</dd></div>
         <div><dt>&lt;1s</dt><dd>Reply time</dd></div>
@@ -612,7 +612,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
     </div>
 
     <p class="pricing-links">Not a coaching institute? <a href="/">See NeverMiss for other businesses</a></p>
-    <p class="fine partner-link">New to NeverMiss? <a href="/partners.html">Apply for the Pilot Partner Program</a>: free for 60 days from go-live, in return for honest feedback.</p>
+    <p class="fine partner-link">New to NeverMiss? <a href="/partners.html">Apply for the Pilot Partner Program</a>: free for 30 days from go-live (60 if your enquiries are slow), in return for honest feedback.</p>
   </div>
 </section>
 
@@ -653,7 +653,7 @@ footer{background:#071C19;color:#9CB9B2;padding:2.6rem 0;}
       <div class="form-group"><label for="f-phone">WhatsApp number</label><input id="f-phone" type="tel" placeholder="e.g. 9876543210" autocomplete="tel"></div>
       <div id="form-error"></div>
       <button class="form-submit" id="demo-btn" onclick="bookDemo()">Book my free demo</button>
-      <button class="form-submit outline" onclick="openCheckout('trial')">Or start a 7-day free trial yourself</button>
+      <button class="form-submit outline" onclick="openCheckout('trial')">Or start a 14-day free trial yourself</button>
       <p class="form-note">No payment now. We'll call you, come to your institute, and set it up on your number.</p>
     </div>
   </div>
@@ -809,12 +809,68 @@ const CHECKOUT_PRICING = {
 const CHECKOUT_CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
 const CHECKOUT_PLAN_TITLE = { starter: "Starter", growth: "Growth", pro: "Pro", founding: "Founding" };
 const CHECKOUT_HEADINGS = {
-  trial:    ["Start your 7-day free trial", "No card needed. You get everything in Growth, plus 10 reminders and 10 announcements to try. We'll email you a login link."],
+  trial:    ["Start your 14-day free trial", "₹0 today. Everything in Growth, plus 10 reminders and 10 announcements to try. Set up auto-pay once with UPI or a card; your plan starts after the trial unless you cancel."],
   founding: ["Claim a founding spot", "₹1,999 a month for everything in Growth, locked for 12 months."],
   pro:      ["Get everything — one plan, all included", ""],
 };
 
-function payBtnLabel(){ return CHECKOUT_PLAN === "trial" ? "Start free trial" : "Pay & activate →"; }
+function payBtnLabel(){ return CHECKOUT_PLAN === "trial" ? "Start free trial · ₹0 today" : "Pay & activate →"; }
+
+// Monthly plans without a coupon, and the free trial, go through auto-pay
+// (Razorpay Subscriptions). 6/12 months and coupons keep one-time checkout.
+const AUTOPAY_PLANS = { starter: 1, growth: 1, pro: 1, founding: 1 };
+function useAutopay(coupon){ return CHECKOUT_PLAN === "trial" || (AUTOPAY_PLANS[CHECKOUT_PLAN] && CHECKOUT_CYCLE === "monthly" && !coupon); }
+function showTrialQuote(){
+  const el = document.getElementById("checkout-price");
+  el.style.display = "";
+  el.innerHTML = "₹0<span> today</span>";
+  fetch(`${API_BASE}/api/autopay-quote?business_type=coaching`).then(r => r.json()).then(q => {
+    if (!q.amount_rs || CHECKOUT_PLAN !== "trial") return;
+    el.innerHTML = "₹0<span> today</span><small style=\"display:block;font-size:.9rem;font-weight:500;margin-top:6px;opacity:.8\">Then ₹" +
+      q.amount_rs.toLocaleString("en-IN") + "/month (" + esc(q.plan_label) + ") from " + esc(q.first_charge_date) + ". Cancel any time before.</small>";
+  }).catch(() => {});
+}
+
+async function startAutopayCheckout({ name, business, digits, email, btn }){
+  const isTrial = CHECKOUT_PLAN === "trial";
+  btn.textContent = isTrial ? "Starting your trial…" : "Preparing checkout…";
+  let sub;
+  try {
+    const r = await fetch(`${API_BASE}/api/create-subscription`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trial: isTrial, plan: CHECKOUT_PLAN, name, business, phone: digits, email, business_type: "coaching" })
+    });
+    sub = await r.json();
+  } catch (e) {
+    showCheckoutError("Connection error. Please try again, or WhatsApp us.");
+    btn.disabled = false; btn.textContent = payBtnLabel(); return;
+  }
+  btn.disabled = false; btn.textContent = payBtnLabel();
+  if (!sub.subscription_id) return showCheckoutError(sub.error || "Could not start checkout. Please try again or WhatsApp us.");
+  const desc = sub.trial
+    ? `${sub.trial_days}-day free trial, then ₹${sub.amount_rs.toLocaleString("en-IN")}/month from ${sub.first_charge_date}`
+    : `${sub.plan_label} · ₹${sub.amount_rs.toLocaleString("en-IN")}/month, auto-pay`;
+  const rzp = new Razorpay({
+    key: sub.key_id, subscription_id: sub.subscription_id, name: "NeverMiss", description: desc,
+    prefill: { name, contact: digits, email }, theme: { color: "#0F766E" },
+    handler: async function (resp){
+      btn.disabled = true; btn.textContent = "Confirming…";
+      try {
+        const v = await (await fetch(`${API_BASE}/api/verify-subscription`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ razorpay_payment_id: resp.razorpay_payment_id, razorpay_subscription_id: resp.razorpay_subscription_id,
+                                 razorpay_signature: resp.razorpay_signature })
+        })).json();
+        if (v.success) { showCheckoutSuccess(name, email, sub.trial, sub); return; }
+      } catch (e) {}
+      showCheckoutError("Auto-pay is set up but confirming it failed. Please WhatsApp us with ID: " + resp.razorpay_subscription_id);
+      btn.disabled = false; btn.textContent = payBtnLabel();
+    },
+    modal: { ondismiss: function(){ btn.disabled = false; btn.textContent = payBtnLabel(); } }
+  });
+  rzp.on("payment.failed", function(r){ showCheckoutError("Auto-pay setup failed: " + ((r.error && r.error.description) || "please try again.")); });
+  rzp.open();
+}
 
 // Founding spots left, shown on the offer banner. Hides the offer when full.
 fetch(`${API_BASE}/api/founding-slots`).then(r => r.json()).then(d => {
@@ -838,15 +894,15 @@ function openCheckout(planKey){
   const isTrial = CHECKOUT_PLAN === "trial";
   const monthlyOnly = isTrial || CHECKOUT_PLAN === "founding";
   document.getElementById("checkout-cycle").style.display = monthlyOnly ? "none" : "";
-  document.getElementById("checkout-price").style.display = isTrial ? "none" : "";
+  document.getElementById("checkout-price").style.display = "";
   document.getElementById("co-coupon-toggle").style.display = monthlyOnly ? "none" : "";
   document.getElementById("co-coupon-row").style.display = "none";
   document.getElementById("co-coupon").value = "";
   document.getElementById("checkout-note").textContent = isTrial
-    ? "One trial per institute. When it ends, pick a plan to keep your bot replying."
+    ? "One trial per institute. We'll remind you on WhatsApp 2 days before the first charge, and you can cancel in your dashboard in one tap."
     : "You'll get an email right after payment with a link to set your dashboard password. From there, connect WhatsApp and you're live.";
   document.querySelectorAll(".cycle-chip").forEach(b => b.classList.toggle("active", b.dataset.cycle === "monthly"));
-  if (!isTrial) updateCheckoutPrice();
+  if (!isTrial) updateCheckoutPrice(); else showTrialQuote();
   const err = document.getElementById("checkout-error");
   err.style.display = "none"; err.textContent = "";
   document.getElementById("checkout-form-view").style.display = "block";
@@ -902,23 +958,7 @@ async function startCheckoutPayment(){
   btn.disabled = true;
   if (window.nmTrack) nmTrack.identify({ name, phone: digits, email, business, form: CHECKOUT_PLAN === "trial" ? "trial" : "checkout-" + CHECKOUT_PLAN });
 
-  if (CHECKOUT_PLAN === "trial") {
-    btn.textContent = "Starting your trial…";
-    try {
-      const r = await fetch(`${API_BASE}/api/start-trial`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, business, phone: digits, email })
-      });
-      const d = await r.json();
-      if (d.success) { showCheckoutSuccess(name, email, true); return; }
-      showCheckoutError(d.error || "Couldn't start the trial. Please try again or WhatsApp us.");
-    } catch (e) {
-      showCheckoutError("Connection error. Please try again, or WhatsApp us.");
-    }
-    btn.disabled = false; btn.textContent = payBtnLabel();
-    return;
-  }
+  if (useAutopay(coupon)) { await startAutopayCheckout({ name, business, digits, email, btn }); return; }
   btn.textContent = "Preparing checkout…";
 
   let order;
@@ -1000,7 +1040,7 @@ async function startCheckoutPayment(){
   rzp.open();
 }
 
-function showCheckoutSuccess(name, email, isTrial){
+function showCheckoutSuccess(name, email, isTrial, sub){
   document.getElementById("checkout-form-view").style.display = "none";
   const sv = document.getElementById("checkout-success-view");
   sv.style.display = "block";
@@ -1010,8 +1050,11 @@ function showCheckoutSuccess(name, email, isTrial){
       <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:1.35rem;color:var(--black);margin-bottom:0.7rem;">You're in, ${esc(name)}!</h3>
       <p style="color:var(--muted);font-size:0.92rem;line-height:1.7;">
         Check <strong>${esc(email)}</strong> for an email from us with a link to set your dashboard password.
-        Set it, log in, and connect your WhatsApp number to go live.${isTrial ? " Your 7 days start now." : ""}
+        Set it, log in, and connect your WhatsApp number to go live.${isTrial ? " Your 14 free days start now." : ""}
       </p>
+      ${sub ? `<p style="color:var(--muted);font-size:0.85rem;margin-top:0.8rem;">${sub.trial
+        ? `Auto-pay is set up: ₹${sub.amount_rs.toLocaleString("en-IN")}/month (${esc(sub.plan_label)}) starts on ${esc(sub.first_charge_date)}. We'll remind you 2 days before. Cancel any time in Plan &amp; Billing.`
+        : `Auto-pay is on: ₹${sub.amount_rs.toLocaleString("en-IN")} every month. Cancel any time in Plan &amp; Billing.`}</p>` : ""}
       <p style="color:var(--muted);font-size:0.85rem;margin-top:1.1rem;">
         Don't see it in a few minutes? Check spam, or <a href="https://wa.me/917004020840" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;text-decoration:none;">WhatsApp us</a>.
       </p>

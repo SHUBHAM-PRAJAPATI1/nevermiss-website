@@ -903,6 +903,7 @@ tbody tr:hover td,table tr:hover td{background:#FAFCFB;}
   <div class="card">
     <div class="card-title">Current plan <a class="btn sm" style="text-decoration:none;" href="https://nevermiss.co.in/#pricing" target="_blank">Renew / Upgrade</a></div>
     <div id="bill-current" class="muted">Loading…</div>
+    <div id="autopay-box" style="display:none;margin-top:1rem;padding:.8rem 1rem;border:1px solid var(--line,#DCE5E2);border-radius:10px;"></div>
     <div style="margin-top:1.2rem;">
       <div class="meter-label"><span>🔧 Utility bulk messages (included)</span><span id="b-util-text">0 / 0</span></div>
       <div class="bar"><div class="fill" id="b-util-bar" style="width:0%"></div></div>
@@ -1199,11 +1200,12 @@ function planLineHTML(){
       ". Includes everything in Growth, plus 10 utility and 10 marketing broadcasts.";
   }
   if (key === "partner") {
-    if (!CLIENT.partner_live_at) return "<strong>Pilot Partner</strong> · your 60 free days start when your bot answers its first customer." +
+    if (!CLIENT.partner_live_at) return "<strong>Pilot Partner</strong> · your 30 free days start when your bot answers its first customer." +
       " Includes everything in Growth: 2,000 AI replies a month plus your broadcast allowance.";
     const days = exp ? Math.ceil((new Date(exp) - new Date()) / 86400000) : null;
     if (days !== null && days <= 0) return "<strong>Pilot Partner trial ended</strong> · pick your partner price below to keep your bot replying.";
-    return "<strong>Pilot Partner</strong>" + (days !== null ? " · day " + Math.max(1, 60 - days + 1) + " of 60, " + days + (days === 1 ? " day" : " days") + " left (ends " + esc(fmtDate(exp)) + ")" : "") +
+    const total = Math.max(1, Math.round((new Date(exp) - new Date(CLIENT.partner_live_at)) / 86400000));
+    return "<strong>Pilot Partner</strong>" + (days !== null ? " · day " + Math.max(1, total - days + 1) + " of " + total + ", " + days + (days === 1 ? " day" : " days") + " left (ends " + esc(fmtDate(exp)) + ")" : "") +
       ". Your partner price is below; pay early and the paid period starts after your free days.";
   }
   let line = "<strong>" + esc(PLAN_LABEL[key] || "Starter") + "</strong> plan" + (exp ? " · paid through " + esc(fmtDate(exp)) : "");
@@ -3016,6 +3018,7 @@ async function loadBilling(){
     show("ref-founding-note", false);
   }
   renderPlansGrid();
+  if (CLIENT) loadAutopay();
   await fetchBulk();
   paintBillingMeters();
   if (CLIENT) {
@@ -3027,6 +3030,67 @@ async function loadBilling(){
   } else {
     document.getElementById("ref-code").textContent = "—";
   }
+}
+
+// Auto-pay (Razorpay subscription): shows the next charge and lets the owner
+// cancel in one tap. During the trial, cancelling means nothing is ever charged.
+async function loadAutopay(){
+  const box = document.getElementById("autopay-box");
+  if (!box) return;
+  try {
+    const r = await fetch(API_BASE + "/api/autopay-status", { headers: await authHeaders() });
+    const d = await r.json();
+    if (d.success && d.is_partner && (!d.has_autopay || d.link)) {
+      box.innerHTML = "🔁 <strong>Keep your bot after the pilot.</strong> Set up auto-pay once at your partner price; nothing is charged before your free pilot ends. " +
+        (d.link ? "<a class='btn sm' style='margin-left:.4rem;text-decoration:none' href='" + esc(d.link) + "' target='_blank' rel='noopener'>Set up auto-pay</a>"
+                : "<button class='btn sm' style='margin-left:.4rem' onclick='partnerAutopay(this)'>Set up auto-pay</button>");
+      box.style.display = "block"; return;
+    }
+    if (!d.success || !d.has_autopay) { box.style.display = "none"; return; }
+    const amt = d.amount_rs ? "₹" + Number(d.amount_rs).toLocaleString("en-IN") : "";
+    const label = esc(d.plan_label || "your plan");
+    let html = "";
+    if (d.status === "cancelled") {
+      html = "<strong>Auto-pay cancelled.</strong> " + (d.on_trial
+        ? "Nothing will be charged. Your trial ends on " + esc(fmtDate(d.plan_expires_at)) + "; pick a plan above to keep your bot replying."
+        : "No more charges. Your plan runs until " + esc(fmtDate(d.plan_expires_at)) + ".");
+    } else if (d.status === "failing" || d.status === "halted") {
+      html = "<strong style='color:var(--danger,#B42318)'>Auto-pay didn't go through.</strong> Check your UPI app or card (balance, mandate not paused). " +
+             "Razorpay retries automatically. <a href='https://wa.me/917004020840' target='_blank' style='color:var(--blue);font-weight:600;'>Need help?</a>";
+    } else {
+      html = (d.on_trial
+        ? "🔁 <strong>Auto-pay is set up.</strong> Your free trial ends and " + label + " starts at " + amt + "/month on <strong>" + esc(fmtDate(d.next_charge_at)) + "</strong>."
+        : "🔁 <strong>Auto-pay is on</strong> · " + label + " " + amt + "/month" + (d.next_charge_at ? " · next charge " + esc(fmtDate(d.next_charge_at)) : "") + ".") +
+        " <button class='btn sm outline' style='margin-left:.4rem' onclick='cancelAutopay(" + (d.on_trial ? "true" : "false") + ")'>Cancel auto-pay</button>";
+    }
+    box.innerHTML = html;
+    box.style.display = "block";
+  } catch (e) { box.style.display = "none"; }
+}
+
+async function partnerAutopay(btn){
+  btn.disabled = true; btn.textContent = "Opening…";
+  try {
+    const r = await fetch(API_BASE + "/api/partner-autopay-link", { method: "POST", headers: await authHeaders() });
+    const d = await r.json();
+    if (d.url) { window.open(d.url, "_blank"); }
+    else if (!d.already) alert(d.error || "Couldn't open auto-pay. Please message us on WhatsApp.");
+  } catch (e) { alert("Connection error. Please try again."); }
+  btn.disabled = false; btn.textContent = "Set up auto-pay";
+  loadAutopay();
+}
+
+async function cancelAutopay(onTrial){
+  const msg = onTrial
+    ? "Cancel auto-pay? Nothing will be charged, and your bot stops replying when the trial ends."
+    : "Cancel auto-pay? You won't be charged again. Your plan keeps working until the end of the period you've paid for.";
+  if (!confirm(msg)) return;
+  try {
+    const r = await fetch(API_BASE + "/api/cancel-autopay", { method: "POST", headers: await authHeaders() });
+    const d = await r.json();
+    if (!d.success) { alert(d.error || "Couldn't cancel. Please message us on WhatsApp."); return; }
+    loadAutopay();
+  } catch (e) { alert("Connection error. Please try again."); }
 }
 
 function shareReferral(){

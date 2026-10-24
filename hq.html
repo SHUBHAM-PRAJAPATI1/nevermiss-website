@@ -1483,7 +1483,7 @@ async function approvePartner(id, btn) {
     if (!data.success) { msg.className = 'status-msg error'; msg.textContent = data.error || 'Failed.'; btn.disabled = false; return; }
     msg.className = 'status-msg success';
     msg.textContent = 'Approved. ' + (data.invite_sent ? 'Login email sent. ' : '') +
-      'Next: book the 30-minute setup call and connect their number the way you normally do. Their 60 days start with the first customer message.';
+      'Next: book the 30-minute setup call and connect their number the way you normally do. Their 30 free days start with the first customer message (extended to 60 automatically if they get under 50 conversations).';
     setTimeout(loadPartners, 2500);
   } catch (e) { msg.className = 'status-msg error'; msg.textContent = 'Network error.'; btn.disabled = false; }
 }

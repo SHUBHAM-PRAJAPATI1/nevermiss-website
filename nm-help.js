@@ -41,39 +41,39 @@
     { k: "salon", e: "💇", l: "Salon / makeup", n: "salon owners", qs: [
       "Is NeverMiss worth it for my salon?", "How many bookings am I losing when I'm busy with a client?",
       "A bride messages at 11 PM. What happens?", "Will it sound like a robot to my clients?",
-      "How does the 7-day free trial work?",
+      "How does the 14-day free trial work?",
       "Can it book appointments for me?", "Wedding season gets crazy. Can it handle every enquiry?",
       "Can it bring back clients who haven't visited in a while?"] },
     { k: "coaching", e: "🎓", l: "Coaching institute", n: "coaching institutes", qs: [
       "Is NeverMiss worth it for my institute?", "How many admissions am I losing to late replies?",
       "Parents message late at night. What happens?", "My staff already replies on WhatsApp. Why do I need this?",
-      "How does the 7-day free trial work?",
+      "How does the 14-day free trial work?",
       "Can it book demo classes?", "Can it follow up with parents who didn't join?", "Can it send fee reminders?"] },
     { k: "clinic", e: "🦷", l: "Clinic / dental", n: "clinics", qs: [
       "Is NeverMiss worth it for my clinic?", "How many patients go elsewhere when we don't reply?",
       "Can patients book appointments on WhatsApp?", "Will it sound like a robot to my patients?",
-      "How does the 7-day free trial work?",
+      "How does the 14-day free trial work?",
       "Can it send appointment reminders?", "Will it reply on Sundays and at night?",
       "Can it bring back patients for follow-ups and check-ups?"] },
     { k: "fitness", e: "🏋️", l: "Gym / yoga", n: "gyms and studios", qs: [
       "Is NeverMiss worth it for my gym?", "How many members am I losing from unanswered enquiries?",
       "Can it book free trial sessions?", "My staff already replies on WhatsApp. Why do I need this?",
-      "How does the 7-day free trial work?",
+      "How does the 14-day free trial work?",
       "Can it remind members to renew?", "Can it bring back members who stopped coming?", "Will it reply in Hindi?"] },
     { k: "classes", e: "💃", l: "Dance / music / art", n: "classes", qs: [
       "Is NeverMiss worth it for my classes?", "How many parents enquire and never hear back?",
       "Can parents book a trial class?", "I reply myself. Why do I need this?",
-      "How does the 7-day free trial work?",
+      "How does the 14-day free trial work?",
       "Can it help me fill my summer camp or new batch?", "Can it send monthly fee reminders?"] },
     { k: "realestate", e: "🏠", l: "Real estate", n: "brokers", qs: [
       "Is NeverMiss worth it for a broker?", "How many leads do I lose when I'm on a site visit?",
       "Buyers enquire on many listings. How does this help?", "Will it sound like a robot to buyers?",
-      "How does the 7-day free trial work?",
+      "How does the 14-day free trial work?",
       "Can it book site visits?", "Can it follow up with buyers who went quiet?"] },
     { k: "other", e: "✨", l: "Something else", n: "businesses", qs: [
       "Will NeverMiss work for my business?", "How many customers am I losing without this?",
       "What does it cost?", "Will it sound like a robot to my customers?",
-      "How does the 7-day free trial work?", "Can I see a live demo?"] }
+      "How does the 14-day free trial work?", "Can I see a live demo?"] }
   ];
   var WHY_BUY = ["What if a competitor replies before me?", "What if I don't like it?",
                  "Does it work on my current WhatsApp number?", "How fast can I go live?",
