@@ -23,7 +23,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hind:wght@400;500;600;700&family=Cormorant+Garamond:wght@600&family=Archivo:wdth,wght@125,800&family=IBM+Plex+Sans:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Fraunces:opsz,wght@9..144,500..600&family=Hind:wght@400;500;600;700&family=Cormorant+Garamond:wght@600&family=Archivo:wdth,wght@125,800&family=IBM+Plex+Sans:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/site.css">
 <script src="/nm-track.js" data-endpoint="https://nevermiss-api-05de8a834ac4.herokuapp.com/api/track" data-product="nevermiss" defer></script>
 
@@ -82,6 +82,17 @@
 .door-mark{position:absolute;right:16px;top:20px;width:40px;height:40px;opacity:.55;}
 .door h3{padding-right:48px;}
 .door-mark svg{width:100%;height:100%;}
+/* NeverMiss Realty: the premium vertical gets the full row */
+.d-realty{grid-column:1/-1;min-height:0;background:radial-gradient(600px 300px at 90% -20%,rgba(194,149,69,.22),transparent 60%),#14181C;color:#EDEAE3;border:1px solid #2B333A;display:grid;grid-template-columns:1fr auto;gap:10px 40px;align-items:center;padding:30px 32px;}
+.d-realty h3{font-family:"Fraunces",Georgia,serif;font-weight:600;letter-spacing:-0.015em;font-size:1.9rem;}
+.d-realty h3 span{color:#D4A354;}
+.d-realty .kick{font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:#D4A354;font-weight:600;margin-bottom:8px;display:block;}
+.d-realty p{opacity:.8;max-width:60ch;}
+.d-realty ul{padding-top:16px;margin-top:0;}
+.d-realty li{background:rgba(194,149,69,.12);color:#E8C98C;}
+.d-realty .go{color:#D4A354;margin:0;}
+.d-realty .door-mark{position:static;width:64px;height:64px;opacity:1;}
+@media (max-width:760px){.d-realty{grid-template-columns:1fr;}.d-realty .door-mark{display:none;}}
 @media (max-width:1060px){.doors{grid-template-columns:repeat(2,1fr);}}
 @media (max-width:560px){.doors{grid-template-columns:1fr;}.door{min-height:0;}}
 .else{margin-top:22px;color:var(--muted);}
@@ -121,7 +132,7 @@
     <div class="nav-links">
       <div class="nav-for" data-open="false">
         <button type="button" aria-expanded="false" aria-haspopup="true">Who it's for<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
-        <div class="nav-menu"><a href="/coaching.html"><span class="sw" style="background:#0F766E"></span><span><b>Coaching institutes</b><small>JEE, NEET, CET, board, MPSC and tuition classes</small></span></a><a href="/salons.html"><span class="sw" style="background:#6B2D4A"></span><span><b>Salons &amp; beauty</b><small>Salons, parlours, makeup and bridal studios</small></span></a><a href="/fitness.html"><span class="sw" style="background:#2438A8"></span><span><b>Gyms &amp; studios</b><small>Gyms, yoga, dance, music and sports academies</small></span></a><a href="/clinics.html"><span class="sw" style="background:#1F5F8B"></span><span><b>Clinics &amp; labs</b><small>Dental, skin, physio, eye, diagnostic and pet clinics</small></span></a></div>
+        <div class="nav-menu"><a href="/coaching.html"><span class="sw" style="background:#0F766E"></span><span><b>Coaching institutes</b><small>JEE, NEET, CET, board, MPSC and tuition classes</small></span></a><a href="/salons.html"><span class="sw" style="background:#6B2D4A"></span><span><b>Salons &amp; beauty</b><small>Salons, parlours, makeup and bridal studios</small></span></a><a href="/fitness.html"><span class="sw" style="background:#2438A8"></span><span><b>Gyms &amp; studios</b><small>Gyms, yoga, dance, music and sports academies</small></span></a><a href="/clinics.html"><span class="sw" style="background:#1F5F8B"></span><span><b>Clinics &amp; labs</b><small>Dental, skin, physio, eye, diagnostic and pet clinics</small></span></a><a href="/realty.html"><span class="sw" style="background:#C29545"></span><span><b>Real estate · Realty</b><small>Developers, builders and brokers</small></span></a></div>
       </div>
       <a href="#pricing">Pricing</a>
       <a href="/partners.html">60-day pilot</a>
@@ -177,6 +188,7 @@
       <a class="door d-salon" href="/salons.html"><span class="door-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></svg></span><h3>Salons & beauty</h3><p>Appointment requests, price lists and bridal enquiries, answered while you're with a client.</p><ul><li>Salons</li><li>Parlours</li><li>Makeup</li><li>Bridal</li></ul><span class="go">See how it works for you <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
       <a class="door d-fit" href="/fitness.html"><span class="door-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg></span><h3>Gyms & studios</h3><p>Free trial bookings and membership enquiries, turned into walk-ins.</p><ul><li>Gyms</li><li>Yoga</li><li>Dance</li><li>Music</li><li>Sports</li></ul><span class="go">See how it works for you <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
       <a class="door d-clinic" href="/clinics.html"><span class="door-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></span><h3>Clinics & labs</h3><p>After-hours appointment requests, handled carefully, without medical advice.</p><ul><li>Dental</li><li>Skin</li><li>Physio</li><li>Eye</li><li>Labs</li><li>Pets</li></ul><span class="go">See how it works for you <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="door d-realty" href="/realty.html"><div><span class="kick">New · Premium</span><h3>NeverMiss <span>Realty</span> for developers &amp; brokers</h3><p>Every property enquiry answered in seconds with your prices, RERA and floor plans. Buyers qualified, site visits booked, hot leads sent to your sales head.</p><ul><li>Developers</li><li>Builders</li><li>Brokers</li><li>Channel partners</li></ul></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:16px"><span class="door-mark"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M162.9 395.7 V233.0 A93.2 93.2 0 0 1 349.1 233.0 V395.7" fill="none" stroke="#C29545" stroke-width="41.9" stroke-linecap="square"/><line x1="256" y1="395.7" x2="256" y2="246.8" stroke="#C29545" stroke-width="18.6" stroke-linecap="square"/></svg></span><span class="go">Explore NeverMiss Realty <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></a>
     </div>
     <p class="else">Driving school, consultancy, interior studio or something else? It works for you too. <a href="#contact">Tell us about your business</a>.</p>
   </div>
@@ -333,7 +345,7 @@
         <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span></a>
         <p>An AI front desk on WhatsApp for local businesses in India. Built in Pune.</p>
       </div>
-      <div><h4>Who it's for</h4><ul><li><a href="/coaching.html">Coaching institutes</a></li><li><a href="/salons.html">Salons &amp; beauty</a></li><li><a href="/fitness.html">Gyms &amp; studios</a></li><li><a href="/clinics.html">Clinics &amp; labs</a></li><li><a href="/custom.html">Something else</a></li></ul></div>
+      <div><h4>Who it's for</h4><ul><li><a href="/coaching.html">Coaching institutes</a></li><li><a href="/salons.html">Salons &amp; beauty</a></li><li><a href="/fitness.html">Gyms &amp; studios</a></li><li><a href="/clinics.html">Clinics &amp; labs</a></li><li><a href="/realty.html">Real estate</a></li><li><a href="/custom.html">Something else</a></li></ul></div>
       <div><h4>Product</h4><ul><li><a href="#pricing">Pricing</a></li><li><a href="/bulk-messaging.html">Bulk messaging</a></li><li><a href="/partners.html">Partner program</a></li><li><a href="/login.html">Log in</a></li></ul></div>
       <div><h4>Company</h4><ul><li><a href="https://wa.me/917004020840" target="_blank" rel="noopener">WhatsApp support</a></li><li><a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a></li><li><a href="https://www.linkedin.com/company/145336509/" target="_blank" rel="noopener">NeverMiss on LinkedIn</a></li><li><a href="https://www.linkedin.com/in/shubham-prajapati-558651377/" target="_blank" rel="noopener">Founder on LinkedIn</a></li><li><a href="/privacy-policy.html">Privacy</a></li><li><a href="/terms-of-service.html">Terms</a></li></ul></div>
     </div>
