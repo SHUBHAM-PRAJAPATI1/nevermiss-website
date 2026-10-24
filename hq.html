@@ -12,11 +12,13 @@
   --bg:#f4f6f5; --card:#fff; --text:#14201d; --muted:#64716d; --line:#e2e8e6;
   --teal:#0F766E; --teal-soft:#e3f2f0; --docket:#b45309; --docket-soft:#fdf0e1;
   --good:#15803d; --warn:#b45309; --bad:#b91c1c; --chip:#eef2f1; --r:14px;
+  --realty:#9A6F22; --realty-soft:#f6eedd; --realty-ink:#1B2126;
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#0d1413; --card:#151f1d; --text:#e6eeec; --muted:#8fa09b; --line:#25332f;
   --teal:#2dd4bf; --teal-soft:#123a35; --docket:#f59e0b; --docket-soft:#3a2a10;
   --good:#4ade80; --warn:#fbbf24; --bad:#f87171; --chip:#1d2a27;
+  --realty:#D4A354; --realty-soft:#33291a;
 }}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.45}
@@ -241,6 +243,25 @@ nav.tabs .tab-count:not(:empty){display:inline-block;min-width:18px;padding:0 5p
 @media (max-width: 600px) { .adm .thread-head { flex-direction: column; align-items: flex-start; }
 .adm .thread-time { text-align: left; }
 .adm .thread-preview { max-width: 100%; } }
+
+/* ---------- NeverMiss Realty tab ---------- */
+.badge.rl{background:var(--realty-soft);color:var(--realty)}
+nav.tabs button[data-t="realty"].on{background:#1B2126;color:#D4A354}
+.rl-hero{background:#1B2126;color:#EDEAE3;border-radius:var(--r);padding:20px 22px;margin-bottom:14px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;border:1px solid #2B333A}
+.rl-hero .mk{width:40px;height:40px;border-radius:10px;background:#14181C;border:1px solid #3a3226;display:grid;place-items:center;color:#D4A354;font-family:Georgia,serif;font-size:20px}
+.rl-hero h2{font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:600;letter-spacing:-.01em}
+.rl-hero h2 span{color:#D4A354}
+.rl-hero p{color:#8D969E;font-size:12.5px;margin-top:2px}
+.rl-hero .acts .act{background:transparent;color:#EDEAE3;border-color:#3a434b}
+.rl-hero .acts .act.gold{background:#C29545;color:#1B2126;border-color:#C29545;font-weight:600}
+.kpi.rl .v{color:var(--realty)}
+.rl-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.rl-form .full{grid-column:1/-1}
+.rl-form input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);outline:none}
+.rl-form input:focus{border-color:var(--realty)}
+.btn.rl{background:#C29545;color:#1B2126;font-weight:600}
+.rl-msg{font-size:12.5px;margin-top:8px;min-height:16px}
+td .stk{display:block;font-size:11.5px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -286,6 +307,7 @@ nav.tabs .tab-count:not(:empty){display:inline-block;min-width:18px;padding:0 5p
     <button data-t="visitors">Visitors</button>
     <button data-t="nmclients">NeverMiss clients</button>
     <button data-t="dkshops">Docket shops</button>
+    <button data-t="realty">Realty <span class="tab-count" id="rl-count"></span></button>
     <button data-t="helpline">Helpline</button>
     <button data-t="uptime">Uptime</button>
     <span class="tabsep"></span>
@@ -362,6 +384,29 @@ nav.tabs .tab-count:not(:empty){display:inline-block;min-width:18px;padding:0 5p
       <div class="tw"><table><thead><tr><th>Shop</th><th>Contact</th><th>Plan</th><th>Type</th><th>Expires</th><th class="num">Jobs</th><th class="num">Bills</th><th class="num">Sales</th><th>Last activity</th></tr></thead><tbody id="dk"></tbody></table></div>
     </div>
     <div class="card sec"><h2>Docket payments <span class="c" id="dkpay-count"></span></h2><div id="dkpay"></div></div>
+  </section>
+
+
+  <section data-p="realty" class="hide">
+    <div class="rl-hero">
+      <div class="mk">∩</div>
+      <div style="flex:1;min-width:220px"><h2>NeverMiss <span>Realty</span></h2><p id="rl-sub">WhatsApp AI for builders &amp; brokers · loading…</p></div>
+      <div class="acts" style="margin:0">
+        <a class="act gold" id="rl-app-link" target="_blank" rel="noopener" href="#">Builder app ↗</a>
+        <a class="act" href="/realty.html" target="_blank" rel="noopener">Realty website ↗</a>
+        <button class="act" onclick="loadRealty()" style="cursor:pointer">↻ Refresh</button>
+      </div>
+    </div>
+    <div id="rl-warn"></div>
+    <div class="kpis" id="rl-kpis"></div>
+    <div class="card sec"><h2>Builders &amp; brokers <span class="c" id="rl-bcount"></span></h2>
+      <div class="filters"><input class="i" id="rl-q" placeholder="Search company or email…" oninput="renderRealty()"/>
+        <select class="i" id="rl-only" style="width:auto" onchange="renderRealty()">
+          <option value="">All</option><option value="pending">Waiting for WhatsApp</option><option value="live">Live on WhatsApp</option><option value="callbacks">Has call-backs</option>
+        </select></div>
+      <div class="tw"><table><thead><tr><th>Builder</th><th>WhatsApp</th><th>Setup</th><th class="num">Leads</th><th class="num">Hot</th><th class="num">Call-backs</th><th class="num">Visits</th><th>Last activity</th><th></th></tr></thead><tbody id="rl-builders"></tbody></table></div>
+    </div>
+    <div class="card sec"><h2>Latest buyer enquiries <span class="c">across all builders</span></h2><div id="rl-leads"></div></div>
   </section>
 
   <section data-p="uptime" class="hide">
@@ -597,6 +642,7 @@ async function load(silent) {
   $("warn").innerHTML = warns.length ? `<div class="warnbox">${warns.map(esc).join("<br>")}</div>` : "";
   build();
   render();
+  loadRealty(true);   // keeps the Realty tab badge (builders waiting for WhatsApp) current
   $("updated").textContent = "Updated " + new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" }) + " · auto-refreshes every minute";
 }
 function logoutToLogin(msg) {
@@ -952,6 +998,7 @@ function showTab(t) {
   const isAdm = String(t).indexOf("adm-") === 0;
   ["prod-seg", "days-seg"].forEach(id => { const el = $(id); if (el) el.classList.toggle("hide", isAdm); });
   if (isAdm) admOnShow(t.slice(4));
+  if (t === "realty") loadRealty();
   try { history.replaceState(null, "", "#" + t); } catch (e) {}
   window.scrollTo({ top: 0 });
 }
@@ -1631,6 +1678,127 @@ function ctCopyAll() {
   ctCopy('Business: ' + sel.options[sel.selectedIndex].getAttribute('data-name') + '\n\n' + ctLog.join('\n'), 'Chat copied');
 }
 
+
+
+/* ================= NeverMiss Realty ================= */
+const REALTY_API = "https://nevermiss-realty-268327939ce4.herokuapp.com";
+let RL = null;
+const inr = v => { const n = Number(v); if (!v || isNaN(n)) return "—"; return n >= 1e7 ? "₹" + (n / 1e7).toFixed(2).replace(/\.?0+$/, "") + " Cr" : n >= 1e5 ? "₹" + (n / 1e5).toFixed(1).replace(/\.0$/, "") + " L" : "₹" + n.toLocaleString("en-IN"); };
+const scoreB = s => s === "hot" ? '<span class="badge bad">hot</span>' : s === "warm" ? '<span class="badge warn">warm</span>' : s ? '<span class="badge">cold</span>' : '<span class="badge">new</span>';
+
+async function loadRealty(silent) {
+  if (!silent) $("rl-sub").textContent = "WhatsApp AI for builders & brokers · loading… (server may take ~20s to wake)";
+  try {
+    const r = await fetch(REALTY_API + "/admin/realty-overview", { headers: { Authorization: "Bearer " + TOKEN } });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.success) throw new Error(r.status === 403 ? "HQ login not accepted by the Realty server — check NEVERMISS_API_URL on Heroku" : (d.error || "HTTP " + r.status));
+    RL = d; $("rl-warn").innerHTML = "";
+  } catch (e) {
+    $("rl-warn").innerHTML = `<div class="warnbox">Realty: ${esc(e.message === "Failed to fetch" ? "Couldn't reach the Realty server (it may be asleep — try Refresh)." : e.message)}</div>`;
+    $("rl-sub").textContent = "WhatsApp AI for builders & brokers";
+    return;
+  }
+  $("rl-app-link").href = RL.app_url + "/login.html";
+  $("rl-sub").textContent = "WhatsApp AI for builders & brokers · updated " + new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+  const pend = RL.totals.awaiting_connection;
+  $("rl-count").textContent = pend ? pend : "";
+  renderRealty();
+}
+
+function renderRealty() {
+  if (!RL) return;
+  const t = RL.totals;
+  const k = (l, v, sub, cls) => `<div class="card kpi ${cls || ""}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${sub || ""}</div></div>`;
+  $("rl-kpis").innerHTML =
+    k("Builders", t.builders, `${t.live} live · ${t.awaiting_connection} waiting`, "rl") +
+    k("Buyer leads", t.leads, `${t.leads_7d} this week`) +
+    k("Hot leads", t.hot, "ready to buy") +
+    k("Call-backs open", t.callbacks, "buyers asked for a call") +
+    k("Visits ahead", t.visits_upcoming, "pending + confirmed") +
+    k("Bookings", t.booked, "marked booked") +
+    k("Buyer messages", t.messages_this_month, "this month");
+
+  const q = $("rl-q").value.trim().toLowerCase(), only = $("rl-only").value;
+  const list = RL.builders.filter(b => {
+    if (q && !((b.company_name || "") + " " + (b.email || "")).toLowerCase().includes(q)) return false;
+    if (only === "pending" && b.whatsapp_connected) return false;
+    if (only === "live" && !b.whatsapp_connected) return false;
+    if (only === "callbacks" && !b.callbacks) return false;
+    return true;
+  });
+  $("rl-bcount").textContent = RL.builders.length;
+  $("rl-builders").innerHTML = list.map(b => {
+    const i = RL.builders.indexOf(b);
+    const name = b.company_name && b.company_name !== "Unnamed Builder" ? b.company_name : "(no company name yet)";
+    return `<tr class="click" onclick="openBuilder(${i})" style="cursor:pointer">
+      <td><b>${esc(name)}</b><span class="stk">${esc(b.email || "")} · ${b.business_type === "broker" ? "Broker" : "Developer"}</span></td>
+      <td>${b.whatsapp_connected ? `<span class="badge good">● Live</span><span class="stk">${esc(prettyPhone(b.display_phone || ""))}</span>` : '<span class="badge warn">Waiting</span>'}</td>
+      <td>${b.setup_done ? `<span class="badge good">${b.projects} project${b.projects === 1 ? "" : "s"}</span>` : b.sample_only ? '<span class="badge">sample only</span>' : '<span class="badge">not started</span>'}<span class="stk">${b.files} file${b.files === 1 ? "" : "s"}${b.alert_phone ? " · alerts on" : ""}</span></td>
+      <td class="num">${b.leads}<span class="stk">+${b.leads_7d} wk</span></td>
+      <td class="num">${b.hot}</td>
+      <td class="num">${b.callbacks ? `<b style="color:var(--bad)">${b.callbacks}</b>` : 0}</td>
+      <td class="num">${b.visits_upcoming}</td>
+      <td class="when">${b.last_activity ? ago(b.last_activity) : "—"}<span class="stk">joined ${fmtDate(b.created_at)}</span></td>
+      <td>${b.whatsapp_connected ? "" : '<span class="act" style="white-space:nowrap">Connect →</span>'}</td></tr>`;
+  }).join("") || '<tr><td colspan="9" class="empty">No builders yet. Share the builder app link to get the first signup.</td></tr>';
+
+  $("rl-leads").innerHTML = (RL.recent_leads || []).slice(0, 25).map(l => `
+    <div class="row"><div class="av">${esc(initials(l.name || "B"))}</div>
+      <div class="grow"><div class="nm1">${esc(l.name || prettyPhone(l.phone))} ${scoreB(l.score)} ${l.handover_requested_at ? '<span class="badge bad">call back</span>' : ""} ${l.is_returning ? '<span class="badge">returning</span>' : ""}</div>
+        <div class="meta">${esc([l.preferred_bhk, inr(l.budget_min) !== "—" ? inr(l.budget_min) : "", l.preferred_location].filter(Boolean).join(" · ") || "Qualifying…")}</div>
+        <div class="tags"><span class="badge rl">${esc(l.company_name || "")}</span></div></div>
+      <div class="when">${ago(l.last_message_at)}</div></div>`).join("") || '<div class="empty">No buyer enquiries yet.</div>';
+}
+
+function openBuilder(i) {
+  const b = RL && RL.builders[i]; if (!b) return;
+  const name = b.company_name && b.company_name !== "Unnamed Builder" ? b.company_name : "(no company name yet)";
+  $("drawer-pn").innerHTML = `<button class="btn ghost" onclick="closeDrawer()" style="float:right">✕</button>
+    <div style="font-size:18px;font-weight:700">${esc(name)}</div>
+    <div class="meta">${esc(b.email || "")} · ${b.business_type === "broker" ? "Broker" : "Developer"} · plan ${esc(b.plan || "trial")}</div>
+    <div class="tags" style="margin:8px 0">${b.whatsapp_connected ? '<span class="badge good">Live on WhatsApp</span>' : '<span class="badge warn">Waiting for WhatsApp</span>'}<span class="badge rl">Realty</span></div>
+    ${contactActs("", b.email)}
+    <div class="kpis" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">
+      <div class="card kpi"><div class="l">Leads</div><div class="v">${b.leads}</div></div>
+      <div class="card kpi"><div class="l">Hot</div><div class="v">${b.hot}</div></div>
+      <div class="card kpi"><div class="l">Visits ahead</div><div class="v">${b.visits_upcoming}</div></div></div>
+    <div class="meta" style="white-space:normal;line-height:1.6">
+      Projects: <b>${b.projects}</b>${b.sample_only ? " (only the sample)" : ""} · Files: <b>${b.files}</b> · Team alerts: <b>${b.alert_phone ? "+" + esc(b.alert_phone) : "not set"}</b><br>
+      ${b.whatsapp_connected ? `Number: <b>${esc(prettyPhone(b.display_phone || ""))}</b> · phone_number_id <span class="mono">${esc(b.phone_number_id)}</span>${b.waba_id ? ` · WABA <span class="mono">${esc(b.waba_id)}</span>` : ""}` : "Not connected to WhatsApp yet."}
+    </div>
+    <h3 style="font-size:14px;margin:18px 0 2px">${b.whatsapp_connected ? "Change WhatsApp number" : "Connect WhatsApp number"}</h3>
+    <div class="meta" style="white-space:normal">Add the number to the NeverMiss Realty WABA in WhatsApp Manager first, then paste its IDs here. Leave the token empty to use the System User token.</div>
+    <form class="rl-form" onsubmit="connectBuilder(event, ${i})">
+      <input id="rl-pnid" placeholder="Phone number ID *" value="${esc(b.phone_number_id || "")}" required>
+      <input id="rl-waba" placeholder="WABA ID" value="${esc(b.waba_id || "")}">
+      <input id="rl-disp" class="full" placeholder="Display number, e.g. 919876543210" value="${esc(b.display_phone || "")}">
+      <input id="rl-token" class="full" placeholder="Access token (optional)">
+      <button class="btn rl full" type="submit" id="rl-connect-btn">${b.whatsapp_connected ? "Update connection" : "Connect & go live"}</button>
+    </form>
+    <div class="rl-msg" id="rl-msg"></div>`;
+  $("drawer").classList.add("open");
+}
+
+async function connectBuilder(ev, i) {
+  ev.preventDefault();
+  const b = RL.builders[i], btn = $("rl-connect-btn"), msg = $("rl-msg");
+  const payload = { client_id: b.id, phone_number_id: $("rl-pnid").value.trim(), waba_id: $("rl-waba").value.trim(),
+                    display_phone: $("rl-disp").value.replace(/\D/g, "") };
+  if ($("rl-token").value.trim()) payload.access_token = $("rl-token").value.trim();
+  btn.disabled = true; msg.style.color = "var(--muted)"; msg.textContent = "Connecting…";
+  try {
+    const r = await fetch(REALTY_API + "/admin/connect", { method: "POST",
+      headers: { Authorization: "Bearer " + TOKEN, "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.success) throw new Error(d.error || "HTTP " + r.status);
+    const sub = d.subscribed_apps;
+    const subOk = sub && sub.status === 200;
+    msg.style.color = "var(--good)";
+    msg.textContent = "Connected ✓ " + (payload.waba_id ? (subOk ? "WABA subscribed to the app." : "Saved, but subscribing the WABA failed — check the token.") : "");
+    await loadRealty(true);
+  } catch (e) { msg.style.color = "var(--bad)"; msg.textContent = e.message; }
+  btn.disabled = false;
+}
 
 /* ---------- boot ---------- */
 (function boot() {

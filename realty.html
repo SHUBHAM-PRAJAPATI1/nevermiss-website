@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NeverMiss Realty — WhatsApp AI sales assistant for builders &amp; brokers</title>
+<meta name="description" content="NeverMiss Realty answers every property enquiry on WhatsApp in seconds — prices, RERA, floor plans and brochures from your own project data — qualifies the buyer, books site visits and sends hot leads to your sales team. For developers and brokers in India.">
+<link rel="canonical" href="https://nevermiss.co.in/realty.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nevermiss.co.in/realty.html">
+<meta property="og:title" content="NeverMiss Realty — WhatsApp AI sales assistant for builders &amp; brokers">
+<meta property="og:description" content="Every property enquiry answered in seconds, qualified, and turned into a site visit. Built for Indian developers and brokers.">
+<meta property="og:image" content="https://nevermiss.co.in/nevermiss-og-image.png">
+<meta property="og:locale" content="en_IN">
+<meta property="og:site_name" content="NeverMiss">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14181C">
+<link rel="icon" type="image/png" sizes="32x32" href="/nevermiss-favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/nevermiss-favicon-16.png">
+<link rel="apple-touch-icon" href="/nevermiss-apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"NeverMiss Realty","url":"https://nevermiss.co.in/realty.html","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"WhatsApp AI sales assistant for real estate developers and brokers: answers enquiries from your project data, qualifies buyers, books site visits and alerts your sales team.","offers":{"@type":"AggregateOffer","priceCurrency":"INR","lowPrice":"2999","highPrice":"7999","offerCount":"3"},"provider":{"@type":"Organization","name":"NeverMiss","url":"https://nevermiss.co.in/","areaServed":"IN"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hind:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+<script src="/nm-track.js" data-endpoint="https://nevermiss-api-05de8a834ac4.herokuapp.com/api/track" data-product="nevermiss" defer></script>
+
+<style>
+/* NeverMiss Realty: the premium vertical. Dark charcoal, brass, a serif
+   display face. The master frame (nav, footer) stays NeverMiss; everything
+   between them reads like a developer's sales lounge, not a SaaS page. */
+:root{
+  --bg:#14181C; --surface:#1B2126; --raised:#212830; --ink:#EDEAE3; --muted:#9AA3AB; --line:#2B333A;
+  --brand:#C29545; --brand-deep:#A97E35; --brand-ink:#14181C; --soft:rgba(194,149,69,.12); --accent:#D4A354;
+  --hot:#D0603C; --sage:#7FA486;
+  --display:"Fraunces", Georgia, serif; --display-weight:600; --display-tracking:-0.02em;
+  --body:"Inter", system-ui, sans-serif;
+}
+body{font-family:var(--body);font-size:16.5px;background:var(--bg);color:var(--ink);}
+section{padding:96px 0;}
+h1{font-size:clamp(2.4rem,5.2vw,4.2rem);line-height:1.04;font-weight:600;}
+h1 em{font-style:italic;color:var(--accent);font-weight:500;}
+h2{font-size:clamp(1.8rem,3.4vw,2.7rem);}
+.lede{color:var(--muted);}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:22px;}
+.eyebrow::before{content:"";width:28px;height:1.5px;background:var(--brand);}
+.btn-main{background:var(--brand);color:var(--brand-ink);}
+.btn-main:hover{background:var(--accent);}
+.btn-line{color:var(--ink);border-color:#4a535b;}
+.btn-line:hover{background:var(--raised);border-color:var(--brand);}
+:focus-visible{outline-color:var(--brand);}
+.rule{height:1px;background:linear-gradient(90deg,transparent,var(--line) 15%,var(--line) 85%,transparent);}
+
+/* ---------- hero ---------- */
+.hero{padding:84px 0 96px;position:relative;overflow:hidden;
+  background:radial-gradient(900px 500px at 85% -10%,rgba(194,149,69,.16),transparent 60%),
+             radial-gradient(700px 400px at -10% 110%,rgba(194,149,69,.07),transparent 60%),var(--bg);}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:64px;align-items:center;}
+.brandline{display:flex;align-items:center;gap:12px;margin-bottom:26px;}
+.brandline svg{width:38px;height:38px;}
+.brandline b{font-family:var(--display);font-size:1.3rem;font-weight:600;}
+.brandline b span{color:var(--accent);}
+.brandline i{font-style:normal;font-size:.78rem;color:var(--muted);border:1px solid var(--line);padding:3px 10px;border-radius:20px;margin-left:4px;}
+.hero .lede{margin-top:22px;font-size:1.13rem;}
+.proof{display:flex;flex-wrap:wrap;gap:28px;margin-top:40px;padding-top:28px;border-top:1px solid var(--line);}
+.proof div{display:flex;flex-direction:column;}
+.proof b{font-family:var(--display);font-size:1.6rem;font-weight:600;color:var(--ink);}
+.proof span{font-size:.84rem;color:var(--muted);}
+
+/* lead card stack (hero visual) */
+.stage{position:relative;min-height:560px;}
+.chat{position:absolute;right:0;top:0;width:330px;background:#0E1215;border:1px solid var(--line);border-radius:28px;padding:8px;box-shadow:0 40px 90px -30px rgba(0,0,0,.8);}
+.chat .scr{border-radius:22px;overflow:hidden;background:#0B141A;}
+.chat .top{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#1F2C33;color:#E9EDEF;}
+.chat .av{width:32px;height:32px;border-radius:50%;background:#14181C;border:1px solid #3a3226;display:grid;place-items:center;}
+.chat .av svg{width:20px;height:20px;}
+.chat .nm{font-size:.92rem;font-weight:600;}
+.chat .st{font-size:.72rem;color:#8696A0;}
+.chat .bd{padding:14px 12px 16px;display:flex;flex-direction:column;gap:7px;font-size:.84rem;line-height:1.45;min-height:380px;}
+.m{max-width:84%;padding:7px 10px 16px;border-radius:9px;position:relative;opacity:0;transform:translateY(6px);animation:pop .45s ease forwards;}
+.m .t{position:absolute;right:8px;bottom:3px;font-size:.62rem;color:#8696A0;}
+.m.u{align-self:flex-end;background:#005C4B;color:#E9EDEF;}
+.m.b{align-self:flex-start;background:#1F2C33;color:#E9EDEF;}
+.m b{color:#F2D49B;font-weight:600;}
+.m.doc{display:flex;gap:9px;align-items:center;padding-bottom:16px;}
+.m.doc .ic{width:30px;height:36px;border-radius:4px;background:#C44;display:grid;place-items:center;font-size:.6rem;font-weight:700;color:#fff;flex:none;}
+@keyframes pop{to{opacity:1;transform:none;}}
+.lead{position:absolute;left:-8px;bottom:-56px;width:272px;background:var(--surface);border:1px solid #3a3226;border-radius:16px;padding:16px 18px;box-shadow:0 30px 70px -30px rgba(0,0,0,.9);opacity:0;animation:pop .6s ease 3.6s forwards;}
+.lead .h{display:flex;justify-content:space-between;align-items:center;font-size:.74rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.lead .hot{font-size:.7rem;font-weight:700;color:var(--hot);border:1px solid var(--hot);padding:1px 8px;border-radius:4px;letter-spacing:.08em;}
+.lead .n{font-family:var(--display);font-size:1.25rem;margin:8px 0 10px;}
+.lead dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:.84rem;}
+.lead dt{color:var(--muted);}
+.lead .v{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:.82rem;color:var(--sage);}
+@media (max-width:980px){.hero-grid{grid-template-columns:1fr;gap:48px;}.stage{min-height:600px;max-width:420px;margin:0 auto;width:100%;}.chat{right:0;}.lead{left:0;}}
+@media (max-width:480px){.chat{width:100%;position:relative;}.lead{position:relative;width:auto;margin-top:-30px;margin-left:16px;margin-right:16px;}.stage{min-height:0;}}
+
+/* ---------- problem ---------- */
+.pain{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:48px;}
+.pain>div{background:var(--surface);padding:30px 28px;}
+.pain .k{font-family:var(--display);font-size:2.4rem;color:var(--accent);line-height:1;}
+.pain h3{margin:16px 0 8px;font-family:var(--display);font-size:1.2rem;}
+.pain p{color:var(--muted);font-size:.95rem;}
+@media (max-width:860px){.pain{grid-template-columns:1fr;}}
+@media (max-width:560px){.brandline i{display:none;}.proof{gap:18px;}.proof b{font-size:1.3rem;}.proof div{flex:1;min-width:90px;}.proof span{font-size:.76rem;}}
+
+/* ---------- live demo ---------- */
+.demo{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.demo-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:64px;align-items:center;}
+.sheet{margin-top:28px;border:1px solid var(--line);border-radius:14px;background:var(--bg);padding:18px 20px;font-size:.88rem;}
+.sheet h4{font-family:var(--display);font-size:1.05rem;font-weight:600;}
+.sheet .sub{color:var(--muted);font-size:.8rem;margin:2px 0 12px;}
+.sheet table{width:100%;border-collapse:collapse;}
+.sheet td{padding:7px 0;border-top:1px solid var(--line);}
+.sheet td:last-child{text-align:right;color:var(--muted);}
+.sheet .so{color:var(--hot)!important;}
+.live{background:#0E1215;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 30px 80px -40px rgba(0,0,0,.9);}
+.live .top{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#1F2C33;}
+.live .top .av{width:38px;height:38px;border-radius:50%;background:#14181C;border:1px solid #3a3226;display:grid;place-items:center;}
+.live .top .av svg{width:24px;height:24px;}
+.live .top b{display:block;font-size:.95rem;color:#E9EDEF;}
+.live .top small{font-size:.75rem;color:#8696A0;}
+.live .top .tag{margin-left:auto;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid #4a3f2b;padding:3px 9px;border-radius:20px;}
+#lv-body{height:420px;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:8px;background:#0B141A;font-size:.9rem;line-height:1.5;}
+#lv-body .m{opacity:1;transform:none;animation:none;white-space:pre-wrap;word-wrap:break-word;}
+#lv-body .m a{color:#53BDEB;}
+.typing{align-self:flex-start;background:#1F2C33;border-radius:9px;padding:10px 14px;display:flex;gap:4px;}
+.typing i{width:6px;height:6px;border-radius:50%;background:#8696A0;animation:blink 1.2s infinite;}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0;background:#111B21;}
+.chips button{font:inherit;font-size:.8rem;background:transparent;border:1px solid #2f3b43;color:#C9D1D6;border-radius:16px;padding:5px 11px;cursor:pointer;}
+.chips button:hover{border-color:var(--brand);color:var(--accent);}
+.lv-in{display:flex;gap:8px;padding:12px 14px 14px;background:#111B21;}
+.lv-in input{flex:1;background:#1F2C33;border:1px solid transparent;color:#E9EDEF;border-radius:22px;padding:11px 16px;font:inherit;font-size:.92rem;outline:none;}
+.lv-in input:focus{border-color:var(--brand);}
+.lv-in button{background:var(--brand);color:var(--brand-ink);border:0;border-radius:50%;width:44px;height:44px;cursor:pointer;display:grid;place-items:center;flex:none;}
+.lv-in button svg{width:20px;height:20px;}
+.lv-note{font-size:.78rem;color:var(--muted);margin-top:12px;text-align:center;}
+@media (max-width:980px){.demo-grid{grid-template-columns:1fr;gap:40px;}}
+
+/* ---------- capabilities ---------- */
+.caps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px;}
+.cap{border:1px solid var(--line);border-radius:18px;padding:28px 26px;background:linear-gradient(180deg,var(--surface),var(--bg));transition:border-color .2s,transform .2s;}
+.cap:hover{border-color:#4a3f2b;transform:translateY(-2px);}
+.cap .ic{width:44px;height:44px;border-radius:12px;background:var(--soft);display:grid;place-items:center;color:var(--accent);margin-bottom:18px;}
+.cap .ic svg{width:22px;height:22px;}
+.cap h3{font-family:var(--display);font-size:1.18rem;margin-bottom:8px;}
+.cap p{color:var(--muted);font-size:.94rem;}
+@media (max-width:960px){.caps{grid-template-columns:1fr 1fr;}}
+@media (max-width:620px){.caps{grid-template-columns:1fr;}}
+
+/* ---------- sales head view ---------- */
+.desk{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:56px;align-items:center;}
+.ticks{list-style:none;margin-top:26px;display:flex;flex-direction:column;gap:14px;}
+.ticks li{display:grid;grid-template-columns:24px 1fr;gap:12px;color:var(--ink);}
+.ticks li::before{content:"";width:18px;height:18px;margin-top:4px;border-radius:50%;border:1.5px solid var(--brand);background:radial-gradient(circle,var(--brand) 0 3px,transparent 4px);}
+.ticks li span{color:var(--muted);display:block;font-size:.92rem;}
+.board{border:1px solid var(--line);border-radius:18px;background:var(--surface);overflow:hidden;box-shadow:0 40px 90px -50px rgba(0,0,0,.9);}
+.board .bh{display:flex;justify-content:space-between;align-items:flex-end;padding:20px 22px 16px;border-bottom:1px solid var(--line);}
+.board .bh b{font-family:var(--display);font-size:2.4rem;line-height:1;}
+.board .bh small{display:block;color:var(--muted);font-size:.78rem;margin-top:6px;}
+.board .bh .s{display:flex;gap:18px;}
+.board .bh .s div{border-left:1px solid var(--line);padding-left:14px;}
+.board .bh .s b{font-size:1.35rem;}
+.board table{width:100%;border-collapse:collapse;font-size:.85rem;}
+.board th{text-align:left;font-weight:500;color:var(--muted);font-size:.74rem;padding:10px 22px;border-bottom:1px solid var(--line);}
+.board td{padding:12px 22px;border-bottom:1px solid var(--line);}
+.board tr:last-child td{border-bottom:0;}
+.bdg{display:inline-block;font-size:.68rem;font-weight:600;padding:1px 8px;border-radius:3px;border:1px solid;letter-spacing:.04em;text-transform:uppercase;}
+.bdg.h{color:var(--hot);}.bdg.w{color:var(--accent);}.bdg.c{color:#6E8C9C;}
+@media (max-width:960px){.desk{grid-template-columns:1fr;}.board .hide-s{display:none;}}
+
+/* ---------- process ---------- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:48px;border-top:1px solid var(--line);}
+.step{padding:30px 28px 0 0;}
+.step .n{font-family:var(--display);font-size:3rem;color:transparent;-webkit-text-stroke:1px var(--brand);line-height:1;}
+.step h3{font-family:var(--display);font-size:1.2rem;margin:14px 0 8px;}
+.step p{color:var(--muted);font-size:.95rem;max-width:32ch;}
+@media (max-width:860px){.steps{grid-template-columns:1fr;gap:10px;}}
+
+/* ---------- promises ---------- */
+.promise{border:1px solid #3a3226;border-radius:20px;padding:40px;background:linear-gradient(135deg,rgba(194,149,69,.08),transparent 60%),var(--surface);display:grid;grid-template-columns:.8fr 1.2fr;gap:44px;}
+.promise ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:20px 28px;}
+.promise li b{display:block;font-weight:600;margin-bottom:3px;}
+.promise li span{color:var(--muted);font-size:.92rem;}
+@media (max-width:860px){.promise{grid-template-columns:1fr;padding:28px;}.promise ul{grid-template-columns:1fr;}}
+
+/* ---------- pricing ---------- */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px;}
+.tier{border:1px solid var(--line);border-radius:20px;padding:30px 28px;background:var(--surface);display:flex;flex-direction:column;}
+.tier.pop{border-color:var(--brand);background:linear-gradient(180deg,rgba(194,149,69,.10),var(--surface) 40%);position:relative;}
+.tier.pop::before{content:"Recommended";position:absolute;top:-12px;left:28px;background:var(--brand);color:var(--brand-ink);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.04em;}
+.tier h3{font-family:var(--display);font-size:1.35rem;}
+.tier .for{color:var(--muted);font-size:.9rem;margin-top:4px;min-height:2.8em;}
+.tier .pr{font-family:var(--display);font-size:2.4rem;margin:18px 0 2px;}
+.tier .pr span{font-family:var(--body);font-size:.9rem;color:var(--muted);}
+.tier ul{list-style:none;margin:20px 0 26px;display:flex;flex-direction:column;gap:9px;font-size:.92rem;}
+.tier li{display:grid;grid-template-columns:18px 1fr;gap:10px;}
+.tier li::before{content:"✓";color:var(--accent);font-weight:700;}
+.tier .btn{margin-top:auto;width:100%;}
+.founder-box{margin-top:22px;border:1px dashed #4a3f2b;border-radius:16px;padding:22px 26px;display:flex;gap:24px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.founder-box b{font-family:var(--display);font-size:1.15rem;}
+.founder-box p{color:var(--muted);font-size:.93rem;margin-top:4px;max-width:62ch;}
+@media (max-width:960px){.tiers{grid-template-columns:1fr;}}
+
+/* ---------- faq + contact (dark versions of the shared blocks) ---------- */
+.faq details{border-color:var(--line)!important;background:var(--surface);}
+.faq summary{color:var(--ink);}
+.faq details p{color:var(--muted);}
+.faq a{color:var(--accent);}
+.contact-grid .lede{color:var(--muted);}
+.contact-alt a{color:var(--ink);}
+.form{background:var(--surface)!important;border:1px solid var(--line)!important;color:var(--ink);}
+.form-group label{color:var(--muted)!important;}
+.form-group input,.form-group select{background:var(--bg)!important;border-color:var(--line)!important;color:var(--ink)!important;}
+.form-group input:focus,.form-group select:focus{border-color:var(--brand)!important;}
+.form-submit{background:var(--brand)!important;color:var(--brand-ink)!important;}
+.form-submit:hover{background:var(--accent)!important;}
+.form-note,.form-done p{color:var(--muted)!important;}
+.form-done h3{color:var(--ink);}
+.login-strip{border-top:1px solid var(--line);padding:26px 0;text-align:center;color:var(--muted);font-size:.92rem;}
+.login-strip a{color:var(--accent);font-weight:600;}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <div class="wrap nav-in">
+    <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span><span class="sr-only">home</span></a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="nav-links">
+      <div class="nav-for" data-open="false">
+        <button type="button" aria-expanded="false" aria-haspopup="true">Who it's for<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="nav-menu"><a href="/coaching.html"><span class="sw" style="background:#0F766E"></span><span><b>Coaching institutes</b><small>JEE, NEET, CET, board, MPSC and tuition classes</small></span></a><a href="/salons.html"><span class="sw" style="background:#6B2D4A"></span><span><b>Salons &amp; beauty</b><small>Salons, parlours, makeup and bridal studios</small></span></a><a href="/fitness.html"><span class="sw" style="background:#2438A8"></span><span><b>Gyms &amp; studios</b><small>Gyms, yoga, dance, music and sports academies</small></span></a><a href="/clinics.html"><span class="sw" style="background:#1F5F8B"></span><span><b>Clinics &amp; labs</b><small>Dental, skin, physio, eye, diagnostic and pet clinics</small></span></a><a href="/realty.html" aria-current="page"><span class="sw" style="background:#C29545"></span><span><b>Real estate · Realty</b><small>Developers, builders and brokers</small></span></a></div>
+      </div>
+      <a href="#pricing">Pricing</a>
+      <a href="#demo">Live demo</a>
+      <a href="https://wa.me/917004020840?text=Hi%2C%20I%20have%20a%20question%20about%20NeverMiss%20Realty" target="_blank" rel="noopener">Support</a>
+      <a href="https://nevermiss-realty-268327939ce4.herokuapp.com/login.html">Builder log in</a>
+      <a href="#contact" class="nav-cta">Book a private demo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="brandline">
+        <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M162.9 395.7 V233.0 A93.2 93.2 0 0 1 349.1 233.0 V395.7" fill="none" stroke="#C29545" stroke-width="41.9" stroke-linecap="square"/><line x1="256" y1="395.7" x2="256" y2="246.8" stroke="#C29545" stroke-width="18.6" stroke-linecap="square"/></svg>
+        <b>NeverMiss <span>Realty</span></b><i>for developers &amp; brokers</i>
+      </div>
+      <h1>Every property enquiry, answered <em>before your competitor's.</em></h1>
+      <p class="lede">A WhatsApp sales assistant that knows your projects by heart. It quotes your prices, RERA and possession dates, sends the brochure and floor plans, qualifies the buyer and books the site visit — at 11 PM on a Sunday, in Hindi, Marathi or English. Your sales team only gets the buyers worth calling.</p>
+      <div class="btn-row">
+        <a href="#contact" class="btn btn-main">Book a private demo</a>
+        <a href="#demo" class="btn btn-line">Talk to it as a buyer</a>
+      </div>
+      <div class="proof">
+        <div><b>24 × 7</b><span>replies within seconds</span></div>
+        <div><b>3</b><span>languages: Hindi, Marathi, English</span></div>
+        <div><b>0</b><span>prices it makes up — only yours</span></div>
+      </div>
+    </div>
+
+    <div class="stage" role="img" aria-label="Example WhatsApp chat where the assistant answers a buyer, sends the floor plan and books a site visit, and the resulting hot-lead card for the sales team">
+      <div class="chat">
+        <div class="scr">
+          <div class="top"><div class="av"><svg viewBox="0 0 512 512"><path d="M162.9 395.7 V233.0 A93.2 93.2 0 0 1 349.1 233.0 V395.7" fill="none" stroke="#C29545" stroke-width="41.9"/><line x1="256" y1="395.7" x2="256" y2="246.8" stroke="#C29545" stroke-width="18.6"/></svg></div><div><div class="nm">Keystone Developers</div><div class="st">online</div></div></div>
+          <div class="bd">
+            <div class="m u" style="animation-delay:.2s">Hi, 3BHK in Baner ka price kya hai? Possession kab?<span class="t">11:04 PM</span></div>
+            <div class="m b" style="animation-delay:.9s">Namaste! 🙏 <b>Keystone Residences, Baner</b> mein 3BHK (1,120 sq ft carpet) <b>₹1.42 – 1.65 Cr</b> hai. Possession <b>Dec 2028</b>, RERA registered.<br>Aapka budget kitna hai?<span class="t">11:04 PM</span></div>
+            <div class="m u" style="animation-delay:1.7s">Around 1.5 Cr. Floor plan bhejo<span class="t">11:05 PM</span></div>
+            <div class="m b doc" style="animation-delay:2.3s"><span class="ic">PDF</span><span>3BHK floor plan — Tower A<br><small style="color:#8696A0">2 pages · PDF</small></span><span class="t">11:05 PM</span></div>
+            <div class="m b" style="animation-delay:2.9s">Sample flat ready hai — Sunday 11 AM site visit book karoon? 🏡<span class="t">11:05 PM</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="lead">
+        <div class="h"><span>New lead · Keystone</span><span class="hot">HOT</span></div>
+        <div class="n">Rohan Kulkarni</div>
+        <dl><dt>Looking for</dt><dd>3BHK · Baner</dd><dt>Budget</dt><dd>₹1.5 Cr</dd><dt>Timeline</dt><dd>Immediate</dd><dt>Home loan</dt><dd>Needed</dd></dl>
+        <div class="v">📅 Site visit requested · Sun, 11 AM</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- PROBLEM -->
+<section aria-labelledby="pain-h">
+  <div class="wrap">
+    <div class="eyebrow">The leak in your funnel</div>
+    <h2 id="pain-h" style="max-width:20ch">Your ads already bring buyers. The reply is where they slip away.</h2>
+    <div class="pain">
+      <div><div class="k">11 PM</div><h3>Buyers enquire after work</h3><p>Portal and ad enquiries peak in the evening and on weekends, exactly when your sales team is off. By morning, they've messaged three other projects.</p></div>
+      <div><div class="k">×20</div><h3>The same five questions</h3><p>Price, carpet area, possession, RERA, loan. Your team answers them twenty times a day instead of calling the buyers who are ready.</p></div>
+      <div><div class="k">?</div><h3>No idea who's serious</h3><p>A WhatsApp inbox doesn't tell you budget, timeline or intent. Hot buyers wait in the same queue as window-shoppers.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="demo" id="demo" aria-labelledby="demo-h">
+  <div class="wrap demo-grid">
+    <div>
+      <div class="eyebrow">Live — not a recording</div>
+      <h2 id="demo-h">Ask it anything a buyer would.</h2>
+      <p class="lede" style="margin-top:16px">This is the real assistant, set up for a sample project. Try Hinglish, ask about the loan, ask for a discount, ask for a site visit on Sunday. It only uses the project sheet below — exactly how it works with yours.</p>
+      <div class="sheet">
+        <h4>Keystone Residences · Baner, Pune</h4>
+        <div class="sub">Sample project sheet · RERA P52100054321 (demo) · G+24, 3.2 acres</div>
+        <table>
+          <tr><td>2BHK · 780 sq ft</td><td>₹98 L – ₹1.12 Cr</td></tr>
+          <tr><td>3BHK · 1,120 sq ft</td><td>₹1.42 – ₹1.65 Cr</td></tr>
+          <tr><td>4BHK · 1,650 sq ft</td><td class="so">Sold out</td></tr>
+          <tr><td>Offer</td><td>No floor-rise + modular kitchen</td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="live">
+        <div class="top">
+          <div class="av"><svg viewBox="0 0 512 512"><path d="M162.9 395.7 V233.0 A93.2 93.2 0 0 1 349.1 233.0 V395.7" fill="none" stroke="#C29545" stroke-width="41.9"/><line x1="256" y1="395.7" x2="256" y2="246.8" stroke="#C29545" stroke-width="18.6"/></svg></div>
+          <div><b>Keystone Developers</b><small id="lv-status">online</small></div>
+          <span class="tag">Live AI</span>
+        </div>
+        <div id="lv-body" aria-live="polite">
+          <div class="m b">Namaste! 👋 Welcome to <b>Keystone Residences, Baner</b>. I can share prices, floor plans, the brochure, or book a site visit. What are you looking for?</div>
+        </div>
+        <div class="chips" id="lv-chips">
+          <button type="button">2BHK price?</button>
+          <button type="button">Possession kab hai?</button>
+          <button type="button">Is it RERA approved?</button>
+          <button type="button">Send brochure</button>
+          <button type="button">Koi discount milega?</button>
+          <button type="button">Site visit this Sunday</button>
+        </div>
+        <form class="lv-in" id="lv-form">
+          <input id="lv-text" autocomplete="off" maxlength="400" placeholder="Type like a buyer would…" aria-label="Message">
+          <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5l18-8.5L3 3.5v6.6l12 1.9-12 1.9z"/></svg></button>
+        </form>
+      </div>
+      <p class="lv-note">Nothing you type here is stored or sent to anyone.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section aria-labelledby="caps-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">What it does</div>
+      <h2 id="caps-h">A relationship manager that never logs off.</h2>
+      <p class="lede">Built only for property sales — not a generic chatbot with a real estate template.</p>
+    </div>
+    <div class="caps">
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6"/></svg></div><h3>Knows every project</h3><p>Configurations, carpet areas, price bands, units left, possession, RERA, amenities, offers, payment plan and nearby landmarks — straight from your project sheet.</p></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg></div><h3>Qualifies while it talks</h3><p>Answers first, then picks up name, BHK, budget, location, timeline, purpose and loan need — one natural question at a time, never a form.</p></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3 4 4.5 4 8a4 4 0 01-8 0c0-1.5.5-2.5 1.5-3.5C9.5 9 11 9 12 2z"/><path d="M8 14a4 4 0 008 0"/></svg></div><h3>Hot · Warm · Cold</h3><p>Every buyer is scored on budget fit, urgency and intent. Hot leads reach your sales head on WhatsApp the moment they qualify.</p></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></div><h3>Brochures &amp; floor plans</h3><p>"Send floor plan" gets the right PDF or image for the project they asked about — brochure, unit plans, cost sheet or photos.</p></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/></svg></div><h3>Books site visits</h3><p>Understands "this Sunday morning" or "kal shaam". You confirm in one click and the buyer gets a WhatsApp confirmation with the location.</p></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.4 1.8.7 2.7a2 2 0 01-.5 2.1L8 9.8a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4c.9.3 1.8.6 2.7.7a2 2 0 011.7 2z"/></svg></div><h3>Hands over to a human</h3><p>"Call me" alerts your team instantly. A salesperson can take over the chat from the dashboard — the AI steps aside until you hand it back.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- SALES DESK -->
+<section aria-labelledby="desk-h">
+  <div class="wrap desk">
+    <div>
+      <div class="eyebrow">For your sales head</div>
+      <h2 id="desk-h">Wake up to a ranked list, not an inbox.</h2>
+      <ul class="ticks">
+        <li><div>Every buyer, scored and summarised<span>Budget, configuration, timeline, loan need and a one-line AI summary of the chat.</span></div></li>
+        <li><div>Site visits in one place<span>Confirm, mark visited or no-show. Confirming WhatsApps the buyer automatically.</span></div></li>
+        <li><div>Returning buyers flagged<span>The same buyer enquiring again is recognised — no duplicate leads.</span></div></li>
+        <li><div>Your data, exportable<span>Download every lead as a spreadsheet for your CRM, any time.</span></div></li>
+      </ul>
+    </div>
+    <div class="board" role="img" aria-label="Example builder dashboard with lead counts and a list of scored leads">
+      <div class="bh">
+        <div><b>148</b><small>Leads this month</small></div>
+        <div class="s"><div><b style="color:var(--hot)">23</b><small>Hot</small></div><div><b>17</b><small>Visits booked</small></div><div><b>4</b><small>Bookings</small></div></div>
+      </div>
+      <table>
+        <thead><tr><th>Buyer</th><th>Score</th><th>Looking for</th><th class="hide-s">Budget</th><th class="hide-s">Next step</th></tr></thead>
+        <tbody>
+          <tr><td>Rohan K.</td><td><span class="bdg h">Hot</span></td><td>3BHK</td><td class="hide-s">₹1.5 Cr</td><td class="hide-s">Visit · Sun 11 AM</td></tr>
+          <tr><td>Sneha P.</td><td><span class="bdg h">Hot</span></td><td>2BHK</td><td class="hide-s">₹1.05 Cr</td><td class="hide-s">Asked for call back</td></tr>
+          <tr><td>Amit S.</td><td><span class="bdg w">Warm</span></td><td>2BHK</td><td class="hide-s">₹95 L</td><td class="hide-s">Brochure sent</td></tr>
+          <tr><td>Fatima R.</td><td><span class="bdg c">Cold</span></td><td>3BHK</td><td class="hide-s">—</td><td class="hide-s">Exploring</td></tr>
+        </tbody>
+      </table>
+      <div style="padding:10px 22px;font-size:.75rem;color:var(--muted);border-top:1px solid var(--line)">Example dashboard. Names and numbers are illustrative.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section style="padding-top:24px" aria-labelledby="steps-h">
+  <div class="wrap">
+    <div class="eyebrow">White-glove onboarding</div>
+    <h2 id="steps-h" style="max-width:22ch">Live on your own number in days. We do the setup.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h3>Send us your project sheet</h3><p>Price list, brochure, floor plans, RERA and FAQs — the same pack you give a new sales executive.</p></div>
+      <div class="step"><div class="n">02</div><h3>We train and test it</h3><p>We load every project, then test it with you on WhatsApp until every answer sounds like your best salesperson.</p></div>
+      <div class="step"><div class="n">03</div><h3>Go live on your number</h3><p>Connected on the official WhatsApp Business API. Your team gets alerts and the dashboard from day one.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMISES -->
+<section aria-labelledby="prom-h">
+  <div class="wrap">
+    <div class="promise">
+      <div>
+        <div class="eyebrow">Built to protect your brand</div>
+        <h2 id="prom-h">It sells. It never over-promises.</h2>
+        <p class="lede" style="margin-top:14px">A wrong price on WhatsApp is a screenshot forever. These limits are built in.</p>
+      </div>
+      <ul>
+        <li><b>Only your numbers</b><span>Prices, offers and dates come from your sheet. If it isn't there, your team follows up.</span></li>
+        <li><b>No promised discounts</b><span>Negotiation goes to your sales team, never to the bot.</span></li>
+        <li><b>Official WhatsApp API</b><span>Meta's Cloud API — no unofficial tools that get numbers banned.</span></li>
+        <li><b>Opt-out respected</b><span>STOP unsubscribes instantly. No spam from your number.</span></li>
+        <li><b>Your buyers stay yours</b><span>Leads and chats live in your dashboard. We never contact them.</span></li>
+        <li><b>A registered company</b><span>NeverMiss is a Udyam-registered MSME in Pune. You know who to call.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" aria-labelledby="pricing-h" style="padding-top:24px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Pricing</div>
+      <h2 id="pricing-h">Less than one site visit's worth of ad spend.</h2>
+      <p class="lede">Monthly, cancel anytime. Setup and onboarding included. Prices exclude GST.</p>
+    </div>
+    <div class="tiers">
+      <div class="tier">
+        <h3>Broker</h3><p class="for">For brokers and channel partners with a few listings</p>
+        <div class="pr">₹2,999<span> / month</span></div>
+        <ul><li>AI replies from your listings</li><li>Lead qualification &amp; scoring</li><li>Hot-lead alerts on WhatsApp</li><li>1,000 AI-replied messages a month</li></ul>
+        <a class="btn btn-line" target="_blank" rel="noopener" href="https://wa.me/917004020840?text=Hi%2C%20I%27d%20like%20the%20NeverMiss%20Realty%20Broker%20plan.">Talk to us</a>
+      </div>
+      <div class="tier pop">
+        <h3>Developer</h3><p class="for">For a builder selling one or two live projects</p>
+        <div class="pr">₹4,999<span> / month</span></div>
+        <ul><li>Everything in Broker</li><li>Brochures, floor plans &amp; cost sheets in chat</li><li>Site-visit booking &amp; confirmations</li><li>Human takeover from the dashboard</li><li>2,500 AI-replied messages a month</li></ul>
+        <a class="btn btn-main" target="_blank" rel="noopener" href="https://wa.me/917004020840?text=Hi%2C%20I%27d%20like%20the%20NeverMiss%20Realty%20Developer%20plan.">Talk to us</a>
+      </div>
+      <div class="tier">
+        <h3>Enterprise</h3><p class="for">For developers with multiple launches and sales teams</p>
+        <div class="pr">₹7,999<span> / month</span></div>
+        <ul><li>Everything in Developer</li><li>Multiple projects and launches</li><li>6,000 AI-replied messages a month</li><li>Priority support &amp; a monthly review call</li></ul>
+        <a class="btn btn-line" target="_blank" rel="noopener" href="https://wa.me/917004020840?text=Hi%2C%20I%27d%20like%20the%20NeverMiss%20Realty%20Enterprise%20plan.">Talk to us</a>
+      </div>
+    </div>
+    <div class="founder-box">
+      <div><b>Founding partner programme — Pune</b><p>Our first builders get the Developer plan with onboarding done personally by the founder, in return for honest feedback and a case study.</p></div>
+      <a href="#contact" class="btn btn-main">Apply as a founding partner</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section aria-labelledby="faq-h" style="padding-top:24px">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="faq-h">Questions builders ask us</h2></div>
+    <div class="faq">
+      <details><summary>Will it quote a wrong price?</summary><p>It only quotes what's in your project sheet in the dashboard. Change a price there and the next reply uses it. If a buyer asks something you haven't added, it says your team will share the exact details.</p></details>
+      <details><summary>Can it work on our existing sales number?</summary><p>Yes. We connect your number on the official WhatsApp Business API. Your team keeps seeing every chat in the dashboard and can take over any conversation.</p></details>
+      <details><summary>We get leads from 99acres, MagicBricks and Meta ads. Does it handle those?</summary><p>Any buyer who messages your WhatsApp number — from a portal, a click-to-WhatsApp ad, a hoarding or your website — is answered and qualified the same way.</p></details>
+      <details><summary>Will it negotiate or promise discounts?</summary><p>No. It mentions only the offers you've added. Price negotiation is always handed to your sales team.</p></details>
+      <details><summary>Can our channel partners use it?</summary><p>Brokers and channel partners can have their own account with their own listings and leads. Ask us about partner setups.</p></details>
+      <details><summary>Where is buyer data stored?</summary><p>In your private dashboard, behind your own login. We never message your buyers for anyone else. Read our <a href="/privacy-policy.html">privacy policy</a>.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" aria-labelledby="contact-h">
+  <div class="wrap contact-grid">
+    <div>
+      <div class="eyebrow">Private demo</div>
+      <h2 id="contact-h">See it answer buyers for your own project.</h2>
+      <p class="lede" style="margin-top:14px">Share one project and we'll show you the assistant answering with your real prices and floor plans — on WhatsApp, before you commit to anything.</p>
+      <div class="contact-alt">
+        <a href="https://wa.me/917004020840?text=Hi%2C%20I%27d%20like%20a%20demo%20of%20NeverMiss%20Realty%20for%20my%20project" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg>Prefer to message? WhatsApp us</a>
+        <a href="mailto:support@nevermiss.co.in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>support@nevermiss.co.in</a>
+      </div>
+    </div>
+    <form class="form" id="demo-form" novalidate>
+      <p id="plan-note" hidden>You were looking at the <strong></strong> plan. We'll cover it on the call.</p>
+      <div class="form-group"><label for="f-name">Your name</label><input id="f-name" autocomplete="name" placeholder="e.g. Rahul Deshmukh"></div>
+      <div class="form-group"><label for="f-business">Company / project name</label><input id="f-business" autocomplete="organization" placeholder="e.g. Keystone Developers, Baner"></div>
+      <div class="form-group"><label for="f-type">You are a</label><select id="f-type"></select></div>
+      <div class="form-group"><label for="f-phone">WhatsApp number</label><input id="f-phone" type="tel" autocomplete="tel" placeholder="e.g. 9876543210"></div>
+      <div class="form-error" id="form-error" role="alert"></div>
+      <button type="submit" class="form-submit" id="demo-btn">Book my private demo</button>
+      <p class="form-note">No payment. We'll call you the same day.</p>
+    </form>
+  </div>
+</section>
+
+<div class="login-strip">Already a NeverMiss Realty customer? <a href="https://nevermiss-realty-268327939ce4.herokuapp.com/login.html">Log in to your builder dashboard →</a></div>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="/" class="logo"><img src="/nevermiss-logo.svg" alt="" width="30" height="30"><span class="wm">Never<span>Miss</span></span></a>
+        <p>An AI front desk on WhatsApp for local businesses in India. Built in Pune.</p>
+      </div>
+      <div><h4>Who it's for</h4><ul><li><a href="/coaching.html">Coaching institutes</a></li><li><a href="/salons.html">Salons &amp; beauty</a></li><li><a href="/fitness.html">Gyms &amp; studios</a></li><li><a href="/clinics.html">Clinics &amp; labs</a></li><li><a href="/realty.html">Real estate</a></li><li><a href="/custom.html">Something else</a></li></ul></div>
+      <div><h4>Product</h4><ul><li><a href="#pricing">Pricing</a></li><li><a href="/bulk-messaging.html">Bulk messaging</a></li><li><a href="/partners.html">Partner program</a></li><li><a href="https://nevermiss-realty-268327939ce4.herokuapp.com/login.html">Builder log in</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="https://wa.me/917004020840" target="_blank" rel="noopener">WhatsApp support</a></li><li><a href="mailto:support@nevermiss.co.in">support@nevermiss.co.in</a></li><li><a href="/privacy-policy.html">Privacy</a></li><li><a href="/terms-of-service.html">Terms</a></li></ul></div>
+    </div>
+    <div class="foot-base"><span>© 2026 NeverMiss · Pune, Maharashtra</span><span>Udyam-registered MSME · UDYAM-MH-26-1179509</span></div>
+  </div>
+</footer>
+
+<script>window.NM_PAGE = { sector: "realty", defaultType: "realestate" };</script>
+<script>
+/* Live demo: talks to the NeverMiss Realty backend. Stateless — the last few
+   messages are sent each time, nothing is stored. */
+(function () {
+  "use strict";
+  var API = "https://nevermiss-realty-268327939ce4.herokuapp.com/api/public-demo";
+  var body = document.getElementById("lv-body"), form = document.getElementById("lv-form"),
+      input = document.getElementById("lv-text"), status = document.getElementById("lv-status");
+  var history = [{ role: "bot", text: body.querySelector(".m").textContent }];
+  var busy = false, warmed = false;
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function fmt(t) { return esc(t).replace(/\*([^*\n]+)\*/g, "<b>$1</b>").replace(/_([^_\n]+)_/g, "<i>$1</i>").replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+  function time() { return new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" }); }
+  function add(role, text) {
+    var d = document.createElement("div");
+    d.className = "m " + (role === "user" ? "u" : "b");
+    d.innerHTML = fmt(text) + '<span class="t">' + time() + "</span>";
+    body.appendChild(d); body.scrollTop = body.scrollHeight;
+  }
+  function typing(on) {
+    var t = document.getElementById("lv-typing");
+    if (on && !t) { t = document.createElement("div"); t.id = "lv-typing"; t.className = "typing"; t.innerHTML = "<i></i><i></i><i></i>"; body.appendChild(t); body.scrollTop = body.scrollHeight; }
+    if (!on && t) t.remove();
+    status.textContent = on ? "typing…" : "online";
+  }
+  function warm() { if (warmed) return; warmed = true; try { fetch(API.replace("/api/public-demo", "/health")).catch(function () {}); } catch (e) {} }
+  function send(text) {
+    text = (text || "").trim();
+    if (!text || busy) return;
+    busy = true; add("user", text); history.push({ role: "user", text: text });
+    if (window.nmTrack) try { nmTrack.event("cta_click", "realty-demo"); } catch (e) {}
+    typing(true);
+    fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: history.slice(-10) }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { var reply = d.reply || "Sorry, could you say that again?"; typing(false); add("bot", reply); history.push({ role: "bot", text: reply }); })
+      .catch(function () { typing(false); add("bot", "I'm waking up — please send that again in a few seconds. 🙂"); })
+      .then(function () { busy = false; input.focus(); });
+  }
+  form.addEventListener("submit", function (e) { e.preventDefault(); var v = input.value; input.value = ""; send(v); });
+  input.addEventListener("focus", warm);
+  document.getElementById("lv-chips").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) { warm(); send(b.textContent); } });
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (es, o) { es.forEach(function (x) { if (x.isIntersecting) { warm(); o.disconnect(); } }); }, { rootMargin: "300px" }).observe(document.getElementById("demo"));
+  }
+})();
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+<script src="/nm-site.js" defer></script>
+<script src="/nm-help.js" defer></script>
+</body>
+</html>

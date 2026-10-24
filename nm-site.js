@@ -29,13 +29,16 @@
     ["driving", "Driving school"],
     ["study_abroad", "Study abroad / visa consultant"],
     ["interior", "Interior designer"],
+    ["realestate", "Real estate developer / builder"],
+    ["realestate_broker", "Real estate broker / channel partner"],
     ["other", "Something else"]
   ];
   var GROUPS = {
     coaching: ["coaching"],
     salons: ["salon", "makeup"],
     fitness: ["gym", "yoga", "dance", "music", "art", "sports"],
-    clinics: ["dental", "skin_clinic", "physio", "clinic", "diagnostic", "pet"]
+    clinics: ["dental", "skin_clinic", "physio", "clinic", "diagnostic", "pet"],
+    realty: ["realestate", "realestate_broker"]
   };
 
   function $(s, r) { return (r || document).querySelector(s); }
