@@ -157,7 +157,7 @@
   var CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
   var TITLE = { starter: "Starter", growth: "Growth", pro: "Pro", founding: "Founding" };
   var HEAD = {
-    trial: ["Start your 7-day free trial", "No card needed. You get everything in Growth, plus 10 reminders and 10 announcements to try. We'll email you a login link."],
+    trial: ["Start your 7-day free trial", "₹0 today. Everything in Growth, plus 10 reminders and 10 announcements to try. Set up auto-pay once with UPI or a card; your plan starts after the trial unless you cancel."],
     founding: ["Claim a founding spot", "₹1,999 a month for everything in Growth, locked for 12 months."],
     starter: ["Get Starter", ""], growth: ["Get Growth", ""], pro: ["Get Pro", ""]
   };
@@ -185,7 +185,22 @@
     '<div id="co-done" hidden></div></div>';
   document.body.appendChild(modal);
 
-  function payLabel() { return PLAN === "trial" ? "Start free trial" : "Pay and activate"; }
+  function payLabel() { return PLAN === "trial" ? "Start free trial · ₹0 today" : "Pay and activate"; }
+  /* Monthly Starter/Growth/Pro/Founding without a coupon go through auto-pay
+     (Razorpay Subscriptions); 6/12 months and coupons keep one-time checkout. */
+  var AUTOPAY_PLANS = { starter: 1, growth: 1, pro: 1, founding: 1 };
+  function useAutopay(coupon) { return PLAN === "trial" || (AUTOPAY_PLANS[PLAN] && CYCLE === "monthly" && !coupon); }
+  var quoteSeq = 0;
+  function showTrialQuote() {
+    var type = $("#co-type").value || PAGE.defaultType || "", seq = ++quoteSeq, el = $("#co-price");
+    el.style.display = "";
+    el.innerHTML = "₹0<span> today</span>";
+    fetch(API + "/api/autopay-quote?business_type=" + encodeURIComponent(type)).then(function (r) { return r.json(); }).then(function (q) {
+      if (seq !== quoteSeq || !q.amount_rs) return;
+      el.innerHTML = "₹0<span> today</span><small style=\"display:block;font-size:.9rem;font-weight:500;margin-top:6px;opacity:.8\">Then ₹" +
+        q.amount_rs.toLocaleString("en-IN") + "/month (" + esc(q.plan_label) + ") from " + esc(q.first_charge_date) + ". Cancel any time before.</small>";
+    }).catch(function () {});
+  }
   function updatePrice() {
     var type = $("#co-type").value || PAGE.defaultType || "";
     if (!type && PLAN !== "founding") { $("#co-price").innerHTML = '<span>Choose your type of business to see the price</span>'; return; }
@@ -198,15 +213,15 @@
     var h = HEAD[PLAN] || HEAD.pro, trial = PLAN === "trial", monthlyOnly = trial || PLAN === "founding";
     $("#co-title").textContent = h[0]; $("#co-sub").textContent = h[1];
     $("#co-cycle").style.display = monthlyOnly ? "none" : "";
-    $("#co-price").style.display = trial ? "none" : "";
+    $("#co-price").style.display = "";
     $("#co-coupon-toggle").style.display = monthlyOnly ? "none" : "";
     $("#co-coupon-row").hidden = true; $("#co-coupon").value = "";
     $("#co-type").innerHTML = typeOptions(PAGE.defaultType || "");
     $("#co-note").textContent = trial
-      ? "One trial per business. When it ends, pick a plan to keep your bot replying."
+      ? "One trial per business. We'll remind you on WhatsApp 2 days before the first charge, and you can cancel in your dashboard in one tap."
       : "You'll get an email right after payment with a link to set your dashboard password. Then connect WhatsApp and you're live.";
     modal.querySelectorAll(".cycle button").forEach(function (b) { b.classList.toggle("on", b.dataset.c === "monthly"); });
-    if (!trial) updatePrice();
+    if (!trial) updatePrice(); else showTrialQuote();
     $("#co-error").style.display = "none";
     $("#co-view").hidden = false; $("#co-done").hidden = true;
     var pay = $("#co-pay"); pay.disabled = false; pay.textContent = payLabel();
@@ -220,7 +235,7 @@
   modal.querySelectorAll(".cycle button").forEach(function (b) {
     b.addEventListener("click", function () { CYCLE = b.dataset.c; modal.querySelectorAll(".cycle button").forEach(function (x) { x.classList.toggle("on", x === b); }); updatePrice(); });
   });
-  $("#co-type").addEventListener("change", function () { if (PLAN !== "trial") updatePrice(); });
+  $("#co-type").addEventListener("change", function () { if (PLAN !== "trial") updatePrice(); else showTrialQuote(); });
   $("#co-coupon-toggle").addEventListener("click", function () { var r = $("#co-coupon-row"); r.hidden = !r.hidden; });
   $("#co-pay").addEventListener("click", startPayment);
   document.querySelectorAll("[data-checkout]").forEach(function (el) {
@@ -244,15 +259,40 @@
     var pay = $("#co-pay"); pay.disabled = true;
     if (window.nmTrack) nmTrack.identify({ name: name, phone: digits, email: email, business: business, form: PLAN === "trial" ? "trial-" + PAGE.sector : "checkout-" + PLAN });
 
-    if (PLAN === "trial") {
-      pay.textContent = "Starting your trial…";
-      fetch(API + "/api/start-trial", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name, business: business, phone: digits, email: email, business_type: btype }) })
+    if (useAutopay(coupon)) {
+      pay.textContent = PLAN === "trial" ? "Starting your trial…" : "Preparing checkout…";
+      fetch(API + "/api/create-subscription", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trial: PLAN === "trial", plan: PLAN, name: name, business: business, phone: digits, email: email, business_type: btype }) })
         .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (d.success) return done(name, email, true);
-          coError(d.error || "Couldn't start the trial. Try again or message us on WhatsApp.");
+        .then(function (sub) {
           pay.disabled = false; pay.textContent = payLabel();
+          if (!sub.subscription_id) return coError(sub.error || "Couldn't start checkout. Try again or message us on WhatsApp.");
+          if (!window.Razorpay) return coError("Payment window didn't load. Refresh the page and try again.");
+          var desc = sub.trial
+            ? sub.trial_days + "-day free trial, then ₹" + sub.amount_rs.toLocaleString("en-IN") + "/month from " + sub.first_charge_date
+            : sub.plan_label + " · ₹" + sub.amount_rs.toLocaleString("en-IN") + "/month, auto-pay";
+          var rzp = new Razorpay({
+            key: sub.key_id, subscription_id: sub.subscription_id, name: "NeverMiss", description: desc,
+            prefill: { name: name, contact: digits, email: email }, theme: { color: "#0F766E" },
+            handler: function (resp) {
+              pay.disabled = true; pay.textContent = "Confirming…";
+              fetch(API + "/api/verify-subscription", { method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ razorpay_payment_id: resp.razorpay_payment_id, razorpay_subscription_id: resp.razorpay_subscription_id,
+                                       razorpay_signature: resp.razorpay_signature }) })
+                .then(function (r) { return r.json(); })
+                .then(function (v) {
+                  if (v.success) return done(name, email, sub.trial, sub);
+                  coError("Auto-pay is set up but confirming it failed. Message us on WhatsApp with ID " + resp.razorpay_subscription_id + ".");
+                  pay.disabled = false; pay.textContent = payLabel();
+                }).catch(function () {
+                  coError("Auto-pay is set up but confirming it failed. Message us on WhatsApp with ID " + resp.razorpay_subscription_id + ".");
+                  pay.disabled = false; pay.textContent = payLabel();
+                });
+            },
+            modal: { ondismiss: function () { pay.disabled = false; pay.textContent = payLabel(); } }
+          });
+          rzp.on("payment.failed", function (r) { coError("Auto-pay setup failed: " + ((r.error && r.error.description) || "please try again.")); });
+          rzp.open();
         }).catch(function () { coError("Connection error. Try again, or message us on WhatsApp."); pay.disabled = false; pay.textContent = payLabel(); });
       return;
     }
@@ -290,12 +330,16 @@
         rzp.open();
       }).catch(function () { coError("Connection error. Try again, or message us on WhatsApp."); pay.disabled = false; pay.textContent = payLabel(); });
   }
-  function done(name, email, trial) {
+  function done(name, email, trial, sub) {
     $("#co-view").hidden = true;
     var d = $("#co-done"); d.hidden = false;
     d.innerHTML = '<div class="form-done" role="status"><h3>You\'re in, ' + esc(name) + '.</h3>' +
       '<p>Check <strong>' + esc(email) + '</strong> for a link to set your dashboard password. Set it, log in, and connect your WhatsApp number to go live.' +
-      (trial ? " Your 7 days start now." : "") + '</p>' +
+      (trial ? " Your " + ((sub && sub.trial_days) || 7) + " free days start now." : "") + '</p>' +
+      (sub ? '<p class="fine">' + (trial
+        ? "Auto-pay is set up: ₹" + sub.amount_rs.toLocaleString("en-IN") + "/month (" + esc(sub.plan_label) + ") starts on " + esc(sub.first_charge_date) +
+          ". We'll remind you 2 days before. Cancel any time in Plan &amp; Billing."
+        : "Auto-pay is on: ₹" + sub.amount_rs.toLocaleString("en-IN") + " every month. Cancel any time in Plan &amp; Billing.") + '</p>' : "") +
       '<p class="fine">Not there in a few minutes? Check spam, or <a href="https://wa.me/' + WA + '" target="_blank" rel="noopener">message us on WhatsApp</a>.</p></div>';
   }
 
