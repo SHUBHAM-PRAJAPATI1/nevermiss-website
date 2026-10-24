@@ -1200,11 +1200,12 @@ function planLineHTML(){
       ". Includes everything in Growth, plus 10 utility and 10 marketing broadcasts.";
   }
   if (key === "partner") {
-    if (!CLIENT.partner_live_at) return "<strong>Pilot Partner</strong> · your 60 free days start when your bot answers its first customer." +
+    if (!CLIENT.partner_live_at) return "<strong>Pilot Partner</strong> · your 30 free days start when your bot answers its first customer." +
       " Includes everything in Growth: 2,000 AI replies a month plus your broadcast allowance.";
     const days = exp ? Math.ceil((new Date(exp) - new Date()) / 86400000) : null;
     if (days !== null && days <= 0) return "<strong>Pilot Partner trial ended</strong> · pick your partner price below to keep your bot replying.";
-    return "<strong>Pilot Partner</strong>" + (days !== null ? " · day " + Math.max(1, 60 - days + 1) + " of 60, " + days + (days === 1 ? " day" : " days") + " left (ends " + esc(fmtDate(exp)) + ")" : "") +
+    const total = Math.max(1, Math.round((new Date(exp) - new Date(CLIENT.partner_live_at)) / 86400000));
+    return "<strong>Pilot Partner</strong>" + (days !== null ? " · day " + Math.max(1, total - days + 1) + " of " + total + ", " + days + (days === 1 ? " day" : " days") + " left (ends " + esc(fmtDate(exp)) + ")" : "") +
       ". Your partner price is below; pay early and the paid period starts after your free days.";
   }
   let line = "<strong>" + esc(PLAN_LABEL[key] || "Starter") + "</strong> plan" + (exp ? " · paid through " + esc(fmtDate(exp)) : "");
@@ -3039,6 +3040,12 @@ async function loadAutopay(){
   try {
     const r = await fetch(API_BASE + "/api/autopay-status", { headers: await authHeaders() });
     const d = await r.json();
+    if (d.success && d.is_partner && (!d.has_autopay || d.link)) {
+      box.innerHTML = "🔁 <strong>Keep your bot after the pilot.</strong> Set up auto-pay once at your partner price; nothing is charged before your free pilot ends. " +
+        (d.link ? "<a class='btn sm' style='margin-left:.4rem;text-decoration:none' href='" + esc(d.link) + "' target='_blank' rel='noopener'>Set up auto-pay</a>"
+                : "<button class='btn sm' style='margin-left:.4rem' onclick='partnerAutopay(this)'>Set up auto-pay</button>");
+      box.style.display = "block"; return;
+    }
     if (!d.success || !d.has_autopay) { box.style.display = "none"; return; }
     const amt = d.amount_rs ? "₹" + Number(d.amount_rs).toLocaleString("en-IN") : "";
     const label = esc(d.plan_label || "your plan");
@@ -3059,6 +3066,18 @@ async function loadAutopay(){
     box.innerHTML = html;
     box.style.display = "block";
   } catch (e) { box.style.display = "none"; }
+}
+
+async function partnerAutopay(btn){
+  btn.disabled = true; btn.textContent = "Opening…";
+  try {
+    const r = await fetch(API_BASE + "/api/partner-autopay-link", { method: "POST", headers: await authHeaders() });
+    const d = await r.json();
+    if (d.url) { window.open(d.url, "_blank"); }
+    else if (!d.already) alert(d.error || "Couldn't open auto-pay. Please message us on WhatsApp.");
+  } catch (e) { alert("Connection error. Please try again."); }
+  btn.disabled = false; btn.textContent = "Set up auto-pay";
+  loadAutopay();
 }
 
 async function cancelAutopay(onTrial){

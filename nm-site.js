@@ -157,7 +157,7 @@
   var CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
   var TITLE = { starter: "Starter", growth: "Growth", pro: "Pro", founding: "Founding" };
   var HEAD = {
-    trial: ["Start your 7-day free trial", "₹0 today. Everything in Growth, plus 10 reminders and 10 announcements to try. Set up auto-pay once with UPI or a card; your plan starts after the trial unless you cancel."],
+    trial: ["Start your 14-day free trial", "₹0 today. Everything in Growth, plus 10 reminders and 10 announcements to try. Set up auto-pay once with UPI or a card; your plan starts after the trial unless you cancel."],
     founding: ["Claim a founding spot", "₹1,999 a month for everything in Growth, locked for 12 months."],
     starter: ["Get Starter", ""], growth: ["Get Growth", ""], pro: ["Get Pro", ""]
   };
