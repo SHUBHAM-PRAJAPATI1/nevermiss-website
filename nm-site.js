@@ -157,7 +157,7 @@
   var CYCLE_LABEL = { monthly: "/mo", half_yearly: "/6mo", yearly: "/yr" };
   var TITLE = { starter: "Starter", growth: "Growth", pro: "Pro", founding: "Founding" };
   var HEAD = {
-    trial: ["Start your 7-day free trial", "No card needed. You get everything in Growth, plus 10 reminders and 10 announcements to try. We'll email you a login link."],
+    trial: ["Start your 14-day free trial", "No card needed. You get everything in Growth, plus 10 reminders and 10 announcements to try. We'll email you a login link."],
     founding: ["Claim a founding spot", "₹1,999 a month for everything in Growth, locked for 12 months."],
     starter: ["Get Starter", ""], growth: ["Get Growth", ""], pro: ["Get Pro", ""]
   };
@@ -295,7 +295,7 @@
     var d = $("#co-done"); d.hidden = false;
     d.innerHTML = '<div class="form-done" role="status"><h3>You\'re in, ' + esc(name) + '.</h3>' +
       '<p>Check <strong>' + esc(email) + '</strong> for a link to set your dashboard password. Set it, log in, and connect your WhatsApp number to go live.' +
-      (trial ? " Your 7 days start now." : "") + '</p>' +
+      (trial ? " Your 14 days start now." : "") + '</p>' +
       '<p class="fine">Not there in a few minutes? Check spam, or <a href="https://wa.me/' + WA + '" target="_blank" rel="noopener">message us on WhatsApp</a>.</p></div>';
   }
 
